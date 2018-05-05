@@ -4,7 +4,7 @@ import jaci.openrio.gradle.frc.FRCJavaArtifact
 import jaci.openrio.gradle.frc.RoboRIO
 
 plugins {
-    id "org.jetbrains.kotlin.jvm" version "1.2.21"
+    id "org.jetbrains.kotlin.jvm" version "1.2.41"
     id "java"
     id "eclipse"
     id "idea"

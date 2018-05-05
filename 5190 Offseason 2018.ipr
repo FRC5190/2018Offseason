@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="5190_Offseason_2018_main" target="1.8" />
+      <module name="5190_Offseason_2018_test" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+          </set>
+        </option>
+        <option name="useAutoImport" value="true" />
+      </GradleProjectSettings>
+    </option>
+  </component>
+  <component name="InspectionProjectProfileManager">
+    <profile version="1.0">
+      <option name="myName" value="Project Default" />
+    </profile>
+    <version value="1.0" />
+  </component>
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/5190_Offseason_2018.iml" filepath="$PROJECT_DIR$/5190_Offseason_2018.iml" />
+      <module fileurl="file://$PROJECT_DIR$/5190_Offseason_2018_main.iml" filepath="$PROJECT_DIR$/5190_Offseason_2018_main.iml" group="5190_Offseason_2018" />
+      <module fileurl="file://$PROJECT_DIR$/5190_Offseason_2018_test.iml" filepath="$PROJECT_DIR$/5190_Offseason_2018_test.iml" group="5190_Offseason_2018" />
+    </modules>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/classes" />
+  </component>
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+  </component>
+  <component name="libraryTable">
+    <library name="Gradle: com.github.salomonbrys.kotson:kotson:2.5.0">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.salomonbrys.kotson/kotson/2.5.0/40daf22108aa4436d46257e14cc48447cca542c3/kotson-2.5.0.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.salomonbrys.kotson/kotson/2.5.0/2487bf09e063b6070626fb866d0aba61652cd0ed/kotson-2.5.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: com.google.code.gson:gson:2.8.0">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.8.0/c4ba5371a29ac9b2ad6129b1d39ea38750043eff/gson-2.8.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.8.0/4791230388bf03457c7e235b69479b46a5931861/gson-2.8.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.8.0/baf95d8519fc1a11d388f8543cb40cd2bb9d66dc/gson-2.8.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: edu.wpi.first.cscore:cscore-java:1.3.0">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.cscore/cscore-java/1.3.0/af0c62cf7e9903d052e67008105e014357917e13/cscore-java-1.3.0.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.cscore/cscore-java/1.3.0/2f60952b33c41e708cbd3efec5402d29aab472ca/cscore-java-1.3.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: edu.wpi.first.ntcore:ntcore-java:4.1.0">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.ntcore/ntcore-java/4.1.0/52e7d8449aacb56e104020f10b39f33549177078/ntcore-java-4.1.0.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.ntcore/ntcore-java/4.1.0/af2f67e3ca637328b5d87a2ca66f3cc7eed0bb9/ntcore-java-4.1.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: edu.wpi.first.wpilibj:wpilibj-java:2018.4.1">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.wpilibj/wpilibj-java/2018.4.1/897367c0a37b2ec4dcb6aeb578be84f066c46f4a/wpilibj-java-2018.4.1.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.wpilibj/wpilibj-java/2018.4.1/b71b340c616d5c841deef19c9721044f57477788/wpilibj-java-2018.4.1-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: edu.wpi.first.wpiutil:wpiutil-java:3.2.0">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.wpiutil/wpiutil-java/3.2.0/40b6832a84296f9146b27584e22c8507dab874dd/wpiutil-java-3.2.0.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/edu.wpi.first.wpiutil/wpiutil-java/3.2.0/c2f13b5007365c2b972c3d37e6104e4213c70c53/wpiutil-java-3.2.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: jaci.pathfinder:Pathfinder-Java:1.8">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/jaci.pathfinder/Pathfinder-Java/1.8/c37dcf790766dd0c023cc00c57bb2e2e4e58f487/Pathfinder-Java-1.8.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/jaci.pathfinder/Pathfinder-Java/1.8/f99c341d8a52f2445060989aef1af8ab7bb458ed/Pathfinder-Java-1.8-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: openrio.mirror.third.ctre:CTRE-phoenix-java:5.2.2.0">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/openrio.mirror.third.ctre/CTRE-phoenix-java/5.2.2.0/469f4905ff49fe297be19c0c6724e27b444fbb5c/CTRE-phoenix-java-5.2.2.0.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/openrio.mirror.third.ctre/CTRE-phoenix-java/5.2.2.0/6ef53967acb57f11e0be1e3d825d8a013945bc27/CTRE-phoenix-java-5.2.2.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: openrio.mirror.third.kauailabs:navx-java:3.0.346">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/openrio.mirror.third.kauailabs/navx-java/3.0.346/b29a636918ae632c90be1b0e4161ac7bd0853731/navx-java-3.0.346.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/openrio.mirror.third.kauailabs/navx-java/3.0.346/bf97f8511e36c87629248aa073f92660a413547d/navx-java-3.0.346-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: openrio.powerup:MatchData:2018.01.07">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/openrio.powerup/MatchData/2018.01.07/30351a05ab4661f0ee307e782747fe4ba8bfe866/MatchData-2018.01.07.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/openrio.powerup/MatchData/2018.01.07/5621fbfada81352fb32981607a0ae4310163e9e9/MatchData-2018.01.07-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: org.apache.commons:commons-math3:3.6.1">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-math3/3.6.1/e4ba98f1d4b3c80ec46392f25e094a6a2e58fcbf/commons-math3-3.6.1.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-math3/3.6.1/8fab23986ea8886af34818daf32a718e81dc98ba/commons-math3-3.6.1-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.41">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.2.41/d0cfb3ef897c00449e5e696355db9506225fb507/kotlin-stdlib-jdk7-1.2.41.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.2.41/7fd88ed591a4faab7394f428ef613b85c132b0cd/kotlin-stdlib-jdk7-1.2.41-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.2.41">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.2.41/5e34ca185bbea7452d704ed3537a22314a809383/kotlin-stdlib-jdk8-1.2.41.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.2.41/c017e44d603d28abdc94e1debd11b6a83b5a5e89/kotlin-stdlib-jdk8-1.2.41-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.2.41">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.2.41/7e34f009642702250bccd9e5255866f408962a05/kotlin-stdlib-1.2.41.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.2.41/dc11619be6c45157a142d3753017544896da8e69/kotlin-stdlib-1.2.41-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: org.jetbrains:annotations:13.0">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/73368c3b0887f3adc2c2730dd1b95d7c3781aaf3/annotations-13.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/5991ca87ef1fb5544943d9abc5a9a37583fabe03/annotations-13.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: org.opencv:opencv-java:3.2.0">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.opencv/opencv-java/3.2.0/c65e242eaf6ff4b086d45b0254f4511b6a072a65/opencv-java-3.2.0.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.opencv/opencv-java/3.2.0/da5215ba2c023701a644802a1fcd93749061f90d/opencv-java-3.2.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+  </component>
+</project>
