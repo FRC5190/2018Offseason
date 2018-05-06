@@ -3,6 +3,7 @@ package frc.team5190.robot.util
 import com.ctre.phoenix.CANifier
 import edu.wpi.first.wpilibj.command.CommandGroup
 import java.awt.Color
+import java.security.MessageDigest
 
 fun CANifier.setLEDOutput(color: Color) = setLEDOutput(color.red, color.green, color.blue)
 
@@ -16,6 +17,14 @@ fun commandGroup(create: CommandGroup.() -> Unit): CommandGroup {
     val group = CommandGroup()
     create.invoke(group)
     return group
+}
+
+fun String.md5(): String {
+    val md = MessageDigest.getInstance("MD5")
+    val digested = md.digest(toByteArray())
+    return digested.joinToString("") {
+        String.format("%02x", it)
+    }
 }
 
 

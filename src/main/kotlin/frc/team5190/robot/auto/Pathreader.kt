@@ -2,6 +2,7 @@ package frc.team5190.robot.auto
 
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
+import frc.team5190.robot.util.md5
 import jaci.pathfinder.Pathfinder
 import jaci.pathfinder.Trajectory
 import jaci.pathfinder.Waypoint
@@ -33,18 +34,19 @@ object Pathreader {
 
     private fun getPathCollection(folder: String, file: String) = async {
         val json = File("/home/lvuser/paths/Raw XMLs/$folder/$file.json")
+        val jsonString = Gson().toJson(FileReader(json))
 
-        val leftFilePath = "/home/lvuser/paths/$folder/${json.nameWithoutExtension}-${json.hashCode()} Left Detailed.csv"
-        val rightFilePath = "/home/lvuser/paths/$folder/${json.nameWithoutExtension}-${json.hashCode()} Right Detailed.csv"
-        val sourceFilePath = "/home/lvuser/paths/$folder/${json.nameWithoutExtension}-${json.hashCode()} Source Detailed.csv"
+        val leftFilePath = "/home/lvuser/paths/$folder/${json.nameWithoutExtension}-${jsonString.md5()} Left Detailed.csv"
+        val rightFilePath = "/home/lvuser/paths/$folder/${json.nameWithoutExtension}-${jsonString.md5()} Right Detailed.csv"
+        val sourceFilePath = "/home/lvuser/paths/$folder/${json.nameWithoutExtension}-${jsonString.md5()} Source Detailed.csv"
 
         val leftFile = File(leftFilePath)
         val rightFile = File(rightFilePath)
         val sourceFile = File(sourceFilePath)
 
-        var leftTrajectory = Pathfinder.readFromCSV(leftFile)
-        var rightTrajectory = Pathfinder.readFromCSV(rightFile)
-        var sourceTrajectory = Pathfinder.readFromCSV(sourceFile)
+        val leftTrajectory: Trajectory
+        val rightTrajectory: Trajectory
+        val sourceTrajectory: Trajectory
 
         if (!leftFile.isFile || !rightFile.isFile || !sourceFile.isFile) {
             val generationInfo = Gson().fromJson<PathGeneratorInfo>(FileReader(json))
@@ -66,6 +68,10 @@ object Pathreader {
             Pathfinder.writeToCSV(leftFile, leftTrajectory)
             Pathfinder.writeToCSV(rightFile, rightTrajectory)
 
+        } else {
+            leftTrajectory = Pathfinder.readFromCSV(leftFile)
+            rightTrajectory = Pathfinder.readFromCSV(rightFile)
+            sourceTrajectory = Pathfinder.readFromCSV(sourceFile)
         }
         return@async arrayListOf(leftTrajectory, rightTrajectory, sourceTrajectory)
     }
