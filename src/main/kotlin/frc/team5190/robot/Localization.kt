@@ -10,7 +10,7 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 object Localization {
     private val loopSync = Object()
 
-    var robotPosition = Vector2D.ZERO
+    var robotPosition: Vector2D = Vector2D.ZERO
         private set
 
     private var leftEncoderLastPosition = 0
