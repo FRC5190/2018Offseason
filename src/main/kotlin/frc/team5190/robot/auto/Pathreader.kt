@@ -52,9 +52,7 @@ object Pathreader {
             val generationInfo = Gson().fromJson<PathGeneratorInfo>(FileReader(json))
             val config = Trajectory.Config(generationInfo.fitMethod, generationInfo.sampleRate, generationInfo.dt, generationInfo.vmax, generationInfo.amax, generationInfo.jmax)
 
-            val waypoints = generationInfo.waypoints.map {
-                Waypoint(it.first, it.second, it.third)
-            }.toTypedArray()
+            val waypoints = generationInfo.waypoints.toTypedArray()
 
             val trajectory = Pathfinder.generate(waypoints, config)
             val modifier = TankModifier(trajectory)
@@ -82,4 +80,4 @@ object Pathreader {
     }
 }
 
-data class PathGeneratorInfo(val dt: Double, val vmax: Double, val amax: Double, val jmax: Double, val wheelbasewidth: Double, val waypoints: ArrayList<Triple<Double, Double, Double>>, val fitMethod: Trajectory.FitMethod, val sampleRate: Int)
+data class PathGeneratorInfo(val dt: Double, val vmax: Double, val amax: Double, val jmax: Double, val wheelbasewidth: Double, val waypoints: ArrayList<Waypoint>, val fitMethod: Trajectory.FitMethod, val sampleRate: Int)
