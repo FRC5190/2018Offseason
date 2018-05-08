@@ -126,7 +126,7 @@ class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
             field = value
         }
 
-    var peakOutputDuration = 0
+    var peakCurrentLimitDuration = 0
         set(value) {
             configPeakCurrentDuration(value, timeoutMs)
             field = value
@@ -141,6 +141,18 @@ class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
     var currentLimitingEnabled = false
         set(value) {
             enableCurrentLimit(value)
+            field = value
+        }
+
+    var voltageCompensationSaturation = 12.0
+        set(value) {
+            configVoltageCompSaturation(value, timeoutMs)
+            field = value
+        }
+
+    var voltageCompensationEnabled = false
+        set(value) {
+            enableVoltageCompensation(value)
             field = value
         }
 

@@ -56,15 +56,17 @@ class FollowPathCommand(folder: String, file: String,
                 rightTrajectory = trajectories[1],
                 sourceTrajectory = trajectories[2],
                 reversed = robotReversed).apply {
-            kP = 1.7
-            kD = 0.0
-            kV = 1.0 / 15.0
-            kA = 0.0
 
-            kPturn = 1.0 / 80.0
+            p = 1.7
+            d = 0.0
+            v = 1.0 / 15.0
+            vIntercept = 0.05
+            a = 0.0
+
+            pTurn = 1.0 / 80.0
         }
 
-        notifier = Notifier({
+        notifier = Notifier {
             synchronized(synchronousNotifier) {
                 if (stopNotifier) {
                     return@Notifier
@@ -80,7 +82,7 @@ class FollowPathCommand(folder: String, file: String,
 
                 DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = output.first, rightOutput = output.second)
             }
-        })
+        }
     }
 
     override fun initialize() {

@@ -13,13 +13,14 @@ import kotlin.math.tan
 class PathFollower(val leftTrajectory: Trajectory, val rightTrajectory: Trajectory, val sourceTrajectory: Trajectory, val reversed: Boolean) {
 
     // PDVA Constants for path following
-    var kP = 0.0
-    var kD = 0.0
-    var kV = 0.0
-    var kA = 0.0
+    var p = 0.0
+    var d = 0.0
+    var v = 0.0
+    var vIntercept = 0.0
+    var a = 0.0
 
     // P constant for turning
-    var kPturn = 0.0
+    var pTurn = 0.0
 
     // Track current state of path following
     var isFinished = false
@@ -53,13 +54,12 @@ class PathFollower(val leftTrajectory: Trajectory, val rightTrajectory: Trajecto
             return 0.0 to 0.0
         }
 
-
         // Left side velocity calculations
         val leftSegment = leftTrajectory.segments[segmentIndexEstimation]
         val leftVelocityError = leftSegment.velocity - encoderVelocities.first
 
-        val leftFeedForward = kV * leftSegment.velocity + kA * leftSegment.acceleration
-        val leftFeedback = kP * leftVelocityError + kD * ((leftVelocityError - leftVelocityLastError) / leftSegment.dt)
+        val leftFeedForward = v * leftSegment.velocity + a * leftSegment.acceleration + vIntercept
+        val leftFeedback = p * leftVelocityError + d * ((leftVelocityError - leftVelocityLastError) / leftSegment.dt)
 
         var leftOutput = leftFeedForward + leftFeedback
         if (reversed) leftOutput *= -1
@@ -70,8 +70,8 @@ class PathFollower(val leftTrajectory: Trajectory, val rightTrajectory: Trajecto
         val rightSegment = rightTrajectory.segments[segmentIndexEstimation]
         val rightVelocityError = rightSegment.position - encoderVelocities.second
 
-        val rightFeedForward = kV * rightSegment.velocity + kA * rightSegment.acceleration
-        val rightFeedback = kP * rightVelocityError + kD * ((rightVelocityError - rightVelocityLastError) / rightSegment.dt)
+        val rightFeedForward = v * rightSegment.velocity + a * rightSegment.acceleration + vIntercept
+        val rightFeedback = p * rightVelocityError + d * ((rightVelocityError - rightVelocityLastError) / rightSegment.dt)
 
         var rightOutput = rightFeedForward + rightFeedback
         if (reversed) rightOutput *= -1
@@ -95,7 +95,7 @@ class PathFollower(val leftTrajectory: Trajectory, val rightTrajectory: Trajecto
 
         // Turn output is directly proportional to angle delta and lookahead distance
         val theta = Pathfinder.boundHalfDegrees(Math.toDegrees(atan2(positionDelta.y, positionDelta.x)) - robotAngle)
-        val turnOutput = kPturn * theta * actualLookaheadDistance
+        val turnOutput = pTurn * theta * actualLookaheadDistance
 
         segmentIndexEstimation++
 
