@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.command.Subsystem
 import frc.team5190.lib.wrappers.FalconSRX
 import frc.team5190.robot.Constants
 
-object DriveSubsystem : Subsystem() {
+object Drive : Subsystem() {
 
     private val frontLeft = FalconSRX(Constants.MotorIDs.FRONT_LEFT)
     private val frontRight = FalconSRX(Constants.MotorIDs.FRONT_RIGHT)
@@ -21,10 +21,10 @@ object DriveSubsystem : Subsystem() {
 
     private val allMotors = arrayOf(*leftMotors, *rightMotors)
 
-    val leftEncoderPosition
+    val leftPosition
         get() = frontLeft.sensorPosition
 
-    val rightEncoderPosition
+    val rightPosition
         get() = frontRight.sensorPosition
 
     val leftVelocity
@@ -72,7 +72,7 @@ object DriveSubsystem : Subsystem() {
     }
 
     override fun initDefaultCommand() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        defaultCommand = DriveCommand()
     }
 
 }

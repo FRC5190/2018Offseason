@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.control.PathFollower
 import frc.team5190.robot.Localization
-import frc.team5190.robot.drive.DriveSubsystem
+import frc.team5190.robot.drive.Drive
 import frc.team5190.robot.sensors.Pigeon
 import frc.team5190.robot.util.Maths
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
@@ -25,7 +25,7 @@ class FollowPathCommand(folder: String, file: String,
     private val pathFollower: PathFollower
 
     init {
-        requires(DriveSubsystem)
+        requires(Drive)
 
         trajectories.forEach { trajectory ->
             if (pathReversed) {
@@ -72,15 +72,15 @@ class FollowPathCommand(folder: String, file: String,
                     return@Notifier
                 }
 
-                val leftVelocity = Maths.nativeUnitsPer100MsToFeetPerSecond(DriveSubsystem.leftVelocity)
-                val rightVelocity = Maths.nativeUnitsPer100MsToFeetPerSecond(DriveSubsystem.rightVelocity)
+                val leftVelocity = Maths.nativeUnitsPer100MsToFeetPerSecond(Drive.leftVelocity)
+                val rightVelocity = Maths.nativeUnitsPer100MsToFeetPerSecond(Drive.rightVelocity)
 
                 val output = pathFollower.getMotorOutput(
                         robotPosition = Localization.robotPosition,
                         robotAngle = Pigeon.correctedAngle,
                         rawEncoderVelocities = leftVelocity to rightVelocity)
 
-                DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = output.first, rightOutput = output.second)
+                Drive.set(controlMode = ControlMode.PercentOutput, leftOutput = output.first, rightOutput = output.second)
             }
         }
     }
@@ -90,7 +90,7 @@ class FollowPathCommand(folder: String, file: String,
             Localization.reset(startingPosition = Vector2D(trajectories[2].segments[0].x, trajectories[2].segments[0].y))
         }
 
-        DriveSubsystem.resetEncoders()
+        Drive.resetEncoders()
         notifier.startPeriodic(0.02)
     }
 
@@ -98,7 +98,7 @@ class FollowPathCommand(folder: String, file: String,
         synchronized(synchronousNotifier) {
             stopNotifier = true
             notifier.stop()
-            DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = 0.0, rightOutput = 0.0)
+            Drive.set(controlMode = ControlMode.PercentOutput, leftOutput = 0.0, rightOutput = 0.0)
         }
     }
 

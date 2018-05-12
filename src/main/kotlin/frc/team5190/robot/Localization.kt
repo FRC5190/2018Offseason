@@ -1,7 +1,7 @@
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.Notifier
-import frc.team5190.robot.drive.DriveSubsystem
+import frc.team5190.robot.drive.Drive
 import frc.team5190.robot.sensors.Pigeon
 import frc.team5190.robot.util.Maths
 import jaci.pathfinder.Pathfinder
@@ -26,8 +26,8 @@ object Localization {
     fun reset(startingPosition: Vector2D = Vector2D.ZERO) {
         synchronized(synchronousOdometry) {
             robotPosition = startingPosition
-            leftLastPos = DriveSubsystem.leftEncoderPosition
-            rightLastPos = DriveSubsystem.rightEncoderPosition
+            leftLastPos = Drive.leftPosition
+            rightLastPos = Drive.rightPosition
             gyroLastAngle = Pigeon.correctedAngle
         }
     }
@@ -35,8 +35,8 @@ object Localization {
     private fun run() {
         synchronized(synchronousOdometry) {
 
-            val leftPos = DriveSubsystem.leftEncoderPosition
-            val rightPos = DriveSubsystem.rightEncoderPosition
+            val leftPos = Drive.leftPosition
+            val rightPos = Drive.rightPosition
             val gyroAngle = Pigeon.correctedAngle
 
             val dleft = Maths.nativeUnitsToFeet(leftPos - leftLastPos)
