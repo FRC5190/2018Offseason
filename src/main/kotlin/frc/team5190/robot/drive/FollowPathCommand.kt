@@ -1,13 +1,13 @@
-package frc.team5190.robot.auto
+package frc.team5190.robot.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.control.PathFollower
+import frc.team5190.lib.util.Maths
+import frc.team5190.lib.util.Pathreader
 import frc.team5190.robot.Localization
-import frc.team5190.robot.drive.Drive
 import frc.team5190.robot.sensors.Pigeon
-import frc.team5190.robot.util.Maths
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
 class FollowPathCommand(folder: String, file: String,

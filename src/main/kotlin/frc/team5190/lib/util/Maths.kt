@@ -3,7 +3,7 @@
  * Ryan Segerstrom, Prateek Machiraju
  */
 
-package frc.team5190.robot.util
+package frc.team5190.lib.util
 
 import frc.team5190.robot.DriveConstants
 import kotlin.math.PI
@@ -56,7 +56,7 @@ class Maths {
         }
 
         fun feetPerSecondToNativeUnitsPer100Ms(feet: Double, wheelRadius: Double, sensorUnitsPerRotation: Int): Double{
-            return Maths.rpmToNativeUnitsPer100Ms(Maths.feetPerSecondToRPM(feet, wheelRadius), sensorUnitsPerRotation)
+            return rpmToNativeUnitsPer100Ms(feetPerSecondToRPM(feet, wheelRadius), sensorUnitsPerRotation)
         }
 
         /**

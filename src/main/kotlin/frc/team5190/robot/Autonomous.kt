@@ -1,8 +1,9 @@
-package frc.team5190.robot.auto
+package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
-import frc.team5190.robot.Robot
-import frc.team5190.robot.util.commandGroup
+import frc.team5190.robot.drive.FollowPathCommand
+import frc.team5190.lib.util.Pathreader
+import frc.team5190.lib.util.commandGroup
 import kotlinx.coroutines.experimental.async
 import openrio.powerup.MatchData
 

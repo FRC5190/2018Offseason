@@ -3,7 +3,7 @@ package frc.team5190.robot
 import edu.wpi.first.wpilibj.Notifier
 import frc.team5190.robot.drive.Drive
 import frc.team5190.robot.sensors.Pigeon
-import frc.team5190.robot.util.Maths
+import frc.team5190.lib.util.Maths
 import jaci.pathfinder.Pathfinder
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 

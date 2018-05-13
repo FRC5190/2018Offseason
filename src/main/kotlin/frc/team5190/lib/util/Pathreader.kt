@@ -1,8 +1,7 @@
-package frc.team5190.robot.auto
+package frc.team5190.lib.util
 
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
-import frc.team5190.robot.util.md5
 import jaci.pathfinder.Pathfinder
 import jaci.pathfinder.Trajectory
 import jaci.pathfinder.Waypoint
