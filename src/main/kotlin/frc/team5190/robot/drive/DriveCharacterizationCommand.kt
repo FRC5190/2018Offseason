@@ -2,7 +2,6 @@ package frc.team5190.robot.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.command.Command
-import frc.team5190.lib.util.Maths
 import org.apache.commons.math3.stat.regression.SimpleRegression
 
 @Suppress("unused")
@@ -16,7 +15,7 @@ class DriveCharacterizationCommand : Command() {
     private val dataPts = ArrayList<Pair<Double, Double>>()
 
     private val avgDriveSpd
-        get() = (Maths.nativeUnitsPer100MsToFeetPerSecond(Drive.leftVelocity) + Maths.nativeUnitsPer100MsToFeetPerSecond(Drive.rightVelocity)) / 2.0
+        get() = (Drive.leftVelocity.feetPerSecond.value + Drive.rightVelocity.feetPerSecond.value) / 2.0
 
     init {
         requires(Drive)

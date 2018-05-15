@@ -3,6 +3,7 @@ package frc.team5190.robot.drive
 import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import edu.wpi.first.wpilibj.command.Subsystem
+import frc.team5190.lib.units.*
 import frc.team5190.lib.wrappers.FalconSRX
 import frc.team5190.robot.Constants
 
@@ -21,16 +22,16 @@ object Drive : Subsystem() {
 
     private val allMotors = arrayOf(*leftMotors, *rightMotors)
 
-    val leftPosition
+    val leftPosition: Distance
         get() = frontLeft.sensorPosition
 
-    val rightPosition
+    val rightPosition: Distance
         get() = frontRight.sensorPosition
 
-    val leftVelocity
+    val leftVelocity: Speed
         get() = frontLeft.sensorVelocity
 
-    val rightVelocity
+    val rightVelocity: Speed
         get() = frontLeft.sensorVelocity
 
     init {
@@ -49,12 +50,12 @@ object Drive : Subsystem() {
             it.peakFwdOutput = 1.0
             it.peakRevOutput = -1.0
 
-            it.voltageCompensationSaturation = 12.0
+            it.voltageCompensationSaturation = Volts(12.0)
             it.voltageCompensationEnabled = true
 
-            it.peakCurrentLimit = 50
+            it.peakCurrentLimit = Amps(50)
             it.peakCurrentLimitDuration = 0
-            it.continousCurrentLimit = 40
+            it.continousCurrentLimit = Amps(50)
             it.currentLimitingEnabled = true
         }
 
@@ -67,7 +68,7 @@ object Drive : Subsystem() {
 
     fun resetEncoders() {
         allMasters.forEach {
-            it.sensorPosition = 0
+            it.sensorPosition = NativeUnits(0)
         }
     }
 

@@ -2,6 +2,7 @@ package frc.team5190.lib.wrappers
 
 import com.ctre.phoenix.motorcontrol.*
 import com.ctre.phoenix.motorcontrol.can.TalonSRX
+import frc.team5190.lib.units.*
 
 class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
 
@@ -41,15 +42,15 @@ class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
             field = value
         }
 
-    var softLimitFwd = 0
+    var softLimitFwd: Distance = NativeUnits(0)
         set(value) {
-            configForwardSoftLimitThreshold(value, timeoutMs)
+            configForwardSoftLimitThreshold(value.nativeUnits.value, timeoutMs)
             field = value
         }
 
-    var softLimitRev = 0
+    var softLimitRev: Distance = NativeUnits(0)
         set(value) {
-            configReverseSoftLimitThreshold(value, timeoutMs)
+            configReverseSoftLimitThreshold(value.nativeUnits.value, timeoutMs)
             field = value
         }
 
@@ -102,9 +103,9 @@ class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
             field = value
         }
 
-    var motionCruiseVelocity = 0
+    var motionCruiseVelocity: Speed = NativeUnitsPer100Ms(0)
         set(value) {
-            configMotionCruiseVelocity(value, timeoutMs)
+            configMotionCruiseVelocity(value.nativeUnitsPer100Ms.value, timeoutMs)
             field = value
         }
 
@@ -120,9 +121,9 @@ class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
             field = value
         }
 
-    var peakCurrentLimit = 0
+    var peakCurrentLimit: Current = Amps(0)
         set(value) {
-            configPeakCurrentLimit(value, timeoutMs)
+            configPeakCurrentLimit(value.amps.value, timeoutMs)
             field = value
         }
 
@@ -132,9 +133,9 @@ class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
             field = value
         }
 
-    var continousCurrentLimit = 0
+    var continousCurrentLimit: Current = Amps(0)
         set(value) {
-            configContinuousCurrentLimit(value, timeoutMs)
+            configContinuousCurrentLimit(value.amps.value, timeoutMs)
             field = value
         }
 
@@ -144,9 +145,9 @@ class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
             field = value
         }
 
-    var voltageCompensationSaturation = 12.0
+    var voltageCompensationSaturation: Voltage = Volts(12.0)
         set(value) {
-            configVoltageCompSaturation(value, timeoutMs)
+            configVoltageCompSaturation(value.volts.value, timeoutMs)
             field = value
         }
 
@@ -156,16 +157,16 @@ class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
             field = value
         }
 
-    var sensorPosition = 0
+    var sensorPosition: Distance = NativeUnits(0)
         set(value) {
-            setSelectedSensorPosition(value, 0, timeoutMs)
+            setSelectedSensorPosition(value.nativeUnits.value, 0, timeoutMs)
             field = value
         }
-        get() = getSelectedSensorPosition(0)
+        get() = NativeUnits(getSelectedSensorPosition(0))
 
-    var sensorVelocity = 0
+    var sensorVelocity: Speed = NativeUnitsPer100Ms(0)
         private set
-        get() = getSelectedSensorVelocity(0)
+        get() = NativeUnitsPer100Ms(getSelectedSensorVelocity(0))
 
     fun setLimitSwitch(source: LimitSwitchSource, normal: LimitSwitchNormal) {
         configForwardLimitSwitchSource(source, normal, timeoutMs)

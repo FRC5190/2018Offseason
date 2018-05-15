@@ -2,6 +2,8 @@
 
 package frc.team5190.lib.control
 
+import frc.team5190.lib.units.FeetPerSecond
+import frc.team5190.lib.units.Speed
 import jaci.pathfinder.Pathfinder
 import jaci.pathfinder.Trajectory
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
@@ -29,8 +31,8 @@ class PathFollower(val leftTrajectory: Trajectory, val rightTrajectory: Trajecto
 
 
     // Error values
-    private var leftVelocityLastError = 0.0
-    private var rightVelocityLastError = 0.0
+    private var leftVelocityLastError: Speed = FeetPerSecond(0.0)
+    private var rightVelocityLastError: Speed = FeetPerSecond(0.0)
 
     // Compute lookahead value based on speed.
     // Feet per second to feet
@@ -41,7 +43,7 @@ class PathFollower(val leftTrajectory: Trajectory, val rightTrajectory: Trajecto
         lookaheadInterpolationData.forEach { lookaheadInterpolator.addData(it.first, it.second) }
     }
 
-    fun getMotorOutput(robotPosition: Vector2D, robotAngle: Double, rawEncoderVelocities: Pair<Double, Double>): Pair<Double, Double> {
+    fun getMotorOutput(robotPosition: Vector2D, robotAngle: Double, rawEncoderVelocities: Pair<Speed, Speed>): Pair<Double, Double> {
 
         val encoderVelocities = if (reversed) -rawEncoderVelocities.first to -rawEncoderVelocities.second
         else rawEncoderVelocities
@@ -56,10 +58,10 @@ class PathFollower(val leftTrajectory: Trajectory, val rightTrajectory: Trajecto
 
         // Left side velocity calculations
         val leftSegment = leftTrajectory.segments[segmentIndexEstimation]
-        val leftVelocityError = leftSegment.velocity - encoderVelocities.first
+        val leftVelocityError = FeetPerSecond(leftSegment.velocity) - encoderVelocities.first
 
         val leftFeedForward = v * leftSegment.velocity + a * leftSegment.acceleration + vIntercept
-        val leftFeedback = p * leftVelocityError + d * ((leftVelocityError - leftVelocityLastError) / leftSegment.dt)
+        val leftFeedback = p * leftVelocityError.feetPerSecond.value + d * ((leftVelocityError - leftVelocityLastError).feetPerSecond.value / leftSegment.dt)
 
         var leftOutput = leftFeedForward + leftFeedback
         if (reversed) leftOutput *= -1
@@ -68,10 +70,10 @@ class PathFollower(val leftTrajectory: Trajectory, val rightTrajectory: Trajecto
 
         // Right side calculations
         val rightSegment = rightTrajectory.segments[segmentIndexEstimation]
-        val rightVelocityError = rightSegment.position - encoderVelocities.second
+        val rightVelocityError = FeetPerSecond(rightSegment.position) - encoderVelocities.second
 
         val rightFeedForward = v * rightSegment.velocity + a * rightSegment.acceleration + vIntercept
-        val rightFeedback = p * rightVelocityError + d * ((rightVelocityError - rightVelocityLastError) / rightSegment.dt)
+        val rightFeedback = p * rightVelocityError.feetPerSecond.value + d * ((rightVelocityError - rightVelocityLastError).feetPerSecond.value / rightSegment.dt)
 
         var rightOutput = rightFeedForward + rightFeedback
         if (reversed) rightOutput *= -1
@@ -80,7 +82,7 @@ class PathFollower(val leftTrajectory: Trajectory, val rightTrajectory: Trajecto
 
 
         // Get lookahead point based on speed
-        val lookaheadDistance = lookaheadInterpolator.predict((encoderVelocities.first + encoderVelocities.second) / 2.0)
+        val lookaheadDistance = lookaheadInterpolator.predict((encoderVelocities.first + encoderVelocities.second).feetPerSecond.value / 2.0)
 
         val lookaheadSegment = sourceTrajectory.segments.copyOfRange(segmentIndexEstimation, sourceTrajectory.segments.size).find { segment ->
             val vector = Vector2D(segment.x, segment.y)

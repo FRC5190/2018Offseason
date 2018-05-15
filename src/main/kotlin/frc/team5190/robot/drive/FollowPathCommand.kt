@@ -4,7 +4,6 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.control.PathFollower
-import frc.team5190.lib.util.Maths
 import frc.team5190.lib.util.Pathreader
 import frc.team5190.robot.Localization
 import frc.team5190.robot.sensors.Pigeon
@@ -72,13 +71,10 @@ class FollowPathCommand(folder: String, file: String,
                     return@Notifier
                 }
 
-                val leftVelocity = Maths.nativeUnitsPer100MsToFeetPerSecond(Drive.leftVelocity)
-                val rightVelocity = Maths.nativeUnitsPer100MsToFeetPerSecond(Drive.rightVelocity)
-
                 val output = pathFollower.getMotorOutput(
                         robotPosition = Localization.robotPosition,
                         robotAngle = Pigeon.correctedAngle,
-                        rawEncoderVelocities = leftVelocity to rightVelocity)
+                        rawEncoderVelocities = Drive.leftVelocity to Drive.rightVelocity)
 
                 Drive.set(controlMode = ControlMode.PercentOutput, leftOutput = output.first, rightOutput = output.second)
             }
