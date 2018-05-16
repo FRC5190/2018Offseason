@@ -1,8 +1,8 @@
 package frc.team5190.robot.sensors
 
 import edu.wpi.first.wpilibj.command.Subsystem
-import frc.team5190.lib.util.Pathreader
-import frc.team5190.lib.util.setLEDOutput
+import frc.team5190.lib.Pathreader
+import frc.team5190.lib.setLEDOutput
 import java.awt.Color
 
 object LEDs : Subsystem() {

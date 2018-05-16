@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.command.Command
 import org.apache.commons.math3.stat.regression.SimpleRegression
 
 @Suppress("unused")
-class DriveCharacterizationCommand : Command() {
+class CharacterizationCommand : Command() {
     private var outPct = 0.0
     private var startTime = 0L
 
@@ -15,10 +15,10 @@ class DriveCharacterizationCommand : Command() {
     private val dataPts = ArrayList<Pair<Double, Double>>()
 
     private val avgDriveSpd
-        get() = (Drive.leftVelocity.feetPerSecond.value + Drive.rightVelocity.feetPerSecond.value) / 2.0
+        get() = (DriveSubsystem.leftVelocity.FPS.value + DriveSubsystem.rightVelocity.FPS.value) / 2.0
 
     init {
-        requires(Drive)
+        requires(DriveSubsystem)
     }
 
     override fun initialize() {
@@ -31,11 +31,11 @@ class DriveCharacterizationCommand : Command() {
             if (avgDriveSpd > 0.01) {
                 if (vIntercept == 0.0) vIntercept = outPct
                 dataPts.add(outPct to avgDriveSpd)
-                println("Added Data Point: $outPct% --> $avgDriveSpd feet per second.")
+                println("Added Data Point: $outPct% --> $avgDriveSpd FT per second.")
             }
             outPct += 0.02
         }
-        Drive.set(ControlMode.PercentOutput, outPct, outPct)
+        DriveSubsystem.set(ControlMode.PercentOutput, outPct, outPct)
     }
 
     override fun end() {

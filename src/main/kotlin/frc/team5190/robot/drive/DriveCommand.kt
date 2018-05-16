@@ -15,7 +15,7 @@ class DriveCommand : Command() {
     private var stopAccumulator = 0.0
 
     init {
-        requires(Drive)
+        requires(DriveSubsystem)
     }
 
     override fun execute() {
@@ -84,7 +84,7 @@ class DriveCommand : Command() {
             }
         }
 
-        Drive.set(ControlMode.PercentOutput, leftMotorOutput, rightMotorOutput)
+        DriveSubsystem.set(ControlMode.PercentOutput, leftMotorOutput, rightMotorOutput)
     }
 
     override fun isFinished() = false

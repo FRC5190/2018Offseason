@@ -7,7 +7,7 @@ import frc.team5190.lib.units.*
 import frc.team5190.lib.wrappers.FalconSRX
 import frc.team5190.robot.Constants
 
-object Drive : Subsystem() {
+object DriveSubsystem : Subsystem() {
 
     private val frontLeft = FalconSRX(Constants.MotorIDs.FRONT_LEFT)
     private val frontRight = FalconSRX(Constants.MotorIDs.FRONT_RIGHT)
@@ -54,7 +54,7 @@ object Drive : Subsystem() {
             it.voltageCompensationEnabled = true
 
             it.peakCurrentLimit = Amps(50)
-            it.peakCurrentLimitDuration = 0
+            it.peakCurrentLimitDuration = Milliseconds(0)
             it.continousCurrentLimit = Amps(50)
             it.currentLimitingEnabled = true
         }

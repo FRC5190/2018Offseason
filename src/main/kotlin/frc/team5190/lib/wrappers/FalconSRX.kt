@@ -44,13 +44,13 @@ class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
 
     var softLimitFwd: Distance = NativeUnits(0)
         set(value) {
-            configForwardSoftLimitThreshold(value.nativeUnits.value, timeoutMs)
+            configForwardSoftLimitThreshold(value.STU.value, timeoutMs)
             field = value
         }
 
     var softLimitRev: Distance = NativeUnits(0)
         set(value) {
-            configReverseSoftLimitThreshold(value.nativeUnits.value, timeoutMs)
+            configReverseSoftLimitThreshold(value.STU.value, timeoutMs)
             field = value
         }
 
@@ -72,9 +72,9 @@ class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
             field = value
         }
 
-    var closedLoopTolerance = 0
+    var closedLoopTolerance: Distance = NativeUnits(0)
         set(value) {
-            configAllowableClosedloopError(0, value, timeoutMs)
+            configAllowableClosedloopError(0, value.STU.value, timeoutMs)
             field = value
         }
 
@@ -90,7 +90,6 @@ class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
             field = value
         }
 
-
     var peakFwdOutput = 1.0
         set(value) {
             configPeakOutputForward(value, timeoutMs)
@@ -103,9 +102,21 @@ class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
             field = value
         }
 
+    var openLoopRamp: Time = Seconds(0.0)
+        set(value) {
+            configOpenloopRamp(value.SEC.value, timeoutMs)
+            field = value
+        }
+
+    var closedLoopRamp: Time = Seconds(0.0)
+        set(value) {
+            configClosedloopRamp(value.SEC.value, timeoutMs)
+            field = value
+        }
+
     var motionCruiseVelocity: Speed = NativeUnitsPer100Ms(0)
         set(value) {
-            configMotionCruiseVelocity(value.nativeUnitsPer100Ms.value, timeoutMs)
+            configMotionCruiseVelocity(value.STU.value, timeoutMs)
             field = value
         }
 
@@ -127,9 +138,9 @@ class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
             field = value
         }
 
-    var peakCurrentLimitDuration = 0
+    var peakCurrentLimitDuration: Time = Milliseconds(0)
         set(value) {
-            configPeakCurrentDuration(value, timeoutMs)
+            configPeakCurrentDuration(value.MS.value, timeoutMs)
             field = value
         }
 
@@ -159,7 +170,7 @@ class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
 
     var sensorPosition: Distance = NativeUnits(0)
         set(value) {
-            setSelectedSensorPosition(value.nativeUnits.value, 0, timeoutMs)
+            setSelectedSensorPosition(value.STU.value, 0, timeoutMs)
             field = value
         }
         get() = NativeUnits(getSelectedSensorPosition(0))

@@ -3,17 +3,17 @@ package frc.team5190.robot.drive
 import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
+import frc.team5190.lib.Pathreader
 import frc.team5190.lib.control.PathFollower
-import frc.team5190.lib.util.Pathreader
 import frc.team5190.robot.Localization
 import frc.team5190.robot.sensors.Pigeon
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
-class FollowPathCommand(folder: String, file: String,
-                        robotReversed: Boolean = false,
-                        pathMirrored: Boolean = false,
-                        pathReversed: Boolean = false,
-                        private val resetRobotPosition: Boolean) : Command() {
+class DrivePathCommand(folder: String, file: String,
+                       robotReversed: Boolean = false,
+                       pathMirrored: Boolean = false,
+                       pathReversed: Boolean = false,
+                       private val resetRobotPosition: Boolean) : Command() {
 
     private val synchronousNotifier = Object()
     private val notifier: Notifier
@@ -24,7 +24,7 @@ class FollowPathCommand(folder: String, file: String,
     private val pathFollower: PathFollower
 
     init {
-        requires(Drive)
+        requires(DriveSubsystem)
 
         trajectories.forEach { trajectory ->
             if (pathReversed) {
@@ -57,7 +57,6 @@ class FollowPathCommand(folder: String, file: String,
                 reversed = robotReversed).apply {
 
             p = 1.7
-            d = 0.0
             v = 1.0 / 15.0
             vIntercept = 0.05
             a = 0.0
@@ -74,9 +73,9 @@ class FollowPathCommand(folder: String, file: String,
                 val output = pathFollower.getMotorOutput(
                         robotPosition = Localization.robotPosition,
                         robotAngle = Pigeon.correctedAngle,
-                        rawEncoderVelocities = Drive.leftVelocity to Drive.rightVelocity)
+                        rawEncoderVelocities = DriveSubsystem.leftVelocity to DriveSubsystem.rightVelocity)
 
-                Drive.set(controlMode = ControlMode.PercentOutput, leftOutput = output.first, rightOutput = output.second)
+                DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = output.first, rightOutput = output.second)
             }
         }
     }
@@ -86,7 +85,7 @@ class FollowPathCommand(folder: String, file: String,
             Localization.reset(startingPosition = Vector2D(trajectories[2].segments[0].x, trajectories[2].segments[0].y))
         }
 
-        Drive.resetEncoders()
+        DriveSubsystem.resetEncoders()
         notifier.startPeriodic(0.02)
     }
 
@@ -94,7 +93,7 @@ class FollowPathCommand(folder: String, file: String,
         synchronized(synchronousNotifier) {
             stopNotifier = true
             notifier.stop()
-            Drive.set(controlMode = ControlMode.PercentOutput, leftOutput = 0.0, rightOutput = 0.0)
+            DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = 0.0, rightOutput = 0.0)
         }
     }
 

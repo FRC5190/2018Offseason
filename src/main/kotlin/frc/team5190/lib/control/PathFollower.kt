@@ -14,9 +14,8 @@ import kotlin.math.tan
 
 class PathFollower(val leftTrajectory: Trajectory, val rightTrajectory: Trajectory, val sourceTrajectory: Trajectory, val reversed: Boolean) {
 
-    // PDVA Constants for path following
+    // PVA Constants for path following
     var p = 0.0
-    var d = 0.0
     var v = 0.0
     var vIntercept = 0.0
     var a = 0.0
@@ -35,17 +34,19 @@ class PathFollower(val leftTrajectory: Trajectory, val rightTrajectory: Trajecto
     private var rightVelocityLastError: Speed = FeetPerSecond(0.0)
 
     // Compute lookahead value based on speed.
-    // Feet per second to feet
+    // FPS to FT
     private val lookaheadInterpolationData = arrayOf(0.0 to 0.2, 4.0 to 0.7, 8.0 to 1.5)
     private val lookaheadInterpolator = SimpleRegression()
 
+    // Interpolate Data
     init {
         lookaheadInterpolationData.forEach { lookaheadInterpolator.addData(it.first, it.second) }
     }
 
+    // Return motor output based on robot pose.
     fun getMotorOutput(robotPosition: Vector2D, robotAngle: Double, rawEncoderVelocities: Pair<Speed, Speed>): Pair<Double, Double> {
 
-        val encoderVelocities = if (reversed) -rawEncoderVelocities.first to -rawEncoderVelocities.second
+        val velocities = if (reversed) -rawEncoderVelocities.first to -rawEncoderVelocities.second
         else rawEncoderVelocities
 
         segmentIndexEstimation = getCurrentSegmentIndex(robotPosition, segmentIndexEstimation)
@@ -56,33 +57,25 @@ class PathFollower(val leftTrajectory: Trajectory, val rightTrajectory: Trajecto
             return 0.0 to 0.0
         }
 
-        // Left side velocity calculations
-        val leftSegment = leftTrajectory.segments[segmentIndexEstimation]
-        val leftVelocityError = FeetPerSecond(leftSegment.velocity) - encoderVelocities.first
+        // Use FF and FB to calculate base output
+        fun calculateOutput(trajectory: Trajectory, actualVelocity: Speed, reversed: Boolean): Double {
+            val segment = trajectory.segments[segmentIndexEstimation]
+            val velocityError = FeetPerSecond(segment.velocity) - actualVelocity
 
-        val leftFeedForward = v * leftSegment.velocity + a * leftSegment.acceleration + vIntercept
-        val leftFeedback = p * leftVelocityError.feetPerSecond.value + d * ((leftVelocityError - leftVelocityLastError).feetPerSecond.value / leftSegment.dt)
+            val feedForward = v * segment.velocity + a * segment.acceleration + vIntercept
+            val feedback = p * velocityError.FPS.value
 
-        var leftOutput = leftFeedForward + leftFeedback
-        if (reversed) leftOutput *= -1
+            val output = feedForward + feedback
+            return if (reversed) -1.0 else 1.0 * output
+        }
 
-        leftVelocityLastError = leftVelocityError
-
-        // Right side calculations
-        val rightSegment = rightTrajectory.segments[segmentIndexEstimation]
-        val rightVelocityError = FeetPerSecond(rightSegment.position) - encoderVelocities.second
-
-        val rightFeedForward = v * rightSegment.velocity + a * rightSegment.acceleration + vIntercept
-        val rightFeedback = p * rightVelocityError.feetPerSecond.value + d * ((rightVelocityError - rightVelocityLastError).feetPerSecond.value / rightSegment.dt)
-
-        var rightOutput = rightFeedForward + rightFeedback
-        if (reversed) rightOutput *= -1
-
-        rightVelocityLastError = rightVelocityError
+        // Assign base outputs
+        val leftOutput = calculateOutput(leftTrajectory, velocities.first, reversed)
+        val rightOutput = calculateOutput(rightTrajectory, velocities.second, reversed)
 
 
         // Get lookahead point based on speed
-        val lookaheadDistance = lookaheadInterpolator.predict((encoderVelocities.first + encoderVelocities.second).feetPerSecond.value / 2.0)
+        val lookaheadDistance = lookaheadInterpolator.predict((velocities.first + velocities.second).FPS.value / 2.0)
 
         val lookaheadSegment = sourceTrajectory.segments.copyOfRange(segmentIndexEstimation, sourceTrajectory.segments.size).find { segment ->
             val vector = Vector2D(segment.x, segment.y)
@@ -104,6 +97,7 @@ class PathFollower(val leftTrajectory: Trajectory, val rightTrajectory: Trajecto
         return leftOutput + turnOutput to rightOutput - turnOutput
     }
 
+    // Returns the index of the current segment
     private fun getCurrentSegmentIndex(robotPosition: Vector2D, estimatedIndex: Int): Int {
         (0 until sourceTrajectory.segments.size - 1 - estimatedIndex).forEach { index ->
 
@@ -123,6 +117,7 @@ class PathFollower(val leftTrajectory: Trajectory, val rightTrajectory: Trajecto
         return estimatedIndex
     }
 
+    // Returns if the robot is perpendicular to a segment
     private fun isRobotOnPerpendicular(robotPosition: Vector2D, segment: Trajectory.Segment): Boolean {
 
         if (robotPosition.x - segment.x == 0.0) return true

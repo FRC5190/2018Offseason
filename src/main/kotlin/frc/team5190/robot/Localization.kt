@@ -3,7 +3,7 @@ package frc.team5190.robot
 import edu.wpi.first.wpilibj.Notifier
 import frc.team5190.lib.units.Distance
 import frc.team5190.lib.units.NativeUnits
-import frc.team5190.robot.drive.Drive
+import frc.team5190.robot.drive.DriveSubsystem
 import frc.team5190.robot.sensors.Pigeon
 import jaci.pathfinder.Pathfinder
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
@@ -27,8 +27,8 @@ object Localization {
     fun reset(startingPosition: Vector2D = Vector2D.ZERO) {
         synchronized(synchronousOdometry) {
             robotPosition = startingPosition
-            leftLastPos = Drive.leftPosition
-            rightLastPos = Drive.rightPosition
+            leftLastPos = DriveSubsystem.leftPosition
+            rightLastPos = DriveSubsystem.rightPosition
             gyroLastAngle = Pigeon.correctedAngle
         }
     }
@@ -36,15 +36,15 @@ object Localization {
     private fun run() {
         synchronized(synchronousOdometry) {
 
-            val leftPos = Drive.leftPosition
-            val rightPos = Drive.rightPosition
+            val leftPos = DriveSubsystem.leftPosition
+            val rightPos = DriveSubsystem.rightPosition
             val gyroAngle = Pigeon.correctedAngle
 
             val dleft = leftPos - leftLastPos
             val dright = rightPos - rightLastPos
             val dgyroangle = Math.toRadians(Pathfinder.boundHalfDegrees(gyroAngle - gyroLastAngle))
 
-            val distanceTraveled = (dleft + dright).feet.value / 2.0
+            val distanceTraveled = (dleft + dright).FT.value / 2.0
 
             val sinTheta = Math.sin(dgyroangle)
             val cosTheta = Math.cos(dgyroangle)

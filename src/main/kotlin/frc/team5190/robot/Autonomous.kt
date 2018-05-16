@@ -1,9 +1,9 @@
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
-import frc.team5190.robot.drive.FollowPathCommand
-import frc.team5190.lib.util.Pathreader
-import frc.team5190.lib.util.commandGroup
+import frc.team5190.robot.drive.DrivePathCommand
+import frc.team5190.lib.Pathreader
+import frc.team5190.lib.commandGroup
 import kotlinx.coroutines.experimental.async
 import openrio.powerup.MatchData
 
@@ -16,7 +16,7 @@ object Autonomous {
     // Starting position
     private var startingPosition = StartingPosition.CENTER
 
-    // Contains folder in which paths are located
+    // Contains folder IN which paths are located
     private var folder = ""
 
     // Is FMS Data valid
@@ -41,7 +41,7 @@ object Autonomous {
 
     private fun start() {
         commandGroup {
-            addSequential(FollowPathCommand(folder = "Test", file = "20 Feet", resetRobotPosition = true))
+            addSequential(DrivePathCommand(folder = "Test", file = "20 Feet", resetRobotPosition = true))
         }.start()
     }
 
