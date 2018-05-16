@@ -1,9 +1,10 @@
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
-import frc.team5190.robot.drive.DrivePathCommand
 import frc.team5190.lib.Pathreader
 import frc.team5190.lib.commandGroup
+import frc.team5190.robot.drive.DrivePathCommand
+import frc.team5190.robot.sensors.Pigeon
 import kotlinx.coroutines.experimental.async
 import openrio.powerup.MatchData
 
@@ -40,8 +41,9 @@ object Autonomous {
     }
 
     private fun start() {
+        Pigeon.reset()
         commandGroup {
-            addSequential(DrivePathCommand(folder = "Test", file = "20 Feet", resetRobotPosition = true))
+            addSequential(DrivePathCommand(folder = "Test", file = "25 Feet", resetRobotPosition = true))
         }.start()
     }
 

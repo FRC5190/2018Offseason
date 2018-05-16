@@ -12,7 +12,10 @@ import kotlin.math.absoluteValue
 import kotlin.math.atan2
 import kotlin.math.tan
 
-class PathFollower(val leftTrajectory: Trajectory, val rightTrajectory: Trajectory, val sourceTrajectory: Trajectory, val reversed: Boolean) {
+class PathFollower(val leftTrajectory: Trajectory,
+                   val rightTrajectory: Trajectory,
+                   val sourceTrajectory: Trajectory,
+                   val reversed: Boolean) {
 
     // PVA Constants for path following
     var p = 0.0

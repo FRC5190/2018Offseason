@@ -9,14 +9,14 @@ import frc.team5190.lib.units.Inches
 import frc.team5190.lib.units.Milliseconds
 import frc.team5190.lib.units.preferences
 import frc.team5190.lib.wrappers.FalconSRX
-import frc.team5190.robot.Constants
+import frc.team5190.robot.MotorIDs
 
 object ElevatorSubsystem : Subsystem() {
 
     private val prefs = preferences { radius = 1.25 / 2 }
 
-    private val masterElevatorMotor = FalconSRX(Constants.MotorIDs.ELEVATOR_MASTER)
-    private val slaveElevatorMotor = FalconSRX(Constants.MotorIDs.ELEVATOR_SLAVE)
+    private val masterElevatorMotor = FalconSRX(MotorIDs.ELEVATOR_MASTER)
+    private val slaveElevatorMotor = FalconSRX(MotorIDs.ELEVATOR_SLAVE)
 
     init {
         slaveElevatorMotor.apply {

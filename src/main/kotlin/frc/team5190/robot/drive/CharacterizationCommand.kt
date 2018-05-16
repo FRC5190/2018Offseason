@@ -15,7 +15,7 @@ class CharacterizationCommand : Command() {
     private val dataPts = ArrayList<Pair<Double, Double>>()
 
     private val avgDriveSpd
-        get() = (DriveSubsystem.leftVelocity.FPS.value + DriveSubsystem.rightVelocity.FPS.value) / 2.0
+        get() = ((DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity) / 2.0).FPS.value
 
     init {
         requires(DriveSubsystem)

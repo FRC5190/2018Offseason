@@ -19,7 +19,6 @@ class DriveCommand : Command() {
     }
 
     override fun execute() {
-
         fun applyDeadband(value: Double, deadband: Double) = if (Math.abs(value) > deadband) {
             if (value > 0.0) {
                 (value - deadband) / (1.0 - deadband)

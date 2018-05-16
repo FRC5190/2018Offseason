@@ -5,15 +5,16 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import edu.wpi.first.wpilibj.command.Subsystem
 import frc.team5190.lib.units.*
 import frc.team5190.lib.wrappers.FalconSRX
-import frc.team5190.robot.Constants
+import frc.team5190.robot.MotorIDs
+
 
 object DriveSubsystem : Subsystem() {
 
-    private val frontLeft = FalconSRX(Constants.MotorIDs.FRONT_LEFT)
-    private val frontRight = FalconSRX(Constants.MotorIDs.FRONT_RIGHT)
+    private val frontLeft = FalconSRX(MotorIDs.FRONT_LEFT)
+    private val frontRight = FalconSRX(MotorIDs.FRONT_RIGHT)
 
-    private val rearLeft = FalconSRX(Constants.MotorIDs.REAR_LEFT)
-    private val rearRight = FalconSRX(Constants.MotorIDs.REAR_RIGHT)
+    private val rearLeft = FalconSRX(MotorIDs.REAR_LEFT)
+    private val rearRight = FalconSRX(MotorIDs.REAR_RIGHT)
 
     private val allMasters = arrayOf(frontLeft, frontRight)
 
