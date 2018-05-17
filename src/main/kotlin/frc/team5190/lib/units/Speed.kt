@@ -43,23 +43,29 @@ interface Speed {
 
 class NativeUnitsPer100Ms(val value: Int, internal val settings: UnitPreferences = UnitPreferences()) : Speed {
     override val STU = this
-    override val FPS = FeetPerSecond((value.toDouble() / settings.sensorUnitsPerRotation.toDouble() * (2.0 * Math.PI * settings.radius) / 12.0) * 10.0, settings)
-    override val IPS = FPS.IPS
+    override val FPS
+        get() = FeetPerSecond((value.toDouble() / settings.sensorUnitsPerRotation.toDouble() * (2.0 * Math.PI * settings.radius) / 12.0) * 10.0, settings)
+    override val IPS
+        get() = FPS.IPS
 }
 
 
-class InchesPerSecond(val value: Double, settings: UnitPreferences = UnitPreferences()) : Speed {
+class InchesPerSecond(val value: Double, val settings: UnitPreferences = UnitPreferences()) : Speed {
     override val IPS = this
-    override val FPS = FeetPerSecond(value / 12.0, settings)
-    override val STU = FPS.STU
+    override val FPS
+        get() = FeetPerSecond(value / 12.0, settings)
+    override val STU
+        get() = FPS.STU
 
 
 }
 
-class FeetPerSecond(val value: Double, settings: UnitPreferences = UnitPreferences()) : Speed {
+class FeetPerSecond(val value: Double, val settings: UnitPreferences = UnitPreferences()) : Speed {
     override val FPS = this
-    override val STU = NativeUnitsPer100Ms(((value * 6.0 * settings.sensorUnitsPerRotation) / (10 * Math.PI * settings.radius)).toInt(), settings)
-    override val IPS = InchesPerSecond(value * 12.0, settings)
+    override val STU
+        get() = NativeUnitsPer100Ms(((value * 6.0 * settings.sensorUnitsPerRotation) / (10 * Math.PI * settings.radius)).toInt(), settings)
+    override val IPS
+        get() = InchesPerSecond(value * 12.0, settings)
 }
 
 

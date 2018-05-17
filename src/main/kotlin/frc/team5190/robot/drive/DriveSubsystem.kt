@@ -2,6 +2,7 @@ package frc.team5190.robot.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
+import com.ctre.phoenix.motorcontrol.NeutralMode
 import edu.wpi.first.wpilibj.command.Subsystem
 import frc.team5190.lib.units.*
 import frc.team5190.lib.wrappers.FalconSRX
@@ -39,8 +40,8 @@ object DriveSubsystem : Subsystem() {
         rearLeft.follow(frontLeft)
         rearRight.follow(frontRight)
 
-        leftMotors.forEach { it.inverted = true }
-        rightMotors.forEach { it.inverted = false }
+        leftMotors.forEach { it.inverted = false }
+        rightMotors.forEach { it.inverted = true }
 
         allMasters.forEach {
             it.feedbackSensor = FeedbackDevice.QuadEncoder
@@ -51,10 +52,15 @@ object DriveSubsystem : Subsystem() {
             it.peakFwdOutput = 1.0
             it.peakRevOutput = -1.0
 
+            it.nominalFwdOutput = 0.0
+            it.nominalRevOutput = 0.0
+
+            it.brakeMode = NeutralMode.Brake
+
             it.voltageCompensationSaturation = Volts(12.0)
             it.voltageCompensationEnabled = true
 
-            it.peakCurrentLimit = Amps(50)
+            it.peakCurrentLimit = Amps(0)
             it.peakCurrentLimitDuration = Milliseconds(0)
             it.continousCurrentLimit = Amps(50)
             it.currentLimitingEnabled = true

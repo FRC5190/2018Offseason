@@ -7,7 +7,7 @@ import org.apache.commons.math3.stat.regression.SimpleRegression
 @Suppress("unused")
 class CharacterizationCommand : Command() {
     private var outPct = 0.0
-    private var startTime = 0L
+    private var lastIncrementTime = 0L
 
     private var vIntercept = 0.0
 
@@ -22,12 +22,13 @@ class CharacterizationCommand : Command() {
     }
 
     override fun initialize() {
-        startTime = System.currentTimeMillis()
+        lastIncrementTime = System.currentTimeMillis()
         dataPts.add(outPct to avgDriveSpd)
     }
 
     override fun execute() {
-        if (startTime % 1000 == 0L) {
+        if (System.currentTimeMillis() - lastIncrementTime > 1000) {
+            lastIncrementTime = System.currentTimeMillis()
             if (avgDriveSpd > 0.01) {
                 if (vIntercept == 0.0) vIntercept = outPct
                 dataPts.add(outPct to avgDriveSpd)

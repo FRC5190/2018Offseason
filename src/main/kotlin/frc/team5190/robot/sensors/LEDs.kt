@@ -13,7 +13,6 @@ object LEDs : Subsystem() {
 
             // Default case turns LEDs clear
             else -> Color.BLACK
-
         })
     }
 

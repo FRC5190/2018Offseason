@@ -1,8 +1,10 @@
 package frc.team5190.robot.elevator
 
+import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource
+import edu.wpi.first.wpilibj.command.Command
 import edu.wpi.first.wpilibj.command.Subsystem
 import frc.team5190.lib.units.Amps
 import frc.team5190.lib.units.Inches
@@ -46,7 +48,16 @@ object ElevatorSubsystem : Subsystem() {
         }
     }
 
+    fun set(controlMode: ControlMode, output: Double) {
+        masterElevatorMotor.set(controlMode, output)
+    }
+
     override fun initDefaultCommand() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        defaultCommand = object : Command() {
+            init {
+                requires(ElevatorSubsystem)
+            }
+            override fun isFinished() = false
+        }
     }
 }

@@ -50,18 +50,24 @@ class DrivePathCommand(folder: String, file: String,
             }
         }
 
+        if (pathMirrored) {
+            val temp = trajectories[0]
+            trajectories[0] = trajectories[1]
+            trajectories[1] = temp
+        }
+
         pathFollower = PathFollower(
                 leftTrajectory = trajectories[0],
                 rightTrajectory = trajectories[1],
                 sourceTrajectory = trajectories[2],
                 reversed = robotReversed).apply {
 
-            p = 1.7
-            v = 1.0 / 15.0
-            vIntercept = 0.05
+            p = 0.5
+            v = 0.059
+            vIntercept = 0.10
             a = 0.0
 
-            pTurn = 1.0 / 80.0
+            pTurn = 1.0 / 250.0
         }
 
         notifier = Notifier {

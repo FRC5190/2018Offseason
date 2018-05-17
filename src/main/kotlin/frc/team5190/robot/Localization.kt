@@ -60,7 +60,14 @@ object Localization {
                 c = (1.0 - cosTheta) / dgyroangle
             }
 
-            robotPosition.add(Vector2D(distanceTraveled * s, distanceTraveled * c))
+            val x = distanceTraveled * s
+            val y = distanceTraveled * c
+
+            val lastAngleRad = Math.toRadians(gyroLastAngle)
+            val lastAngleCos = Math.cos(lastAngleRad)
+            val lastAngleSin = Math.sin(lastAngleRad)
+
+            robotPosition = robotPosition.add(Vector2D(x * lastAngleCos - y * lastAngleSin, x * lastAngleSin + y * lastAngleCos))
 
             leftLastPos = leftPos
             rightLastPos = rightPos

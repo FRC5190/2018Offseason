@@ -28,36 +28,37 @@ deploy {
         artifact('frcJava', FRCJavaArtifact) {
             targets << "roborio"
         }
-
         artifact('LS-LL', FileCollectionArtifact) {
-            files = project.fileTree(dir: 'src/main/resources/Raw JSONs/LS-LL')
-            directory = '/home/lvuser/paths/Raw JSONs/LS-LL'
+            files = project.fileTree(dir: 'src/main/resources/LS-LL')
+            directory = '/home/lvuser/paths/LS-LL'
             targets << "roborio"
         }
 
         artifact('LS-RR', FileCollectionArtifact) {
             files = project.fileTree(dir: 'src/main/resources/Raw JSONs/LS-RR')
-            directory = '/home/lvuser/paths/Raw JSONs/LS-RR'
+            directory = '/home/lvuser/paths/Raw/LS-RR'
             targets << "roborio"
         }
 
         artifact('CS-L', FileCollectionArtifact) {
             files = project.fileTree(dir: 'src/main/resources/Raw JSONs/CS-L')
-            directory = '/home/lvuser/paths/Raw JSONs/CS-L'
+            directory = '/home/lvuser/paths/Raw/CS-L'
             targets << "roborio"
         }
 
         artifact('CS-R', FileCollectionArtifact) {
             files = project.fileTree(dir: 'src/main/resources/Raw JSONs/CS-R')
-            directory = '/home/lvuser/paths/Raw JSONs/CS-R'
+            directory = '/home/lvuser/paths/Raw/CS-R'
             targets << "roborio"
         }
 
         artifact('Test', FileCollectionArtifact) {
             files = project.fileTree(dir: 'src/main/resources/Raw JSONs/Test')
-            directory = '/home/lvuser/paths/Raw JSONs/Test'
+            directory = '/home/lvuser/paths/Raw/Test'
             targets << "roborio"
         }
+
+
     }
 }
 

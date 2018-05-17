@@ -2,8 +2,10 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
-      <module name="5190_Offseason_2018_main" target="1.8" />
+      <module name="2018Offseason_main" target="1.8" />
+      <module name="2018Offseason_test" target="1.8" />
       <module name="5190_Offseason_2018_test" target="1.8" />
+      <module name="Offseason2018" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="GradleSettings">
@@ -30,6 +32,10 @@
       </inspection_tool>
     </profile>
     <version value="1.0" />
+  </component>
+  <component name="Kotlin2JsCompilerArguments">
+    <option name="sourceMapEmbedSources" />
+    <option name="sourceMapPrefix" />
   </component>
   <component name="Palette2">
     <group name="Swing">
@@ -154,9 +160,9 @@
   </component>
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/5190_Offseason_2018.iml" filepath="$PROJECT_DIR$/5190_Offseason_2018.iml" />
-      <module fileurl="file://$PROJECT_DIR$/5190_Offseason_2018_main.iml" filepath="$PROJECT_DIR$/5190_Offseason_2018_main.iml" group="5190_Offseason_2018" />
-      <module fileurl="file://$PROJECT_DIR$/5190_Offseason_2018_test.iml" filepath="$PROJECT_DIR$/5190_Offseason_2018_test.iml" group="5190_Offseason_2018" />
+      <module fileurl="file://$PROJECT_DIR$/2018Offseason.iml" filepath="$PROJECT_DIR$/2018Offseason.iml" />
+      <module fileurl="file://$PROJECT_DIR$/2018Offseason_main.iml" filepath="$PROJECT_DIR$/2018Offseason_main.iml" group="2018Offseason" />
+      <module fileurl="file://$PROJECT_DIR$/2018Offseason_test.iml" filepath="$PROJECT_DIR$/2018Offseason_test.iml" group="2018Offseason" />
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8" project-jdk-type="JavaSDK">

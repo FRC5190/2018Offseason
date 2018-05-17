@@ -38,7 +38,7 @@ class PathFollower(val leftTrajectory: Trajectory,
 
     // Compute lookahead value based on speed.
     // FPS to FT
-    private val lookaheadInterpolationData = arrayOf(0.0 to 0.2, 4.0 to 0.7, 8.0 to 1.5)
+    private val lookaheadInterpolationData = arrayOf(0.0 to 1.0, 4.0 to 2.0, 8.0 to 2.0)
     private val lookaheadInterpolator = SimpleRegression()
 
     // Interpolate Data
@@ -92,11 +92,12 @@ class PathFollower(val leftTrajectory: Trajectory,
         val actualLookaheadDistance = robotPosition.distance(desiredPosition)
 
         // Turn output is directly proportional to angle delta and lookahead distance
-        val theta = Pathfinder.boundHalfDegrees(Math.toDegrees(atan2(positionDelta.y, positionDelta.x)) - robotAngle)
-        val turnOutput = pTurn * theta * actualLookaheadDistance
+        val theta = -Pathfinder.boundHalfDegrees(Math.toDegrees(atan2(positionDelta.y, positionDelta.x)) - robotAngle)
+        val turnOutput = pTurn * theta
 
         segmentIndexEstimation++
 
+        println("Current Segment: $segmentIndexEstimation, Lookahead Dist: $actualLookaheadDistance, Lookahead Theta: $theta")
         return leftOutput + turnOutput to rightOutput - turnOutput
     }
 
@@ -126,7 +127,7 @@ class PathFollower(val leftTrajectory: Trajectory,
         if (robotPosition.x - segment.x == 0.0) return true
 
         val perpendicularSlope = if (tan(segment.heading) != Double.NaN) -1 / Math.tan(segment.heading) else 0.0
-        return (((robotPosition.y - segment.y) / (robotPosition.x - segment.x)) - perpendicularSlope).absoluteValue < 0.2
+        return (((robotPosition.y - segment.y) / (robotPosition.x - segment.x)) - perpendicularSlope).absoluteValue < 0.002
     }
 }
 

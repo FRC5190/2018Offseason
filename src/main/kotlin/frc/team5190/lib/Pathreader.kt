@@ -6,33 +6,40 @@ import jaci.pathfinder.Pathfinder
 import jaci.pathfinder.Trajectory
 import jaci.pathfinder.Waypoint
 import jaci.pathfinder.modifiers.TankModifier
-import kotlinx.coroutines.experimental.async
 import java.io.File
 import java.io.FileReader
 
 object Pathreader {
 
-    private lateinit var allPaths: Map<String, ArrayList<Trajectory>>
+    private val allPaths = File("/home/lvuser/paths/").listFiles().filter { it.isDirectory }.map { folder ->
+        folder.listFiles().filter { it.isFile }.map { file ->
+            Pair("${folder.name}/${file.nameWithoutExtension}", Pathfinder.readFromCSV(file))
+        }
+    }.flatten().toMap()
 
-    var pathsGenerated = false
+    var pathsGenerated = true
         private set
 
     init {
         // Launch coroutine to generate paths so it doesn't lag robot.
-        async {
-            allPaths = File("/home/lvuser/paths/Raw JSONs").listFiles().filter { it.isDirectory }.map { folder ->
-                folder.listFiles().filter { it.isFile }.map { file ->
-                    "$folder/${file.nameWithoutExtension}" to getPathCollection(folder.name, file.nameWithoutExtension).await()
-                }
-            }.flatten().toMap()
-
-            pathsGenerated = true
-        }
+//        launch {
+//            allPaths = File("/home/lvuser/paths/Raw").listFiles().filter { it.isDirectory }.map { folder ->
+//                folder.listFiles().filter { it.isFile }.map { file ->
+//                    "$folder/${file.nameWithoutExtension}" to getPathCollection(folder.name, file.nameWithoutExtension)
+//                }
+//            }.flatten().toMap()
+//
+//            pathsGenerated = true
+//            println("Paths Generated")
+//        }
     }
 
-    private fun getPathCollection(folder: String, file: String) = async {
-        val json = File("/home/lvuser/paths/Raw JSONs/$folder/$file.json")
-        val jsonString = Gson().toJson(FileReader(json))
+    private fun getPathCollection(folder: String, file: String): ArrayList<Trajectory> {
+
+        println("Generating Paths")
+
+        val json = File("/home/lvuser/paths/Raw/$folder/$file.json")
+        val jsonString = json.readText()
 
         val leftFilePath = "/home/lvuser/paths/$folder/${json.nameWithoutExtension}-${jsonString.md5()} Left Detailed.csv"
         val rightFilePath = "/home/lvuser/paths/$folder/${json.nameWithoutExtension}-${jsonString.md5()} Right Detailed.csv"
@@ -69,12 +76,12 @@ object Pathreader {
             rightTrajectory = Pathfinder.readFromCSV(rightFile)
             sourceTrajectory = Pathfinder.readFromCSV(sourceFile)
         }
-        return@async arrayListOf(leftTrajectory, rightTrajectory, sourceTrajectory)
+        return arrayListOf(leftTrajectory, rightTrajectory, sourceTrajectory)
     }
 
 
     fun getPaths(folder: String, file: String): ArrayList<Trajectory> {
-        return allPaths["$folder/$file"]!!
+        return arrayListOf(allPaths["$folder/$file Left Detailed"]!!, allPaths["$folder/$file Right Detailed"]!!, allPaths["$folder/$file Source Detailed"]!!)
     }
 }
 
