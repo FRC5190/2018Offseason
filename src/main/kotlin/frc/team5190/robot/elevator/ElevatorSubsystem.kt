@@ -1,24 +1,21 @@
 package frc.team5190.robot.elevator
 
-import com.ctre.phoenix.motorcontrol.ControlMode
-import com.ctre.phoenix.motorcontrol.FeedbackDevice
-import com.ctre.phoenix.motorcontrol.LimitSwitchNormal
-import com.ctre.phoenix.motorcontrol.LimitSwitchSource
-import edu.wpi.first.wpilibj.command.Command
+import com.ctre.phoenix.motorcontrol.*
 import edu.wpi.first.wpilibj.command.Subsystem
-import frc.team5190.lib.units.Amps
-import frc.team5190.lib.units.Inches
-import frc.team5190.lib.units.Milliseconds
-import frc.team5190.lib.units.preferences
+import frc.team5190.lib.units.*
 import frc.team5190.lib.wrappers.FalconSRX
 import frc.team5190.robot.MotorIDs
+import frc.team5190.robot.elevator.ElevatorSubsystem.prefs
 
 object ElevatorSubsystem : Subsystem() {
 
-    private val prefs = preferences { radius = 1.25 / 2 }
-
     private val masterElevatorMotor = FalconSRX(MotorIDs.ELEVATOR_MASTER)
     private val slaveElevatorMotor = FalconSRX(MotorIDs.ELEVATOR_SLAVE)
+
+    val prefs = preferences { radius = 1.25 / 2 }
+
+    val currentPosition: Distance
+        get() = masterElevatorMotor.sensorPosition
 
     init {
         slaveElevatorMotor.apply {
@@ -29,8 +26,10 @@ object ElevatorSubsystem : Subsystem() {
         masterElevatorMotor.apply {
             feedbackSensor = FeedbackDevice.QuadEncoder
             encoderPhase = false
-            p = 0.5
+            p = 0.3
             closedLoopTolerance = Inches(0.25, prefs)
+
+            brakeMode = NeutralMode.Brake
 
             openLoopRamp = Milliseconds(300)
             closedLoopRamp = Milliseconds(500)
@@ -43,6 +42,9 @@ object ElevatorSubsystem : Subsystem() {
             softLimitFwd = Inches(89.455, prefs)
             softLimitFwdEnabled = true
 
+            voltageCompensationSaturation = Volts(12.0)
+            voltageCompensationEnabled = true
+
             setLimitSwitch(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen)
             overrideLimitSwitchesEnable = true
         }
@@ -53,11 +55,14 @@ object ElevatorSubsystem : Subsystem() {
     }
 
     override fun initDefaultCommand() {
-        defaultCommand = object : Command() {
-            init {
-                requires(ElevatorSubsystem)
-            }
-            override fun isFinished() = false
-        }
+        defaultCommand = ManualElevatorCommand()
     }
+}
+
+enum class ElevatorPosition(val distance: Distance) {
+    INTAKE(NativeUnits(500, prefs)),
+    SWITCH(Inches(27.0, ElevatorSubsystem.prefs)),
+    FIRST_STAGE(Inches(32.0, ElevatorSubsystem.prefs)),
+    SCALE(NativeUnits(17000, prefs)),
+    SCALE_HIGH(Inches(60.0, prefs))
 }

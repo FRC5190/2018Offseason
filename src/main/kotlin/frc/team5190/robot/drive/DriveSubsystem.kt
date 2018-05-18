@@ -3,10 +3,12 @@ package frc.team5190.robot.drive
 import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.NeutralMode
+import edu.wpi.first.wpilibj.Solenoid
 import edu.wpi.first.wpilibj.command.Subsystem
 import frc.team5190.lib.units.*
 import frc.team5190.lib.wrappers.FalconSRX
 import frc.team5190.robot.MotorIDs
+import frc.team5190.robot.SolenoidIDs
 
 
 object DriveSubsystem : Subsystem() {
@@ -23,6 +25,22 @@ object DriveSubsystem : Subsystem() {
     private val rightMotors = arrayOf(frontRight, rearRight)
 
     private val allMotors = arrayOf(*leftMotors, *rightMotors)
+
+    private val gearSolenoid = Solenoid(SolenoidIDs.PCM, SolenoidIDs.DRIVE)
+
+    var gear: Gear
+        get() = Gear.getGear(gearSolenoid.get())
+        set(value) {
+            when (value) {
+                Gear.HIGH -> allMasters.forEach {
+                    it.openLoopRamp = Seconds(0.0)
+                }
+                Gear.LOW -> allMasters.forEach {
+                   it.openLoopRamp = Seconds(0.2)
+                }
+            }
+            gearSolenoid.set(value.state)
+        }
 
     val leftPosition: Distance
         get() = frontLeft.sensorPosition
@@ -80,7 +98,14 @@ object DriveSubsystem : Subsystem() {
     }
 
     override fun initDefaultCommand() {
-        defaultCommand = DriveCommand()
+        defaultCommand = ManualDriveCommand()
     }
+}
 
+enum class Gear(val state: Boolean) {
+    HIGH(false), LOW(true);
+
+    companion object {
+        fun getGear(solenoidState: Boolean) = Gear.values().find { it.state == solenoidState }!!
+    }
 }

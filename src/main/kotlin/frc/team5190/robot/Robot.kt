@@ -3,15 +3,20 @@ package frc.team5190.robot
 import edu.wpi.first.wpilibj.IterativeRobot
 import edu.wpi.first.wpilibj.command.Scheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
-import frc.team5190.lib.Pathreader
-import frc.team5190.robot.drive.DrivePathCommand
+import frc.team5190.lib.util.Pathreader
+import frc.team5190.robot.arm.ArmSubsystem
+import frc.team5190.robot.climb.ClimbSubsystem
 import frc.team5190.robot.drive.DriveSubsystem
 import frc.team5190.robot.elevator.ElevatorSubsystem
+import frc.team5190.robot.intake.IntakeSubsystem
 import frc.team5190.robot.sensors.Canifier
 import frc.team5190.robot.sensors.LEDs
 import frc.team5190.robot.sensors.Pigeon
 
 class Robot : IterativeRobot() {
+
+    var isClimbing = false
+
     companion object {
         lateinit var INSTANCE: Robot
     }
@@ -30,6 +35,9 @@ class Robot : IterativeRobot() {
 
         DriveSubsystem
         ElevatorSubsystem
+        IntakeSubsystem
+        ClimbSubsystem
+        ArmSubsystem
     }
 
     override fun robotPeriodic() {
@@ -39,9 +47,5 @@ class Robot : IterativeRobot() {
         SmartDashboard.putNumber("Gyro", Pigeon.correctedAngle)
 
         Scheduler.getInstance().run()
-    }
-
-    override fun autonomousInit() {
-        DrivePathCommand(folder = "LS-LL", file = "Cross", pathMirrored = true, resetRobotPosition = true).start()
     }
 }

@@ -79,10 +79,11 @@ class PathFollower(val leftTrajectory: Trajectory,
 
         // Get lookahead point based on speed
         val lookaheadDistance = lookaheadInterpolator.predict((velocities.first + velocities.second).FPS.value / 2.0)
+        val segmentVector = Vector2D(sourceTrajectory[segmentIndexEstimation].x, sourceTrajectory[segmentIndexEstimation].y)
 
         val lookaheadSegment = sourceTrajectory.segments.copyOfRange(segmentIndexEstimation, sourceTrajectory.segments.size).find { segment ->
             val vector = Vector2D(segment.x, segment.y)
-            return@find robotPosition.distance(vector) >= lookaheadDistance
+            return@find segmentVector.distance(vector) >= lookaheadDistance
         } ?: sourceTrajectory.segments.last()
 
         val desiredPosition = Vector2D(lookaheadSegment.x, lookaheadSegment.y)
@@ -117,7 +118,6 @@ class PathFollower(val leftTrajectory: Trajectory,
                 }
             }
         }
-
         return estimatedIndex
     }
 

@@ -43,7 +43,8 @@ interface Distance {
 }
 
 class NativeUnits(val value: Int, internal val settings: UnitPreferences = UnitPreferences()) : Distance {
-    override val STU = this
+    override val STU
+        get() = this
     override val FT
         get() = Feet(value.toDouble() / settings.sensorUnitsPerRotation.toDouble() * (2.0 * Math.PI * settings.radius) / 12.0)
     override val IN
@@ -51,14 +52,17 @@ class NativeUnits(val value: Int, internal val settings: UnitPreferences = UnitP
 }
 
 class Inches(val value: Double, val settings: UnitPreferences = UnitPreferences()) : Distance {
-    override val IN = this
+    override val IN
+        get() = this
     override val FT
         get() = Feet(value / 12.0, settings)
-    override val STU = FT.STU
+    override val STU
+        get() = FT.STU
 }
 
 class Feet(val value: Double, val settings: UnitPreferences = UnitPreferences()) : Distance {
-    override val FT = this
+    override val FT
+        get() = this
     override val IN
         get() = Inches(value * 12.0)
     override val STU

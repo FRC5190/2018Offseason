@@ -5,8 +5,9 @@ import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.command.Command
 import edu.wpi.first.wpilibj.drive.DifferentialDrive
 import frc.team5190.robot.Controls
+import frc.team5190.robot.Robot
 
-class DriveCommand : Command() {
+class ManualDriveCommand : Command() {
 
     private var defaultDeadband = 0.02
 
@@ -14,11 +15,28 @@ class DriveCommand : Command() {
     private var stopAlpha = DifferentialDrive.kDefaultQuickStopAlpha
     private var stopAccumulator = 0.0
 
+    private var autoShiftGear = Gear.HIGH
+
     init {
         requires(DriveSubsystem)
     }
 
     override fun execute() {
+
+        if (Robot.INSTANCE.isOperatorControl) {
+            val avgSpeed = (DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity) / 2.0
+            when {
+                avgSpeed.FPS.value > 5.0 -> autoShiftGear = Gear.HIGH
+                avgSpeed.FPS.value < 2.0 -> autoShiftGear = Gear.LOW
+            }
+            DriveSubsystem.gear = if (Controls.aButton) autoShiftGear else Gear.HIGH
+        }
+        else {
+            DriveSubsystem.gear = Gear.HIGH
+        }
+
+
+
         fun applyDeadband(value: Double, deadband: Double) = if (Math.abs(value) > deadband) {
             if (value > 0.0) {
                 (value - deadband) / (1.0 - deadband)
