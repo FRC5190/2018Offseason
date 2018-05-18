@@ -3,8 +3,8 @@ package frc.team5190.robot.drive
 import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
-import frc.team5190.lib.util.Pathreader
 import frc.team5190.lib.control.PathFollower
+import frc.team5190.lib.util.Pathreader
 import frc.team5190.robot.Localization
 import frc.team5190.robot.sensors.Pigeon
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
@@ -50,7 +50,7 @@ class FollowPathCommand(folder: String, file: String,
             }
         }
 
-        if (pathMirrored) {
+        if (pathMirrored xor (pathReversed xor robotReversed)) {
             val temp = trajectories[0]
             trajectories[0] = trajectories[1]
             trajectories[1] = temp
