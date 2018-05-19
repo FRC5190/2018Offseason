@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package frc.team5190.lib.control
 
 import frc.team5190.lib.units.FeetPerSecond
@@ -31,10 +29,6 @@ class PathFollower(val leftTrajectory: Trajectory,
         private set
     private var segmentIndexEstimation = 0
 
-
-    // Error values
-    private var leftVelocityLastError: Speed = FeetPerSecond(0.0)
-    private var rightVelocityLastError: Speed = FeetPerSecond(0.0)
 
     // Compute lookahead value based on speed.
     // FPS to FT
@@ -106,9 +100,9 @@ class PathFollower(val leftTrajectory: Trajectory,
         val theta = -Pathfinder.boundHalfDegrees(Math.toDegrees(atan2(positionDelta.y, positionDelta.x)) - robotAngle)
         val turnOutput = pTurn * theta
 
-        val leftOutput = calculateOutput(FeetPerSecond(sourceTrajectory[segmentIndexEstimation].velocity) + FeetPerSecond(turnOutput),
+        val leftOutput = calculateOutput(FeetPerSecond(leftTrajectory[segmentIndexEstimation].velocity) + FeetPerSecond(turnOutput),
                 velocities.first, reversed)
-        val rightOutput = calculateOutput(FeetPerSecond(sourceTrajectory[segmentIndexEstimation].velocity) - FeetPerSecond(turnOutput),
+        val rightOutput = calculateOutput(FeetPerSecond(rightTrajectory[segmentIndexEstimation].velocity) - FeetPerSecond(turnOutput),
                 velocities.second, reversed)
 
         segmentIndexEstimation++
