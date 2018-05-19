@@ -24,6 +24,7 @@ object Localization {
         Notifier(this::run).startPeriodic(0.05)
     }
 
+
     fun reset(startingPosition: Vector2D = Vector2D.ZERO) {
         synchronized(synchronousOdometry) {
             robotPosition = startingPosition
@@ -35,7 +36,6 @@ object Localization {
 
     private fun run() {
         synchronized(synchronousOdometry) {
-
             val leftPos = DriveSubsystem.leftPosition
             val rightPos = DriveSubsystem.rightPosition
             val gyroAngle = Pigeon.correctedAngle

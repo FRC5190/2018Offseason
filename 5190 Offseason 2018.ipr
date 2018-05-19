@@ -165,9 +165,6 @@
       <module fileurl="file://$PROJECT_DIR$/2018Offseason.iml" filepath="$PROJECT_DIR$/2018Offseason.iml" />
       <module fileurl="file://$PROJECT_DIR$/2018Offseason_main.iml" filepath="$PROJECT_DIR$/2018Offseason_main.iml" group="2018Offseason" />
       <module fileurl="file://$PROJECT_DIR$/2018Offseason_test.iml" filepath="$PROJECT_DIR$/2018Offseason_test.iml" group="2018Offseason" />
-      <module fileurl="file://$PROJECT_DIR$/5190-Offseason-2018.iml" filepath="$PROJECT_DIR$/5190-Offseason-2018.iml" />
-      <module fileurl="file://$PROJECT_DIR$/5190-Offseason-2018_main.iml" filepath="$PROJECT_DIR$/5190-Offseason-2018_main.iml" group="5190-Offseason-2018" />
-      <module fileurl="file://$PROJECT_DIR$/5190-Offseason-2018_test.iml" filepath="$PROJECT_DIR$/5190-Offseason-2018_test.iml" group="5190-Offseason-2018" />
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8" project-jdk-type="JavaSDK">

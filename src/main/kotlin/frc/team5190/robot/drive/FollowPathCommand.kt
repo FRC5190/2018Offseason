@@ -87,11 +87,11 @@ class FollowPathCommand(folder: String, file: String,
     }
 
     override fun initialize() {
+        DriveSubsystem.resetEncoders()
+
         if (resetRobotPosition) {
             Localization.reset(startingPosition = Vector2D(trajectories[2].segments[0].x, trajectories[2].segments[0].y))
         }
-
-        DriveSubsystem.resetEncoders()
         notifier.startPeriodic(0.02)
     }
 
