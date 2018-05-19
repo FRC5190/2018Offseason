@@ -65,8 +65,7 @@ class FollowPathCommand(folder: String, file: String,
             p = 0.5
             v = 0.059
             vIntercept = 0.10
-            a = 0.0
-
+            
             pTurn = 0.0847
         }
 

@@ -7,7 +7,6 @@ import frc.team5190.lib.util.Pathreader
 import frc.team5190.robot.arm.ArmSubsystem
 import frc.team5190.robot.climb.ClimbSubsystem
 import frc.team5190.robot.drive.DriveSubsystem
-import frc.team5190.robot.drive.FollowPathCommand
 import frc.team5190.robot.elevator.ElevatorSubsystem
 import frc.team5190.robot.intake.IntakeSubsystem
 import frc.team5190.robot.sensors.Canifier
@@ -16,7 +15,9 @@ import frc.team5190.robot.sensors.Pigeon
 
 class Robot : IterativeRobot() {
 
+    // Global Robot Variables
     var isClimbing = false
+    var isAutoReady = false
 
     companion object {
         lateinit var INSTANCE: Robot
@@ -48,9 +49,5 @@ class Robot : IterativeRobot() {
         SmartDashboard.putNumber("Gyro", Pigeon.correctedAngle)
 
         Scheduler.getInstance().run()
-    }
-
-    override fun autonomousInit() {
-        FollowPathCommand("LS-LL", "25 Feet", pathMirrored = true, resetRobotPosition = true).start()
     }
 }

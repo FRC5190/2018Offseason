@@ -39,7 +39,10 @@ object Autonomous {
                 switchSide = MatchData.getOwnedSide(MatchData.GameFeature.SWITCH_NEAR)
                 scaleSide = MatchData.getOwnedSide(MatchData.GameFeature.SCALE)
                 startingPosition = startingPositionChooser.selected
+
+                Robot.INSTANCE.isAutoReady = startingPositionChooser.selected != null && fmsDataValid && Pathreader.pathsGenerated
             }
+
             folder = if (startingPosition.name.first().toUpperCase() == scaleSide.name.first().toUpperCase()) "LS-LL" else "LS-RR"
             start()
         }
@@ -48,7 +51,7 @@ object Autonomous {
     private fun start() {
         Pigeon.reset()
         commandGroup {
-            FollowPathCommand("LS-LL", "Test", resetRobotPosition = true)
+            FollowPathCommand("LS-LL", "25 Feet", resetRobotPosition = true)
         }.start()
     }
 
