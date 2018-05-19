@@ -31,6 +31,9 @@ object ElevatorSubsystem : Subsystem() {
 
             brakeMode = NeutralMode.Brake
 
+            peakFwdOutput = 1.0
+            peakRevOutput = -1.0
+
             openLoopRamp = Milliseconds(300)
             closedLoopRamp = Milliseconds(500)
 

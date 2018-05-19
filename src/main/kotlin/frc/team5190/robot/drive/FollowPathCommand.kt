@@ -67,7 +67,7 @@ class FollowPathCommand(folder: String, file: String,
             vIntercept = 0.10
             a = 0.0
 
-            pTurn = 1.0 / 250.0
+            pTurn = 0.0847
         }
 
         notifier = Notifier {

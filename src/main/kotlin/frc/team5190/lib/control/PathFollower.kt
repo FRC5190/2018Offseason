@@ -38,7 +38,7 @@ class PathFollower(val leftTrajectory: Trajectory,
 
     // Compute lookahead value based on speed.
     // FPS to FT
-    private val lookaheadInterpolationData = arrayOf(0.0 to 1.0, 4.0 to 2.0, 8.0 to 2.0)
+    private val lookaheadInterpolationData = arrayOf(0.0 to 1.0, 4.0 to 4.0, 8.0 to 8.0)
     private val lookaheadInterpolator = SimpleRegression()
 
     // Interpolate Data
@@ -59,22 +59,6 @@ class PathFollower(val leftTrajectory: Trajectory,
             isFinished = true
             return 0.0 to 0.0
         }
-
-        // Use FF and FB to calculate base output
-        fun calculateOutput(trajectory: Trajectory, actualVelocity: Speed, reversed: Boolean): Double {
-            val segment = trajectory.segments[segmentIndexEstimation]
-            val velocityError = FeetPerSecond(segment.velocity) - actualVelocity
-
-            val feedForward = v * segment.velocity + a * segment.acceleration + vIntercept
-            val feedback = p * velocityError.FPS.value
-
-            val output = feedForward + feedback
-            return if (reversed) -1.0 else 1.0 * output
-        }
-
-        // Assign base outputs
-        val leftOutput = calculateOutput(leftTrajectory, velocities.first, reversed)
-        val rightOutput = calculateOutput(rightTrajectory, velocities.second, reversed)
 
 
         // Get lookahead point based on speed
@@ -107,14 +91,30 @@ class PathFollower(val leftTrajectory: Trajectory,
         val positionDelta = robotPosition.negate().add(desiredPosition)
         val actualLookaheadDistance = robotPosition.distance(desiredPosition)
 
+        // Use FF and FB to calculate output
+        fun calculateOutput(targetSpeed: Speed, actualVelocity: Speed, reversed: Boolean): Double {
+            val velocityError = targetSpeed - actualVelocity
+
+            val feedForward = v * targetSpeed.FPS.value + vIntercept
+            val feedback = p * velocityError.FPS.value
+
+            val output = feedForward + feedback
+            return if (reversed) -1.0 else 1.0 * output
+        }
+
         // Turn output is directly proportional to angle delta and lookahead distance
         val theta = -Pathfinder.boundHalfDegrees(Math.toDegrees(atan2(positionDelta.y, positionDelta.x)) - robotAngle)
         val turnOutput = pTurn * theta
 
+        val leftOutput = calculateOutput(FeetPerSecond(sourceTrajectory[segmentIndexEstimation].velocity) + FeetPerSecond(turnOutput),
+                velocities.first, reversed)
+        val rightOutput = calculateOutput(FeetPerSecond(sourceTrajectory[segmentIndexEstimation].velocity) - FeetPerSecond(turnOutput),
+                velocities.second, reversed)
+
         segmentIndexEstimation++
 
         println("Current Segment: $segmentIndexEstimation, Lookahead Dist: $actualLookaheadDistance, Lookahead Theta: $theta")
-        return leftOutput + turnOutput to rightOutput - turnOutput
+        return leftOutput to rightOutput
     }
 
     // Returns the index of the current segment

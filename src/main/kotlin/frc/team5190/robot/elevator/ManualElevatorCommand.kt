@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.robot.Controls
 import frc.team5190.robot.Robot
-import frc.team5190.robot.drive.DriveSubsystem
 
 class ManualElevatorCommand : Command() {
 
@@ -13,7 +12,7 @@ class ManualElevatorCommand : Command() {
     private var lastPOV = -1
 
     init {
-        requires(DriveSubsystem)
+        requires(ElevatorSubsystem)
     }
 
     override fun execute() {
