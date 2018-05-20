@@ -8,6 +8,7 @@ import frc.team5190.lib.util.StateCommand
 import frc.team5190.robot.arm.ArmPosition
 import frc.team5190.robot.arm.AutoArmCommand
 import frc.team5190.robot.drive.FollowPathCommand
+import frc.team5190.robot.drive.Marker
 import frc.team5190.robot.elevator.ElevatorPreset
 import frc.team5190.robot.elevator.ElevatorPresetCommand
 import frc.team5190.robot.intake.IntakeCommand
@@ -20,8 +21,7 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 object Autonomous {
 
     // Switch side and scale side variables
-    var switchSide = MatchData.OwnedSide.UNKNOWN
-        private set
+    private var switchSide = MatchData.OwnedSide.UNKNOWN
         @Synchronized get
 
     var scaleSide = MatchData.OwnedSide.UNKNOWN
@@ -62,21 +62,43 @@ object Autonomous {
         Pigeon.reset()
         Pigeon.angleOffset = 180.00
 
+        val elevatorUp: Marker
+        val shootCube1: Marker
+        /*
+        val shootCube2: Marker
+        val shootCube3: Marker
+        */
+
         val cube1 = FollowPathCommand(
                 folder = folder,
                 file = "1st Cube",
                 resetRobotPosition = true,
                 robotReversed = true,
-                pathMirrored = startingPosition == StartingPosition.RIGHT).apply {
+                pathMirrored = startingPosition == StartingPosition.RIGHT)
 
-            if (folder == "LS-LL") {
-                addMarkerAt(Vector2D(14.0, 23.5), "Elevator Up")
-                addMarkerAt(Vector2D(22.9, 20.0), "Shoot")
-            } else {
-                addMarkerAt(Vector2D(20.5, 7.0), "Elevator Up")
-                addMarkerAt(Vector2D(22.9, 7.0), "Shoot")
-            }
+        /*
+        val rightScale = scaleSide == MatchData.OwnedSide.RIGHT
+
+        val pickupCube2 = FollowPathCommand(folder = "LS-LL", file = "2nd Cube", pathMirrored = rightScale)
+        val pickupCube3 = FollowPathCommand(folder = "LS-LL", file = "3rd Cube", pathMirrored = rightScale)
+
+        val dropCube2 = FollowPathCommand(folder = "LS-LL", file = "2nd Cube", robotReversed = true, pathReversed = true, pathMirrored = rightScale)
+        val dropCube3 = FollowPathCommand(folder = "LS-LL", file = "3rd Cube", robotReversed = true, pathReversed = true, pathMirrored = rightScale)
+        */
+
+
+        if (folder == "LS-LL") {
+            elevatorUp = cube1.addMarkerAt(Vector2D(14.0, 23.5))
+            shootCube1 = cube1.addMarkerAt(Vector2D(22.9, 20.0))
+        } else {
+            elevatorUp = cube1.addMarkerAt(Vector2D(20.5, 7.0))
+            shootCube1 = cube1.addMarkerAt(Vector2D(22.9, 7.0))
         }
+
+        /*
+        shootCube2 = dropCube2.addMarkerAt(Vector2D(22.9, 20.0))
+        shootCube3 = dropCube3.addMarkerAt(Vector2D(22.9, 20.0))
+        */
 
         commandGroup {
             addSequential(commandGroup {
@@ -84,13 +106,47 @@ object Autonomous {
                 addParallel(commandGroup {
                     addSequential(AutoArmCommand(ArmPosition.UP))
 
-                    addSequential(StateCommand { cube1.hasPassedMarker("Elevator Up") })
+                    addSequential(StateCommand { cube1.hasPassedMarker(elevatorUp) })
                     addSequential(ElevatorPresetCommand(ElevatorPreset.BEHIND))
 
-                    addSequential(StateCommand { cube1.hasPassedMarker("Shoot") })
+                    addSequential(StateCommand { cube1.hasPassedMarker(shootCube1) })
                     addSequential(IntakeCommand(IntakeDirection.OUT, speed = 1.0, timeout = 0.50))
                 })
             })
+
+            /*
+            addSequential(commandGroup {
+                addParallel(pickupCube2)
+                addParallel(ElevatorPresetCommand(ElevatorPreset.INTAKE))
+                addParallel(IntakeCommand(IntakeDirection.IN, speed = 1.0) { pickupCube2.isCompleted })
+            })
+
+            addSequential(commandGroup {
+                addParallel(dropCube2)
+                addParallel(commandGroup {
+                    addSequential(ElevatorPresetCommand(ElevatorPreset.BEHIND))
+
+                    addSequential(StateCommand { dropCube2.hasPassedMarker(shootCube2) })
+                    addSequential(IntakeCommand(IntakeDirection.OUT, speed = 1.0, timeout = 0.50))
+                })
+            })
+
+            addSequential(commandGroup {
+                addParallel(pickupCube3)
+                addParallel(ElevatorPresetCommand(ElevatorPreset.INTAKE))
+                addParallel(IntakeCommand(IntakeDirection.IN, speed = 1.0) { pickupCube3.isCompleted })
+            })
+
+            addSequential(commandGroup {
+                addParallel(dropCube3)
+                addParallel(commandGroup {
+                    addSequential(ElevatorPresetCommand(ElevatorPreset.BEHIND))
+
+                    addSequential(StateCommand { dropCube3.hasPassedMarker(shootCube3) })
+                    addSequential(IntakeCommand(IntakeDirection.OUT, speed = 1.0, timeout = 0.50))
+                })
+            })
+            */
         }.start()
     }
 }

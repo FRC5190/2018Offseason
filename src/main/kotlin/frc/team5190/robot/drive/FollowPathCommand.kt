@@ -13,10 +13,11 @@ class FollowPathCommand(folder: String, file: String,
                         robotReversed: Boolean = false,
                         private val pathMirrored: Boolean = false,
                         pathReversed: Boolean = false,
-                        private val resetRobotPosition: Boolean) : Command() {
+                        private val resetRobotPosition: Boolean = false) : Command() {
 
-    // Stores markers as a map with a string identifier and a distance along the path
-    private val markers = HashMap<String, Double>()
+    companion object {
+        const val DT = 0.02
+    }
 
     // Notifier objects
     private val synchronousNotifier = Object()
@@ -94,18 +95,13 @@ class FollowPathCommand(folder: String, file: String,
     }
 
     // Adds a marker at the point along the path where @pos is closest to that point
-    fun addMarkerAt(pos: Vector2D, name: String) {
+    fun addMarkerAt(pos: Vector2D): Marker {
         val waypoint = if (pathMirrored) Vector2D(pos.x, 27 - pos.y) else pos
-        markers[name] = trajectories[2].segments.minBy { waypoint.distance(Vector2D(it.x, it.y)) }!!.position
+        return Marker(trajectories[2].segments.minBy { waypoint.distance(Vector2D(it.x, it.y)) }!!.position)
     }
 
-    fun hasPassedMarker(name: String): Boolean {
-        return try {
-            pathFollower.currentSegment.position >= markers[name]!!
-        } catch (exception: NullPointerException) {
-            println("Marker Not Found!")
-            false
-        }
+    fun hasPassedMarker(marker: Marker): Boolean {
+        return pathFollower.currentSegment.position >= marker.position
     }
 
     override fun initialize() {
@@ -113,7 +109,7 @@ class FollowPathCommand(folder: String, file: String,
         if (resetRobotPosition) {
             Localization.reset(startingPosition = Vector2D(trajectories[2].segments[0].x, trajectories[2].segments[0].y))
         }
-        notifier.startPeriodic(0.02)
+        notifier.startPeriodic(DT)
     }
 
     override fun end() {
@@ -126,3 +122,5 @@ class FollowPathCommand(folder: String, file: String,
 
     override fun isFinished() = pathFollower.isFinished
 }
+
+class Marker(val position: Double)
