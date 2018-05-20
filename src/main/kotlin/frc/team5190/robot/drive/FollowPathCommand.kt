@@ -11,21 +11,28 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
 class FollowPathCommand(folder: String, file: String,
                         robotReversed: Boolean = false,
-                        pathMirrored: Boolean = false,
+                        private val pathMirrored: Boolean = false,
                         pathReversed: Boolean = false,
                         private val resetRobotPosition: Boolean) : Command() {
 
+    // Stores markers as a map with a string identifier and a distance along the path
+    private val markers = HashMap<String, Double>()
+
+    // Notifier objects
     private val synchronousNotifier = Object()
     private val notifier: Notifier
     private var stopNotifier = false
 
+    // Left, right, and source trajectories
     private val trajectories = Pathreader.getPaths(folder, file)
 
+    // Path follower
     private val pathFollower: PathFollower
 
     init {
         requires(DriveSubsystem)
 
+        // Modify trajectories if reversed or mirrored
         trajectories.forEach { trajectory ->
             if (pathReversed) {
                 val reversedTrajectory = trajectory.copy()
@@ -56,6 +63,7 @@ class FollowPathCommand(folder: String, file: String,
             trajectories[1] = leftTrajectory
         }
 
+        // Initialize path follower
         pathFollower = PathFollower(
                 leftTrajectory = trajectories[0],
                 rightTrajectory = trajectories[1],
@@ -68,6 +76,7 @@ class FollowPathCommand(folder: String, file: String,
             pTurn = 0.0847
         }
 
+        // Initialize notifier
         notifier = Notifier {
             synchronized(synchronousNotifier) {
                 if (stopNotifier) {
@@ -81,6 +90,33 @@ class FollowPathCommand(folder: String, file: String,
 
                 DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = output.first, rightOutput = output.second)
             }
+        }
+    }
+
+    // Adds a marker at the point along the path where @pos is closest to that point
+    fun addMarkerAt(pos: Vector2D, name: String) {
+        val waypoint = if (pathMirrored) Vector2D(pos.x, 27 - pos.y) else pos
+
+        var leastDistance = Double.MAX_VALUE
+        var leastDistanceIndex = 0
+
+        trajectories[2].segments.forEachIndexed { index, segment ->
+            val segmentAsVector = Vector2D(segment.x, segment.y)
+            if (waypoint.distance(segmentAsVector) < leastDistance) {
+                leastDistance = waypoint.distance(segmentAsVector)
+                leastDistanceIndex = index
+            }
+        }
+
+        markers[name] = trajectories[2].segments[leastDistanceIndex].position
+    }
+
+    fun hasPassedMarker(name: String): Boolean {
+        return try {
+            pathFollower.currentSegment.position >= markers[name]!!
+        } catch (exception: NullPointerException) {
+            println("Marker Not Found!")
+            false
         }
     }
 
@@ -101,5 +137,4 @@ class FollowPathCommand(folder: String, file: String,
     }
 
     override fun isFinished() = pathFollower.isFinished
-
 }

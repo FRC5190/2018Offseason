@@ -15,6 +15,9 @@ class PathFollower(val leftTrajectory: Trajectory,
                    val sourceTrajectory: Trajectory,
                    val reversed: Boolean) {
 
+    // Current segment
+    var currentSegment = sourceTrajectory.segments[0]
+
     // PVA Constants for path following
     var p = 0.0
     var v = 0.0
@@ -46,6 +49,7 @@ class PathFollower(val leftTrajectory: Trajectory,
         else rawEncoderVelocities
 
         segmentIndexEstimation = getCurrentSegmentIndex(robotPosition, segmentIndexEstimation)
+        currentSegment = sourceTrajectory[segmentIndexEstimation]
 
         // All points in the path have been exhausted
         if (segmentIndexEstimation >= sourceTrajectory.segments.size - 1) {
@@ -59,7 +63,7 @@ class PathFollower(val leftTrajectory: Trajectory,
         fun getImaginarySegment(): Trajectory.Segment {
             val lastSegment = sourceTrajectory.segments.last()
             val theta = lastSegment.heading
-            val magnitude = lookaheadDistance - (lastSegment.position - sourceTrajectory[segmentIndexEstimation].position)
+            val magnitude = lookaheadDistance - (lastSegment.position - currentSegment.position)
             val vector = Vector2D(magnitude * Math.cos(theta), magnitude * Math.sin(theta))
             return Trajectory.Segment(
                     lastSegment.dt,
@@ -74,7 +78,7 @@ class PathFollower(val leftTrajectory: Trajectory,
         }
 
         val lookaheadSegment = sourceTrajectory.segments.copyOfRange(segmentIndexEstimation, sourceTrajectory.segments.size).find { segment ->
-            return@find segment.position - sourceTrajectory[segmentIndexEstimation].position >= lookaheadDistance
+            return@find segment.position - currentSegment.position >= lookaheadDistance
         } ?: getImaginarySegment()
 
         val desiredPosition = Vector2D(lookaheadSegment.x, lookaheadSegment.y)
