@@ -4,7 +4,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.team5190.lib.commandGroup
 import frc.team5190.lib.util.Pathreader
+import frc.team5190.robot.arm.ArmPosition
+import frc.team5190.robot.arm.AutoArmCommand
 import frc.team5190.robot.drive.FollowPathCommand
+import frc.team5190.robot.elevator.AutoElevatorCommand
+import frc.team5190.robot.elevator.ElevatorPosition
+import frc.team5190.robot.elevator.ElevatorPreset
+import frc.team5190.robot.elevator.ElevatorPresetCommand
+import frc.team5190.robot.intake.IntakeCommand
+import frc.team5190.robot.intake.IntakeDirection
 import frc.team5190.robot.sensors.Pigeon
 import kotlinx.coroutines.experimental.async
 import openrio.powerup.MatchData
@@ -14,9 +22,11 @@ object Autonomous {
     // Switch side and scale side variables
     var switchSide = MatchData.OwnedSide.UNKNOWN
         private set
+        @Synchronized get
 
     var scaleSide = MatchData.OwnedSide.UNKNOWN
         private set
+        @Synchronized get
 
     // Starting position
     private var startingPosition = StartingPosition.CENTER
@@ -50,9 +60,39 @@ object Autonomous {
 
     private fun start() {
         Pigeon.reset()
-        commandGroup {
-            FollowPathCommand("LS-LL", "25 Feet", resetRobotPosition = true)
-        }.start()
+        when (folder) {
+            "LS-LL" -> commandGroup {
+                addSequential(commandGroup {
+                    addParallel(FollowPathCommand(folder = "LS-LL",
+                            file = "1st Cube",
+                            resetRobotPosition = true,
+                            robotReversed = true,
+                            pathMirrored = startingPosition == StartingPosition.RIGHT))
+                    addParallel(commandGroup {
+                        addParallel(AutoElevatorCommand(ElevatorPosition.SWITCH))
+                        addParallel(AutoArmCommand(ArmPosition.UP))
+                    })
+                })
+                addSequential(ElevatorPresetCommand(ElevatorPreset.BEHIND))
+                addSequential(IntakeCommand(IntakeDirection.OUT, timeout = 0.75, speed = 0.75))
+            }
+            "LS-RR" -> commandGroup {
+                addSequential(commandGroup {
+                    addParallel(FollowPathCommand(folder = "LS-RR",
+                            file = "1st Cube",
+                            resetRobotPosition = true,
+                            robotReversed = true,
+                            pathMirrored = startingPosition == StartingPosition.RIGHT))
+                    addParallel(commandGroup {
+                        addParallel(AutoElevatorCommand(ElevatorPosition.SWITCH))
+                        addParallel(AutoArmCommand(ArmPosition.UP))
+                    })
+                })
+                addSequential(ElevatorPresetCommand(ElevatorPreset.BEHIND))
+                addSequential(IntakeCommand(IntakeDirection.OUT, timeout = 0.75, speed = 0.75))
+            }
+            else -> null
+        }?.start()
     }
 
 }

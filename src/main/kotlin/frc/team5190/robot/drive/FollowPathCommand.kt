@@ -51,9 +51,9 @@ class FollowPathCommand(folder: String, file: String,
         }
 
         if (pathMirrored xor (pathReversed xor robotReversed)) {
-            val temp = trajectories[0]
+            val leftTrajectory = trajectories[0]
             trajectories[0] = trajectories[1]
-            trajectories[1] = temp
+            trajectories[1] = leftTrajectory
         }
 
         pathFollower = PathFollower(
@@ -65,7 +65,6 @@ class FollowPathCommand(folder: String, file: String,
             p = 0.5
             v = 0.059
             vIntercept = 0.10
-            
             pTurn = 0.0847
         }
 
@@ -87,7 +86,6 @@ class FollowPathCommand(folder: String, file: String,
 
     override fun initialize() {
         DriveSubsystem.resetEncoders()
-
         if (resetRobotPosition) {
             Localization.reset(startingPosition = Vector2D(trajectories[2].segments[0].x, trajectories[2].segments[0].y))
         }

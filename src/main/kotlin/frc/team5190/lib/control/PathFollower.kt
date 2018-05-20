@@ -19,7 +19,6 @@ class PathFollower(val leftTrajectory: Trajectory,
     var p = 0.0
     var v = 0.0
     var vIntercept = 0.0
-    var a = 0.0
 
     // P constant for turning
     var pTurn = 0.0
@@ -53,7 +52,6 @@ class PathFollower(val leftTrajectory: Trajectory,
             isFinished = true
             return 0.0 to 0.0
         }
-
 
         // Get lookahead point based on speed
         val lookaheadDistance = lookaheadInterpolator.predict((velocities.first + velocities.second).FPS.value / 2.0)
