@@ -96,19 +96,7 @@ class FollowPathCommand(folder: String, file: String,
     // Adds a marker at the point along the path where @pos is closest to that point
     fun addMarkerAt(pos: Vector2D, name: String) {
         val waypoint = if (pathMirrored) Vector2D(pos.x, 27 - pos.y) else pos
-
-        var leastDistance = Double.MAX_VALUE
-        var leastDistanceIndex = 0
-
-        trajectories[2].segments.forEachIndexed { index, segment ->
-            val segmentAsVector = Vector2D(segment.x, segment.y)
-            if (waypoint.distance(segmentAsVector) < leastDistance) {
-                leastDistance = waypoint.distance(segmentAsVector)
-                leastDistanceIndex = index
-            }
-        }
-
-        markers[name] = trajectories[2].segments[leastDistanceIndex].position
+        markers[name] = trajectories[2].segments.minBy { waypoint.distance(Vector2D(it.x, it.y)) }!!.position
     }
 
     fun hasPassedMarker(name: String): Boolean {

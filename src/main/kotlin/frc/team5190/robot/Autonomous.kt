@@ -79,10 +79,10 @@ object Autonomous {
                 addParallel(commandGroup {
                     addSequential(AutoArmCommand(ArmPosition.UP))
 
-                    addSequential(StateCommand(cube1.hasPassedMarker("Elevator Up")))
+                    addSequential(StateCommand { cube1.hasPassedMarker("Elevator Up") })
                     addSequential(ElevatorPresetCommand(ElevatorPreset.BEHIND))
 
-                    addSequential(StateCommand(cube1.hasPassedMarker("Shoot")))
+                    addSequential(StateCommand { cube1.hasPassedMarker("Shoot") })
                     addSequential(IntakeCommand(IntakeDirection.OUT, speed = 1.0, timeout = 0.50))
                 })
             })

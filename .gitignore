@@ -3,6 +3,7 @@
 
 .idea/
 .gradle/
+out/
 
 build/
 *.ipr
@@ -10,3 +11,4 @@ build/
 *.iml
 *.ipr
 5190 Offseason 2018.ipr
+*.class
