@@ -82,7 +82,7 @@ object Pathreader {
 
 
     fun getPaths(folder: String, file: String): ArrayList<Trajectory> {
-        return arrayListOf(allPaths["$folder/$file Left Detailed"]!!, allPaths["$folder/$file Right Detailed"]!!, allPaths["$folder/$file Source Detailed"]!!)
+        return arrayListOf(allPaths["$folder/$file Left"]!!, allPaths["$folder/$file Right"]!!, allPaths["$folder/$file Source"]!!)
     }
 }
 

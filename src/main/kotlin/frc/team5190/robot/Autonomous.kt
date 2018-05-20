@@ -60,6 +60,7 @@ object Autonomous {
 
     private fun start() {
         Pigeon.reset()
+        Pigeon.angleOffset = 180.00
 
         val cube1 = FollowPathCommand(
                 folder = folder,
@@ -68,9 +69,13 @@ object Autonomous {
                 robotReversed = true,
                 pathMirrored = startingPosition == StartingPosition.RIGHT).apply {
 
-            addMarkerAt(Vector2D(14.0, 21.0), "Elevator Up")
-            addMarkerAt(Vector2D(20.5, 23.0), "Shoot")
-
+            if (folder == "LS-LL") {
+                addMarkerAt(Vector2D(14.0, 23.5), "Elevator Up")
+                addMarkerAt(Vector2D(22.9, 20.0), "Shoot")
+            } else {
+                addMarkerAt(Vector2D(20.5, 7.0), "Elevator Up")
+                addMarkerAt(Vector2D(22.9, 7.0), "Shoot")
+            }
         }
 
         commandGroup {
@@ -88,7 +93,6 @@ object Autonomous {
             })
         }.start()
     }
-
 }
 
 enum class StartingPosition {
