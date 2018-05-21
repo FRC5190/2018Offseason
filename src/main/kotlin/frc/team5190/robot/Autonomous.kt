@@ -41,6 +41,8 @@ object Autonomous {
     init {
         val startingPositionChooser = SendableChooser<StartingPosition>()
         StartingPosition.values().forEach { startingPositionChooser.addObject(it.name.toLowerCase().capitalize(), it) }
+        startingPositionChooser.addDefault("Right", StartingPosition.RIGHT)
+
         SmartDashboard.putData("Starting Position", startingPositionChooser)
 
         // Poll for FMS Data
