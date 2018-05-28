@@ -163,10 +163,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/2018Offseason.iml" filepath="$PROJECT_DIR$/2018Offseason.iml" />
-      <module fileurl="file://$PROJECT_DIR$/2018Offseason.iml" filepath="$PROJECT_DIR$/2018Offseason.iml" />
       <module fileurl="file://$PROJECT_DIR$/2018Offseason_main.iml" filepath="$PROJECT_DIR$/2018Offseason_main.iml" group="2018Offseason" />
-      <module fileurl="file://$PROJECT_DIR$/2018Offseason_main.iml" filepath="$PROJECT_DIR$/2018Offseason_main.iml" group="2018Offseason" />
-      <module fileurl="file://$PROJECT_DIR$/2018Offseason_test.iml" filepath="$PROJECT_DIR$/2018Offseason_test.iml" group="2018Offseason" />
       <module fileurl="file://$PROJECT_DIR$/2018Offseason_test.iml" filepath="$PROJECT_DIR$/2018Offseason_test.iml" group="2018Offseason" />
     </modules>
   </component>
