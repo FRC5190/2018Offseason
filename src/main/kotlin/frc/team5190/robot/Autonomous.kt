@@ -64,6 +64,8 @@ object Autonomous {
         Pigeon.reset()
         Pigeon.angleOffset = 180.00
 
+        Robot.INSTANCE.poseNTInstance.getEntry("Reset Plot").setBoolean(true)
+
         val elevatorUp: Marker
         val shootCube1: Marker
         /*

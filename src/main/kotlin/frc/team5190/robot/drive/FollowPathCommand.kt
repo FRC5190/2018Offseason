@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.control.PathFollower
 import frc.team5190.lib.util.Pathreader
 import frc.team5190.robot.Localization
+import frc.team5190.robot.Robot
 import frc.team5190.robot.sensors.Pigeon
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
@@ -83,6 +84,10 @@ class FollowPathCommand(folder: String, file: String,
                 if (stopNotifier) {
                     return@Notifier
                 }
+
+                Robot.INSTANCE.poseNTInstance.getEntry("Path X").setDouble(pathFollower.currentSegment.x * 12)
+                Robot.INSTANCE.poseNTInstance.getEntry("Path Y").setDouble(pathFollower.currentSegment.y * 12)
+                Robot.INSTANCE.poseNTInstance.getEntry("Path Heading").setDouble(pathFollower.currentSegment.heading)
 
                 val output = pathFollower.getMotorOutput(
                         robotPosition = Localization.robotPosition,

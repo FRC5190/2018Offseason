@@ -1,5 +1,6 @@
 package frc.team5190.robot
 
+import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.IterativeRobot
 import edu.wpi.first.wpilibj.command.Scheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
@@ -18,6 +19,8 @@ class Robot : IterativeRobot() {
     // Global Robot Variables
     var isClimbing = false
     var isAutoReady = false
+
+    val poseNTInstance = NetworkTableInstance.getDefault().getTable("PosePlotter")
 
     companion object {
         lateinit var INSTANCE: Robot
