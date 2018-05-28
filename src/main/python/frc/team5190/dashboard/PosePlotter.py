@@ -94,14 +94,14 @@ def genRobotSquare(p, heading):
     return boxArr
 
 
-xdata = [0.0]
-ydata = [0.0]
-headings = [0.0]
+robotX = [0.0]
+robotY = [0.0]
+robotHeadings = [0.0]
 
 # Path
-pxdata = [0.0]
-pydata = [0.0]
-pheadings = [0.0]
+pathX = [0.0]
+pathY = [0.0]
+pathHeadings = [0.0]
 
 
 def updatePoint(point, pathpoint, robot, actualPath, targetPath):
@@ -111,12 +111,12 @@ def updatePoint(point, pathpoint, robot, actualPath, targetPath):
         return
 
     if ntinstance.getBoolean('ResetPlot', False):
-        del xdata[:]
-        del ydata[:]
-        del headings[:]
-        del pxdata[:]
-        del pydata[:]
-        del pheadings[:]
+        del robotX[:]
+        del robotY[:]
+        del robotHeadings[:]
+        del pathX[:]
+        del pathY[:]
+        del pathHeadings[:]
         ntinstance.putBoolean('ResetPlot', False)
 
     xval = ntinstance.getNumber('Robot X', 0.0)
@@ -124,9 +124,9 @@ def updatePoint(point, pathpoint, robot, actualPath, targetPath):
     hval = ntinstance.getNumber('Robot Heading', 0.0)
 
     if xval > .01 or yval > .01:
-        xdata.append(xval)
-        ydata.append(yval)
-        headings.append(hval)
+        robotX.append(xval)
+        robotY.append(yval)
+        robotHeadings.append(hval)
 
     pxval = ntinstance.getNumber('Path X', 0.0)
     pyval = ntinstance.getNumber('Path Y', 0.0)
@@ -134,16 +134,16 @@ def updatePoint(point, pathpoint, robot, actualPath, targetPath):
 
     # Try to avoid "teleporting" when observer is reset.
     if pxval > .01 or pyval > .01:
-        pxdata.append(pxval)
-        pydata.append(pyval)
-        pheadings.append(phval)
+        pathX.append(pxval)
+        pathY.append(pyval)
+        pathHeadings.append(phval)
 
     point.set_data(np.array([xval, yval]))
     pathpoint.set_data(np.array([pxval, pyval]))
     robotData = genRobotSquare((xval, yval), hval)
     robot.set_data([p[0] for p in robotData], [p[1] for p in robotData])
-    actualPath.set_data(xdata, ydata)
-    targetPath.set_data(pxdata, pydata)
+    actualPath.set_data(robotX, robotY)
+    targetPath.set_data(pathX, pathY)
     return [point, pathpoint, robot, actualPath, targetPath]
 
 
@@ -151,15 +151,15 @@ def updatePoint(point, pathpoint, robot, actualPath, targetPath):
 fig = plt.figure()
 ax = fig.add_subplot(111, aspect='equal')
 drawField(ax)
-targetPath, = ax.plot(pxdata, pydata, color='red', alpha=0.5)
-actualPath, = ax.plot(xdata, ydata, color='black', alpha=0.25)
+targetPath, = ax.plot(pathX, pathY, color='red', alpha=0.5)
+actualPath, = ax.plot(robotX, robotY, color='black', alpha=0.25)
 
-pathpoint, = ax.plot(pxdata[0], pydata[0], marker='o', markersize=5, color="red")
-point, = ax.plot(xdata[0], ydata[0], marker='o', markersize=5, color="blue")
-startingRobot = genRobotSquare((xdata[0], ydata[0]), 0.0)
-robot, = ax.plot([p[0] for p in startingRobot], [p[1] for p in startingRobot], color="black")
+pathpoint = ax.plot(pathX[0], pathY[0], marker='o', markersize=2, color="red")
+point = ax.plot(robotX[0], robotY[0], marker='o', markersize=2, color="blue")
+startingRobot = genRobotSquare((robotX[0], robotY[0]), 0.0)
+robot = ax.plot([p[0] for p in startingRobot], [p[1] for p in startingRobot], color="maroon")
 
 plt.margins(x=0.1, y=0.1)
 
-ani = animation.FuncAnimation(fig, updatePoint, len(xdata), fargs=(point, pathpoint, robot, actualPath, targetPath))
+ani = animation.FuncAnimation(fig, updatePoint, len(robotX), fargs=(pathpoint, robot, actualPath, targetPath))
 plt.show()

@@ -87,7 +87,7 @@ class FollowPathCommand(folder: String, file: String,
 
                 Robot.INSTANCE.poseNTInstance.getEntry("Path X").setDouble(pathFollower.currentSegment.x * 12)
                 Robot.INSTANCE.poseNTInstance.getEntry("Path Y").setDouble(pathFollower.currentSegment.y * 12)
-                Robot.INSTANCE.poseNTInstance.getEntry("Path Heading").setDouble(pathFollower.currentSegment.heading)
+                Robot.INSTANCE.poseNTInstance.getEntry("Path Heading").setDouble(Math.toRadians(pathFollower.currentSegment.heading))
 
                 val output = pathFollower.getMotorOutput(
                         robotPosition = Localization.robotPosition,
