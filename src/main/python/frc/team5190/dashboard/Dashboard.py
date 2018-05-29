@@ -3,6 +3,7 @@ import tkinter as tk
 
 import matplotlib
 import numpy as np
+from matplotlib.image import imread
 
 matplotlib.use("TkAgg")
 
@@ -10,7 +11,6 @@ from networktables import NetworkTables
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from matplotlib import animation
-
 
 class Dashboard(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -26,53 +26,26 @@ class Dashboard(tk.Tk):
         PosePlotter(parent=self).pack()
 
 
-# noinspection SpellCheckingInspection
 class PosePlotter(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
         NetworkTables.initialize(server='10.51.90.2')
 
         # ALL UNITS IN INCHES
+        # noinspection SpellCheckingInspection
         def drawField(plax):
 
             plax.set_axis_off()
             plax.set_title("Robot Position on Field")
 
-            # Calculate field length and width in inches
-            fieldDim = [12 * 54, 12 * 27]
+            img = imread("C:/Users/prate/Downloads/bgtest.png")
+            img2 = imread("C:/Users/prate/Downloads/bgtest2.png")
 
-            # Draw individual elements
-            fieldBoundary = [(29.69, 0), (fieldDim[0] - 29.69, 0), (fieldDim[0], 35.0),
-                             (fieldDim[0], fieldDim[1] - 35.0),
-                             (fieldDim[0] - 29.69, fieldDim[1]), (29.69, fieldDim[1]), (0, fieldDim[1] - 35.0),
-                             (0, 35.0),
-                             (29.69, 0)]
-            plax.plot([p[0] for p in fieldBoundary], [p[1] for p in fieldBoundary], color="black")
-            plax.fill([p[0] for p in fieldBoundary], [p[1] for p in fieldBoundary], color="#e1e2e2")
+            plax.imshow(img, extent=[0.0, 32 * 12, 0.0, 27 * 12])
+            plax.imshow(img2, extent=[22 * 12, 54 * 12, 0.0, 27 * 12])
 
-            switchClose = [(140, 85.25), (140, fieldDim[1] - 85.25), (196, fieldDim[1] - 85.25), (196, 85.25),
-                           (140, 85.25)]
-            plax.plot([p[0] for p in switchClose], [p[1] for p in switchClose], color="red")
 
-            switchFar = [(fieldDim[0] - 140, 85.25), (fieldDim[0] - 140, fieldDim[1] - 85.25),
-                         (fieldDim[0] - 196, fieldDim[1] - 85.25), (fieldDim[0] - 196, 85.25),
-                         (fieldDim[0] - 140, 85.25)]
-            plax.plot([p[0] for p in switchFar], [p[1] for p in switchFar], color="blue")
 
-            scale = [(299.65, 71.57), (299.65, fieldDim[1] - 71.57), (348.35, fieldDim[1] - 71.57,), (348.35, 71.57),
-                     (299.65, 71.57)]
-            plax.plot([p[0] for p in scale], [p[1] for p in scale], color="purple")
-
-            platform = [(261.47, 95.25), (261.47, fieldDim[1] - 95.25), (386.53, fieldDim[1] - 95.25), (386.53, 95.25),
-                        (261.47, 95.25)]
-            plax.plot([p[0] for p in platform], [p[1] for p in platform], color="gray")
-
-            nullZoneLeft = [(288.0, 0.0), (288.0, 95.25), (288.0 + 72.0, 95.25), (288.0 + 72.0, 0)]
-            plax.plot([p[0] for p in nullZoneLeft], [p[1] for p in nullZoneLeft], linestyle=':', color="black")
-
-            nullZoneRight = [(288.0, fieldDim[1]), (288.0, fieldDim[1] - 95.25), (288.0 + 72.0, fieldDim[1] - 95.25),
-                             (288.0 + 72.0, fieldDim[1])]
-            plax.plot([p[0] for p in nullZoneRight], [p[1] for p in nullZoneRight], linestyle=':', color="black")
 
         def rotatePoint(p, center, angle):
             s = math.sin(math.radians(angle))
@@ -96,13 +69,10 @@ class PosePlotter(tk.Frame):
             bottomLeft = (p[0] - robotWidth / 2.0, p[1] - robotLength / 2.0)
             bottomRight = (p[0] + robotWidth / 2.0, p[1] - robotLength / 2.0)
 
-            trianglepoint = ((topRight[0] + bottomRight[0]) / 2.0, (topRight[1] + bottomRight[1]) / 2.0)
-
             topLeft = rotatePoint(topLeft, p, heading)
             bottomLeft = rotatePoint(bottomLeft, p, heading)
-            trianglepoint = rotatePoint(trianglepoint, p, heading)
 
-            boxArr = [topLeft, trianglepoint, bottomLeft, topLeft]
+            boxArr = [topLeft, topRight, bottomRight, bottomLeft, topLeft]
             return boxArr
 
         robotX = [18.5]
@@ -120,8 +90,8 @@ class PosePlotter(tk.Frame):
         fig = Figure(figsize=(10, 5), dpi=100)
         ax = fig.add_subplot(111, aspect='equal')
 
-        xprint = ax.text(54*6 - 90, -20, "Robot X: 18.5", ha="left")
-        yprint = ax.text(54*6 + 10, -20, "Robot Y: 276")
+        xprint = ax.text(54 * 6 - 90, -20, "Robot X: 1.541", ha="left")
+        yprint = ax.text(54 * 6 + 10, -20, "Robot Y: 23")
 
         # noinspection PyShadowingNames
         def updatePoint(_, point, pathpoint, lookaheadpoint, robot, actualPath, targetPath):
@@ -140,8 +110,8 @@ class PosePlotter(tk.Frame):
             yval = ntinstance.getNumber('Robot Y', 0.0)
             hval = ntinstance.getNumber('Robot Heading', 0.0)
 
-            xprint.set_text(str(xval))
-            yprint.set_text(str(yval))
+            xprint.set_text("Robot X: " + str(xval))
+            yprint.set_text("Robot Y: " + str(yval))
 
             if xval > .01 or yval > .01:
                 robotX.append(xval)
@@ -158,7 +128,6 @@ class PosePlotter(tk.Frame):
             lookaheadX.append(lax)
             lookaheadY.append(lay)
 
-   
             # Try to avoid "teleporting" when observer is reset.
             if pxval > .01 or pyval > .01:
                 pathX.append(pxval)
@@ -176,10 +145,10 @@ class PosePlotter(tk.Frame):
 
         # Generate the figure and draw static elements
 
-
         drawField(ax)
         targetPath, = ax.plot(pathX, pathY, color='red', alpha=0.5)
         actualPath, = ax.plot(robotX, robotY, color='black', alpha=0.25)
+
 
         pathpoint = ax.plot(pathX[0], pathY[0], marker='o', markersize=2, color="red")
         point = ax.plot(robotX[0], robotY[0], marker='o', markersize=2, color="blue")
