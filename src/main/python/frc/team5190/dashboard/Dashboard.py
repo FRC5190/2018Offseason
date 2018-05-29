@@ -3,14 +3,19 @@ import tkinter as tk
 
 import matplotlib
 import numpy as np
-from matplotlib.image import imread
 
 matplotlib.use("TkAgg")
 
 from networktables import NetworkTables
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.image import imread
 from matplotlib.figure import Figure
 from matplotlib import animation
+
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
 
 class Dashboard(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -20,8 +25,6 @@ class Dashboard(tk.Tk):
 
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
 
         PosePlotter(parent=self).pack()
 
@@ -29,140 +32,136 @@ class Dashboard(tk.Tk):
 class PosePlotter(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
-        NetworkTables.initialize(server='10.51.90.2')
+        NetworkTables.initialize(server='127.0.1.1')
+        nt_instance = NetworkTables.getTable("PosePlotter")
 
-        # ALL UNITS IN INCHES
-        # noinspection SpellCheckingInspection
-        def drawField(plax):
+        def draw_field(subplot):
+            subplot.set_axis_off()
+            subplot.set_title("Robot Position on Field")
 
-            plax.set_axis_off()
-            plax.set_title("Robot Position on Field")
+            img = imread("images/red_alliance.png")
+            img2 = imread("images/blue_alliance.png")
 
-            img = imread("C:/Users/prate/Downloads/bgtest.png")
-            img2 = imread("C:/Users/prate/Downloads/bgtest2.png")
+            subplot.imshow(img, extent=[0.0, 32 * 12, 0.0, 27 * 12])
+            subplot.imshow(img2, extent=[22 * 12, 54 * 12, 0.0, 27 * 12])
 
-            plax.imshow(img, extent=[0.0, 32 * 12, 0.0, 27 * 12])
-            plax.imshow(img2, extent=[22 * 12, 54 * 12, 0.0, 27 * 12])
-
-
-
-
-        def rotatePoint(p, center, angle):
-            s = math.sin(math.radians(angle))
-            c = math.cos(math.radians(angle))
+        def rotate_point(p, center, angle):
+            sin = math.sin(angle)
+            cos = math.cos(angle)
 
             px = p[0] - center[0]
             py = p[1] - center[1]
-            pxn = px * c - py * s
-            pyn = px * s + py * c
+            pxn = px * cos - py * sin
+            pyn = px * sin + py * cos
 
             px = pxn + center[0]
             py = pyn + center[1]
             return px, py
 
-        def genRobotSquare(p, heading):
-            robotWidth = 33.0
-            robotLength = 27.0
+        def gen_robot_square(p, heading):
+            robot_width = 33.0
+            robot_length = 27.0
 
-            topLeft = (p[0] - robotWidth / 2.0, p[1] + robotLength / 2.0)
-            topRight = (p[0] + robotWidth / 2.0, p[1] + robotLength / 2.0)
-            bottomLeft = (p[0] - robotWidth / 2.0, p[1] - robotLength / 2.0)
-            bottomRight = (p[0] + robotWidth / 2.0, p[1] - robotLength / 2.0)
+            top_left = (p[0] - robot_width / 2.0, p[1] + robot_length / 2.0)
+            top_right = (p[0] + robot_width / 2.0, p[1] + robot_length / 2.0)
+            bottom_left = (p[0] - robot_width / 2.0, p[1] - robot_length / 2.0)
+            bottom_right = (p[0] + robot_width / 2.0, p[1] - robot_length / 2.0)
 
-            topLeft = rotatePoint(topLeft, p, heading)
-            bottomLeft = rotatePoint(bottomLeft, p, heading)
+            top_left = rotate_point(top_left, p, heading)
+            top_right = rotate_point(top_right, p, heading)
+            bottom_left = rotate_point(bottom_left, p, heading)
+            bottom_right = rotate_point(bottom_right, p, heading)
 
-            boxArr = [topLeft, topRight, bottomRight, bottomLeft, topLeft]
-            return boxArr
+            box = [top_left, top_right, bottom_right, bottom_left, top_left]
+            return box
 
-        robotX = [18.5]
-        robotY = [276]
-        robotHeadings = [0.0]
+        robot_x_values = [18.5]
+        robot_y_values = [276]
+        robot_headings = [0.0]
 
         # Path
-        pathX = [18.5]
-        pathY = [276]
-        pathHeadings = [0.0]
+        path_x_values = [18.5]
+        path_y_values = [276]
+        path_headings = [0.0]
 
-        lookaheadX = [100]
-        lookaheadY = [276]
+        lookahead_x_values = [100]
+        lookahead_y_values = [276]
 
         fig = Figure(figsize=(10, 5), dpi=100)
-        ax = fig.add_subplot(111, aspect='equal')
+        plot = fig.add_subplot(111, aspect='equal')
 
-        xprint = ax.text(54 * 6 - 90, -20, "Robot X: 1.541", ha="left")
-        yprint = ax.text(54 * 6 + 10, -20, "Robot Y: 23")
+        x_location_display = plot.text(0, -20, "Robot X: 1.541 ft")
+        y_location_display = plot.text(0, -40, "Robot Y: 23 ft")
 
         # noinspection PyShadowingNames
-        def updatePoint(_, point, pathpoint, lookaheadpoint, robot, actualPath, targetPath):
-            ntinstance = NetworkTables.getTable('PosePlotter')
+        def update_point(n, robot_point, path_point, lookahead_point, robot, robot_path, path):
+            if nt_instance.getBoolean('ResetPlot', False):
+                del robot_x_values[:]
+                del robot_y_values[:]
+                del robot_headings[:]
+                del path_x_values[:]
+                del path_y_values[:]
+                del path_headings[:]
+                nt_instance.putBoolean('ResetPlot', False)
 
-            if ntinstance.getBoolean('ResetPlot', False):
-                del robotX[:]
-                del robotY[:]
-                del robotHeadings[:]
-                del pathX[:]
-                del pathY[:]
-                del pathHeadings[:]
-                ntinstance.putBoolean('ResetPlot', False)
+            robot_x = nt_instance.getNumber('Robot X', 18.5)
+            robot_y = nt_instance.getNumber('Robot Y', 276)
+            robot_heading = nt_instance.getNumber('Robot Heading', 0.0)
 
-            xval = ntinstance.getNumber('Robot X', 0.0)
-            yval = ntinstance.getNumber('Robot Y', 0.0)
-            hval = ntinstance.getNumber('Robot Heading', 0.0)
+            x_location_display.set_text("Robot X: " + str(robot_x / 12.0) + "ft")
+            y_location_display.set_text("Robot Y: " + str(robot_y / 12.0) + "ft")
 
-            xprint.set_text("Robot X: " + str(xval))
-            yprint.set_text("Robot Y: " + str(yval))
+            if robot_x > .01 or robot_y > .01:
+                robot_x_values.append(robot_x)
+                robot_y_values.append(robot_y)
+                robot_headings.append(robot_heading)
 
-            if xval > .01 or yval > .01:
-                robotX.append(xval)
-                robotY.append(yval)
-                robotHeadings.append(hval)
+            path_x = nt_instance.getNumber('Path X', 0.0)
+            path_y = nt_instance.getNumber('Path Y', 0.0)
+            path_heading = nt_instance.getNumber('Path Heading', 0.0)
 
-            pxval = ntinstance.getNumber('Path X', 0.0)
-            pyval = ntinstance.getNumber('Path Y', 0.0)
-            phval = ntinstance.getNumber('Path Heading', 0.0)
+            lookahead_x = nt_instance.getNumber("Lookahead X", 100.0)
+            lookahead_y = nt_instance.getNumber("Lookahead Y", 100.0)
 
-            lax = ntinstance.getNumber("Lookahead X", 100.0)
-            lay = ntinstance.getNumber("Lookahead Y", 100.0)
+            lookahead_x_values.append(lookahead_x)
+            lookahead_y_values.append(lookahead_y)
 
-            lookaheadX.append(lax)
-            lookaheadY.append(lay)
+            if path_x > .01 or path_y > .01:
+                path_x_values.append(path_x)
+                path_y_values.append(path_y)
+                path_headings.append(path_heading)
 
-            # Try to avoid "teleporting" when observer is reset.
-            if pxval > .01 or pyval > .01:
-                pathX.append(pxval)
-                pathY.append(pyval)
-                pathHeadings.append(phval)
+            robot_point.set_data(np.array([robot_x, robot_y]))
+            path_point.set_data(np.array([path_x, path_y]))
+            lookahead_point.set_data(np.array([lookahead_x, lookahead_y]))
 
-            point.set_data(np.array([xval, yval]))
-            pathpoint.set_data(np.array([pxval, pyval]))
-            lookaheadpoint.set_data(np.array([lax, lay]))
-            robotData = genRobotSquare((xval, yval), hval)
+            robotData = gen_robot_square((robot_x, robot_y), robot_heading)
+
             robot.set_data([p[0] for p in robotData], [p[1] for p in robotData])
-            actualPath.set_data(robotX, robotY)
-            targetPath.set_data(pathX, pathY)
-            return [point, pathpoint, lookaheadpoint, robot, actualPath, targetPath]
+            robot_path.set_data(robot_x_values, robot_y_values)
+            path.set_data(path_x_values, path_y_values)
 
-        # Generate the figure and draw static elements
+            return [robot_point, path_point, lookahead_point, robot, robot_path, path]
 
-        drawField(ax)
-        targetPath, = ax.plot(pathX, pathY, color='red', alpha=0.5)
-        actualPath, = ax.plot(robotX, robotY, color='black', alpha=0.25)
+        draw_field(plot)
 
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.get_tk_widget().pack()
 
-        pathpoint = ax.plot(pathX[0], pathY[0], marker='o', markersize=2, color="red")
-        point = ax.plot(robotX[0], robotY[0], marker='o', markersize=2, color="blue")
-        lookaheadpoint = ax.plot(lookaheadX[0], lookaheadY[0], marker="*", markersize=5, color="green")
-        startingRobot = genRobotSquare((robotX[0], robotY[0]), 0.0)
-        robot = ax.plot([p[0] for p in startingRobot], [p[1] for p in startingRobot], color="maroon")
+        targetPath, = plot.plot(path_x_values, path_y_values, color='red', alpha=0.5)
+        actualPath, = plot.plot(robot_x_values, robot_y_values, color='black', alpha=0.25)
 
-        canvas = FigureCanvasTkAgg(fig, self)
+        path_point, = plot.plot(path_x_values[0], path_y_values[0], marker='o', markersize=2, color="red")
+        robot_point, = plot.plot(robot_x_values[0], robot_y_values[0], marker='o', markersize=2, color="blue")
+        lookahead_point, = plot.plot(lookahead_x_values[0], lookahead_y_values[0], marker="*", markersize=5,
+                                     color="black")
+        starting_robot = gen_robot_square((robot_x_values[0], robot_y_values[0]), 0.0)
+        robot, = plot.plot([p[0] for p in starting_robot], [p[1] for p in starting_robot], color="green")
+
+        ani = animation.FuncAnimation(fig, update_point, len(robot_x_values),
+                                      fargs=(robot_point, path_point, lookahead_point, robot, actualPath, targetPath))
+
         canvas.draw()
-        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
-        canvas.tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        animation.FuncAnimation(fig, updatePoint, len(robotX),
-                                fargs=(point, pathpoint, lookaheadpoint, robot, actualPath, targetPath))
 
 
 app = Dashboard()
