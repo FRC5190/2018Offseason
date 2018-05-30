@@ -87,29 +87,32 @@ class PosePlotter(tk.Frame):
         lookahead_x_values = [100]
         lookahead_y_values = [276]
 
-        fig = Figure(figsize=(10, 5), dpi=100)
+        fig = Figure(figsize=(10, 5.75), dpi=100)
         plot = fig.add_subplot(111, aspect='equal')
 
-        x_location_display = plot.text(0, -20, "Robot X: 1.541 ft")
-        y_location_display = plot.text(0, -40, "Robot Y: 23 ft")
+        x_location_display = plot.text(0, -18, "")
+        y_location_display = plot.text(0, -38, "")
+        theta_display = plot.text(0, -58, "")
 
-        # noinspection PyShadowingNames
         def update_point(n, robot_point, path_point, lookahead_point, robot, robot_path, path):
-            if nt_instance.getBoolean('ResetPlot', False):
+
+            if nt_instance.getBoolean('Reset', False):
                 del robot_x_values[:]
                 del robot_y_values[:]
                 del robot_headings[:]
                 del path_x_values[:]
                 del path_y_values[:]
                 del path_headings[:]
-                nt_instance.putBoolean('ResetPlot', False)
+                nt_instance.putBoolean('Reset', False)
 
             robot_x = nt_instance.getNumber('Robot X', 18.5)
             robot_y = nt_instance.getNumber('Robot Y', 276)
             robot_heading = nt_instance.getNumber('Robot Heading', 0.0)
 
-            x_location_display.set_text("Robot X: " + str(robot_x / 12.0) + "ft")
-            y_location_display.set_text("Robot Y: " + str(robot_y / 12.0) + "ft")
+            x_location_display.set_text("Robot X: " + str(robot_x / 12.0) + " ft")
+            y_location_display.set_text("Robot Y: " + str(robot_y / 12.0) + " ft")
+            theta_display.set_text("Robot θ: " + str(np.degrees(robot_heading)) + "°")
+        
 
             if robot_x > .01 or robot_y > .01:
                 robot_x_values.append(robot_x)
@@ -158,7 +161,7 @@ class PosePlotter(tk.Frame):
         starting_robot = gen_robot_square((robot_x_values[0], robot_y_values[0]), 0.0)
         robot, = plot.plot([p[0] for p in starting_robot], [p[1] for p in starting_robot], color="green")
 
-        ani = animation.FuncAnimation(fig, update_point, len(robot_x_values),
+        ani = animation.FuncAnimation(fig, update_point, frames=None, interval=20,
                                       fargs=(robot_point, path_point, lookahead_point, robot, actualPath, targetPath))
 
         canvas.draw()
