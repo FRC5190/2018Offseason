@@ -17,7 +17,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 
-class Dashboard(tk.Tk):
+class Main(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
 
@@ -161,11 +161,11 @@ class PosePlotter(tk.Frame):
         starting_robot = gen_robot_square((robot_x_values[0], robot_y_values[0]), 0.0)
         robot, = plot.plot([p[0] for p in starting_robot], [p[1] for p in starting_robot], color="green")
 
-        ani = animation.FuncAnimation(fig, update_point, frames=None, interval=20,
+        ani = animation.FuncAnimation(fig, update_point, frames=20, interval=20,
                                       fargs=(robot_point, path_point, lookahead_point, robot, actualPath, targetPath))
 
         canvas.draw()
 
 
-app = Dashboard()
+app = Main()
 app.mainloop()

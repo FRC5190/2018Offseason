@@ -25,4 +25,4 @@ with open("C:/Users/prate/Desktop/FRC/Projects/5190 Offseason 2018/src/main/reso
         sd.putNumber('Robot Y', y)
         sd.putNumber('Robot Heading', heading)
         print(x, y)
-        time.sleep(0.02)
+        time.sleep(0.01)

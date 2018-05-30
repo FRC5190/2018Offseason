@@ -89,3 +89,17 @@ kotlin {
         coroutines "enable"
     }
 }
+version 'unspecified'
+
+apply plugin: 'kotlin'
+
+repositories {
+    mavenCentral()
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
