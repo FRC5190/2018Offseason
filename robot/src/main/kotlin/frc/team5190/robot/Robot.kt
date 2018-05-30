@@ -20,8 +20,6 @@ class Robot : IterativeRobot() {
     var isClimbing = false
     var isAutoReady = false
 
-    val poseNTInstance = NetworkTableInstance.getDefault().getTable("PosePlotter")
-
     companion object {
         lateinit var INSTANCE: Robot
     }
@@ -32,6 +30,7 @@ class Robot : IterativeRobot() {
 
     override fun robotInit() {
         Localization
+        NetworkInterface
         Pathreader
         Autonomous
         Canifier
@@ -47,10 +46,6 @@ class Robot : IterativeRobot() {
 
     override fun robotPeriodic() {
         Pigeon.update()
-        SmartDashboard.putNumber("Robot X", Localization.robotPosition.x)
-        SmartDashboard.putNumber("Robot Y", Localization.robotPosition.y)
-        SmartDashboard.putNumber("Gyro", Pigeon.correctedAngle)
-
         Scheduler.getInstance().run()
     }
 }

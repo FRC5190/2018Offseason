@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.control.PathFollower
 import frc.team5190.lib.util.Pathreader
 import frc.team5190.robot.Localization
-import frc.team5190.robot.Robot
 import frc.team5190.robot.sensors.Pigeon
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
@@ -18,6 +17,18 @@ class FollowPathCommand(folder: String, file: String,
 
     companion object {
         const val DT = 0.02
+
+        var pathX = 0.0
+            private set
+        var pathY = 0.0
+            private set
+        var pathHdg = 0.0
+            private set
+
+        var lookaheadX = 0.0
+            private set
+        var lookaheadY = 0.0
+            private set
     }
 
     // Notifier objects
@@ -85,9 +96,12 @@ class FollowPathCommand(folder: String, file: String,
                     return@Notifier
                 }
 
-                Robot.INSTANCE.poseNTInstance.getEntry("Path X").setDouble(pathFollower.currentSegment.x * 12)
-                Robot.INSTANCE.poseNTInstance.getEntry("Path Y").setDouble(pathFollower.currentSegment.y * 12)
-                Robot.INSTANCE.poseNTInstance.getEntry("Path Heading").setDouble(Math.toRadians(pathFollower.currentSegment.heading))
+                pathX = pathFollower.currentSegment.x
+                pathY = pathFollower.currentSegment.y
+                pathHdg = pathFollower.currentSegment.heading
+
+                lookaheadX = pathFollower.lookaheadSegment.x
+                lookaheadY = pathFollower.lookaheadSegment.y
 
                 val output = pathFollower.getMotorOutput(
                         robotPosition = Localization.robotPosition,
@@ -122,9 +136,15 @@ class FollowPathCommand(folder: String, file: String,
             stopNotifier = true
             notifier.stop()
             DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = 0.0, rightOutput = 0.0)
+
+            pathX = 0.0
+            pathY = 0.0
+            pathHdg = 0.0
+
+            lookaheadX = 0.0
+            lookaheadY = 0.0
         }
     }
-
     override fun isFinished() = pathFollower.isFinished
 }
 

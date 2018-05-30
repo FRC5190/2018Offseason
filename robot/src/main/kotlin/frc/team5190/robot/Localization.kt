@@ -37,12 +37,6 @@ object Localization {
 
     private fun run() {
         synchronized(synchronousOdometry) {
-            Robot.INSTANCE.poseNTInstance.getEntry("Is Auto").setBoolean(Robot.INSTANCE.isAutonomous && Robot.INSTANCE.isEnabled)
-
-            Robot.INSTANCE.poseNTInstance.getEntry("Robot X").setDouble(robotPosition.x * 12)
-            Robot.INSTANCE.poseNTInstance.getEntry("Robot Y").setDouble(robotPosition.y * 12)
-            Robot.INSTANCE.poseNTInstance.getEntry("Robot Heading").setDouble(Pigeon.correctedAngle)
-
             val leftPos = DriveSubsystem.leftPosition
             val rightPos = DriveSubsystem.rightPosition
             val gyroAngle = Pigeon.correctedAngle

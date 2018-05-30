@@ -9,7 +9,7 @@ NetworkTables.initialize()
 sd = NetworkTables.getTable("PosePlotter")
 
 time.sleep(1)
-with open("C:/Users/prate/Desktop/FRC/Projects/5190 Offseason 2018/src/main/resources/LS-RR/1st Cube Source.csv") as csvfile:
+with open("C:/Users/prate/Desktop/FRC/Projects/5190 Offseason 2018/robot/src/main/resources/LS-RR/1st Cube Source.csv") as csvfile:
     reader = csv.DictReader(csvfile)
     sd.putBoolean('Reset', True)
     for row in reader:

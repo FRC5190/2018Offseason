@@ -15,8 +15,11 @@ class PathFollower(val leftTrajectory: Trajectory,
                    val sourceTrajectory: Trajectory,
                    val reversed: Boolean) {
 
-    // Current segment
-    var currentSegment = sourceTrajectory.segments[0]
+    // Important segments
+    var currentSegment: Trajectory.Segment = sourceTrajectory.segments[0]
+        private set
+    var lookaheadSegment: Trajectory.Segment = sourceTrajectory.segments[0]
+        private set
 
     // PVA Constants for path following
     var p = 0.0
@@ -77,7 +80,7 @@ class PathFollower(val leftTrajectory: Trajectory,
             )
         }
 
-        val lookaheadSegment = sourceTrajectory.segments.copyOfRange(segmentIndexEstimation, sourceTrajectory.segments.size).find { segment ->
+        lookaheadSegment = sourceTrajectory.segments.copyOfRange(segmentIndexEstimation, sourceTrajectory.segments.size).find { segment ->
             return@find segment.position - currentSegment.position >= lookaheadDistance
         } ?: getImaginarySegment()
 

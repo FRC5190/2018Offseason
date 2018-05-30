@@ -21,7 +21,7 @@ class Main(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
 
-        tk.Tk.title(self, "FRC Team 5190 Dashboard")
+        tk.Tk.title(self, "FRC Team 5190 Pose Plotter")
 
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
@@ -94,7 +94,8 @@ class PosePlotter(tk.Frame):
         y_location_display = plot.text(0, -38, "")
         theta_display = plot.text(0, -58, "")
 
-        def update_point(n, robot_point, path_point, lookahead_point, robot, robot_path, path):
+        # noinspection PyShadowingNames
+        def update_point(_, robot_point, path_point, lookahead_point, robot, robot_path, path):
 
             if nt_instance.getBoolean('Reset', False):
                 del robot_x_values[:]
@@ -112,7 +113,6 @@ class PosePlotter(tk.Frame):
             x_location_display.set_text("Robot X: " + str(robot_x / 12.0) + " ft")
             y_location_display.set_text("Robot Y: " + str(robot_y / 12.0) + " ft")
             theta_display.set_text("Robot θ: " + str(np.degrees(robot_heading)) + "°")
-        
 
             if robot_x > .01 or robot_y > .01:
                 robot_x_values.append(robot_x)
@@ -151,8 +151,8 @@ class PosePlotter(tk.Frame):
         canvas = FigureCanvasTkAgg(fig, master=parent)
         canvas.get_tk_widget().pack()
 
-        targetPath, = plot.plot(path_x_values, path_y_values, color='red', alpha=0.5)
-        actualPath, = plot.plot(robot_x_values, robot_y_values, color='black', alpha=0.25)
+        target_path, = plot.plot(path_x_values, path_y_values, color='red', alpha=0.5)
+        actual_path, = plot.plot(robot_x_values, robot_y_values, color='black', alpha=0.25)
 
         path_point, = plot.plot(path_x_values[0], path_y_values[0], marker='o', markersize=2, color="red")
         robot_point, = plot.plot(robot_x_values[0], robot_y_values[0], marker='o', markersize=2, color="blue")
@@ -162,7 +162,7 @@ class PosePlotter(tk.Frame):
         robot, = plot.plot([p[0] for p in starting_robot], [p[1] for p in starting_robot], color="green")
 
         ani = animation.FuncAnimation(fig, update_point, frames=20, interval=20,
-                                      fargs=(robot_point, path_point, lookahead_point, robot, actualPath, targetPath))
+                                      fargs=(robot_point, path_point, lookahead_point, robot, actual_path, target_path))
 
         canvas.draw()
 

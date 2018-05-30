@@ -1,5 +1,6 @@
 package frc.team5190.robot
 
+import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.team5190.lib.commandGroup
@@ -64,7 +65,7 @@ object Autonomous {
         Pigeon.reset()
         Pigeon.angleOffset = 180.00
 
-        Robot.INSTANCE.poseNTInstance.getEntry("Reset Plot").setBoolean(true)
+        NetworkTableInstance.getDefault().getTable("PosePlotter").getEntry("Reset").setBoolean(true)
 
         val elevatorUp: Marker
         val shootCube1: Marker
