@@ -4,6 +4,8 @@
 .idea/
 .gradle/
 out/
+strategysim/node_modules
+strategysim/dist
 
 build/
 *.ipr

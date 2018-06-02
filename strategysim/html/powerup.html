@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Power Up Simulator</title>
+<style>
+    body {font-family: 'Arial'; font-size: 14px; width: 1084px;}
+    #header {padding: 10px; margin: auto; font-size: 20px; font-weight: bold; border: 1px solid black; background-color: #aaaaaa; border-radius: 10px; margin-bottom: 5px;}
+    #title {text-align: left; width:524px;}
+    #timer {text-align: right; width:524px;}
+    #canvas {margin: auto; border: 2px solid green; width: 1080px; background-color: turquoise; border-radius:10px;}
+    .bottom {margin: auto;}
+    .red {border: 1px solid black; width: 320px; background-color: #ff4444; text-transform: uppercase; color: white; font-weight: bold; border-radius: 10px; padding: 10px;}
+    .blue {border: 1px solid black; width: 320px; background-color: #4444ff; text-transform: uppercase; color: white; font-weight: bold; border-radius: 10px; padding: 10px;}
+    .total {border: 1px solid black; width: 70px; background-color: white; color: black; font-size: 20px; font-weight: bold; border-radius: 10px; text-align:center;}
+    .score {border: 1px solid black; width: 200px; background-color: #aaaaaa; text-transform: uppercase; color: white; font-weight: bold; border-radius: 10px; padding: 10px;}
+    .left-col {text-align: right; padding-right: 10px;}
+    .left-col-val {text-align: right; padding-right: 10px; width: 30px;}
+    .right-col {text-align: left; padding-left: 10px;}
+    .right-col-val {text-align: left; padding-left: 10px; width: 30px;}
+    .form {text-align: center; width: 430px;}
+</style>
+</head>
+<body>
+    <table id='header'>
+        <tr>
+            <td><div id='title'>5190 FRC Simulator</div></td>
+            <td><div id='timer'></div></td>
+        </tr>
+    </table>
+    <canvas id="canvas" width="1080" height="540"></canvas>
+    <div class='bottom'>
+        <table>
+            <tr>
+                <td>
+                    <table class='blue'>
+                        <tr>
+                            <td colspan='2'>
+                                <table>
+                                    <tr>
+                                        <td class='left-col'>Force</td>
+                                        <td class='right-col-val' id='blue-force'>0</td>
+                                        <td class='left-col' id='blue-force-status'>0</td>
+                                    </tr>
+                                    <tr>
+                                        <td class='left-col'>Boost</td>
+                                        <td class='right-col-val' id='blue-boost'>0</td>
+                                        <td class='left-col' id='blue-boost-status'>0</td>
+                                    </tr>
+                                    <tr>
+                                        <td class='left-col'>Levitate</td>
+                                        <td class='right-col-val' id='blue-levitate'>0</td>
+                                        <td class='left-col' id='blue-levitate-status'>0</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr><td>&nbsp;</td></tr>
+                        <tr>
+                            <td>
+                                <table class='score'>
+                                    <tr><td class='left-col-val' id='blue-autorun'>0</td><td class='right-col'>Auto-run</td></tr>
+                                    <tr><td class='left-col-val' id='blue-ownership'>0</td><td class='right-col'>Ownership</td></tr>
+                                    <tr><td class='left-col-val' id='blue-vault'>0</td><td class='right-col'>Vault</td></tr>
+                                    <tr><td class='left-col-val' id='blue-endgame'>0</td><td class='right-col'>Endgame</td></tr>
+                                    <tr><td class='left-col-val' id='blue-penalty'>0</td><td class='right-col'>Red penalty</td></tr>
+                                </table>
+                            </td>
+                            <td class='total' id='blue-total'>0</td>
+                        </tr>
+                    </table>
+                </td>
+                <td>
+                    <form class='form'>
+                        <input type = "text" id="command" autofocus onkeydown = "if (event.keyCode == 13) {event.preventDefault(); startCommand();}"><p/>
+                        <input type='button' value='Cancel' onClick = "cancelCommand()">    
+                    </form>
+                </td>
+                <td>
+                    <table class='red'>
+                        <tr>
+                            <td colspan='2'>
+                                <table>
+                                    <tr>
+                                        <td class='left-col'>Force</td>
+                                        <td class='right-col-val' id='red-force'>0</td>
+                                        <td class='left-col' id='red-force-status'>0</td>
+                                    </tr>
+                                    <tr>
+                                        <td class='left-col'>Boost</td>
+                                        <td class='right-col-val' id='red-boost'>0</td>
+                                        <td class='left-col' id='red-boost-status'>0</td>
+                                    </tr>
+                                    <tr>
+                                        <td class='left-col'>Levitate</td>
+                                        <td class='right-col-val' id='red-levitate'>0</td>
+                                        <td class='left-col' id='red-levitate-status'>0</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr><td>&nbsp;</td></tr>
+                        <tr>
+                            <td class='total' id='red-total'>0</td>
+                            <td style='padding-left:18px;'>
+                                <table class='score'>
+                                    <tr><td class='left-col'>Auto-run</td><td id='red-autorun' class='right-col-val'>0</td></tr>
+                                    <tr><td class='left-col'>Ownership</td><td id='red-ownership' class='right-col-val'>0</td></tr>
+                                    <tr><td class='left-col'>Vault</td><td id='red-vault' class='right-col-val'>0</td></tr>
+                                    <tr><td class='left-col'>Endgame</td><td id='red-endgame' class='right-col-val'>0</td></tr>
+                                    <tr><td class='left-col'>Blue penalty</td><td id='red-penalty' class='right-col-val'>0</td></tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script>
+        const electron = require('electron');
+        const {ipcRenderer} = electron;
+        const timer = document.querySelector('#timer');
+        const blue_autorun = document.querySelector('#blue-autorun');
+        const blue_ownership = document.querySelector('#blue-ownership');
+        const blue_vault = document.querySelector('#blue-vault');
+        const blue_endgame = document.querySelector('#blue-endgame');
+        const blue_penalty = document.querySelector('#blue-penalty');
+        const blue_total = document.querySelector('#blue-total');
+        const red_autorun = document.querySelector('#red-autorun');
+        const red_ownership = document.querySelector('#red-ownership');
+        const red_vault = document.querySelector('#red-vault');
+        const red_endgame = document.querySelector('#red-endgame');
+        const red_penalty = document.querySelector('#red-penalty');
+        const red_total = document.querySelector('#red-total');
+
+        const red_force = document.querySelector('#red-force');
+        const red_boost = document.querySelector('#red-boost');
+        const red_levitate = document.querySelector('#red-levitate');
+        const red_force_status = document.querySelector('#red-force-status');
+        const red_boost_status = document.querySelector('#red-boost-status');
+        const red_levitate_status = document.querySelector('#red-levitate-status');
+        const blue_force = document.querySelector('#blue-force');
+        const blue_boost = document.querySelector('#blue-boost');
+        const blue_levitate = document.querySelector('#blue-levitate');
+        const blue_force_status = document.querySelector('#blue-force-status');
+        const blue_boost_status = document.querySelector('#blue-boost-status');
+        const blue_levitate_status = document.querySelector('#blue-levitate-status');
+
+        const field = document.querySelector('#field');
+        const canvas = document.querySelector('#canvas');
+        const command = document.querySelector('#command');
+        var ctx = canvas.getContext("2d");
+        ctx.font="10px Times";
+        
+        ipcRenderer
+            .on('newgame', function(e, f) {
+                updateDisplay(f);
+            })
+            .on('periodic', function(e, f) {
+                updateDisplay(f);
+            })
+            .on('finishgame', function(e, f) {
+                timer.innerText = "0";
+            });
+
+        function startCommand() {
+            ipcRenderer.send('command:start', command.value);
+            command.value = "";
+            command.focus();
+        }
+
+        function cancelCommand() {
+            ipcRenderer.send('command:cancel', command.value);
+        }
+        
+        function vaultStatus(q, alliance, command) {
+            q.pendingCommands.forEach(it => {
+                if (it.command == command && it.alliance == alliance) {
+                    return "Queued";
+                }
+            })
+
+            if (q.vaultCommandAtPlay.command == command && q.vaultCommandAtPlay.alliance == alliance) {
+                return "Active";
+            }
+                
+            q.finishedCommands.forEach(it => {
+                if (it.command == command && it.alliance == alliance) {
+                    return "Played";
+                }
+            })
+
+            return "";
+        }
+
+        function updateDisplay(f) {
+            ctx.clearRect(f.rect.x * 20, f.rect.y * 20, f.rect.w * 20, f.rect.h * 20);
+
+            ctx.beginPath();
+            ctx.strokeStyle="#000000";
+            ctx.rect(f.rect.x * 20, f.rect.y * 20, f.rect.w * 20, f.rect.h * 20);
+            ctx.stroke();
+
+            timer.innerText = f.time;
+            blue_autorun.innerHTML = f.scores[0].autorun;
+            blue_ownership.innerHTML = f.scores[0].ownership;
+            blue_vault.innerHTML = f.scores[0].vault;
+            blue_endgame.innerHTML = f.scores[0].endgame;
+            blue_penalty.innerHTML = f.scores[0].penalty;
+            blue_total.innerHTML = f.scores[0].total;
+
+            red_autorun.innerHTML = f.scores[1].autorun;
+            red_ownership.innerHTML = f.scores[1].ownership;
+            red_vault.innerHTML = f.scores[1].vault;
+            red_endgame.innerHTML = f.scores[1].endgame;
+            red_penalty.innerHTML = f.scores[1].penalty;
+            red_total.innerHTML = f.scores[1].total;
+
+            blue_force.innerHTML = f.exchanges[0].forceCubes;
+            blue_boost.innerHTML = f.exchanges[0].boostCubes;
+            blue_levitate.innerHTML = f.exchanges[0].levitateCubes;
+            blue_force_status.innerHTML = vaultStatus(f.cmdQueue, 0, 6);
+            blue_boost_status.innerHTML = vaultStatus(f.cmdQueue, 0, 8);
+            blue_levitate_status.innerHTML = f.exchanges[0].levitatePlayed ? "Played" : "";
+
+            red_force.innerHTML = f.exchanges[1].forceCubes;
+            red_boost.innerHTML = f.exchanges[1].boostCubes;
+            red_levitate.innerHTML = f.exchanges[1].levitateCubes;
+            red_force_status.innerHTML = vaultStatus(f.cmdQueue, 1, 6);
+            red_boost_status.innerHTML = vaultStatus(f.cmdQueue, 1, 8);
+            red_levitate_status.innerHTML = f.exchanges[1].levitatePlayed ? "Played" : "";
+
+            // balances
+            ctx.beginPath();
+            ctx.strokeStyle = "#999999";
+            Array.from(f.balances).forEach(it => {
+                ctx.rect(it.rect.x * 20, it.rect.y * 20, it.rect.w * 20, it.rect.h * 20);
+            });
+            ctx.stroke();
+
+            // plates with color codes
+            Array.from(f.balances).forEach(it => it.plates.forEach(pt => {
+                ctx.beginPath();
+
+                if (pt.alliance == 0) {
+                    ctx.strokeStyle = "#0000FF";
+                    if (it.scores[0].ownership >= 1) {
+                        ctx.fillStyle = "#4444FF";
+                    }
+                } 
+                else if (pt.alliance == 1) {
+                    ctx.strokeStyle = "#FF0000";
+                    if (it.scores[1].ownership >= 1) {
+                        ctx.fillStyle = "#FF4444";
+                    }
+                }
+
+                if (it.scores[pt.alliance].ownership >= 1) {
+                    ctx.fillRect(pt.rect.x * 20, pt.rect.y * 20, pt.rect.w * 20, pt.rect.h * 20);
+                }
+                else {
+                    ctx.rect(pt.rect.x * 20, pt.rect.y * 20, pt.rect.w * 20, pt.rect.h * 20);
+                }
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.strokeStyle = "#000000";
+                ctx.strokeText(pt.id.toString(), pt.rect.x * 20 + pt.rect.w * 10 - 5, pt.rect.y * 20 + pt.rect.h * 10 + 5);
+                ctx.stroke();
+            }));
+
+            // exchanges
+            f.exchanges.forEach(it => {
+                ctx.beginPath();
+
+                if (it.alliance == 0) {
+                    ctx.strokeStyle = "#0000FF";
+                } 
+                else if (it.alliance == 1) {
+                    ctx.strokeStyle = "#FF0000";
+                }
+
+                ctx.rect(it.rect.x * 20, it.rect.y * 20, it.rect.w * 20, it.rect.h * 20);
+                ctx.strokeText(it.id.toString(), it.rect.x * 20 + 6, it.rect.y * 20 + 14);
+                ctx.stroke();
+            });
+
+            // cubes
+            Array.from(f.cubes).forEach(it => {
+                ctx.beginPath();
+                ctx.fillStyle = "yellow";
+                ctx.fillRect(it.rect.x * 20, it.rect.y * 20, it.rect.w * 20, it.rect.h * 20)
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.strokeStyle="#000000";
+                ctx.strokeText(it.id.toString(), it.rect.x * 20 + 6, it.rect.y * 20 + 14);
+                ctx.stroke();
+            });
+
+            // robots
+            Array.from(f.robots).forEach(it => {
+                ctx.beginPath();
+                if (it.alliance == 0) {
+                    ctx.strokeStyle = "#0000FF";
+                }
+                else if (it.alliance == 1) {
+                    ctx.strokeStyle = "#FF0000";
+                }
+                ctx.arc(it.rect.x * 20 + it.rect.w * 10, it.rect.y * 20 + it.rect.h * 10, it.rect.h * 10, 0, 2 * Math.PI);
+                ctx.stroke();
+            });
+        }
+    </script>
+</body>
+</html>
