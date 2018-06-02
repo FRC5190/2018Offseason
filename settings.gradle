@@ -1,1 +1,4 @@
 include 'robot'
+include 'falcondashboard'
+include 'livedashboard'
+
