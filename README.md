@@ -43,7 +43,7 @@
 * Options to play against the computer
 * Easy-to-use web app interface through Electron and TypeScript
 
-#### Instructions for Strategy Simulator
+##### Instructions for Strategy Simulator
 
 * Download and install ```node.js```. This installation is bundled with ```npm```
 * Install ```npm``` dependencies: ```npm install```
