@@ -19,11 +19,12 @@
 * Open IntelliJ IDEA, click 'Open' and click on the '5190-Offseason-2018' Gradle Icon.
 * Use the terminal to deploy code: ```.\gradlew deploy```
 
-### ```poseplotter```
+### ```livedashboard```
 
-#### Plots the robot position relative to the field over time. Some features include
+#### Custom dashboard developed by students. Features include
 
 * Data sent over Network Tables from robot to Python dashboard
+* Live robot pose plotting
 * ```matplotlib``` and ```tkinter```
 * Shows relative robot position and path (when following path)
 * Smooth animations
@@ -32,8 +33,8 @@
 
 * Download ```python``` and depedencies mentioned above.
 * Download and install ```pynetworktables``` using: ```pip install pynetworktables```
-* Use the terminal to run the program: ```python poseplotter.py```
-* You can test the program by changing the NT IP in ```poseplotter.py``` to ```172.0.1.1``` and running ```test.py``` in a new terminal window
+* Use the terminal to run the program: ```python livedashboard.py```
+* You can test the program by changing the NT IP in ```poseplotter.py``` to ```127.0.1.1``` and running ```dashboardtest.py``` in a new terminal window
 
 ### ```strategysim```
 
