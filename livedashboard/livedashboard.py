@@ -85,7 +85,7 @@ class Dashboard(tk.Frame):
         def draw_field(subplot):
             subplot.set_axis_off()
             subplot.set_title("FRC 5190 Live Dashboard",
-                            fontproperties=kanit_italic, size=20, color="maroon")
+                              fontproperties=kanit_italic, size=20, color="maroon")
 
             red_alliance = imread("images/red_alliance.png")
             blue_alliance = imread("images/blue_alliance.png")
@@ -113,7 +113,8 @@ class Dashboard(tk.Frame):
             top_left = (p[0] - robot_width / 2.0, p[1] + robot_length / 2.0)
             top_right = (p[0] + robot_width / 2.0, p[1] + robot_length / 2.0)
             bottom_left = (p[0] - robot_width / 2.0, p[1] - robot_length / 2.0)
-            bottom_right = (p[0] + robot_width / 2.0, p[1] - robot_length / 2.0)
+            bottom_right = (p[0] + robot_width / 2.0,
+                            p[1] - robot_length / 2.0)
 
             mid = (top_right[0] + 1, (top_right[1] + bottom_right[1]) / 2)
 
@@ -123,17 +124,24 @@ class Dashboard(tk.Frame):
             bottom_right = rotate_point(bottom_right, p, heading)
             mid = rotate_point(mid, p, heading)
 
-            box = [top_left, top_right, mid, bottom_right, bottom_left, top_left]
+            box = [top_left, top_right, mid,
+                   bottom_right, bottom_left, top_left]
             return box
 
         def update_text(rx, ry, rh, sp, ssa, ca, dle, dlp, dla, dre, drp, dra, ee, ep, ea, ae, ap, aa, ce, cp, cam, ic, c, e):
             robot_x_display.set_text("Robot X: " + str(rx))
             robot_y_display.set_text("Robot Y: " + str(ry))
-            robot_heading_display.set_text("Robot Heading: " + str(np.degrees(rh)) + "°")
+            robot_heading_display.set_text(
+                "Robot Heading: " + str(np.degrees(rh)) + "°")
 
             starting_pos_display.set_text("Starting Position: " + sp)
-            same_side_auto_display.set_text("Same Side Auto: " + ssa)
-            cross_auto_display.set_text("Cross Auto: " + ca)
+
+            if sp == "Center":
+                same_side_auto_display.set_text("Auto: " + ssa)
+                cross_auto_display.set_text("")
+            else:
+                same_side_auto_display.set_text("Same Side Auto: " + ssa)
+                cross_auto_display.set_text("Cross Auto: " + ca)
 
             subsystem_str = "LEFT DRIVE enc " + \
                 str(dle) + ": " + str(dlp) + "% at " + str(dla) + "A"
@@ -158,10 +166,10 @@ class Dashboard(tk.Frame):
             connection_display.set_text("Robot " + c)
             is_enabled_display.set_text(e)
 
-            return [robot_x_display, robot_y_display, robot_heading_display, 
-            starting_pos_display, same_side_auto_display, cross_auto_display, 
-            subsystems_display, climb_display, 
-            connection_display, is_enabled_display]
+            return [robot_x_display, robot_y_display, robot_heading_display,
+                    starting_pos_display, same_side_auto_display, cross_auto_display,
+                    subsystems_display, climb_display,
+                    connection_display, is_enabled_display]
 
         def update_plot(_, robot_point, path_point, lookahead_point, robot, robot_path, path):
             if nt_instance.getBoolean("Reset", False):
@@ -173,20 +181,39 @@ class Dashboard(tk.Frame):
                 del path_heading_values[:]
                 nt_instance.putBoolean("Reset", False)
 
+            sp = nt_instance.getString("Starting Position", "Left")
+            ssa = nt_instance.getString("Same Side Auto", "3 Scale")
+            ca = nt_instance.getString("Cross Auto", "2 Scale")
+
+            default_y = 23.5
+            default_heading = np.pi
+
+            if sp == "Right":
+                nt_instance.putBoolean("Reset", True)
+                nt_instance.putString("Same Side Auto", "3 Scale")
+                nt_instance.putString("Cross Auto", "2 Scale")
+
+                default_heading = np.pi
+                default_y = 27 - default_y
+
+            elif sp == "Center":
+                nt_instance.putBoolean("Reset", True)
+                nt_instance.putString("Same Side Auto", "2 Switch")
+                nt_instance.putString("Cross Auto", "2 Switch")
+
+                default_y = 13.25
+                default_heading = 0
+
             rx = nt_instance.getNumber("Robot X", 1.5)
-            ry = nt_instance.getNumber("Robot Y", 23.5)
-            rh = nt_instance.getNumber("Robot Heading", 0.0)
+            ry = nt_instance.getNumber("Robot Y", default_y)
+            rh = nt_instance.getNumber("Robot Heading", default_heading)
 
             px = nt_instance.getNumber("Path X", 1.5)
-            py = nt_instance.getNumber("Path Y", 23.5)
-            ph = nt_instance.getNumber("Path Heading", 0.0)
+            py = nt_instance.getNumber("Path Y", default_y)
+            ph = nt_instance.getNumber("Path Heading", default_heading)
 
             lx = nt_instance.getNumber("Lookahead X", 3.5)
-            ly = nt_instance.getNumber("Lookahead Y", 23.5)
-
-            sp = nt_instance.getString("Starting Position", "Left")
-            ssa = nt_instance.getString("Same Side Auto", "3 Cube")
-            ca = nt_instance.getString("Cross Auto", "2 Cube")
+            ly = nt_instance.getNumber("Lookahead Y", default_y)
 
             dle = nt_instance.getNumber("Drive Left Encoder", 0)
             dlp = nt_instance.getNumber("Drive Left Pct", 0.0)
@@ -229,37 +256,62 @@ class Dashboard(tk.Frame):
 
             robot_data = gen_robot_square((rx, ry), rh)
 
-            robot.set_data([p[0] for p in robot_data], [p[1] for p in robot_data])
+            robot.set_data([p[0] for p in robot_data], [p[1]
+                                                        for p in robot_data])
             robot_path.set_data(robot_x_values, robot_y_values)
-            path.set_data(path_x_values, path_y_values)   
+            path.set_data(path_x_values, path_y_values)
 
-            return [robot_point, path_point, lookahead_point, robot, robot_path, path, 
-            *update_text(rx, ry, rh, sp, ssa, ca, dle, dlp, dla, dre, drp, dra, ee, ep, ea, ae, ap, aa, ce, cp, cam, ic, c, e)]
-        
+            return [robot_point, path_point, lookahead_point, robot, robot_path, path,
+                    *update_text(rx, ry, rh, sp, ssa, ca, dle, dlp, dla, dre, drp, dra, ee, ep, ea, ae, ap, aa, ce, cp, cam, ic, c, e)]
+
+        def on_click(event):
+            # Change Starting Position
+            if event.xdata > 45 and event.xdata < 54 and event.ydata > -2.5 and event.ydata < -1.5:
+
+                current = nt_instance.getString("Starting Position", "Left")
+                to_set = ""
+
+                if current == "Left":
+                    to_set = "Center"
+                elif current == "Center":
+                    to_set = "Right"
+                else:
+                    to_set = "Left"
+
+                nt_instance.putString("Starting Position", to_set)
+
 
         draw_field(field_plot)
-        
+
         canvas = FigureCanvasTkAgg(fig, master=parent)
         canvas.get_tk_widget().pack()
 
-        target_path, = field_plot.plot(path_x_values, path_y_values, color='red', alpha=0.5)
-        actual_path, = field_plot.plot(robot_x_values, robot_y_values, color='black', alpha=0.25)
+        fig.canvas.mpl_connect("button_press_event", on_click)
 
-        path_point, = field_plot.plot(path_x_values[0], path_y_values[0], marker='o', markersize=2, color="red")
-        robot_point, = field_plot.plot(robot_x_values[0], robot_y_values[0], marker='o', markersize=2, color="blue")
+        target_path, = field_plot.plot(
+            path_x_values, path_y_values, color='red', alpha=0.5)
+        actual_path, = field_plot.plot(
+            robot_x_values, robot_y_values, color='black', alpha=0.25)
+
+        path_point, = field_plot.plot(
+            path_x_values[0], path_y_values[0], marker='o', markersize=2, color="red")
+        robot_point, = field_plot.plot(
+            robot_x_values[0], robot_y_values[0], marker='o', markersize=2, color="blue")
         lookahead_point, = field_plot.plot(lookahead_x_values[0], lookahead_y_values[0], marker="*", markersize=5,
-                                     color="black")
-        starting_robot = gen_robot_square((robot_x_values[0], robot_y_values[0]), 0.0)
-        robot, = field_plot.plot([p[0] for p in starting_robot], [p[1] for p in starting_robot], color="green")
+                                           color="black")
+        starting_robot = gen_robot_square(
+            (robot_x_values[0], robot_y_values[0]), 0.0)
+        robot, = field_plot.plot([p[0] for p in starting_robot], [
+                                 p[1] for p in starting_robot], color="green")
 
         field_plot.set_ylim(bottom=-7.5, top=28.0)
 
         ani = animation.FuncAnimation(fig, update_plot, frames=20, interval=20,
-                                      fargs=(robot_point, path_point, lookahead_point, robot, actual_path, target_path),
+                                      fargs=(
+                                          robot_point, path_point, lookahead_point, robot, actual_path, target_path),
                                       blit=True)
 
         canvas.draw()
-
 
 
 app = Main()
