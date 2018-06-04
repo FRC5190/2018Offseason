@@ -12,17 +12,18 @@ time.sleep(1)
 with open("C:/Users/prate/Desktop/FRC/Projects/5190 Offseason 2018/robot/src/main/resources/LS-RR/1st Cube Source.csv") as csvfile:
     reader = csv.DictReader(csvfile)
     sd.putBoolean('Reset', True)
-    sd.putString('Cross Auto', '1 Cube')
     sd.putBoolean('Is Climbing', True)
+    sd.putString("Game Data", "LRL")
     for row in reader:
         x = float(row['x'])
         y = float(row['y'])
+        velocity = float(row['velocity'])
         heading = row['heading']
-        sd.putNumber('Path X', x)
-        sd.putNumber('Path Y', y)
-        sd.putNumber('Path Heading', heading)
+     
         sd.putNumber('Robot X', x)
         sd.putNumber('Robot Y', y)
+
+        
         sd.putNumber('Robot Heading', heading)
         print(x, y)
         time.sleep(0.02)
