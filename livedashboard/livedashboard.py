@@ -84,7 +84,7 @@ class Dashboard(tk.Frame):
 
         # Game Data Display
         game_data_display = field_plot.text(
-            53.9, 27.7, "", fontproperties=kanit_italic, size=12, color="#303030", horizontalalignment="right", alpha=0.)
+            53.9, 27.7, "", fontproperties=kanit_italic, size=12, color="#303030", horizontalalignment="right", alpha=0.9)
 
         # Title Display
         field_plot.text(
@@ -92,7 +92,7 @@ class Dashboard(tk.Frame):
 
         def draw_field(subplot):
             subplot.set_axis_off()
-          
+
             red_alliance = imread("images/red_alliance.png")
             blue_alliance = imread("images/blue_alliance.png")
 
@@ -271,53 +271,56 @@ class Dashboard(tk.Frame):
                     *update_text(rx, ry, rh, sp, ssa, ca, dle, dlp, dla, dre, drp, dra, ee, ep, ea, ae, ap, aa, ce, cp, cam, ic, c, e, gd)]
 
         def on_click(event):
-            # Change Starting Position
-            if event.xdata > 45 and event.xdata < 54 and event.ydata > -2.5:
+            if event.ydata < -1.5:
+                # Change Starting Position
+                if event.xdata > 45 and event.xdata < 54 and event.ydata > -2.5:
 
-                current = nt_instance.getString("Starting Position", "Left")
-                to_set = ""
+                    current = nt_instance.getString(
+                        "Starting Position", "Left")
+                    to_set = ""
 
-                if current == "Left":
-                    to_set = "Center"
-                    reset_arrays()
-                elif current == "Center":
-                    to_set = "Right"
-                    reset_arrays()
-                else:
-                    to_set = "Left"
-                    reset_arrays()
+                    if current == "Left":
+                        to_set = "Center"
+                        reset_arrays()
+                    elif current == "Center":
+                        to_set = "Right"
+                        reset_arrays()
+                    else:
+                        to_set = "Left"
+                        reset_arrays()
 
-                nt_instance.putString("Starting Position", to_set)
+                    nt_instance.putString("Starting Position", to_set)
 
-            # Change Same Side Auto
-            elif event.xdata > 45 and event.xdata < 54 and event.ydata > -3.5 and nt_instance.getString("Starting Position", "Left") != "Center":
+                # Change Same Side Auto
+                elif event.xdata > 45 and event.xdata < 54 and event.ydata > -3.5 and nt_instance.getString("Starting Position", "Left") != "Center":
 
-                current = nt_instance.getString("Same Side Auto", "3 Scale")
-                to_set = ""
+                    current = nt_instance.getString(
+                        "Same Side Auto", "3 Scale")
+                    to_set = ""
 
-                if current == "3 Scale":
-                    to_set = "Baseline"
-                elif current == "Baseline":
-                    to_set = "1 Switch"
-                else:
-                    to_set = "3 Scale"
+                    if current == "3 Scale":
+                        to_set = "Baseline"
+                    elif current == "Baseline":
+                        to_set = "1 Switch"
+                    else:
+                        to_set = "3 Scale"
 
-                nt_instance.putString("Same Side Auto", to_set)
+                    nt_instance.putString("Same Side Auto", to_set)
 
-            # Change Cross Auto
-            elif event.xdata > 45 and event.xdata < 54 and event.ydata > -4.5 and nt_instance.getString("Starting Position", "Left") != "Center":
+                # Change Cross Auto
+                elif event.xdata > 45 and event.xdata < 54 and event.ydata > -4.5 and nt_instance.getString("Starting Position", "Left") != "Center":
 
-                current = nt_instance.getString("Cross Auto", "2 Scale")
-                to_set = ""
+                    current = nt_instance.getString("Cross Auto", "2 Scale")
+                    to_set = ""
 
-                if current == "2 Scale":
-                    to_set = "Baseline"
-                elif current == "Baseline":
-                    to_set = "1 Switch"
-                else:
-                    to_set = "2 Scale"
+                    if current == "2 Scale":
+                        to_set = "Baseline"
+                    elif current == "Baseline":
+                        to_set = "1 Switch"
+                    else:
+                        to_set = "2 Scale"
 
-                nt_instance.putString("Cross Auto", to_set)
+                    nt_instance.putString("Cross Auto", to_set)
 
         draw_field(field_plot)
 
