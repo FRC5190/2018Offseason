@@ -7,6 +7,7 @@ matplotlib.use("agg")
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from networktables import NetworkTables
+
 from matplotlib.image import imread
 from matplotlib.figure import Figure
 from matplotlib import animation
@@ -56,11 +57,11 @@ class Dashboard(tk.Frame):
 
         # Robot Location Display
         robot_x_display = field_plot.text(
-            0, -2, "", fontproperties=kanit_italic, size=11, color="maroon")
+            0, -2, "", fontproperties=kanit_italic, size=11, color="#690a0f")
         robot_y_display = field_plot.text(
-            0, -3, "", fontproperties=kanit_italic, size=11, color="maroon")
+            0, -3, "", fontproperties=kanit_italic, size=11, color="#690a0f")
         robot_heading_display = field_plot.text(
-            0, -4, "", fontproperties=kanit_italic, size=11, color="maroon")
+            0, -4, "", fontproperties=kanit_italic, size=11, color="#690a0f")
 
         # Auto Display
         starting_pos_display = field_plot.text(
@@ -88,7 +89,7 @@ class Dashboard(tk.Frame):
 
         # Title Display
         field_plot.text(
-            0, 27.7, "FRC 5190 Live Dashboard", fontproperties=kanit_italic, size=20, color="maroon")
+            0, 27.7, "FRC 5190 Live Dashboard", fontproperties=kanit_italic, size=20, color="#690a0f")
 
         def draw_field(subplot):
             subplot.set_axis_off()
