@@ -54,19 +54,6 @@ object DriveSubsystem : Subsystem() {
     val rightVelocity: Speed
         get() = frontLeft.sensorVelocity
 
-    val leftPercent: Double
-        get() = frontLeft.motorOutputPercent
-
-    val rightPercent: Double
-        get() = frontRight.motorOutputPercent
-
-    val leftAmperage: Double
-        get() = frontLeft.outputCurrent
-
-    val rightAmperage: Double
-        get() = frontRight.outputCurrent
-
-
     init {
         rearLeft.follow(frontLeft)
         rearRight.follow(frontRight)

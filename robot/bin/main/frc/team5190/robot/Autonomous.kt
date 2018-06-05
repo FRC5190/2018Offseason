@@ -1,7 +1,8 @@
 package frc.team5190.robot
 
 import edu.wpi.first.networktables.NetworkTableInstance
-import edu.wpi.first.wpilibj.command.CommandGroup
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.team5190.lib.commandGroup
 import frc.team5190.lib.util.Pathreader
 import frc.team5190.lib.util.StateCommand
@@ -15,8 +16,6 @@ import frc.team5190.robot.intake.IntakeCommand
 import frc.team5190.robot.intake.IntakeDirection
 import frc.team5190.robot.sensors.Pigeon
 import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.runBlocking
 import openrio.powerup.MatchData
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
@@ -41,40 +40,32 @@ object Autonomous {
         get() = switchSide != MatchData.OwnedSide.UNKNOWN && scaleSide != MatchData.OwnedSide.UNKNOWN
 
     init {
+        val startingPositionChooser = SendableChooser<StartingPosition>()
+        StartingPosition.values().forEach { startingPositionChooser.addObject(it.name.toLowerCase().capitalize(), it) }
+        startingPositionChooser.addDefault("Right", StartingPosition.RIGHT)
+
+        SmartDashboard.putData("Starting Position", startingPositionChooser)
 
         // Poll for FMS Data
         async {
-
-            var autoCommand = commandGroup { }
-
             while (!(Robot.INSTANCE.isAutonomous && Robot.INSTANCE.isEnabled && fmsDataValid && Pathreader.pathsGenerated)) {
+                switchSide = MatchData.getOwnedSide(MatchData.GameFeature.SWITCH_NEAR)
+                scaleSide = MatchData.getOwnedSide(MatchData.GameFeature.SCALE)
+                startingPosition = startingPositionChooser.selected
 
-                if (StartingPosition.valueOf(NetworkInterface.startingPosition.getString("Left").toUpperCase()) != startingPosition ||
-                        MatchData.getOwnedSide(MatchData.GameFeature.SWITCH_NEAR) != switchSide ||
-                        MatchData.getOwnedSide(MatchData.GameFeature.SCALE) != scaleSide) {
-
-                    switchSide = MatchData.getOwnedSide(MatchData.GameFeature.SWITCH_NEAR)
-                    scaleSide = MatchData.getOwnedSide(MatchData.GameFeature.SCALE)
-                    startingPosition = StartingPosition.valueOf(NetworkInterface.startingPosition.getString("Left").toUpperCase())
-
-                    autoCommand = getAutoCommand()
-                    Robot.INSTANCE.isAutoReady = false
-
-                    delay(100)
-                }
-                Robot.INSTANCE.isAutoReady = fmsDataValid && Pathreader.pathsGenerated
+                Robot.INSTANCE.isAutoReady = startingPositionChooser.selected != null && fmsDataValid && Pathreader.pathsGenerated
             }
 
             folder = if (startingPosition.name.first().toUpperCase() == scaleSide.name.first().toUpperCase()) "LS-LL" else "LS-RR"
-            autoCommand.start()
+            start()
         }
     }
 
-    private fun getAutoCommand(): CommandGroup {
+    private fun start() {
         Pigeon.reset()
         Pigeon.angleOffset = 180.00
 
-        NetworkTableInstance.getDefault().getTable("Live Dashboard").getEntry("Reset").setBoolean(true)
+        NetworkTableInstance.getDefault().getTable("PosePlotter").getEntry("Reset").setBoolean(true)
 
         val elevatorUp: Marker
         val shootCube1: Marker
@@ -114,7 +105,7 @@ object Autonomous {
         shootCube3 = dropCube3.addMarkerAt(Vector2D(22.9, 20.0))
         */
 
-        return commandGroup {
+        commandGroup {
             addSequential(commandGroup {
                 addParallel(cube1)
                 addParallel(commandGroup {
@@ -161,7 +152,7 @@ object Autonomous {
                 })
             })
             */
-        }
+        }.start()
     }
 }
 

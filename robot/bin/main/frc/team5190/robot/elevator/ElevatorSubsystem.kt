@@ -17,12 +17,6 @@ object ElevatorSubsystem : Subsystem() {
     val currentPosition: Distance
         get() = masterElevatorMotor.sensorPosition
 
-    val percent: Double
-        get() = masterElevatorMotor.motorOutputPercent
-
-    val amperage: Double
-        get() = masterElevatorMotor.outputCurrent
-
     init {
         slaveElevatorMotor.apply {
             follow(masterElevatorMotor)

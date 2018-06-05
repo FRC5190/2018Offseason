@@ -15,12 +15,6 @@ object ArmSubsystem : Subsystem() {
     val currentPosition: Distance
         get() = masterArmMotor.sensorPosition
 
-    val percent: Double
-        get() = masterArmMotor.motorOutputPercent
-
-    val amperage: Double
-        get() = masterArmMotor.outputCurrent
-
 
     init {
         masterArmMotor.apply {

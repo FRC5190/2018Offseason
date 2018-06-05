@@ -3,7 +3,7 @@ import tkinter as tk
 import matplotlib
 import numpy as np
 
-matplotlib.use("agg")
+matplotlib.use('agg')
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from networktables import NetworkTables
@@ -17,10 +17,10 @@ from matplotlib import font_manager as fm
 class Main(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
-        tk.Tk.title(self, "FRC 5190 Live Dashboard")
+        tk.Tk.title(self, 'FRC 5190 Live Dashboard')
 
-        self.state("zoomed")
-        self.configure(background="white")
+        self.state('zoomed')
+        self.configure(background='white')
 
         Dashboard(parent=self).pack(side=tk.TOP)
 
@@ -31,15 +31,15 @@ class Dashboard(tk.Frame):
 
         # Initialize Network Tables
         NetworkTables.initialize(server='127.0.1.1')
-        nt_instance = NetworkTables.getTable("Live Dashboard")
+        nt_instance = NetworkTables.getTable('Live Dashboard')
 
         # Font
-        kanit_italic = fm.FontProperties(fname="kanitfont/kanit-italic.otf")
+        kanit_italic = fm.FontProperties(fname='kanitfont/kanit-italic.otf')
 
         # Figure
         fig = Figure(figsize=(12, 9), dpi=115)
         field_plot = fig.add_subplot(111)
-        fig.set_tight_layout("True")
+        fig.set_tight_layout('True')
 
         # Robot Values
         robot_x_values = [1.5]
@@ -57,45 +57,45 @@ class Dashboard(tk.Frame):
 
         # Robot Location Display
         robot_x_display = field_plot.text(
-            0, -2, "", fontproperties=kanit_italic, size=11, color="#690a0f")
+            0, -2, '', fontproperties=kanit_italic, size=11, color='#690a0f')
         robot_y_display = field_plot.text(
-            0, -3, "", fontproperties=kanit_italic, size=11, color="#690a0f")
+            0, -3, '', fontproperties=kanit_italic, size=11, color='#690a0f')
         robot_heading_display = field_plot.text(
-            0, -4, "", fontproperties=kanit_italic, size=11, color="#690a0f")
+            0, -4, '', fontproperties=kanit_italic, size=11, color='#690a0f')
 
         # Auto Display
         starting_pos_display = field_plot.text(
-            53.9, -2, "", fontproperties=kanit_italic, size=9, horizontalalignment="right", color='#303030')
+            53.9, -2, '', fontproperties=kanit_italic, size=9, horizontalalignment='right', color='#303030')
         same_side_auto_display = field_plot.text(
-            53.9, -3, "", fontproperties=kanit_italic, size=9, horizontalalignment="right", color='#303030')
+            53.9, -3, '', fontproperties=kanit_italic, size=9, horizontalalignment='right', color='#303030')
         cross_auto_display = field_plot.text(
-            53.9, -4, "", fontproperties=kanit_italic, size=9, horizontalalignment="right", color='#303030')
+            53.9, -4, '', fontproperties=kanit_italic, size=9, horizontalalignment='right', color='#303030')
 
         # Subsystems Display
         subsystems_display = field_plot.text(
-            0, -6, "", fontproperties=kanit_italic, size=8, color="#a4969b")
+            0, -6, '', fontproperties=kanit_italic, size=8, color='#a4969b')
         climb_display = field_plot.text(
-            0, -7, "", fontproperties=kanit_italic, size=8, color="#a4969b")
+            0, -7, '', fontproperties=kanit_italic, size=8, color='#a4969b')
 
         # Robot Status Display
         connection_display = field_plot.text(
-            53.9, -6, "", fontproperties=kanit_italic, size=8, color="#a4969b", horizontalalignment="right")
+            53.9, -6, '', fontproperties=kanit_italic, size=8, color='#a4969b', horizontalalignment='right')
         is_enabled_display = field_plot.text(
-            53.9, -7, "", fontproperties=kanit_italic, size=8, color="#a4969b", horizontalalignment="right")
+            53.9, -7, '', fontproperties=kanit_italic, size=8, color='#a4969b', horizontalalignment='right')
 
         # Game Data Display
         game_data_display = field_plot.text(
-            53.9, 27.7, "", fontproperties=kanit_italic, size=12, color="#303030", horizontalalignment="right", alpha=0.9)
+            53.9, 27.7, '', fontproperties=kanit_italic, size=12, color='#303030', horizontalalignment='right', alpha=0.9)
 
         # Title Display
         field_plot.text(
-            0, 27.7, "FRC 5190 Live Dashboard", fontproperties=kanit_italic, size=20, color="#690a0f")
+            0, 27.7, 'FRC 5190 Live Dashboard', fontproperties=kanit_italic, size=20, color='#690a0f')
 
         def draw_field(subplot):
             subplot.set_axis_off()
 
-            red_alliance = imread("images/red_alliance.png")
-            blue_alliance = imread("images/blue_alliance.png")
+            red_alliance = imread('images/red_alliance.png')
+            blue_alliance = imread('images/blue_alliance.png')
 
             subplot.imshow(red_alliance, extent=[0, 32, 0, 27])
             subplot.imshow(blue_alliance, extent=[22, 54, 0, 27])
@@ -136,44 +136,44 @@ class Dashboard(tk.Frame):
             return box
 
         def update_text(rx, ry, rh, sp, ssa, ca, dle, dlp, dla, dre, drp, dra, ee, ep, ea, ae, ap, aa, ce, cp, cam, ic, c, e, gd):
-            robot_x_display.set_text("Robot X: " + str(rx))
-            robot_y_display.set_text("Robot Y: " + str(ry))
+            robot_x_display.set_text('Robot X: ' + str(rx))
+            robot_y_display.set_text('Robot Y: ' + str(ry))
             robot_heading_display.set_text(
-                "Robot Heading: " + str(np.degrees(rh)) + "°")
+                'Robot Heading: ' + str(np.degrees(rh)) + '°')
 
-            starting_pos_display.set_text("Starting Position: " + sp)
+            starting_pos_display.set_text('Starting Position: ' + sp)
 
-            if sp == "Center":
-                same_side_auto_display.set_text("Auto: 1.5 Switch")
-                cross_auto_display.set_text("")
+            if sp == 'Center':
+                same_side_auto_display.set_text('Auto: 1.5 Switch')
+                cross_auto_display.set_text('')
             else:
-                same_side_auto_display.set_text("Same Side Auto: " + ssa)
-                cross_auto_display.set_text("Cross Auto: " + ca)
+                same_side_auto_display.set_text('Same Side Auto: ' + ssa)
+                cross_auto_display.set_text('Cross Auto: ' + ca)
 
-            subsystem_str = "LEFT DRIVE enc " + \
-                str(dle) + ": " + str(dlp) + "% at " + str(dla) + "A"
-            subsystem_str += "     "
-            subsystem_str += "RIGHT DRIVE enc " + \
-                str(dre) + ": " + str(drp) + "% at " + str(dra) + "A"
-            subsystem_str += "     "
-            subsystem_str += "ELEVATOR enc " + \
-                str(ee) + ": " + str(ep) + "% at " + str(ea) + "A"
-            subsystem_str += "     "
-            subsystem_str += "ARM enc " + \
-                str(ae) + ": " + str(ap) + "% at " + str(aa) + "A"
+            subsystem_str = 'LEFT DRIVE enc ' + \
+                str(dle) + ': ' + str(dlp) + '% at ' + str(dla) + 'A'
+            subsystem_str += '     '
+            subsystem_str += 'RIGHT DRIVE enc ' + \
+                str(dre) + ': ' + str(drp) + '% at ' + str(dra) + 'A'
+            subsystem_str += '     '
+            subsystem_str += 'ELEVATOR enc ' + \
+                str(ee) + ': ' + str(ep) + '% at ' + str(ea) + 'A'
+            subsystem_str += '     '
+            subsystem_str += 'ARM enc ' + \
+                str(ae) + ': ' + str(ap) + '% at ' + str(aa) + 'A'
 
             subsystems_display.set_text(subsystem_str)
 
             if (ic):
                 climb_display.set_text(
-                    "CLIMB enc " + str(ce) + ": " + str(cp) + "% at" + str(cam) + "A")
+                    'CLIMB enc ' + str(ce) + ': ' + str(cp) + '% at' + str(cam) + 'A')
             else:
-                climb_display.set_text("")
+                climb_display.set_text('')
 
-            connection_display.set_text("Robot " + c)
+            connection_display.set_text('Robot ' + c)
             is_enabled_display.set_text(e)
 
-            game_data_display.set_text("Game Data: " + gd)
+            game_data_display.set_text('Game Data: ' + gd)
 
             return [robot_x_display, robot_y_display, robot_heading_display,
                     starting_pos_display, same_side_auto_display, cross_auto_display,
@@ -190,62 +190,68 @@ class Dashboard(tk.Frame):
             del path_heading_values[:]
 
         def update_plot(_, robot_point, path_point, lookahead_point, robot, robot_path, path):
-            if nt_instance.getBoolean("Reset", False):
+            if nt_instance.getBoolean('Reset', False):
                 reset_arrays()
-                nt_instance.putBoolean("Reset", False)
+                nt_instance.putBoolean('Reset', False)
 
-            sp = nt_instance.getString("Starting Position", "Left")
-            ssa = nt_instance.getString("Same Side Auto", "3 Scale")
-            ca = nt_instance.getString("Cross Auto", "2 Scale")
+            sp = nt_instance.getString('Starting Position', 'Left')
+            ssa = nt_instance.getString('Same Side Auto', '3 Scale')
+            ca = nt_instance.getString('Cross Auto', '2 Scale')
 
             default_y = 23.5
             default_heading = np.pi
 
-            if sp == "Right":
+            if sp == 'Right':
                 default_heading = np.pi
                 default_y = 27 - default_y
 
-            elif sp == "Center":
+            elif sp == 'Center':
                 default_y = 13.25
                 default_heading = 0
 
-            rx = nt_instance.getNumber("Robot X", 1.5)
-            ry = nt_instance.getNumber("Robot Y", default_y)
-            rh = nt_instance.getNumber("Robot Heading", default_heading)
+            rx = nt_instance.getNumber('Robot X', 1.5)
+            ry = nt_instance.getNumber('Robot Y', default_y)
+            rh = nt_instance.getNumber('Robot Heading', default_heading)
 
-            px = nt_instance.getNumber("Path X", 1.5)
-            py = nt_instance.getNumber("Path Y", default_y)
-            ph = nt_instance.getNumber("Path Heading", default_heading)
+            px = nt_instance.getNumber('Path X', 1.5)
+            py = nt_instance.getNumber('Path Y', default_y)
+            ph = nt_instance.getNumber('Path Heading', default_heading)
 
-            lx = nt_instance.getNumber("Lookahead X", 3.5)
-            ly = nt_instance.getNumber("Lookahead Y", default_y)
+            lx = nt_instance.getNumber('Lookahead X', 3.5)
+            ly = nt_instance.getNumber('Lookahead Y', default_y)
 
-            dle = nt_instance.getNumber("Drive Left Encoder", 0)
-            dlp = nt_instance.getNumber("Drive Left Pct", 0.0)
-            dla = nt_instance.getNumber("Drive Left Amps", 0.0)
+            dle = nt_instance.getNumber('Drive Left Encoder', 0)
+            dlp = nt_instance.getNumber('Drive Left Pct', 0.0)
+            dla = nt_instance.getNumber('Drive Left Amps', 0.0)
 
-            dre = nt_instance.getNumber("Drive Right Encoder", 0)
-            drp = nt_instance.getNumber("Drive Right Pct", 0.0)
-            dra = nt_instance.getNumber("Drive Right Amps", 0.0)
+            dre = nt_instance.getNumber('Drive Right Encoder', 0)
+            drp = nt_instance.getNumber('Drive Right Pct', 0.0)
+            dra = nt_instance.getNumber('Drive Right Amps', 0.0)
 
-            ee = nt_instance.getNumber("Elevator Encoder", 0)
-            ep = nt_instance.getNumber("Elevator Pct", 0.0)
-            ea = nt_instance.getNumber("Elevator Amps", 0.0)
+            ee = nt_instance.getNumber('Elevator Encoder', 0)
+            ep = nt_instance.getNumber('Elevator Pct', 0.0)
+            ea = nt_instance.getNumber('Elevator Amps', 0.0)
 
-            ae = nt_instance.getNumber("Arm Encoder", 0)
-            ap = nt_instance.getNumber("Arm Pct", 0.0)
-            aa = nt_instance.getNumber("Arm Amps", 0.0)
+            ae = nt_instance.getNumber('Arm Encoder', 0)
+            ap = nt_instance.getNumber('Arm Pct', 0.0)
+            aa = nt_instance.getNumber('Arm Amps', 0.0)
 
-            ce = nt_instance.getNumber("Climb Encoder", 0)
-            cp = nt_instance.getNumber("Climb Pct", 0.0)
-            cam = nt_instance.getNumber("Climb Amps", 0.0)
+            ce = nt_instance.getNumber('Climb Encoder', 0)
+            cp = nt_instance.getNumber('Climb Pct', 0.0)
+            cam = nt_instance.getNumber('Climb Amps', 0.0)
 
-            ic = nt_instance.getBoolean("Is Climbing", False)
+            ic = nt_instance.getBoolean('Is Climbing', False)
 
-            c = nt_instance.getString("Is Connected", "Disconnected")
-            e = nt_instance.getString("Is Enabled", "Disabled")
+            c = ''
 
-            gd = nt_instance.getString("Game Data", "None")
+            if NetworkTables.isConnected(): 
+                c = 'Connected'
+            else:
+                c = 'Disconnected'
+
+            e = nt_instance.getString('Is Enabled', 'Disabled')
+
+            gd = nt_instance.getString('Game Data', 'None')
 
             if rx > 0.01 or ry > .01:
                 robot_x_values.append(rx)
@@ -277,58 +283,58 @@ class Dashboard(tk.Frame):
                 if event.xdata > 45 and event.xdata < 54 and event.ydata > -2.5:
 
                     current = nt_instance.getString(
-                        "Starting Position", "Left")
-                    to_set = ""
+                        'Starting Position', 'Left')
+                    to_set = ''
 
-                    if current == "Left":
-                        to_set = "Center"
+                    if current == 'Left':
+                        to_set = 'Center'
                         reset_arrays()
-                    elif current == "Center":
-                        to_set = "Right"
+                    elif current == 'Center':
+                        to_set = 'Right'
                         reset_arrays()
                     else:
-                        to_set = "Left"
+                        to_set = 'Left'
                         reset_arrays()
 
-                    nt_instance.putString("Starting Position", to_set)
+                    nt_instance.putString('Starting Position', to_set)
 
                 # Change Same Side Auto
-                elif event.xdata > 45 and event.xdata < 54 and event.ydata > -3.5 and nt_instance.getString("Starting Position", "Left") != "Center":
+                elif event.xdata > 45 and event.xdata < 54 and event.ydata > -3.5 and nt_instance.getString('Starting Position', 'Left') != 'Center':
 
                     current = nt_instance.getString(
-                        "Same Side Auto", "3 Scale")
-                    to_set = ""
+                        'Same Side Auto', '3 Scale')
+                    to_set = ''
 
-                    if current == "3 Scale":
-                        to_set = "Baseline"
-                    elif current == "Baseline":
-                        to_set = "1 Switch"
+                    if current == '3 Scale':
+                        to_set = 'Baseline'
+                    elif current == 'Baseline':
+                        to_set = '1 Switch'
                     else:
-                        to_set = "3 Scale"
+                        to_set = '3 Scale'
 
-                    nt_instance.putString("Same Side Auto", to_set)
+                    nt_instance.putString('Same Side Auto', to_set)
 
                 # Change Cross Auto
-                elif event.xdata > 45 and event.xdata < 54 and event.ydata > -4.5 and nt_instance.getString("Starting Position", "Left") != "Center":
+                elif event.xdata > 45 and event.xdata < 54 and event.ydata > -4.5 and nt_instance.getString('Starting Position', 'Left') != 'Center':
 
-                    current = nt_instance.getString("Cross Auto", "2 Scale")
-                    to_set = ""
+                    current = nt_instance.getString('Cross Auto', '2 Scale')
+                    to_set = ''
 
-                    if current == "2 Scale":
-                        to_set = "Baseline"
-                    elif current == "Baseline":
-                        to_set = "1 Switch"
+                    if current == '2 Scale':
+                        to_set = 'Baseline'
+                    elif current == 'Baseline':
+                        to_set = '1 Switch'
                     else:
-                        to_set = "2 Scale"
+                        to_set = '2 Scale'
 
-                    nt_instance.putString("Cross Auto", to_set)
+                    nt_instance.putString('Cross Auto', to_set)
 
         draw_field(field_plot)
 
         canvas = FigureCanvasTkAgg(fig, master=parent)
         canvas.get_tk_widget().pack()
 
-        fig.canvas.mpl_connect("button_press_event", on_click)
+        fig.canvas.mpl_connect('button_press_event', on_click)
 
         target_path, = field_plot.plot(
             path_x_values, path_y_values, color='red', alpha=0.5)
@@ -336,18 +342,18 @@ class Dashboard(tk.Frame):
             robot_x_values, robot_y_values, color='black', alpha=0.25)
 
         path_point, = field_plot.plot(
-            path_x_values[0], path_y_values[0], marker='o', markersize=2, color="red")
+            path_x_values[0], path_y_values[0], marker='o', markersize=2, color='red')
         robot_point, = field_plot.plot(
-            robot_x_values[0], robot_y_values[0], marker='o', markersize=2, color="blue")
-        lookahead_point, = field_plot.plot(lookahead_x_values[0], lookahead_y_values[0], marker="*", markersize=5,
-                                           color="black")
+            robot_x_values[0], robot_y_values[0], marker='o', markersize=2, color='blue')
+        lookahead_point, = field_plot.plot(lookahead_x_values[0], lookahead_y_values[0], marker='*', markersize=5,
+                                           color='black')
         starting_robot = gen_robot_square(
             (robot_x_values[0], robot_y_values[0]), 0.0)
         robot, = field_plot.plot([p[0] for p in starting_robot], [
-                                 p[1] for p in starting_robot], color="green")
+                                 p[1] for p in starting_robot], color='green')
         field_plot.set_ylim(bottom=-7.5, top=28.5)
 
-        ani = animation.FuncAnimation(fig, update_plot, frames=len(robot_x_values), interval=10,
+        ani = animation.FuncAnimation(fig, update_plot, frames=100, interval=10,
                                       fargs=(
                                           robot_point, path_point, lookahead_point, robot, actual_path, target_path),
                                       blit=True)

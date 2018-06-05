@@ -16,12 +16,6 @@ object ClimbSubsystem : Subsystem() {
     val currentPosition: Distance
         get() = masterClimbMotor.sensorPosition
 
-    val percent: Double
-        get() = masterClimbMotor.motorOutputPercent
-
-    val amperage: Double
-        get() = masterClimbMotor.outputCurrent
-
     init {
         slaveClimbMotor.apply {
             follow(masterClimbMotor)

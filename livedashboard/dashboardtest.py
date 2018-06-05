@@ -23,6 +23,9 @@ with open("C:/Users/prate/Desktop/FRC/Projects/5190 Offseason 2018/robot/src/mai
         sd.putNumber('Robot X', x)
         sd.putNumber('Robot Y', y)
 
+        # sd.putNumber('Lookahead X', x)
+        # sd.putNumber('Lookahead Y', y)
+
         
         sd.putNumber('Robot Heading', heading)
         print(x, y)
