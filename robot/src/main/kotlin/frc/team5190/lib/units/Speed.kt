@@ -2,10 +2,15 @@
 
 package frc.team5190.lib.units
 
+import kotlin.math.absoluteValue
+
 interface Speed {
     val STU: NativeUnitsPer100Ms
     val IPS: InchesPerSecond
     val FPS: FeetPerSecond
+
+    val absoluteValue: Speed
+        get() = NativeUnitsPer100Ms(this.STU.value.absoluteValue, this.STU.settings)
 
     operator fun plus(other: Speed): Speed {
         return NativeUnitsPer100Ms(this.STU.value + other.STU.value, this.STU.settings)

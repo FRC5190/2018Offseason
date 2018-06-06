@@ -6,37 +6,37 @@ import jaci.pathfinder.Pathfinder
 import jaci.pathfinder.Trajectory
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 import org.apache.commons.math3.stat.regression.SimpleRegression
-import kotlin.math.absoluteValue
-import kotlin.math.atan2
-import kotlin.math.tan
+import kotlin.math.*
 
-class PathFollower(val leftTrajectory: Trajectory,
-                   val rightTrajectory: Trajectory,
-                   val sourceTrajectory: Trajectory,
+class PathFollower(val trajectory: Trajectory,
                    val reversed: Boolean) {
 
-    // Important segments
-    var currentSegment: Trajectory.Segment = sourceTrajectory.segments[0]
-        private set
-    var lookaheadSegment: Trajectory.Segment = sourceTrajectory.segments[0]
+    // Current Segment
+    var currentSegment: Trajectory.Segment = trajectory.segments[0]
         private set
 
-    // PVA Constants for path following
+    // Lookahead Segment
+    var lookaheadSegment: Trajectory.Segment = trajectory.segments[0]
+        private set
+
+    // Proportional Feedback and Velocity Feed-Forward Constants
     var p = 0.0
     var v = 0.0
     var vIntercept = 0.0
 
-    // P constant for turning
+    // Proprtional Feedback Constant for Cross-Path Error Correction
     var pTurn = 0.0
 
-    // Track current state of path following
+    // Variable that stores the state of completion
     var isFinished = false
         private set
+
+    // Estimation of the current segment index
     private var segmentIndexEstimation = 0
 
 
     // Compute lookahead value based on speed.
-    // FPS to FT
+    // Feet Per Second to Feet
     private val lookaheadInterpolationData = arrayOf(0.0 to 1.0, 4.0 to 4.0, 8.0 to 8.0)
     private val lookaheadInterpolator = SimpleRegression()
 
@@ -48,14 +48,14 @@ class PathFollower(val leftTrajectory: Trajectory,
     // Return motor output based on robot pose.
     fun getMotorOutput(robotPosition: Vector2D, robotAngle: Double, rawEncoderVelocities: Pair<Speed, Speed>): Pair<Double, Double> {
 
-        val velocities = if (reversed) -rawEncoderVelocities.first to -rawEncoderVelocities.second
-        else rawEncoderVelocities
+        // Make sure velocities are positive
+        val velocities = rawEncoderVelocities.first.absoluteValue to rawEncoderVelocities.second.absoluteValue
 
         segmentIndexEstimation = getCurrentSegmentIndex(robotPosition, segmentIndexEstimation)
-        currentSegment = sourceTrajectory[segmentIndexEstimation]
+        currentSegment = trajectory[segmentIndexEstimation]
 
         // All points in the path have been exhausted
-        if (segmentIndexEstimation >= sourceTrajectory.segments.size - 1) {
+        if (segmentIndexEstimation >= trajectory.segments.size - 1) {
             isFinished = true
             return 0.0 to 0.0
         }
@@ -63,11 +63,12 @@ class PathFollower(val leftTrajectory: Trajectory,
         // Get lookahead point based on speed
         val lookaheadDistance = lookaheadInterpolator.predict((velocities.first + velocities.second).FPS.value / 2.0)
 
+        // Returns imaginary segment at the end of the path so weird end-behavor isn't present
         fun getImaginarySegment(): Trajectory.Segment {
-            val lastSegment = sourceTrajectory.segments.last()
+            val lastSegment = trajectory.segments.last()
             val theta = lastSegment.heading
             val magnitude = lookaheadDistance - (lastSegment.position - currentSegment.position)
-            val vector = Vector2D(magnitude * Math.cos(theta), magnitude * Math.sin(theta))
+            val vector = Vector2D(magnitude * cos(theta), magnitude * sin(theta))
             return Trajectory.Segment(
                     lastSegment.dt,
                     lastSegment.x + vector.x,
@@ -80,7 +81,7 @@ class PathFollower(val leftTrajectory: Trajectory,
             )
         }
 
-        lookaheadSegment = sourceTrajectory.segments.copyOfRange(segmentIndexEstimation, sourceTrajectory.segments.size).find { segment ->
+        lookaheadSegment = trajectory.segments.copyOfRange(segmentIndexEstimation, trajectory.segments.size).find { segment ->
             return@find segment.position - currentSegment.position >= lookaheadDistance
         } ?: getImaginarySegment()
 
@@ -105,9 +106,9 @@ class PathFollower(val leftTrajectory: Trajectory,
         val theta = -Pathfinder.boundHalfDegrees(Math.toDegrees(atan2(positionDelta.y, positionDelta.x)) - robotAngle)
         val turnOutput = pTurn * theta
 
-        val leftOutput = calculateOutput(FeetPerSecond(leftTrajectory[segmentIndexEstimation].velocity) + FeetPerSecond(turnOutput),
+        val leftOutput = calculateOutput(FeetPerSecond(trajectory[segmentIndexEstimation].velocity) + FeetPerSecond(turnOutput),
                 velocities.first, reversed)
-        val rightOutput = calculateOutput(FeetPerSecond(rightTrajectory[segmentIndexEstimation].velocity) - FeetPerSecond(turnOutput),
+        val rightOutput = calculateOutput(FeetPerSecond(trajectory[segmentIndexEstimation].velocity) - FeetPerSecond(turnOutput),
                 velocities.second, reversed)
 
         segmentIndexEstimation++
@@ -118,16 +119,16 @@ class PathFollower(val leftTrajectory: Trajectory,
 
     // Returns the index of the current segment
     private fun getCurrentSegmentIndex(robotPosition: Vector2D, estimatedIndex: Int): Int {
-        (0 until sourceTrajectory.segments.size - 1 - estimatedIndex).forEach { index ->
+        (0 until trajectory.segments.size - 1 - estimatedIndex).forEach { index ->
 
             // Check indices at and after estimate
-            if (isRobotOnPerpendicular(robotPosition, sourceTrajectory.segments[estimatedIndex + index])) {
+            if (isRobotOnPerpendicular(robotPosition, trajectory.segments[estimatedIndex + index])) {
                 return estimatedIndex + index
             }
 
             // Check indices before estimate if they exist
             if (estimatedIndex - index >= 0) {
-                if (isRobotOnPerpendicular(robotPosition, sourceTrajectory.segments[estimatedIndex - index])) {
+                if (isRobotOnPerpendicular(robotPosition, trajectory.segments[estimatedIndex - index])) {
                     return estimatedIndex - index
                 }
             }
@@ -138,9 +139,9 @@ class PathFollower(val leftTrajectory: Trajectory,
     // Returns if the robot is perpendicular to a segment
     private fun isRobotOnPerpendicular(robotPosition: Vector2D, segment: Trajectory.Segment): Boolean {
 
-        if (robotPosition.x - segment.x == 0.0) return true
+        if (robotPosition.x == segment.x) return true
 
-        val perpendicularSlope = if (tan(segment.heading) != Double.NaN) -1 / Math.tan(segment.heading) else 0.0
+        val perpendicularSlope = if (tan(segment.heading) != Double.NaN) -1 / tan(segment.heading) else 0.0
         return (((robotPosition.y - segment.y) / (robotPosition.x - segment.x)) - perpendicularSlope).absoluteValue < 0.002
     }
 }

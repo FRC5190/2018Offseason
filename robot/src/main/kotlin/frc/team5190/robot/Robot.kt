@@ -1,9 +1,7 @@
 package frc.team5190.robot
 
-import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.IterativeRobot
 import edu.wpi.first.wpilibj.command.Scheduler
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.team5190.lib.util.Pathreader
 import frc.team5190.robot.arm.ArmSubsystem
 import frc.team5190.robot.climb.ClimbSubsystem

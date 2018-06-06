@@ -2,12 +2,17 @@
 
 package frc.team5190.lib.units
 
+import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
 interface Distance {
     val FT: Feet
     val IN: Inches
     val STU: NativeUnits
+
+
+    val absoluteValue: Distance
+        get() =  NativeUnits(this.STU.value.absoluteValue, this.STU.settings)
 
     operator fun plus(other: Distance): Distance {
         return NativeUnits(this.STU.value + other.STU.value, this.STU.settings)

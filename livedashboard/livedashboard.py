@@ -166,7 +166,7 @@ class Dashboard(tk.Frame):
 
             if (ic):
                 climb_display.set_text(
-                    'CLIMB enc ' + str(ce) + ': ' + str(cp) + '% at' + str(cam) + 'A')
+                    'CLIMB enc ' + str(ce) + ': ' + str(cp) + '% at ' + str(cam) + 'A')
             else:
                 climb_display.set_text('')
 
@@ -244,7 +244,7 @@ class Dashboard(tk.Frame):
 
             c = ''
 
-            if NetworkTables.isConnected(): 
+            if NetworkTables.isConnected():
                 c = 'Connected'
             else:
                 c = 'Disconnected'
@@ -351,7 +351,7 @@ class Dashboard(tk.Frame):
             (robot_x_values[0], robot_y_values[0]), 0.0)
         robot, = field_plot.plot([p[0] for p in starting_robot], [
                                  p[1] for p in starting_robot], color='green')
-        field_plot.set_ylim(bottom=-7.5, top=28.5)
+        field_plot.set_ylim(bottom=-7.25, top=28.5)
 
         ani = animation.FuncAnimation(fig, update_plot, frames=100, interval=10,
                                       fargs=(

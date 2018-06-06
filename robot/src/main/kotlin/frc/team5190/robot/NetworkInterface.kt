@@ -10,8 +10,8 @@ import frc.team5190.robot.elevator.ElevatorSubsystem
 import frc.team5190.robot.sensors.Pigeon
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
-import org.apache.commons.math3.ml.neuralnet.Network
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 @Suppress("HasPlatformType")
 object NetworkInterface {
@@ -19,6 +19,7 @@ object NetworkInterface {
     val ntInstance = NetworkTableInstance.getDefault().getTable("Live Dashboard")
 
     val startingPosition = ntInstance.getEntry("Starting Position")
+
     val sameSideAuto = ntInstance.getEntry("Same Side Auto")
     val crossAuto = ntInstance.getEntry("Cross Auto")
 
@@ -74,23 +75,23 @@ object NetworkInterface {
                 lookaheadY.setDouble(FollowPathCommand.lookaheadY)
 
                 driveLeftEncoder.setDouble(DriveSubsystem.leftPosition.STU.value.toDouble())
-                driveLeftPercent.setDouble(DriveSubsystem.leftPercent)
+                driveLeftPercent.setDouble(DriveSubsystem.leftPercent.roundToInt() * 100.0)
                 driveLeftAmps.setDouble(DriveSubsystem.leftAmperage)
 
                 driveRightEncoder.setDouble(DriveSubsystem.rightPosition.STU.value.toDouble())
-                driveRightPercent.setDouble(DriveSubsystem.rightPercent)
+                driveRightPercent.setDouble(DriveSubsystem.rightPercent.roundToInt() * 100.0)
                 driveRightAmps.setDouble(DriveSubsystem.rightAmperage)
 
                 elevatorEncoder.setDouble(ElevatorSubsystem.currentPosition.STU.value.toDouble())
-                elevatorPercent.setDouble(ElevatorSubsystem.percent)
+                elevatorPercent.setDouble(ElevatorSubsystem.percent.roundToInt() * 100.0)
                 elevatorAmps.setDouble(ElevatorSubsystem.amperage)
 
                 armEncoder.setDouble(ArmSubsystem.currentPosition.STU.value.toDouble())
-                armPercent.setDouble(ArmSubsystem.percent)
+                armPercent.setDouble(ArmSubsystem.percent.roundToInt() * 100.0)
                 armAmps.setDouble(ArmSubsystem.amperage)
 
                 climbEncoder.setDouble(ClimbSubsystem.currentPosition.STU.value.toDouble())
-                climbPercent.setDouble(ClimbSubsystem.percent)
+                climbPercent.setDouble(ClimbSubsystem.percent.roundToInt() * 100.0)
                 climbAmps.setDouble(ClimbSubsystem.amperage)
 
                 isClimbing.setBoolean(Robot.INSTANCE.isClimbing)

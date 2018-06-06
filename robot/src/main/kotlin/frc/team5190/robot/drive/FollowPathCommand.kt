@@ -36,8 +36,8 @@ class FollowPathCommand(folder: String, file: String,
     private val notifier: Notifier
     private var stopNotifier = false
 
-    // Left, right, and source trajectories
-    private val trajectories = Pathreader.getPaths(folder, file)
+    // Left, right, and source trajectory
+    private val trajectory = Pathreader.getPath(folder, file)
 
     // Path follower
     private val pathFollower: PathFollower
@@ -45,42 +45,33 @@ class FollowPathCommand(folder: String, file: String,
     init {
         requires(DriveSubsystem)
 
-        // Modify trajectories if reversed or mirrored
-        trajectories.forEach { trajectory ->
-            if (pathReversed) {
-                val reversedTrajectory = trajectory.copy()
-                val distance = reversedTrajectory.segments.last().position
+        // Modify trajectory if reversed or mirrored
 
-                reversedTrajectory.segments.reverse()
-                reversedTrajectory.segments.forEach { it.position = distance - it.position }
+        if (pathReversed) {
+            val reversedTrajectory = trajectory.copy()
+            val distance = reversedTrajectory.segments.last().position
 
-                trajectory.segments = reversedTrajectory.segments
-            }
-            trajectory.segments.forEach { segment ->
-                if (pathMirrored) {
-                    segment.heading = -segment.heading + (2 * Math.PI)
-                    segment.y = 27 - segment.y
-                }
-                if (robotReversed xor pathReversed) {
-                    var newHeading = segment.heading + Math.PI
-                    if (newHeading > 2 * Math.PI) newHeading -= 2 * Math.PI
+            reversedTrajectory.segments.reverse()
+            reversedTrajectory.segments.forEach { it.position = distance - it.position }
 
-                    segment.heading = newHeading
-                }
-            }
+            trajectory.segments = reversedTrajectory.segments
         }
+        trajectory.segments.forEach { segment ->
+            if (pathMirrored) {
+                segment.heading = -segment.heading + (2 * Math.PI)
+                segment.y = 27 - segment.y
+            }
+            if (robotReversed xor pathReversed) {
+                var newHeading = segment.heading + Math.PI
+                if (newHeading > 2 * Math.PI) newHeading -= 2 * Math.PI
 
-        if (pathMirrored xor (pathReversed xor robotReversed)) {
-            val leftTrajectory = trajectories[0]
-            trajectories[0] = trajectories[1]
-            trajectories[1] = leftTrajectory
+                segment.heading = newHeading
+            }
         }
 
         // Initialize path follower
         pathFollower = PathFollower(
-                leftTrajectory = trajectories[0],
-                rightTrajectory = trajectories[1],
-                sourceTrajectory = trajectories[2],
+                trajectory = trajectory,
                 reversed = robotReversed).apply {
 
             p = 0.5
@@ -116,7 +107,7 @@ class FollowPathCommand(folder: String, file: String,
     // Adds a marker at the point along the path where @pos is closest to that point
     fun addMarkerAt(pos: Vector2D): Marker {
         val waypoint = if (pathMirrored) Vector2D(pos.x, 27 - pos.y) else pos
-        return Marker(trajectories[2].segments.minBy { waypoint.distance(Vector2D(it.x, it.y)) }!!.position)
+        return Marker(trajectory.segments.minBy { waypoint.distance(Vector2D(it.x, it.y)) }!!.position)
     }
 
     fun hasPassedMarker(marker: Marker): Boolean {
@@ -126,7 +117,7 @@ class FollowPathCommand(folder: String, file: String,
     override fun initialize() {
         DriveSubsystem.resetEncoders()
         if (resetRobotPosition) {
-            Localization.reset(startingPosition = Vector2D(trajectories[2].segments[0].x, trajectories[2].segments[0].y))
+            Localization.reset(startingPosition = Vector2D(trajectory.segments[0].x, trajectory.segments[0].y))
         }
         notifier.startPeriodic(DT)
     }
@@ -145,6 +136,7 @@ class FollowPathCommand(folder: String, file: String,
             lookaheadY = 0.0
         }
     }
+
     override fun isFinished() = pathFollower.isFinished
 }
 
