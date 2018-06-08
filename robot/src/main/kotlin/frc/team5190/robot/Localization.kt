@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.Notifier
 import frc.team5190.lib.units.Distance
 import frc.team5190.lib.units.NativeUnits
 import frc.team5190.robot.drive.DriveSubsystem
-import frc.team5190.robot.sensors.Pigeon
+import frc.team5190.robot.sensors.NavX
 import jaci.pathfinder.Pathfinder
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
@@ -31,7 +31,7 @@ object Localization {
             robotPosition = startingPosition
             leftLastPos = DriveSubsystem.leftPosition
             rightLastPos = DriveSubsystem.rightPosition
-            gyroLastAngle = Pigeon.correctedAngle
+            gyroLastAngle = NavX.correctedAngle
         }
     }
 
@@ -39,7 +39,7 @@ object Localization {
         synchronized(synchronousOdometry) {
             val leftPos = DriveSubsystem.leftPosition
             val rightPos = DriveSubsystem.rightPosition
-            val gyroAngle = Pigeon.correctedAngle
+            val gyroAngle = NavX.correctedAngle
 
             val dleft = leftPos - leftLastPos
             val dright = rightPos - rightLastPos

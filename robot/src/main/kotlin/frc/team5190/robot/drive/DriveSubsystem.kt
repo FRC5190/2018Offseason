@@ -3,86 +3,67 @@ package frc.team5190.robot.drive
 import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.NeutralMode
-import edu.wpi.first.wpilibj.Solenoid
 import edu.wpi.first.wpilibj.command.Subsystem
 import frc.team5190.lib.units.*
 import frc.team5190.lib.wrappers.FalconSRX
 import frc.team5190.robot.MotorIDs
-import frc.team5190.robot.SolenoidIDs
 
 
 object DriveSubsystem : Subsystem() {
 
-    private val frontLeft = FalconSRX(MotorIDs.FRONT_LEFT)
-    private val frontRight = FalconSRX(MotorIDs.FRONT_RIGHT)
+    private val leftMaster = FalconSRX(MotorIDs.LEFT_MASTER)
+    private val rightMaster = FalconSRX(MotorIDs.RIGHT_MASTER)
 
-    private val rearLeft = FalconSRX(MotorIDs.REAR_LEFT)
-    private val rearRight = FalconSRX(MotorIDs.REAR_RIGHT)
+    private val leftSlave1 = FalconSRX(MotorIDs.LEFT_SLAVE_1)
+    private val rightSlave1 = FalconSRX(MotorIDs.RIGHT_SLAVE_1)
 
-    private val rearLeft2 = FalconSRX(40)
-    private val rearRight2 = FalconSRX(41)
+    private val leftSlave2 = FalconSRX(MotorIDs.LEFT_SLAVE_2)
+    private val rightSlave2 = FalconSRX(MotorIDs.RIGHT_SLAVE_2)
 
-    private val allMasters = arrayOf(frontLeft, frontRight)
+    private val allMasters = arrayOf(leftMaster, rightMaster)
 
-    private val leftMotors = arrayOf(frontLeft, rearLeft, rearLeft2)
-    private val rightMotors = arrayOf(frontRight, rearRight, rearRight2)
+    private val leftMotors = arrayOf(leftMaster, leftSlave1, leftSlave2)
+    private val rightMotors = arrayOf(rightMaster, rightSlave1, rightSlave2)
 
     private val allMotors = arrayOf(*leftMotors, *rightMotors)
 
-    private val gearSolenoid = Solenoid(SolenoidIDs.PCM, SolenoidIDs.DRIVE)
-
-    var gear: Gear
-        get() = Gear.getGear(gearSolenoid.get())
-        set(value) {
-            when (value) {
-                Gear.HIGH -> allMasters.forEach {
-                    it.openLoopRamp = Seconds(0.0)
-                }
-                Gear.LOW -> allMasters.forEach {
-                   it.openLoopRamp = Seconds(0.2)
-                }
-            }
-            gearSolenoid.set(value.state)
-        }
-
     val leftPosition: Distance
-        get() = frontLeft.sensorPosition
+        get() = leftMaster.sensorPosition
 
     val rightPosition: Distance
-        get() = frontRight.sensorPosition
+        get() = rightMaster.sensorPosition
 
     val leftVelocity: Speed
-        get() = frontLeft.sensorVelocity
+        get() = leftMaster.sensorVelocity
 
     val rightVelocity: Speed
-        get() = frontLeft.sensorVelocity
+        get() = leftMaster.sensorVelocity
 
     val leftPercent: Double
-        get() = frontLeft.motorOutputPercent
+        get() = leftMaster.motorOutputPercent
 
     val rightPercent: Double
-        get() = frontRight.motorOutputPercent
+        get() = rightMaster.motorOutputPercent
 
     val leftAmperage: Double
-        get() = frontLeft.outputCurrent
+        get() = leftMaster.outputCurrent
 
     val rightAmperage: Double
-        get() = frontRight.outputCurrent
+        get() = rightMaster.outputCurrent
 
 
     init {
-        rearLeft.follow(frontLeft)
-        rearRight.follow(frontRight)
-        rearLeft2.follow(frontLeft)
-        rearRight2.follow(frontRight)
+        arrayListOf(leftSlave1, leftSlave2).forEach {
+            it.follow(leftMaster)
+            it.inverted = false
+        }
+        arrayListOf(rightSlave1, rightSlave2).forEach {
+            it.follow(rightMaster)
+            it.inverted = true
+        }
 
-
-        leftMotors.forEach { it.inverted = false }
-        rightMotors.forEach { it.inverted = true }
-
-        rearRight.inverted = false
-        rearLeft2.inverted = true
-
+        leftMaster.inverted = true
+        rightMaster.inverted = false
 
         allMasters.forEach {
             it.feedbackSensor = FeedbackDevice.QuadEncoder
@@ -103,15 +84,14 @@ object DriveSubsystem : Subsystem() {
 
             it.peakCurrentLimit = Amps(0)
             it.peakCurrentLimitDuration = Milliseconds(0)
-            it.continousCurrentLimit = Amps(50)
+            it.continousCurrentLimit = Amps(40)
             it.currentLimitingEnabled = true
         }
-
     }
 
     fun set(controlMode: ControlMode, leftOutput: Double, rightOutput: Double) {
-        frontLeft.set(controlMode, leftOutput)
-        frontRight.set(controlMode, rightOutput)
+        leftMaster.set(controlMode, leftOutput)
+        rightMaster.set(controlMode, rightOutput)
     }
 
     fun resetEncoders() {
@@ -122,13 +102,5 @@ object DriveSubsystem : Subsystem() {
 
     override fun initDefaultCommand() {
         defaultCommand = ManualDriveCommand()
-    }
-}
-
-enum class Gear(val state: Boolean) {
-    HIGH(false), LOW(true);
-
-    companion object {
-        fun getGear(solenoidState: Boolean) = Gear.values().find { it.state == solenoidState }!!
     }
 }

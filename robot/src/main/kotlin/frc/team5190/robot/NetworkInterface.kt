@@ -3,15 +3,9 @@ package frc.team5190.robot
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Notifier
-import frc.team5190.robot.arm.ArmSubsystem
-import frc.team5190.robot.climb.ClimbSubsystem
 import frc.team5190.robot.drive.DriveSubsystem
 import frc.team5190.robot.drive.FollowPathCommand
-import frc.team5190.robot.elevator.ElevatorSubsystem
-import frc.team5190.robot.sensors.Pigeon
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
-import java.util.concurrent.TimeUnit
+import frc.team5190.robot.sensors.NavX
 import kotlin.math.roundToInt
 
 @Suppress("HasPlatformType")
@@ -20,9 +14,6 @@ object NetworkInterface {
     val ntInstance = NetworkTableInstance.getDefault().getTable("Live Dashboard")
 
     val startingPosition = ntInstance.getEntry("Starting Position")
-
-    val sameSideAuto = ntInstance.getEntry("Same Side Auto")
-    val crossAuto = ntInstance.getEntry("Cross Auto")
 
     private val robotX = ntInstance.getEntry("Robot X")
     private val robotY = ntInstance.getEntry("Robot Y")
@@ -43,31 +34,17 @@ object NetworkInterface {
     private val driveRightPercent = ntInstance.getEntry("Drive Right Pct")
     private val driveRightAmps = ntInstance.getEntry("Drive Right Amps")
 
-    private val elevatorEncoder = ntInstance.getEntry("Elevator Encoder")
-    private val elevatorPercent = ntInstance.getEntry("Elevator Pct")
-    private val elevatorAmps = ntInstance.getEntry("Elevator Amps")
-
-    private val armEncoder = ntInstance.getEntry("Arm Encoder")
-    private val armPercent = ntInstance.getEntry("Arm Pct")
-    private val armAmps = ntInstance.getEntry("Arm Amps")
-
-    private val climbEncoder = ntInstance.getEntry("Climb Encoder")
-    private val climbPercent = ntInstance.getEntry("Climb Pct")
-    private val climbAmps = ntInstance.getEntry("Climb Amps")
-
-    private val isClimbing = ntInstance.getEntry("Is Climbing")
     private val isEnabled = ntInstance.getEntry("Is Enabled")
-
     private val gameData = ntInstance.getEntry("Game Data")
 
-    val notifier: Notifier
+    private val notifier: Notifier
 
 
     init {
         notifier = Notifier {
             robotX.setDouble(Localization.robotPosition.x)
             robotY.setDouble(Localization.robotPosition.y)
-            robotHdg.setDouble(Math.toRadians(Pigeon.correctedAngle))
+            robotHdg.setDouble(Math.toRadians(NavX.correctedAngle))
 
             pathX.setDouble(FollowPathCommand.pathX)
             pathY.setDouble(FollowPathCommand.pathY)
@@ -84,21 +61,7 @@ object NetworkInterface {
             driveRightPercent.setDouble(DriveSubsystem.rightPercent.roundToInt() * 100.0)
             driveRightAmps.setDouble(DriveSubsystem.rightAmperage)
 
-            elevatorEncoder.setDouble(ElevatorSubsystem.currentPosition.STU.value.toDouble())
-            elevatorPercent.setDouble(ElevatorSubsystem.percent.roundToInt() * 100.0)
-            elevatorAmps.setDouble(ElevatorSubsystem.amperage)
-
-            armEncoder.setDouble(ArmSubsystem.currentPosition.STU.value.toDouble())
-            armPercent.setDouble(ArmSubsystem.percent.roundToInt() * 100.0)
-            armAmps.setDouble(ArmSubsystem.amperage)
-
-            climbEncoder.setDouble(ClimbSubsystem.currentPosition.STU.value.toDouble())
-            climbPercent.setDouble(ClimbSubsystem.percent.roundToInt() * 100.0)
-            climbAmps.setDouble(ClimbSubsystem.amperage)
-
-            isClimbing.setBoolean(Robot.INSTANCE.isClimbing)
             isEnabled.setBoolean(Robot.INSTANCE.isEnabled)
-
             gameData.setString(DriverStation.getInstance().gameSpecificMessage ?: "null")
         }
 

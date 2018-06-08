@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.control.PathFollower
 import frc.team5190.lib.util.Pathreader
 import frc.team5190.robot.Localization
-import frc.team5190.robot.sensors.Pigeon
+import frc.team5190.robot.sensors.NavX
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
 class FollowPathCommand(folder: String, file: String,
@@ -97,7 +97,7 @@ class FollowPathCommand(folder: String, file: String,
 
                 val output = pathFollower.getMotorOutput(
                         robotPosition = Localization.robotPosition,
-                        robotAngle = Pigeon.correctedAngle,
+                        robotAngle = NavX.correctedAngle,
                         rawEncoderVelocities = DriveSubsystem.leftVelocity to DriveSubsystem.rightVelocity)
 
                 DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = output.first, rightOutput = output.second)

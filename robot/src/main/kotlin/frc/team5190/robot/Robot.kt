@@ -3,19 +3,11 @@ package frc.team5190.robot
 import edu.wpi.first.wpilibj.IterativeRobot
 import edu.wpi.first.wpilibj.command.Scheduler
 import frc.team5190.lib.util.Pathreader
-import frc.team5190.robot.arm.ArmSubsystem
-import frc.team5190.robot.climb.ClimbSubsystem
 import frc.team5190.robot.drive.DriveSubsystem
-import frc.team5190.robot.elevator.ElevatorSubsystem
-import frc.team5190.robot.intake.IntakeSubsystem
-import frc.team5190.robot.sensors.Canifier
-import frc.team5190.robot.sensors.LEDs
-import frc.team5190.robot.sensors.Pigeon
+import frc.team5190.robot.sensors.NavX
 
 class Robot : IterativeRobot() {
 
-    // Global Robot Variables
-    var isClimbing = false
     var isAutoReady = false
 
     companion object {
@@ -31,19 +23,12 @@ class Robot : IterativeRobot() {
         NetworkInterface
         Pathreader
         Autonomous
-        Canifier
-        Pigeon
-        LEDs
+        NavX
 
         DriveSubsystem
-        ElevatorSubsystem
-        IntakeSubsystem
-        ClimbSubsystem
-        ArmSubsystem
     }
 
     override fun robotPeriodic() {
-        Pigeon.update()
         Scheduler.getInstance().run()
     }
 }
