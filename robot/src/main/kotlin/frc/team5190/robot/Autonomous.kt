@@ -3,6 +3,7 @@ package frc.team5190.robot
 import edu.wpi.first.wpilibj.command.CommandGroup
 import frc.team5190.lib.commandGroup
 import frc.team5190.lib.util.Pathreader
+import frc.team5190.robot.drive.CharacterizationCommand
 import frc.team5190.robot.drive.FollowPathCommand
 import frc.team5190.robot.sensors.NavX
 import kotlinx.coroutines.experimental.async
@@ -62,9 +63,7 @@ object Autonomous {
 
         NetworkInterface.ntInstance.getEntry("Reset").setBoolean(true)
 
-        return commandGroup {
-            addSequential(FollowPathCommand(folder = "LS-LL", file = "1st Cube", resetRobotPosition = true))
-        }
+        return commandGroup { addSequential(CharacterizationCommand()) }
     }
 }
 
