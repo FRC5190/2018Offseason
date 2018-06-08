@@ -2,6 +2,8 @@ import math
 import tkinter as tk
 import matplotlib
 import numpy as np
+import sys
+import base64
 
 matplotlib.use('agg')
 
@@ -14,30 +16,38 @@ from matplotlib import animation
 from matplotlib import font_manager as fm
 
 
+
 class Main(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         tk.Tk.title(self, 'FRC 5190 Live Dashboard')
+        tk.Tk.iconbitmap(self, 'images/dashicon.ico')
 
         self.state('zoomed')
         self.configure(background='white')
 
-        Dashboard(parent=self).pack(side=tk.TOP)
+        ip = ''
+        if len(sys.argv) > 1 and sys.argv[1] == "local":
+            ip = '127.0.1.1'
+        else:
+            ip = '10.51.90.2'
+
+        Dashboard(parent=self, ip=ip).pack(side=tk.TOP)
 
 
 class Dashboard(tk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, ip):
         tk.Frame.__init__(self, parent)
 
         # Initialize Network Tables
-        NetworkTables.initialize(server='127.0.1.1')
+        NetworkTables.initialize(server=ip)
         nt_instance = NetworkTables.getTable('Live Dashboard')
 
         # Font
         kanit_italic = fm.FontProperties(fname='kanitfont/kanit-italic.otf')
 
         # Figure
-        fig = Figure(figsize=(12, 9), dpi=115)
+        fig = Figure(figsize=(13, 9), dpi=90)
         field_plot = fig.add_subplot(111)
         fig.set_tight_layout('True')
 
@@ -91,12 +101,16 @@ class Dashboard(tk.Frame):
         field_plot.text(
             0, 27.7, 'FRC 5190 Live Dashboard', fontproperties=kanit_italic, size=20, color='#690a0f')
 
+        # IP Display
+        field_plot.text(17, 27.7, ip, fontproperties=kanit_italic, size=10, color="#303030", alpha=0.5)
+
         def draw_field(subplot):
             subplot.set_axis_off()
 
             red_alliance = imread('images/red_alliance.png')
             blue_alliance = imread('images/blue_alliance.png')
 
+          
             subplot.imshow(red_alliance, extent=[0, 32, 0, 27])
             subplot.imshow(blue_alliance, extent=[22, 54, 0, 27])
 
@@ -131,7 +145,7 @@ class Dashboard(tk.Frame):
             bottom_right = rotate_point(bottom_right, p, heading)
             mid = rotate_point(mid, p, heading)
 
-            box = [top_left, top_right, mid,
+            box = [top_left, top_right, mid, 
                    bottom_right, bottom_left, top_left]
             return box
 
@@ -342,7 +356,7 @@ class Dashboard(tk.Frame):
             robot_x_values, robot_y_values, color='black', alpha=0.25)
 
         path_point, = field_plot.plot(
-            path_x_values[0], path_y_values[0], marker='o', markersize=2, color='red')
+            path_x_values[0], path_y_values[0], marker='o', markersize=2, color='green')
         robot_point, = field_plot.plot(
             robot_x_values[0], robot_y_values[0], marker='o', markersize=2, color='blue')
         lookahead_point, = field_plot.plot(lookahead_x_values[0], lookahead_y_values[0], marker='*', markersize=5,
@@ -350,10 +364,10 @@ class Dashboard(tk.Frame):
         starting_robot = gen_robot_square(
             (robot_x_values[0], robot_y_values[0]), 0.0)
         robot, = field_plot.plot([p[0] for p in starting_robot], [
-                                 p[1] for p in starting_robot], color='green')
+                                 p[1] for p in starting_robot], color='#690a0f')
         field_plot.set_ylim(bottom=-7.25, top=28.5)
 
-        ani = animation.FuncAnimation(fig, update_plot, frames=100, interval=10,
+        ani = animation.FuncAnimation(fig, update_plot, frames=20, interval=20,
                                       fargs=(
                                           robot_point, path_point, lookahead_point, robot, actual_path, target_path),
                                       blit=True)

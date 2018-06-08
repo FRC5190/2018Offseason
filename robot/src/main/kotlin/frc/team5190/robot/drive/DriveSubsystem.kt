@@ -19,10 +19,13 @@ object DriveSubsystem : Subsystem() {
     private val rearLeft = FalconSRX(MotorIDs.REAR_LEFT)
     private val rearRight = FalconSRX(MotorIDs.REAR_RIGHT)
 
+    private val rearLeft2 = FalconSRX(40)
+    private val rearRight2 = FalconSRX(41)
+
     private val allMasters = arrayOf(frontLeft, frontRight)
 
-    private val leftMotors = arrayOf(frontLeft, rearLeft)
-    private val rightMotors = arrayOf(frontRight, rearRight)
+    private val leftMotors = arrayOf(frontLeft, rearLeft, rearLeft2)
+    private val rightMotors = arrayOf(frontRight, rearRight, rearRight2)
 
     private val allMotors = arrayOf(*leftMotors, *rightMotors)
 
@@ -70,9 +73,16 @@ object DriveSubsystem : Subsystem() {
     init {
         rearLeft.follow(frontLeft)
         rearRight.follow(frontRight)
+        rearLeft2.follow(frontLeft)
+        rearRight2.follow(frontRight)
+
 
         leftMotors.forEach { it.inverted = false }
         rightMotors.forEach { it.inverted = true }
+
+        rearRight.inverted = false
+        rearLeft2.inverted = true
+
 
         allMasters.forEach {
             it.feedbackSensor = FeedbackDevice.QuadEncoder

@@ -2,6 +2,7 @@ package frc.team5190.robot
 
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.Notifier
 import frc.team5190.robot.arm.ArmSubsystem
 import frc.team5190.robot.climb.ClimbSubsystem
 import frc.team5190.robot.drive.DriveSubsystem
@@ -59,48 +60,48 @@ object NetworkInterface {
 
     private val gameData = ntInstance.getEntry("Game Data")
 
+    val notifier: Notifier
+
 
     init {
-        launch {
-            while (true) {
-                robotX.setDouble(Localization.robotPosition.x)
-                robotY.setDouble(Localization.robotPosition.y)
-                robotHdg.setDouble(Math.toRadians(Pigeon.correctedAngle))
+        notifier = Notifier {
+            robotX.setDouble(Localization.robotPosition.x)
+            robotY.setDouble(Localization.robotPosition.y)
+            robotHdg.setDouble(Math.toRadians(Pigeon.correctedAngle))
 
-                pathX.setDouble(FollowPathCommand.pathX)
-                pathY.setDouble(FollowPathCommand.pathY)
-                pathHdg.setDouble(FollowPathCommand.pathHdg)
+            pathX.setDouble(FollowPathCommand.pathX)
+            pathY.setDouble(FollowPathCommand.pathY)
+            pathHdg.setDouble(FollowPathCommand.pathHdg)
 
-                lookaheadX.setDouble(FollowPathCommand.lookaheadX)
-                lookaheadY.setDouble(FollowPathCommand.lookaheadY)
+            lookaheadX.setDouble(FollowPathCommand.lookaheadX)
+            lookaheadY.setDouble(FollowPathCommand.lookaheadY)
 
-                driveLeftEncoder.setDouble(DriveSubsystem.leftPosition.STU.value.toDouble())
-                driveLeftPercent.setDouble(DriveSubsystem.leftPercent.roundToInt() * 100.0)
-                driveLeftAmps.setDouble(DriveSubsystem.leftAmperage)
+            driveLeftEncoder.setDouble(DriveSubsystem.leftPosition.STU.value.toDouble())
+            driveLeftPercent.setDouble(DriveSubsystem.leftPercent.roundToInt() * 100.0)
+            driveLeftAmps.setDouble(DriveSubsystem.leftAmperage)
 
-                driveRightEncoder.setDouble(DriveSubsystem.rightPosition.STU.value.toDouble())
-                driveRightPercent.setDouble(DriveSubsystem.rightPercent.roundToInt() * 100.0)
-                driveRightAmps.setDouble(DriveSubsystem.rightAmperage)
+            driveRightEncoder.setDouble(DriveSubsystem.rightPosition.STU.value.toDouble())
+            driveRightPercent.setDouble(DriveSubsystem.rightPercent.roundToInt() * 100.0)
+            driveRightAmps.setDouble(DriveSubsystem.rightAmperage)
 
-                elevatorEncoder.setDouble(ElevatorSubsystem.currentPosition.STU.value.toDouble())
-                elevatorPercent.setDouble(ElevatorSubsystem.percent.roundToInt() * 100.0)
-                elevatorAmps.setDouble(ElevatorSubsystem.amperage)
+            elevatorEncoder.setDouble(ElevatorSubsystem.currentPosition.STU.value.toDouble())
+            elevatorPercent.setDouble(ElevatorSubsystem.percent.roundToInt() * 100.0)
+            elevatorAmps.setDouble(ElevatorSubsystem.amperage)
 
-                armEncoder.setDouble(ArmSubsystem.currentPosition.STU.value.toDouble())
-                armPercent.setDouble(ArmSubsystem.percent.roundToInt() * 100.0)
-                armAmps.setDouble(ArmSubsystem.amperage)
+            armEncoder.setDouble(ArmSubsystem.currentPosition.STU.value.toDouble())
+            armPercent.setDouble(ArmSubsystem.percent.roundToInt() * 100.0)
+            armAmps.setDouble(ArmSubsystem.amperage)
 
-                climbEncoder.setDouble(ClimbSubsystem.currentPosition.STU.value.toDouble())
-                climbPercent.setDouble(ClimbSubsystem.percent.roundToInt() * 100.0)
-                climbAmps.setDouble(ClimbSubsystem.amperage)
+            climbEncoder.setDouble(ClimbSubsystem.currentPosition.STU.value.toDouble())
+            climbPercent.setDouble(ClimbSubsystem.percent.roundToInt() * 100.0)
+            climbAmps.setDouble(ClimbSubsystem.amperage)
 
-                isClimbing.setBoolean(Robot.INSTANCE.isClimbing)
-                isEnabled.setBoolean(Robot.INSTANCE.isEnabled)
+            isClimbing.setBoolean(Robot.INSTANCE.isClimbing)
+            isEnabled.setBoolean(Robot.INSTANCE.isEnabled)
 
-                gameData.setString(DriverStation.getInstance().gameSpecificMessage ?: "null")
-
-                delay(10, TimeUnit.MILLISECONDS)
-            }
+            gameData.setString(DriverStation.getInstance().gameSpecificMessage ?: "null")
         }
+
+        notifier.startPeriodic(0.02)
     }
 }

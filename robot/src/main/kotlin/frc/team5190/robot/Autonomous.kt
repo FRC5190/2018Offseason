@@ -69,7 +69,7 @@ object Autonomous {
 
     private fun getAutoCommand(): CommandGroup {
         Pigeon.reset()
-        Pigeon.angleOffset = 180.00
+        Pigeon.angleOffset = 0.0
 
         NetworkInterface.ntInstance.getEntry("Reset").setBoolean(true)
 

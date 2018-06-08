@@ -23,6 +23,7 @@ class PathFollower(val trajectory: Trajectory,
     var p = 0.0
     var v = 0.0
     var vIntercept = 0.0
+    var a = 0.0
 
     // Proprtional Feedback Constant for Cross-Path Error Correction
     var pTurn = 0.0
@@ -37,7 +38,7 @@ class PathFollower(val trajectory: Trajectory,
 
     // Compute lookahead value based on speed.
     // Feet Per Second to Feet
-    private val lookaheadInterpolationData = arrayOf(0.0 to 1.0, 4.0 to 4.0, 8.0 to 8.0)
+    private val lookaheadInterpolationData = arrayOf(0.0 to 1.0, 4.0 to 2.0, 8.0 to 4.0)
     private val lookaheadInterpolator = SimpleRegression()
 
     // Interpolate Data
@@ -92,10 +93,10 @@ class PathFollower(val trajectory: Trajectory,
         val actualLookaheadDistance = robotPosition.distance(desiredPosition)
 
         // Use FF and FB to calculate output
-        fun calculateOutput(targetSpeed: Speed, actualVelocity: Speed, reversed: Boolean): Double {
+        fun calculateOutput(targetSpeed: Speed, actualVelocity: Speed, acceleration: Double, reversed: Boolean): Double {
             val velocityError = targetSpeed - actualVelocity
 
-            val feedForward = v * targetSpeed.FPS.value + vIntercept
+            val feedForward = v * targetSpeed.FPS.value + vIntercept + a * acceleration
             val feedback = p * velocityError.FPS.value
 
             val output = feedForward + feedback
@@ -107,9 +108,9 @@ class PathFollower(val trajectory: Trajectory,
         val turnOutput = pTurn * theta
 
         val leftOutput = calculateOutput(FeetPerSecond(trajectory[segmentIndexEstimation].velocity) + FeetPerSecond(turnOutput),
-                velocities.first, reversed)
+                velocities.first, trajectory[segmentIndexEstimation].acceleration, reversed)
         val rightOutput = calculateOutput(FeetPerSecond(trajectory[segmentIndexEstimation].velocity) - FeetPerSecond(turnOutput),
-                velocities.second, reversed)
+                velocities.second, trajectory[segmentIndexEstimation].acceleration, reversed)
 
         segmentIndexEstimation++
 
@@ -142,7 +143,7 @@ class PathFollower(val trajectory: Trajectory,
         if (robotPosition.x == segment.x) return true
 
         val perpendicularSlope = if (tan(segment.heading) != Double.NaN) -1 / tan(segment.heading) else 0.0
-        return (((robotPosition.y - segment.y) / (robotPosition.x - segment.x)) - perpendicularSlope).absoluteValue < 0.002
+        return (((robotPosition.y - segment.y) / (robotPosition.x - segment.x)) - perpendicularSlope).absoluteValue < 0.0002
     }
 }
 
