@@ -60,7 +60,7 @@ object NetworkInterface {
 
     private val gameData = ntInstance.getEntry("Game Data")
 
-    val notifier: Notifier
+    private val notifier: Notifier
 
 
     init {

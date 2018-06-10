@@ -55,7 +55,7 @@ object DriveSubsystem : Subsystem() {
         get() = frontLeft.sensorVelocity
 
     val rightVelocity: Speed
-        get() = frontLeft.sensorVelocity
+        get() = frontRight.sensorVelocity
 
     val leftPercent: Double
         get() = frontLeft.motorOutputPercent

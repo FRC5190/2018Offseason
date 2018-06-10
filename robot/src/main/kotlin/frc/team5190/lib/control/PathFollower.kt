@@ -107,10 +107,17 @@ class PathFollower(val trajectory: Trajectory,
         val theta = -Pathfinder.boundHalfDegrees(Math.toDegrees(atan2(positionDelta.y, positionDelta.x)) - robotAngle)
         val turnOutput = pTurn * theta
 
-        val leftOutput = calculateOutput(FeetPerSecond(trajectory[segmentIndexEstimation].velocity) + FeetPerSecond(turnOutput),
-                velocities.first, trajectory[segmentIndexEstimation].acceleration, reversed)
-        val rightOutput = calculateOutput(FeetPerSecond(trajectory[segmentIndexEstimation].velocity) - FeetPerSecond(turnOutput),
-                velocities.second, trajectory[segmentIndexEstimation].acceleration, reversed)
+        val leftOutput = calculateOutput(
+                FeetPerSecond(trajectory[segmentIndexEstimation].velocity) + FeetPerSecond(turnOutput),
+                velocities.first,
+                trajectory[segmentIndexEstimation].acceleration,
+                reversed)
+
+        val rightOutput = calculateOutput(
+                FeetPerSecond(trajectory[segmentIndexEstimation].velocity) - FeetPerSecond(turnOutput),
+                velocities.second,
+                trajectory[segmentIndexEstimation].acceleration,
+                reversed)
 
         segmentIndexEstimation++
 
