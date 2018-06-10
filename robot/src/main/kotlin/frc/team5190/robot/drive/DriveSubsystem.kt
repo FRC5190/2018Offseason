@@ -28,13 +28,13 @@ object DriveSubsystem : Subsystem() {
     private val allMotors = arrayOf(*leftMotors, *rightMotors)
 
     val leftPosition: Distance
-        get() = leftMaster.sensorPosition
-
-    val rightPosition: Distance
         get() = rightMaster.sensorPosition
 
+    val rightPosition: Distance
+        get() = leftMaster.sensorPosition
+
     val leftVelocity: Speed
-        get() = leftMaster.sensorVelocity
+        get() = rightMaster.sensorVelocity
 
     val rightVelocity: Speed
         get() = leftMaster.sensorVelocity
