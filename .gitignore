@@ -15,3 +15,11 @@ build/
 5190 Offseason 2018.ipr
 *.class
 *.ipr
+
+
+.vscode/
+
+robot/.settings
+robot/.gradle
+robot/bin
+robot/build
