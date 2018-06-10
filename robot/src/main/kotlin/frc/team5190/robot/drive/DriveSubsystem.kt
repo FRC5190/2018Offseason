@@ -28,16 +28,16 @@ object DriveSubsystem : Subsystem() {
     private val allMotors = arrayOf(*leftMotors, *rightMotors)
 
     val leftPosition: Distance
-        get() = rightMaster.sensorPosition
-
-    val rightPosition: Distance
         get() = leftMaster.sensorPosition
 
+    val rightPosition: Distance
+        get() = rightSlave1.sensorPosition
+
     val leftVelocity: Speed
-        get() = rightMaster.sensorVelocity
+        get() = leftMaster.sensorVelocity
 
     val rightVelocity: Speed
-        get() = leftMaster.sensorVelocity
+        get() = rightSlave1.sensorVelocity
 
     val leftPercent: Double
         get() = leftMaster.motorOutputPercent
@@ -62,12 +62,17 @@ object DriveSubsystem : Subsystem() {
             it.inverted = true
         }
 
-        leftMaster.inverted = true
-        rightMaster.inverted = false
+        leftMaster.apply {
+            inverted = true
+            encoderPhase = true
+        }
+        rightMaster.apply {
+            inverted = false
+            encoderPhase = false
+        }
 
         allMasters.forEach {
             it.feedbackSensor = FeedbackDevice.QuadEncoder
-            it.encoderPhase = false
         }
 
         allMotors.forEach {
@@ -87,7 +92,10 @@ object DriveSubsystem : Subsystem() {
             it.continousCurrentLimit = Amps(40)
             it.currentLimitingEnabled = true
         }
+
+        resetEncoders()
     }
+
 
     fun set(controlMode: ControlMode, leftOutput: Double, rightOutput: Double) {
         leftMaster.set(controlMode, leftOutput)
@@ -98,6 +106,7 @@ object DriveSubsystem : Subsystem() {
         allMasters.forEach {
             it.sensorPosition = NativeUnits(0)
         }
+        rightSlave1.sensorPosition = NativeUnits(0)
     }
 
     override fun initDefaultCommand() {
