@@ -1,5 +1,7 @@
 package frc.team5190.lib.control
 
+import frc.team5190.lib.epsilonEquals
+import frc.team5190.lib.math.EPSILON
 import frc.team5190.lib.units.FeetPerSecond
 import frc.team5190.lib.units.Speed
 import jaci.pathfinder.Pathfinder
@@ -150,7 +152,7 @@ class PathFollower(val trajectory: Trajectory,
         if (robotPosition.x == segment.x) return true
 
         val perpendicularSlope = if (tan(segment.heading) != Double.NaN) -1 / tan(segment.heading) else 0.0
-        return (((robotPosition.y - segment.y) / (robotPosition.x - segment.x)) - perpendicularSlope).absoluteValue < 0.0002
+        return (((robotPosition.y - segment.y) / (robotPosition.x - segment.x)) - perpendicularSlope) epsilonEquals 0.0
     }
 }
 

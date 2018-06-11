@@ -61,7 +61,7 @@ object NetworkInterface {
             driveRightPercent.setDouble(DriveSubsystem.rightPercent.roundToInt() * 100.0)
             driveRightAmps.setDouble(DriveSubsystem.rightAmperage)
 
-            isEnabled.setBoolean(Robot.INSTANCE.isEnabled)
+            isEnabled.setString(if (Robot.INSTANCE.isEnabled) "Enabled" else "Disabled")
             gameData.setString(DriverStation.getInstance().gameSpecificMessage ?: "null")
         }
 

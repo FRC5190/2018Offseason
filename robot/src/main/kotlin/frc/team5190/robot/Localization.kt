@@ -1,6 +1,8 @@
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.Notifier
+import frc.team5190.lib.epsilonEquals
+import frc.team5190.lib.math.EPSILON
 import frc.team5190.lib.units.Distance
 import frc.team5190.lib.units.NativeUnits
 import frc.team5190.robot.drive.DriveSubsystem
@@ -26,9 +28,9 @@ object Localization {
     }
 
 
-    fun reset(startingPosition: Vector2D = Vector2D.ZERO) {
+    fun reset(position: Vector2D = Vector2D.ZERO) {
         synchronized(synchronousOdometry) {
-            robotPosition = startingPosition
+            robotPosition = position
             leftLastPos = DriveSubsystem.leftPosition
             rightLastPos = DriveSubsystem.rightPosition
             gyroLastAngle = NavX.correctedAngle
@@ -53,7 +55,7 @@ object Localization {
             val s: Double
             val c: Double
 
-            if (Math.abs(dgyroangle) < 1E-9) {
+            if (dgyroangle epsilonEquals 0.0) {
                 s = 1.0 - 1.0 / 6.0 * dgyroangle * dgyroangle
                 c = .5 * dgyroangle
             } else {

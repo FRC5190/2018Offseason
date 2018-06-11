@@ -2,14 +2,10 @@ package frc.team5190.lib
 
 import com.ctre.phoenix.CANifier
 import edu.wpi.first.wpilibj.command.CommandGroup
-import frc.team5190.lib.units.Milliseconds
-import frc.team5190.lib.units.Time
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import frc.team5190.lib.math.EPSILON
 import java.awt.Color
 import java.security.MessageDigest
-import java.util.concurrent.TimeUnit
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlin.math.absoluteValue
 
 fun CANifier.setLEDOutput(color: Color) = setLEDOutput(color.red, color.green, color.blue)
 
@@ -33,4 +29,12 @@ fun commandGroup(create: CommandGroup.() -> Unit): CommandGroup {
     return group
 }
 
+infix fun Double.epsilonEquals(other: Double): Boolean {
+    return (this - other).absoluteValue < EPSILON
+}
 
+infix fun CommandGroup.todo(other: String) = this
+
+infix fun CommandGroup.kthx(other: String) {
+    this.start()
+}
