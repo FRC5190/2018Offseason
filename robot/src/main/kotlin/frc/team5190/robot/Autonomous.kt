@@ -6,6 +6,7 @@ import frc.team5190.lib.kthx
 import frc.team5190.lib.todo
 import frc.team5190.lib.util.Pathreader
 import frc.team5190.robot.drive.CharacterizationCommand
+import frc.team5190.robot.drive.FollowPathCommand
 import frc.team5190.robot.sensors.NavX
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
@@ -69,11 +70,11 @@ object Autonomous {
 
     private fun getAutoCommand(): CommandGroup {
         NavX.reset()
-        NavX.angleOffset = 0.0
+        NavX.angleOffset = 180.0
 
         NetworkInterface.ntInstance.getEntry("Reset").setBoolean(true)
 
-        return commandGroup { addSequential(CharacterizationCommand()) }
+        return commandGroup { addSequential(FollowPathCommand("LS-LL", "Test", robotReversed = true, resetRobotPosition = true)) }
     }
 }
 

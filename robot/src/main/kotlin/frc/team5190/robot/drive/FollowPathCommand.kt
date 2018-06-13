@@ -74,10 +74,10 @@ class FollowPathCommand(folder: String, file: String,
                 trajectory = trajectory,
                 reversed = robotReversed).apply {
 
-            p = 0.8
-            v = 0.059
-            vIntercept = 0.10
-            a = 0.1
+            p = 0.15
+            v = 0.049
+            vIntercept = 0.15
+            a = 0.01
             pTurn = 0.09
         }
 

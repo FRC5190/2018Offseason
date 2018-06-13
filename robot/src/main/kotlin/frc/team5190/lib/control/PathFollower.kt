@@ -43,6 +43,8 @@ class PathFollower(val trajectory: Trajectory,
     private val lookaheadInterpolationData = arrayOf(0.0 to 1.0, 4.0 to 2.0, 8.0 to 4.0)
     private val lookaheadInterpolator = SimpleRegression()
 
+    private val imaginaryLookaheadDistance = 4.0
+
     // Interpolate Data
     init {
         lookaheadInterpolationData.forEach { lookaheadInterpolator.addData(it.first, it.second) }
@@ -50,9 +52,8 @@ class PathFollower(val trajectory: Trajectory,
 
     // Return motor output based on robot pose.
     fun getMotorOutput(robotPosition: Vector2D, robotAngle: Double, rawEncoderVelocities: Pair<Speed, Speed>): Pair<Double, Double> {
-
         // Make sure velocities are positive
-        val velocities = rawEncoderVelocities.first.absoluteValue to rawEncoderVelocities.second.absoluteValue
+        val velocities = if (reversed) -rawEncoderVelocities.first to -rawEncoderVelocities.second else rawEncoderVelocities
 
         segmentIndexEstimation = getCurrentSegmentIndex(robotPosition, segmentIndexEstimation)
         currentSegment = trajectory[segmentIndexEstimation]
@@ -70,7 +71,7 @@ class PathFollower(val trajectory: Trajectory,
         fun getImaginarySegment(): Trajectory.Segment {
             val lastSegment = trajectory.segments.last()
             val theta = lastSegment.heading
-            val magnitude = lookaheadDistance - (lastSegment.position - currentSegment.position)
+            val magnitude = imaginaryLookaheadDistance - (lastSegment.position - currentSegment.position)
             val vector = Vector2D(magnitude * cos(theta), magnitude * sin(theta))
             return Trajectory.Segment(
                     lastSegment.dt,
@@ -123,8 +124,8 @@ class PathFollower(val trajectory: Trajectory,
 
         segmentIndexEstimation++
 
-        println("Current Segment: $segmentIndexEstimation, Lookahead Dist: $actualLookaheadDistance, Lookahead Theta: $theta")
-        return leftOutput to rightOutput
+        println("Current Segment: $segmentIndexEstimation, Current: ${velocities.first.FPS.value}, Target Velo: ${currentSegment.velocity}, Lookahead Theta: $theta")
+        return leftOutput.coerceIn(-0.4, 0.5) to rightOutput.coerceIn(-0.4, 0.5)
     }
 
     // Returns the index of the current segment

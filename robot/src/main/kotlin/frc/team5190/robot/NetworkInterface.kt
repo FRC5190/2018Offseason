@@ -54,11 +54,11 @@ object NetworkInterface {
             lookaheadY.setDouble(FollowPathCommand.lookaheadY)
 
             driveLeftEncoder.setDouble(DriveSubsystem.leftPosition.STU.value.toDouble())
-            driveLeftPercent.setDouble(DriveSubsystem.leftPercent.roundToInt() * 100.0)
+            driveLeftPercent.setDouble(DriveSubsystem.leftPercent * 100)
             driveLeftAmps.setDouble(DriveSubsystem.leftAmperage)
 
             driveRightEncoder.setDouble(DriveSubsystem.rightPosition.STU.value.toDouble())
-            driveRightPercent.setDouble(DriveSubsystem.rightPercent.roundToInt() * 100.0)
+            driveRightPercent.setDouble(DriveSubsystem.rightPercent * 100)
             driveRightAmps.setDouble(DriveSubsystem.rightAmperage)
 
             isEnabled.setString(if (Robot.INSTANCE.isEnabled) "Enabled" else "Disabled")

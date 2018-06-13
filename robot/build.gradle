@@ -39,8 +39,6 @@ deploy {
             directory = '/home/lvuser/paths/LS-RR'
             targets << "roborio"
         }
-
-
     }
 }
 
