@@ -14,6 +14,6 @@ class VelocityController {
         val feedForward = v * targetSpeed.FPS.value + vIntercept
         val feedback = p * velocityError.FPS.value
 
-        return (feedForward + feedback).coerceIn(-0.4, 0.4)
+        return (feedForward + feedback).coerceIn(-0.4, 0.6)
     }
 }

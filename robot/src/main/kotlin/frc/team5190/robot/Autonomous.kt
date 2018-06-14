@@ -70,11 +70,11 @@ object Autonomous {
 
     private fun getAutoCommand(): CommandGroup {
         NavX.reset()
-        NavX.angleOffset = 180.0
+        NavX.angleOffset = 0.0
 
         NetworkInterface.ntInstance.getEntry("Reset").setBoolean(true)
 
-        return commandGroup { addSequential(FollowPathCommand("LS-LL", "Test", robotReversed = true, resetRobotPosition = true)) }
+        return commandGroup { addSequential(FollowPathCommand("LS-LL", "Test", robotReversed = false, resetRobotPosition = true)) }
     }
 }
 
