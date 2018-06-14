@@ -4,7 +4,10 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.control.PathFollower
+import frc.team5190.lib.control.VelocityController
+import frc.team5190.lib.units.FeetPerSecond
 import frc.team5190.lib.util.Pathreader
+import frc.team5190.robot.Kinematics
 import frc.team5190.robot.Localization
 import frc.team5190.robot.sensors.NavX
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
@@ -42,6 +45,9 @@ class FollowPathCommand(folder: String, file: String,
     // Path follower
     private val pathFollower: PathFollower
 
+    private val leftVelocityController: VelocityController
+    private val rightVelocityController: VelocityController
+
     init {
         requires(DriveSubsystem)
 
@@ -70,16 +76,11 @@ class FollowPathCommand(folder: String, file: String,
         }
 
         // Initialize path follower
-        pathFollower = PathFollower(
-                trajectory = trajectory,
-                reversed = robotReversed).apply {
+        pathFollower = PathFollower(trajectory = trajectory)
 
-            p = 0.15
-            v = 0.049
-            vIntercept = 0.15
-            a = 0.01
-            pTurn = 0.09
-        }
+        // Initialize velocity controller
+        leftVelocityController = VelocityController().apply { p = 0.15; v = 0.049; vIntercept = 0.15 }
+        rightVelocityController = VelocityController().apply { p = 0.15; v = 0.049; vIntercept = 0.15 }
 
         // Initialize notifier
         notifier = Notifier {
@@ -88,31 +89,18 @@ class FollowPathCommand(folder: String, file: String,
                     return@Notifier
                 }
 
-                pathX = pathFollower.currentSegment.x
-                pathY = pathFollower.currentSegment.y
-                pathHdg = pathFollower.currentSegment.heading
-
-                lookaheadX = pathFollower.lookaheadSegment.x
-                lookaheadY = pathFollower.lookaheadSegment.y
-
                 val output = pathFollower.getMotorOutput(
-                        robotPosition = Localization.robotPosition,
-                        robotAngle = NavX.correctedAngle,
-                        rawEncoderVelocities = DriveSubsystem.leftVelocity to DriveSubsystem.rightVelocity)
+                        pose = Localization.robotPosition,
+                        gyroAngleRadians = Math.toRadians(NavX.correctedAngle))
 
-                DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = output.first, rightOutput = output.second)
+                val adjustedVelocities = Kinematics.inverseKinematics(output)
+
+                val l = leftVelocityController.calculateOutput(FeetPerSecond(adjustedVelocities.first), DriveSubsystem.leftVelocity)
+                val r = rightVelocityController.calculateOutput(FeetPerSecond(adjustedVelocities.second), DriveSubsystem.rightVelocity)
+
+                DriveSubsystem.set(ControlMode.PercentOutput, l, r)
             }
         }
-    }
-
-    // Adds a marker at the point along the path where @pos is closest to that point
-    fun addMarkerAt(pos: Vector2D): Marker {
-        val waypoint = if (pathMirrored) Vector2D(pos.x, 27 - pos.y) else pos
-        return Marker(trajectory.segments.minBy { waypoint.distance(Vector2D(it.x, it.y)) }!!.position)
-    }
-
-    fun hasPassedMarker(marker: Marker): Boolean {
-        return pathFollower.currentSegment.position >= marker.position
     }
 
     override fun initialize() {
@@ -128,17 +116,8 @@ class FollowPathCommand(folder: String, file: String,
             stopNotifier = true
             notifier.stop()
             DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = 0.0, rightOutput = 0.0)
-
-            pathX = 0.0
-            pathY = 0.0
-            pathHdg = 0.0
-
-            lookaheadX = 0.0
-            lookaheadY = 0.0
         }
     }
 
     override fun isFinished() = pathFollower.isFinished
 }
-
-class Marker(val position: Double)
