@@ -91,7 +91,7 @@ class FollowPathCommand(folder: String, file: String,
 
                 val output = pathFollower.getLinAndAngVelocities(
                         pose = Localization.robotPosition,
-                        gyroAngle = Math.toRadians(NavX.correctedAngle))
+                        gyroAngle = NavX.correctedAngle)
 
                 val adjustedVelocities = Kinematics.inverseKinematics(output)
 
