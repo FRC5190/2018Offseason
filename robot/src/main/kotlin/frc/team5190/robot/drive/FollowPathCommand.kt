@@ -79,8 +79,8 @@ class FollowPathCommand(folder: String, file: String,
         pathFollower = PathFollower(trajectory = trajectory)
 
         // Initialize velocity controller
-        leftVelocityController = VelocityController().apply { p = 0.02; v = 0.049; vIntercept = 0.15 }
-        rightVelocityController = VelocityController().apply { p = 0.02; v = 0.049; vIntercept = 0.15 }
+        leftVelocityController = VelocityController().apply { p = 0.15; v = 0.049; vIntercept = 0.1 }
+        rightVelocityController = VelocityController().apply { p = 0.15; v = 0.049; vIntercept = 0.1 }
 
         // Initialize notifier
         notifier = Notifier {
@@ -98,8 +98,6 @@ class FollowPathCommand(folder: String, file: String,
                 val l = leftVelocityController.calculateOutput(FeetPerSecond(adjustedVelocities.first), DriveSubsystem.leftVelocity)
                 val r = rightVelocityController.calculateOutput(FeetPerSecond(adjustedVelocities.second), DriveSubsystem.rightVelocity)
 
-                println("Desired Left: ${adjustedVelocities.first}, Actual Left: ${DriveSubsystem.leftVelocity.FPS.value}, V: ${output.first}")
-
                 DriveSubsystem.set(ControlMode.PercentOutput, l, r)
 
                 pathX = pathFollower.currentSegment.x
@@ -114,7 +112,7 @@ class FollowPathCommand(folder: String, file: String,
         if (resetRobotPosition) {
             Localization.reset(position = Vector2D(trajectory.segments[0].x, trajectory.segments[0].y))
         }
-        notifier.startPeriodic(0.05)
+        notifier.startPeriodic(trajectory.segments[0].dt)
     }
 
     override fun end() {
