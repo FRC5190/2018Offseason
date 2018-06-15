@@ -1,80 +1,79 @@
+@file:Suppress("ObjectPropertyName", "LocalVariableName")
+
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.Notifier
+import frc.team5190.lib.enforceBounds
 import frc.team5190.lib.epsilonEquals
-import frc.team5190.lib.math.EPSILON
 import frc.team5190.lib.units.Distance
 import frc.team5190.lib.units.NativeUnits
 import frc.team5190.robot.drive.DriveSubsystem
 import frc.team5190.robot.sensors.NavX
-import jaci.pathfinder.Pathfinder
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
+import kotlin.math.cos
+import kotlin.math.sin
 
 object Localization {
-
-    private val synchronousOdometry = Object()
-
+    private val loc = Object()
 
     var robotPosition: Vector2D = Vector2D.ZERO
         private set
 
-    private var leftLastPos: Distance = NativeUnits(0)
-    private var rightLastPos: Distance = NativeUnits(0)
-    private var gyroLastAngle = 0.0
+    private var prevLeft: Distance = NativeUnits(0)
+    private var prevRight: Distance = NativeUnits(0)
+    private var prevθ = 0.0
 
     init {
         reset()
-        Notifier(this::run).startPeriodic(0.05)
+        Notifier(this::run).startPeriodic(0.02)
     }
 
-
     fun reset(position: Vector2D = Vector2D.ZERO) {
-        synchronized(synchronousOdometry) {
+        synchronized(loc) {
             robotPosition = position
-            leftLastPos = DriveSubsystem.leftPosition
-            rightLastPos = DriveSubsystem.rightPosition
-            gyroLastAngle = NavX.correctedAngle
+            prevLeft = DriveSubsystem.leftPosition
+            prevRight = DriveSubsystem.rightPosition
+            prevθ = Math.toRadians(NavX.correctedAngle)
         }
     }
 
     private fun run() {
-        synchronized(synchronousOdometry) {
-            val leftPos = DriveSubsystem.leftPosition
-            val rightPos = DriveSubsystem.rightPosition
-            val gyroAngle = NavX.correctedAngle
+        synchronized(loc) {
+            val left = DriveSubsystem.leftPosition
+            val right = DriveSubsystem.rightPosition
+            val θ = Math.toRadians(NavX.correctedAngle)
 
-            val dleft = leftPos - leftLastPos
-            val dright = rightPos - rightLastPos
-            val dgyroangle = Math.toRadians(Pathfinder.boundHalfDegrees(gyroAngle - gyroLastAngle))
+            val Δleft = left - prevLeft
+            val Δright = right - prevRight
+            val Δθ = (θ - prevθ).enforceBounds()
 
-            val distanceTraveled = (dleft + dright).FT.value / 2.0
+            val distanceTraveled = (Δleft + Δright).FT.value / 2.0
 
-            val sinTheta = Math.sin(dgyroangle)
-            val cosTheta = Math.cos(dgyroangle)
+            val sinΔθ = sin(Δθ)
+            val cosΔθ = cos(Δθ)
 
             val s: Double
             val c: Double
 
-            if (dgyroangle epsilonEquals 0.0) {
-                s = 1.0 - 1.0 / 6.0 * dgyroangle * dgyroangle
-                c = .5 * dgyroangle
+            if (Δθ epsilonEquals 0.0) {
+                s = 1.0 - 1.0 / 6.0 * Δθ * Δθ
+                c = .5 * Δθ
             } else {
-                s = sinTheta / dgyroangle
-                c = (1.0 - cosTheta) / dgyroangle
+                s = sinΔθ / Δθ
+                c = (1.0 - cosΔθ) / Δθ
             }
 
             val x = distanceTraveled * s
             val y = distanceTraveled * c
 
-            val lastAngleRad = Math.toRadians(gyroLastAngle)
-            val lastAngleCos = Math.cos(lastAngleRad)
-            val lastAngleSin = Math.sin(lastAngleRad)
+            val prevCos = cos(prevθ)
+            val prevSin  = sin(prevθ)
 
-            robotPosition = robotPosition.add(Vector2D(x * lastAngleCos - y * lastAngleSin, x * lastAngleSin + y * lastAngleCos))
+            robotPosition = robotPosition.add(Vector2D(x * prevCos - y * prevSin, x * prevCos + y * prevCos))
 
-            leftLastPos = leftPos
-            rightLastPos = rightPos
-            gyroLastAngle = gyroAngle
+            prevLeft = left
+            prevRight = right
+            prevθ = θ
         }
     }
 }

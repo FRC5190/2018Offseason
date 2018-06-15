@@ -4,7 +4,6 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.control.PathFollower
-import frc.team5190.lib.control.VelocityController
 import frc.team5190.lib.units.FeetPerSecond
 import frc.team5190.lib.util.Pathreader
 import frc.team5190.robot.Kinematics
@@ -45,9 +44,6 @@ class FollowPathCommand(folder: String, file: String,
     // Path follower
     private val pathFollower: PathFollower
 
-    private val leftVelocityController: VelocityController
-    private val rightVelocityController: VelocityController
-
     init {
         requires(DriveSubsystem)
 
@@ -78,10 +74,6 @@ class FollowPathCommand(folder: String, file: String,
         // Initialize path follower
         pathFollower = PathFollower(trajectory = trajectory)
 
-        // Initialize velocity controller
-        leftVelocityController = VelocityController().apply { p = 0.15; v = 0.049; vIntercept = 0.1 }
-        rightVelocityController = VelocityController().apply { p = 0.15; v = 0.049; vIntercept = 0.1 }
-
         // Initialize notifier
         notifier = Notifier {
             synchronized(synchronousNotifier) {
@@ -91,14 +83,13 @@ class FollowPathCommand(folder: String, file: String,
 
                 val output = pathFollower.getLinAndAngVelocities(
                         pose = Localization.robotPosition,
-                        gyroAngle = NavX.correctedAngle)
+                        θ = Math.toRadians(NavX.correctedAngle))
 
                 val adjustedVelocities = Kinematics.inverseKinematics(output)
+                DriveSubsystem.set(controlMode = ControlMode.Velocity,
+                        leftOutput = FeetPerSecond(adjustedVelocities.first).STU.value.toDouble(),
+                        rightOutput = FeetPerSecond(adjustedVelocities.second).STU.value.toDouble())
 
-                val l = leftVelocityController.calculateOutput(FeetPerSecond(adjustedVelocities.first), DriveSubsystem.leftVelocity)
-                val r = rightVelocityController.calculateOutput(FeetPerSecond(adjustedVelocities.second), DriveSubsystem.rightVelocity)
-
-                DriveSubsystem.set(ControlMode.PercentOutput, l, r)
 
                 pathX = pathFollower.currentSegment.x
                 pathY = pathFollower.currentSegment.y

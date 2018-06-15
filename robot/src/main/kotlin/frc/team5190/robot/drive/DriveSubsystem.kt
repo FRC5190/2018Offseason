@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode
 import edu.wpi.first.wpilibj.command.Subsystem
 import frc.team5190.lib.units.*
 import frc.team5190.lib.wrappers.FalconSRX
+import frc.team5190.robot.DriveConstants
 import frc.team5190.robot.MotorIDs
 
 
@@ -75,24 +76,28 @@ object DriveSubsystem : Subsystem() {
             it.feedbackSensor = FeedbackDevice.QuadEncoder
         }
 
-        allMotors.forEach {
-            it.peakFwdOutput = 1.0
-            it.peakRevOutput = -1.0
+        allMotors.forEach { srx ->
+            srx.peakFwdOutput = 1.0
+            srx.peakRevOutput = -1.0
 
-            it.nominalFwdOutput = 0.0
-            it.nominalRevOutput = 0.0
+            srx.nominalFwdOutput = 0.0
+            srx.nominalRevOutput = 0.0
 
-            it.brakeMode = NeutralMode.Brake
+            srx.brakeMode = NeutralMode.Brake
 
-            it.voltageCompensationSaturation = Volts(12.0)
-            it.voltageCompensationEnabled = true
+            srx.voltageCompensationSaturation = Volts(12.0)
+            srx.voltageCompensationEnabled = true
 
-            it.peakCurrentLimit = Amps(0)
-            it.peakCurrentLimitDuration = Milliseconds(0)
-            it.continousCurrentLimit = Amps(40)
-            it.currentLimitingEnabled = true
+            srx.peakCurrentLimit = Amps(0)
+            srx.peakCurrentLimitDuration = Milliseconds(0)
+            srx.continousCurrentLimit = Amps(40)
+            srx.currentLimitingEnabled = true
+
+            srx.p = 0.2
+            srx.i = 0.0
+            srx.d = 0.0
+            srx.f = 1023.0 / FeetPerSecond(DriveConstants.MAX_DRIVE_SPEED_FPS).STU.value
         }
-
         resetEncoders()
     }
 
