@@ -4,7 +4,7 @@ package frc.team5190.lib
 
 import com.ctre.phoenix.CANifier
 import edu.wpi.first.wpilibj.command.CommandGroup
-import frc.team5190.lib.math.ε
+import frc.team5190.lib.math.EPSILON
 import java.awt.Color
 import java.security.MessageDigest
 import kotlin.math.PI
@@ -40,7 +40,7 @@ fun Double.enforceBounds(): Double {
 }
 
 infix fun Double.epsilonEquals(other: Double): Boolean {
-    return (this - other).absoluteValue < ε
+    return (this - other).absoluteValue < EPSILON
 }
 
 infix fun CommandGroup.todo(other: String) = this

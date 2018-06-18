@@ -3,8 +3,8 @@ package frc.team5190.robot.drive
 import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
+import frc.team5190.lib.control.PIDFController
 import frc.team5190.lib.control.PathFollower
-import frc.team5190.lib.units.FeetPerSecond
 import frc.team5190.lib.util.Pathreader
 import frc.team5190.robot.Kinematics
 import frc.team5190.robot.Localization
@@ -12,14 +12,12 @@ import frc.team5190.robot.sensors.NavX
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
 class FollowPathCommand(folder: String, file: String,
-                        robotReversed: Boolean = false,
+                        private val robotReversed: Boolean = false,
                         private val pathMirrored: Boolean = false,
-                        pathReversed: Boolean = false,
+                        private val pathReversed: Boolean = false,
                         private val resetRobotPosition: Boolean = false) : Command() {
 
     companion object {
-        const val DT = 0.02
-
         var pathX = 0.0
             private set
         var pathY = 0.0
@@ -34,21 +32,61 @@ class FollowPathCommand(folder: String, file: String,
     }
 
     // Notifier objects
-    private val synchronousNotifier = Object()
+    private val pf = Object()
     private val notifier: Notifier
     private var stopNotifier = false
 
-    // Left, right, and source trajectory
+    // Trajectory
     private val trajectory = Pathreader.getPath(folder, file)
 
     // Path follower
     private val pathFollower: PathFollower
 
+    // PIDF controllers
+    private val lController = PIDFController()
+    private val rController = PIDFController()
+
     init {
         requires(DriveSubsystem)
 
         // Modify trajectory if reversed or mirrored
+        modifyTrajectory()
 
+        // Initialize path follower
+        pathFollower = PathFollower(trajectory = trajectory)
+
+        // Set PIDF Values
+        lController.apply {
+            p = 0.15
+            v = 0.045
+            vIntercept = 0.1
+        }
+        rController.apply {
+            p = 0.15
+            v = 0.045
+            vIntercept = 0.1
+        }
+
+        // Initialize notifier
+        notifier = Notifier {
+            synchronized(pf) {
+                if (stopNotifier) {
+                    return@Notifier
+                }
+
+                val output = Kinematics.inverseKinematics(pathFollower.getLinAndAngVelocities(
+                        pose = Localization.robotPosition,
+                        theta = Math.toRadians(NavX.correctedAngle)))
+
+                val l = lController.getPIDFOutput(target = output.left, actual = DriveSubsystem.leftVelocity.FPS.value)
+                val r = rController.getPIDFOutput(target = output.right, actual = DriveSubsystem.rightVelocity.FPS.value)
+
+                DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = l, rightOutput = r)
+            }
+        }
+    }
+
+    private fun modifyTrajectory() {
         if (pathReversed) {
             val reversedTrajectory = trajectory.copy()
             val distance = reversedTrajectory.segments.last().position
@@ -58,6 +96,7 @@ class FollowPathCommand(folder: String, file: String,
 
             trajectory.segments = reversedTrajectory.segments
         }
+
         trajectory.segments.forEach { segment ->
             if (pathMirrored) {
                 segment.heading = -segment.heading + (2 * Math.PI)
@@ -70,32 +109,15 @@ class FollowPathCommand(folder: String, file: String,
                 segment.heading = newHeading
             }
         }
+    }
 
-        // Initialize path follower
-        pathFollower = PathFollower(trajectory = trajectory)
+    private fun updateDashboard() {
+        pathX = pathFollower.currentSegment.x
+        pathY = pathFollower.currentSegment.y
+        pathHdg = pathFollower.currentSegment.heading
 
-        // Initialize notifier
-        notifier = Notifier {
-            synchronized(synchronousNotifier) {
-                if (stopNotifier) {
-                    return@Notifier
-                }
-
-                val output = pathFollower.getLinAndAngVelocities(
-                        pose = Localization.robotPosition,
-                        θ = Math.toRadians(NavX.correctedAngle))
-
-                val adjustedVelocities = Kinematics.inverseKinematics(output)
-                DriveSubsystem.set(controlMode = ControlMode.Velocity,
-                        leftOutput = FeetPerSecond(adjustedVelocities.first).STU.value.toDouble(),
-                        rightOutput = FeetPerSecond(adjustedVelocities.second).STU.value.toDouble())
-
-
-                pathX = pathFollower.currentSegment.x
-                pathY = pathFollower.currentSegment.y
-                pathHdg = pathFollower.currentSegment.heading
-            }
-        }
+        lookaheadX = pathFollower.currentSegment.x
+        lookaheadY = pathFollower.currentSegment.y
     }
 
     override fun initialize() {
@@ -107,7 +129,7 @@ class FollowPathCommand(folder: String, file: String,
     }
 
     override fun end() {
-        synchronized(synchronousNotifier) {
+        synchronized(pf) {
             stopNotifier = true
             notifier.stop()
             DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = 0.0, rightOutput = 0.0)

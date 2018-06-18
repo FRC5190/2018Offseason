@@ -1,5 +1,3 @@
-@file:Suppress("ObjectPropertyName", "LocalVariableName")
-
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.Notifier
@@ -21,7 +19,7 @@ object Localization {
 
     private var prevLeft: Distance = NativeUnits(0)
     private var prevRight: Distance = NativeUnits(0)
-    private var prevθ = 0.0
+    private var prevTheta = 0.0
 
     init {
         reset()
@@ -33,7 +31,7 @@ object Localization {
             robotPosition = position
             prevLeft = DriveSubsystem.leftPosition
             prevRight = DriveSubsystem.rightPosition
-            prevθ = Math.toRadians(NavX.correctedAngle)
+            prevTheta = Math.toRadians(NavX.correctedAngle)
         }
     }
 
@@ -41,39 +39,39 @@ object Localization {
         synchronized(loc) {
             val left = DriveSubsystem.leftPosition
             val right = DriveSubsystem.rightPosition
-            val θ = Math.toRadians(NavX.correctedAngle)
+            val theta = Math.toRadians(NavX.correctedAngle)
 
-            val Δleft = left - prevLeft
-            val Δright = right - prevRight
-            val Δθ = (θ - prevθ).enforceBounds()
+            val deltaLeft = left - prevLeft
+            val deltaRight = right - prevRight
+            val deltaTheta = (theta - prevTheta).enforceBounds()
 
-            val distanceTraveled = (Δleft + Δright).FT.value / 2.0
+            val distanceTraveled = (deltaLeft + deltaRight).FT.value / 2.0
 
-            val sinΔθ = sin(Δθ)
-            val cosΔθ = cos(Δθ)
+            val sinDeltaTheta = sin(deltaTheta)
+            val cosDeltaTheta = cos(deltaTheta)
 
             val s: Double
             val c: Double
 
-            if (Δθ epsilonEquals 0.0) {
-                s = 1.0 - 1.0 / 6.0 * Δθ * Δθ
-                c = .5 * Δθ
+            if (deltaTheta epsilonEquals 0.0) {
+                s = 1.0 - 1.0 / 6.0 * deltaTheta * deltaTheta
+                c = .5 * deltaTheta
             } else {
-                s = sinΔθ / Δθ
-                c = (1.0 - cosΔθ) / Δθ
+                s = sinDeltaTheta / deltaTheta
+                c = (1.0 - cosDeltaTheta) / deltaTheta
             }
 
             val x = distanceTraveled * s
             val y = distanceTraveled * c
 
-            val prevCos = cos(prevθ)
-            val prevSin  = sin(prevθ)
+            val prevCos = cos(prevTheta)
+            val prevSin  = sin(prevTheta)
 
             robotPosition = robotPosition.add(Vector2D(x * prevCos - y * prevSin, x * prevCos + y * prevCos))
 
             prevLeft = left
             prevRight = right
-            prevθ = θ
+            prevTheta = theta
         }
     }
 }

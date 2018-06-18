@@ -52,12 +52,17 @@ dependencies {
     compile ctre()
     compile navx()
     compile openrio.powerup.matchData()
-    compile pathfinder()
+    runtimeOnly pathfinder()
 
     compile 'com.github.salomonbrys.kotson:kotson:2.5.0'
     compile 'org.apache.commons:commons-math3:3.6.1'
     compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5'
+
+    compileOnly fileTree(dir: 'libs', include: '*.jar')
+    testRuntimeOnly fileTree(dir: 'libs', include: '*.jar')
+
+    testCompile 'junit:junit:4.12'
 }
 
 // Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')
@@ -67,6 +72,8 @@ jar {
     from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     manifest GradleRIOPlugin.javaManifest(ROBOT_CLASS)
 }
+
+
 
 task wrapper(type: Wrapper) {
     gradleVersion = '4.4'
