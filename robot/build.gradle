@@ -28,15 +28,9 @@ deploy {
         artifact('frcJava', FRCJavaArtifact) {
             targets << "roborio"
         }
-        artifact('LS-LL', FileCollectionArtifact) {
-            files = project.fileTree(dir: 'src/main/resources/LS-LL')
-            directory = '/home/lvuser/paths/LS-LL'
-            targets << "roborio"
-        }
-
-        artifact('LS-RR', FileCollectionArtifact) {
-            files = project.fileTree(dir: 'src/main/resources/LS-RR')
-            directory = '/home/lvuser/paths/LS-RR'
+        artifact('Raw', FileCollectionArtifact) {
+            files = project.fileTree(dir: 'src/main/resources/Raw')
+            directory = '/home/lvuser/paths/Raw'
             targets << "roborio"
         }
     }
@@ -52,12 +46,12 @@ dependencies {
     compile ctre()
     compile navx()
     compile openrio.powerup.matchData()
-    runtimeOnly pathfinder()
+    compile pathfinder()
 
     compile 'com.github.salomonbrys.kotson:kotson:2.5.0'
     compile 'org.apache.commons:commons-math3:3.6.1'
     compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5'
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.23.3'
 
     compileOnly fileTree(dir: 'libs', include: '*.jar')
     testRuntimeOnly fileTree(dir: 'libs', include: '*.jar')

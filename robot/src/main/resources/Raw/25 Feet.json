@@ -1,0 +1,1 @@
+{"dt":0.02,"vmax":8.0,"amax":5.0,"jmax":60.0,"wheelbasewidth":2.458,"waypoints":[{"x":1.5,"y":23.5,"angle":0.0},{"x":26.5,"y":23.5,"angle":0.0}],"fitMethod":"HERMITE_QUINTIC","sampleRate":100000}

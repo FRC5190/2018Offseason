@@ -33,6 +33,6 @@ class PIDFController {
         derivative = (error - lastError) / dt
         lastError = error
 
-        return output
+        return output.coerceIn(-0.4,0.4)
     }
 }

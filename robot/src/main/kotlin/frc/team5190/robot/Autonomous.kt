@@ -4,12 +4,10 @@ import edu.wpi.first.wpilibj.command.CommandGroup
 import frc.team5190.lib.commandGroup
 import frc.team5190.lib.kthx
 import frc.team5190.lib.todo
-import frc.team5190.lib.util.Pathreader
-import frc.team5190.robot.drive.CharacterizationCommand
 import frc.team5190.robot.drive.FollowPathCommand
 import frc.team5190.robot.sensors.NavX
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import openrio.powerup.MatchData
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
@@ -38,11 +36,10 @@ object Autonomous {
 
     init {
         // Poll for FMS Data
-        async {
-
+        launch {
             var sirpls = commandGroup { }
 
-            while (!(Robot.INSTANCE.isAutonomous && Robot.INSTANCE.isEnabled && fmsDataValid && Pathreader.pathsGenerated)) {
+            while (!(Robot.INSTANCE.isAutonomous && Robot.INSTANCE.isEnabled && fmsDataValid && PathGenerator.pathsGenerated)) {
                 if (StartingPositions.valueOf(NetworkInterface.startingPosition.getString("Left").toUpperCase()) != startingPosition ||
                         MatchData.getOwnedSide(MatchData.GameFeature.SWITCH_NEAR) != switchSide ||
                         MatchData.getOwnedSide(MatchData.GameFeature.SCALE) != scaleSide) {
@@ -60,11 +57,9 @@ object Autonomous {
 
                     delay(100)
                 }
-                Robot.INSTANCE.isAutoReady = fmsDataValid && Pathreader.pathsGenerated
+                Robot.INSTANCE.isAutoReady = fmsDataValid && PathGenerator.pathsGenerated == true
             }
-
             sirpls todo fivecube kthx bye
-
         }
     }
 
@@ -74,7 +69,10 @@ object Autonomous {
 
         NetworkInterface.ntInstance.getEntry("Reset").setBoolean(true)
 
-        return commandGroup { addSequential(FollowPathCommand("LS-LL", "Test", robotReversed = false, resetRobotPosition = true)) }
+        return commandGroup { addSequential(FollowPathCommand("Angled Test",
+                robotReversed = false,
+                resetRobotPosition = true,
+                pathMirrored = startingPosition == StartingPositions.RIGHT)) }
     }
 }
 

@@ -5,14 +5,13 @@ import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.control.PIDFController
 import frc.team5190.lib.control.PathFollower
-import frc.team5190.lib.util.Pathreader
+import frc.team5190.robot.PathGenerator
 import frc.team5190.robot.Kinematics
 import frc.team5190.robot.Localization
 import frc.team5190.robot.sensors.NavX
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
-class FollowPathCommand(folder: String, file: String,
-                        private val robotReversed: Boolean = false,
+class FollowPathCommand(file: String, private val robotReversed: Boolean = false,
                         private val pathMirrored: Boolean = false,
                         private val pathReversed: Boolean = false,
                         private val resetRobotPosition: Boolean = false) : Command() {
@@ -37,7 +36,7 @@ class FollowPathCommand(folder: String, file: String,
     private var stopNotifier = false
 
     // Trajectory
-    private val trajectory = Pathreader.getPath(folder, file)
+    private val trajectory = PathGenerator.getPath(file)
 
     // Path follower
     private val pathFollower: PathFollower
@@ -57,12 +56,14 @@ class FollowPathCommand(folder: String, file: String,
 
         // Set PIDF Values
         lController.apply {
-            p = 0.15
+            p = 0.08
+            i = 0.005
             v = 0.045
             vIntercept = 0.1
         }
         rController.apply {
-            p = 0.15
+            p = 0.08
+            i = 0.005
             v = 0.045
             vIntercept = 0.1
         }
@@ -77,6 +78,8 @@ class FollowPathCommand(folder: String, file: String,
                 val output = Kinematics.inverseKinematics(pathFollower.getLinAndAngVelocities(
                         pose = Localization.robotPosition,
                         theta = Math.toRadians(NavX.correctedAngle)))
+
+                updateDashboard()
 
                 val l = lController.getPIDFOutput(target = output.left, actual = DriveSubsystem.leftVelocity.FPS.value)
                 val r = rController.getPIDFOutput(target = output.right, actual = DriveSubsystem.rightVelocity.FPS.value)
@@ -107,6 +110,9 @@ class FollowPathCommand(folder: String, file: String,
                 if (newHeading > 2 * Math.PI) newHeading -= 2 * Math.PI
 
                 segment.heading = newHeading
+            }
+            if (robotReversed) {
+                segment.velocity = -segment.velocity
             }
         }
     }
