@@ -32,13 +32,13 @@ object DriveSubsystem : Subsystem() {
         get() = leftMaster.sensorPosition
 
     val rightPosition: Distance
-        get() = rightSlave1.sensorPosition
+        get() = rightMaster.sensorPosition
 
     val leftVelocity: Speed
         get() = leftMaster.sensorVelocity
 
     val rightVelocity: Speed
-        get() = rightSlave1.sensorVelocity
+        get() = rightMaster.sensorVelocity
 
     val leftPercent: Double
         get() = leftMaster.motorOutputPercent
@@ -65,15 +65,14 @@ object DriveSubsystem : Subsystem() {
 
         leftMaster.apply {
             inverted = true
-            encoderPhase = true
         }
         rightMaster.apply {
             inverted = false
-            encoderPhase = false
         }
 
         allMasters.forEach {
             it.feedbackSensor = FeedbackDevice.QuadEncoder
+            it.encoderPhase = true
         }
 
         allMotors.forEach { srx ->
@@ -92,11 +91,6 @@ object DriveSubsystem : Subsystem() {
             srx.peakCurrentLimitDuration = Milliseconds(0)
             srx.continousCurrentLimit = Amps(40)
             srx.currentLimitingEnabled = true
-
-            srx.p = 0.2
-            srx.i = 0.0
-            srx.d = 0.0
-            srx.f = 1023.0 / FeetPerSecond(DriveConstants.MAX_DRIVE_SPEED_FPS).STU.value
         }
         resetEncoders()
     }
@@ -111,7 +105,6 @@ object DriveSubsystem : Subsystem() {
         allMasters.forEach {
             it.sensorPosition = NativeUnits(0)
         }
-        rightSlave1.sensorPosition = NativeUnits(0)
     }
 
     override fun initDefaultCommand() {
