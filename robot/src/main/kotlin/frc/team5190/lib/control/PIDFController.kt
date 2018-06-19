@@ -21,7 +21,9 @@ class PIDFController {
 
     fun getPIDFOutput(target: Double, actual: Double): Double {
         val error = target - actual
+        
         integral += (error * dt)
+        derivative = (error - lastError) / dt
 
         if (izone > 0.0 && integral > izone) integral = 0.0
 
@@ -30,7 +32,7 @@ class PIDFController {
         } else {
             0.0
         }
-        derivative = (error - lastError) / dt
+  
         lastError = error
 
         return output.coerceIn(-0.4,0.4)
