@@ -1,6 +1,6 @@
 # 5190 Offseason 2018
 
-### This repository is broken up into various submodules. Each submodule contains a different aspect of the FRC Team 5190 Offseason projects or FRC Team 5190 unreleased projects during the 2018 POWER UP competition season.
+This repository is broken up into various submodules. Each submodule contains a different aspect of the FRC Team 5190 Offseason projects or FRC Team 5190 unreleased projects during the 2018 POWER UP competition season.
 
 ### ```robot```
 
