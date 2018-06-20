@@ -30,12 +30,9 @@ object PathGenerator {
             pathMap[file.nameWithoutExtension] = generatePath(file.path)
         }
 
-        generatorJob.invokeOnCompletion {
+        launch {
+            generatorJob.joinChildren()
             println("Finished Loading Paths. Job took ${System.currentTimeMillis() - startTime} ms")
-        }
-
-        runBlocking {
-            pathMap.values.awaitAll()
         }
     }
 
@@ -71,6 +68,13 @@ object PathGenerator {
 
     operator fun get(filename: String) = runBlocking {
         pathMap[filename]?.await()
+    }
+
+    /**
+     * Waits for all the path generation to complete
+     */
+    fun join() = runBlocking {
+        pathMap.values.awaitAll()
     }
 }
 

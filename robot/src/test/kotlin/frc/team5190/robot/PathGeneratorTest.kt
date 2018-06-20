@@ -6,6 +6,6 @@ import org.junit.Test
 class PathGeneratorTest {
     @Test
     fun initializePaths() {
-        PathGenerator["25 Feet"]
+        PathGenerator.join()
     }
 }
