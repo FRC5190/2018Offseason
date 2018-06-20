@@ -6,43 +6,42 @@ import frc.team5190.lib.md5
 import jaci.pathfinder.Pathfinder
 import jaci.pathfinder.Trajectory
 import jaci.pathfinder.Waypoint
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.*
 import java.io.File
 import java.io.FileReader
 
 
 object PathGenerator {
 
-    private lateinit var allTrajectories: Map<String, Trajectory>
+    // Context used for generating paths
+    private val generatorContext = newFixedThreadPoolContext(2, "Path Generation")
 
-    val pathsGenerated: Boolean
-        get() = try {
-            allTrajectories.size == File("/home/lvuser/paths/Raw").listFiles().filter { file ->
-                file.isFile && file.extension == "json"
-            }.size
-        } catch (e: Exception) {
-            false
-        }
+    // Use the keep track of all the path generation tasks
+    private val generatorJob = Job()
 
+    private val pathMap = mutableMapOf<String, Deferred<Trajectory>>()
+    private val rawPathFolder = File("src/main/resources/Raw")
 
     init {
-        runBlocking {
-            allTrajectories = File("/home/lvuser/paths/Raw").listFiles().filter { file ->
-                file.isFile && file.extension == "json"
-            }.map { file ->
-                return@map file.nameWithoutExtension to generatePath(file.path).await()
-            }.toMap()
-            println("[PATHGENERATOR] Generation Completed")
+        val startTime = System.currentTimeMillis()
+        println("[PathGenerator] Loading Paths...")
+
+        rawPathFolder.listFiles { it -> it.isFile && it.extension == "json" }.forEach { file ->
+            pathMap[file.nameWithoutExtension] = generatePath(file.path)
         }
 
+        generatorJob.invokeOnCompletion {
+            println("Finished Loading Paths. Job took ${System.currentTimeMillis() - startTime} ms")
+        }
+
+        runBlocking {
+            pathMap.values.awaitAll()
+        }
     }
 
-    private fun generatePath(filepath: String) = async {
-
-
+    private fun generatePath(filepath: String) = async(context = generatorContext, parent = generatorJob) {
         val json = File(filepath)
-        val file = File("/home/lvuser/paths/${json.nameWithoutExtension}${json.readText().md5()}.csv")
+        val file = File("src/main/resources/${json.nameWithoutExtension}${json.readText().md5()}.csv")
 
         val trajectory: Trajectory
 
@@ -62,7 +61,7 @@ object PathGenerator {
 
             trajectory = Pathfinder.generate(waypoints, config)
             Pathfinder.writeToCSV(file, trajectory)
-            System.out.printf("[PATHGENERATOR] %-31s%-5d ms%n%n", "Generation Time ->", System.currentTimeMillis() - startTime)
+            System.out.printf("[PATHGENERATOR] %-31s%-5d ms%n%n", "\"${json.nameWithoutExtension}\" Time ->", System.currentTimeMillis() - startTime)
         } else {
             System.out.printf("[PATHGENERATOR] Using preloaded version of %-20s %n", "\"${json.nameWithoutExtension}\"")
             trajectory = Pathfinder.readFromCSV(file)
@@ -70,10 +69,11 @@ object PathGenerator {
         return@async trajectory
     }
 
-    fun getPath(filename: String): Trajectory {
-        return allTrajectories[filename]!!
+    operator fun get(filename: String) = runBlocking {
+        pathMap[filename]?.await()
     }
 }
+
 
 data class PathGeneratorInfo(val dt: Double,
                              val vmax: Double,

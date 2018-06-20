@@ -23,7 +23,7 @@ class FollowPathCommand(file: String,
     private var stopNotifier = false
 
     // Trajectory
-    private val trajectory = PathGenerator.getPath(file)
+    private val trajectory = PathGenerator[file]!!
 
     // Path follower
     private val pathFollower: PathFollower

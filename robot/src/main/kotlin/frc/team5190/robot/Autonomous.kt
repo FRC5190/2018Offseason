@@ -37,8 +37,7 @@ object Autonomous {
 
             while (!(Robot.INSTANCE.isAutonomous &&
                             Robot.INSTANCE.isEnabled &&
-                            fmsDataValid &&
-                            PathGenerator.pathsGenerated)) {
+                            fmsDataValid)) {
 
                 val networkStartingPosition = StartingPositions.valueOf(NetworkInterface.startingPosition.getString("Left").toUpperCase())
 
