@@ -5,30 +5,17 @@ import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.control.PIDFController
 import frc.team5190.lib.control.PathFollower
-import frc.team5190.robot.PathGenerator
 import frc.team5190.robot.Kinematics
 import frc.team5190.robot.Localization
+import frc.team5190.robot.PathGenerator
 import frc.team5190.robot.sensors.NavX
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
-class FollowPathCommand(file: String, private val robotReversed: Boolean = false,
+class FollowPathCommand(file: String,
+                        private val robotReversed: Boolean = false,
                         private val pathMirrored: Boolean = false,
                         private val pathReversed: Boolean = false,
                         private val resetRobotPosition: Boolean = false) : Command() {
-
-    companion object {
-        var pathX = 0.0
-            private set
-        var pathY = 0.0
-            private set
-        var pathHdg = 0.0
-            private set
-
-        var lookaheadX = 0.0
-            private set
-        var lookaheadY = 0.0
-            private set
-    }
 
     // Notifier objects
     private val pf = Object()
@@ -57,14 +44,14 @@ class FollowPathCommand(file: String, private val robotReversed: Boolean = false
         // Set PIDF Values
         lController.apply {
             p = 0.08
-            i = 0.005
-            v = 0.045
+            i = 0.01
+            v = 0.05
             vIntercept = 0.1
         }
         rController.apply {
             p = 0.08
-            i = 0.005
-            v = 0.045
+            i = 0.01
+            v = 0.05
             vIntercept = 0.1
         }
 
@@ -75,21 +62,25 @@ class FollowPathCommand(file: String, private val robotReversed: Boolean = false
                     return@Notifier
                 }
 
+                // Get left and right wheel outputs
                 val output = Kinematics.inverseKinematics(pathFollower.getLinAndAngVelocities(
                         pose = Localization.robotPosition,
                         theta = Math.toRadians(NavX.correctedAngle)))
 
-                updateDashboard()
-
+                // Update PIDF controller setpoints
                 val l = lController.getPIDFOutput(target = output.left, actual = DriveSubsystem.leftVelocity.FPS.value)
                 val r = rController.getPIDFOutput(target = output.right, actual = DriveSubsystem.rightVelocity.FPS.value)
 
+                // Set drive motors and update companion values
                 DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = l, rightOutput = r)
+                updateDashboard()
             }
         }
     }
 
+    // Modifies trajectories based on reversed / mirrored states.
     private fun modifyTrajectory() {
+        // Reverse the order of segments when the path is reversed
         if (pathReversed) {
             val reversedTrajectory = trajectory.copy()
             val distance = reversedTrajectory.segments.last().position
@@ -101,20 +92,40 @@ class FollowPathCommand(file: String, private val robotReversed: Boolean = false
         }
 
         trajectory.segments.forEach { segment ->
-            if (pathMirrored) {
-                segment.heading = -segment.heading + (2 * Math.PI)
-                segment.y = 27 - segment.y
-            }
-            if (robotReversed xor pathReversed) {
+            fun addPiToHeadings() {
                 var newHeading = segment.heading + Math.PI
                 if (newHeading > 2 * Math.PI) newHeading -= 2 * Math.PI
 
                 segment.heading = newHeading
             }
+
+            // Mirror headings if path is mirrored
+            if (pathMirrored) {
+                segment.heading = -segment.heading + (2 * Math.PI)
+                segment.y = 27 - segment.y
+            }
+            // Add PI to the headings if path is reversed
+            if (pathReversed) {
+                addPiToHeadings()
+            }
+            // Negate derivatives if robot is reversed and add PI to headings if robot is reversed
             if (robotReversed) {
+                addPiToHeadings()
+                segment.position = -segment.position
                 segment.velocity = -segment.velocity
+                segment.acceleration = -segment.acceleration
+                segment.jerk = -segment.jerk
             }
         }
+    }
+
+    fun addMarkerAt(pos: Vector2D): Marker {
+        val waypoint = if (pathMirrored) Vector2D(pos.x, 27 - pos.y) else pos
+        return Marker(this, trajectory.segments.minBy { waypoint.distance(Vector2D(it.x, it.y)) }!!.position)
+    }
+
+    fun hasPassedMarker(marker: Marker): Boolean {
+        return marker.commandInstance == this && pathFollower.currentSegment.position >= marker.position
     }
 
     private fun updateDashboard() {
@@ -143,4 +154,20 @@ class FollowPathCommand(file: String, private val robotReversed: Boolean = false
     }
 
     override fun isFinished() = pathFollower.isFinished
+
+    companion object {
+        var pathX = 0.0
+            private set
+        var pathY = 0.0
+            private set
+        var pathHdg = 0.0
+            private set
+
+        var lookaheadX = 0.0
+            private set
+        var lookaheadY = 0.0
+            private set
+    }
 }
+
+class Marker(val commandInstance: FollowPathCommand, val position: Double)

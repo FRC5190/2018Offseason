@@ -7,8 +7,6 @@ import frc.team5190.robot.sensors.NavX
 
 class Robot : IterativeRobot() {
 
-    var isAutoReady = false
-
     companion object {
         lateinit var INSTANCE: Robot
     }

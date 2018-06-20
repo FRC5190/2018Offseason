@@ -71,8 +71,8 @@ class PathFollower(private val trajectory: Trajectory) {
 
     companion object {
         // Constants
-        private const val b = 0.28
-        private const val zeta = 0.34
+        private const val b = 0.45
+        private const val zeta = 0.3
 
         // Returns linear velocity
         fun calculateLinearVelocity(xError: Double, yError: Double, thetaError: Double, pathV: Double, pathW: Double, theta: Double): Double {

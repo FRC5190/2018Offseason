@@ -43,11 +43,7 @@ infix fun Double.epsilonEquals(other: Double): Boolean {
     return (this - other).absoluteValue < EPSILON
 }
 
-infix fun CommandGroup.todo(other: String) = this
-
-infix fun CommandGroup.kthx(other: String) {
-    this.start()
-}
+infix fun CommandGroup.S3ND(other: String) { this.start() }
 
 infix fun Double.cos(other: Double): Double {
     return this * Math.cos(other)

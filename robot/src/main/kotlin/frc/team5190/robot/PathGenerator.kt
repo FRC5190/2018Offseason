@@ -8,7 +8,6 @@ import jaci.pathfinder.Trajectory
 import jaci.pathfinder.Waypoint
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import java.io.File
 import java.io.FileReader
@@ -30,8 +29,6 @@ object PathGenerator {
 
     init {
         runBlocking {
-            delay(1000)
-
             allTrajectories = File("/home/lvuser/paths/Raw").listFiles().filter { file ->
                 file.isFile && file.extension == "json"
             }.map { file ->
@@ -45,16 +42,13 @@ object PathGenerator {
 
 
         val json = File(filepath)
-        val rFilePath = "/home/lvuser/paths/${json.nameWithoutExtension}${json.readText().md5()}.csv"
-        val wFilePath = "/home/lvuser/paths/${json.nameWithoutExtension}${json.readText().md5()}.csv"
+        val file = File("/home/lvuser/paths/${json.nameWithoutExtension}${json.readText().md5()}.csv")
 
-        val rFile = File(rFilePath)
-        val wFile = File(wFilePath)
         val trajectory: Trajectory
 
-
-        if (!rFile.isFile) {
-            println("[PATHGENERATOR] Generating ${json.nameWithoutExtension}")
+        if (!file.isFile) {
+            System.out.printf("[PATHGENERATOR] Generating %-20s...%n", "\"${json.nameWithoutExtension}\"")
+            val startTime = System.currentTimeMillis()
 
             val parameters = Gson().fromJson<PathGeneratorInfo>(FileReader(json))
             val config = Trajectory.Config(
@@ -64,13 +58,14 @@ object PathGenerator {
                     parameters.vmax,
                     parameters.amax,
                     parameters.jmax)
-
             val waypoints = parameters.waypoints.toTypedArray()
+
             trajectory = Pathfinder.generate(waypoints, config)
-            Pathfinder.writeToCSV(wFile, trajectory)
+            Pathfinder.writeToCSV(file, trajectory)
+            System.out.printf("[PATHGENERATOR] %-31s%-5d ms%n%n", "Generation Time ->", System.currentTimeMillis() - startTime)
         } else {
-            println("[PATHGENERATOR] ${json.nameWithoutExtension} already exists. Using preloaded path.")
-            trajectory = Pathfinder.readFromCSV(rFile)
+            System.out.printf("[PATHGENERATOR] Using preloaded version of %-20s %n", "\"${json.nameWithoutExtension}\"")
+            trajectory = Pathfinder.readFromCSV(file)
         }
         return@async trajectory
     }
@@ -80,6 +75,12 @@ object PathGenerator {
     }
 }
 
-data class PathGeneratorInfo(val dt: Double, val vmax: Double, val amax: Double, val jmax: Double, val wheelbasewidth: Double, val waypoints: ArrayList<Waypoint>, val fitMethod: Trajectory.FitMethod,
+data class PathGeneratorInfo(val dt: Double,
+                             val vmax: Double,
+                             val amax: Double,
+                             val jmax: Double,
+                             val wheelbasewidth: Double,
+                             val waypoints: ArrayList<Waypoint>,
+                             val fitMethod: Trajectory.FitMethod,
                              val sampleRate: Int)
 
