@@ -7,7 +7,6 @@ import jaci.pathfinder.Pathfinder
 import jaci.pathfinder.Trajectory
 import jaci.pathfinder.Waypoint
 import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.runBlocking
 import java.io.File
 import java.io.FileReader
@@ -36,6 +35,7 @@ object PathGenerator {
             }.toMap()
             println("[PATHGENERATOR] Generation Completed")
         }
+
     }
 
     private fun generatePath(filepath: String) = async {
