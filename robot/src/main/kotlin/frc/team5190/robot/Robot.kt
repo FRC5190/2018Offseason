@@ -2,7 +2,7 @@ package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.IterativeRobot
 import edu.wpi.first.wpilibj.command.Scheduler
-import frc.team5190.lib.util.Pathreader
+import frc.team5190.lib.util.PathReader
 import frc.team5190.robot.arm.ArmSubsystem
 import frc.team5190.robot.climb.ClimbSubsystem
 import frc.team5190.robot.drive.DriveSubsystem
@@ -29,7 +29,7 @@ class Robot : IterativeRobot() {
     override fun robotInit() {
         Localization
         NetworkInterface
-        Pathreader
+        PathReader
         Autonomous
         Canifier
         Pigeon

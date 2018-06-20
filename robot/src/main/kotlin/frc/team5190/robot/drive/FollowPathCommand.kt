@@ -4,7 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.control.PathFollower
-import frc.team5190.lib.util.Pathreader
+import frc.team5190.lib.util.PathReader
 import frc.team5190.robot.Localization
 import frc.team5190.robot.sensors.Pigeon
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
@@ -37,7 +37,7 @@ class FollowPathCommand(folder: String, file: String,
     private var stopNotifier = false
 
     // Left, right, and source trajectory
-    private val trajectory = Pathreader.getPath(folder, file)
+    private val trajectory = PathReader[folder, file]!!.sourceTrajectory
 
     // Path follower
     private val pathFollower: PathFollower

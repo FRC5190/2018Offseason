@@ -2,21 +2,13 @@ package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.command.CommandGroup
 import frc.team5190.lib.commandGroup
-import frc.team5190.lib.util.Pathreader
-import frc.team5190.lib.util.StateCommand
-import frc.team5190.robot.arm.ArmPosition
-import frc.team5190.robot.arm.AutoArmCommand
+import frc.team5190.lib.util.PathReader
 import frc.team5190.robot.drive.FollowPathCommand
-import frc.team5190.robot.drive.Marker
-import frc.team5190.robot.elevator.ElevatorPreset
-import frc.team5190.robot.elevator.ElevatorPresetCommand
-import frc.team5190.robot.intake.IntakeCommand
-import frc.team5190.robot.intake.IntakeDirection
 import frc.team5190.robot.sensors.Pigeon
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import openrio.powerup.MatchData
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
 object Autonomous {
 
@@ -40,11 +32,11 @@ object Autonomous {
 
     init {
         // Poll for FMS Data
-        async {
+        launch {
 
             var autoCommand = commandGroup { }
 
-            while (!(Robot.INSTANCE.isAutonomous && Robot.INSTANCE.isEnabled && fmsDataValid && Pathreader.pathsGenerated)) {
+            while (!(Robot.INSTANCE.isAutonomous && Robot.INSTANCE.isEnabled && fmsDataValid)) {
 
                 if (StartingPosition.valueOf(NetworkInterface.startingPosition.getString("Left").toUpperCase()) != startingPosition ||
                         MatchData.getOwnedSide(MatchData.GameFeature.SWITCH_NEAR) != switchSide ||
@@ -59,7 +51,7 @@ object Autonomous {
 
                     delay(100)
                 }
-                Robot.INSTANCE.isAutoReady = fmsDataValid && Pathreader.pathsGenerated
+                Robot.INSTANCE.isAutoReady = fmsDataValid && PathReader.hasPathGenerated
             }
 
             folder = if (startingPosition.name.first().toUpperCase() == scaleSide.name.first().toUpperCase()) "LS-LL" else "LS-RR"
