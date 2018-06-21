@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.Notifier
 import frc.team5190.robot.drive.DriveSubsystem
 import frc.team5190.robot.drive.FollowPathCommand
 import frc.team5190.robot.sensors.NavX
-import kotlin.math.roundToInt
 
 @Suppress("HasPlatformType")
 object NetworkInterface {
@@ -42,8 +41,8 @@ object NetworkInterface {
 
     init {
         notifier = Notifier {
-            robotX.setDouble(Localization.robotPosition.x)
-            robotY.setDouble(Localization.robotPosition.y)
+            robotX.setDouble(Localization3D.robotPosition.x)
+            robotY.setDouble(Localization3D.robotPosition.y)
             robotHdg.setDouble(Math.toRadians(NavX.correctedAngle))
 
             pathX.setDouble(FollowPathCommand.pathX)

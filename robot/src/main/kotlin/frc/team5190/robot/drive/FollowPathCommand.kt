@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.control.PIDFController
 import frc.team5190.lib.control.PathFollower
 import frc.team5190.robot.Kinematics
-import frc.team5190.robot.Localization
+import frc.team5190.robot.Localization2D
 import frc.team5190.robot.PathGenerator
 import frc.team5190.robot.sensors.NavX
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
@@ -64,7 +64,7 @@ class FollowPathCommand(file: String,
 
                 // Get left and right wheel outputs
                 val output = Kinematics.inverseKinematics(pathFollower.getLinAndAngVelocities(
-                        pose = Localization.robotPosition,
+                        pose = Localization2D.robotPosition,
                         theta = Math.toRadians(NavX.correctedAngle)))
 
                 // Update PIDF controller setpoints
@@ -140,7 +140,7 @@ class FollowPathCommand(file: String,
     override fun initialize() {
         DriveSubsystem.resetEncoders()
         if (resetRobotPosition) {
-            Localization.reset(position = Vector2D(trajectory.segments[0].x, trajectory.segments[0].y))
+            Localization2D.reset(position = Vector2D(trajectory.segments[0].x, trajectory.segments[0].y))
         }
         notifier.startPeriodic(trajectory.segments[0].dt)
     }

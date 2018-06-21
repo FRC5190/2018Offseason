@@ -72,7 +72,6 @@ class PathFollower(private val trajectory: Trajectory) {
     companion object {
         // Constants
         private const val b = 0.65
-
         private const val zeta = 0.175
 
         // Returns linear velocity

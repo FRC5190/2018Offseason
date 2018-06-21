@@ -11,7 +11,7 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 import kotlin.math.cos
 import kotlin.math.sin
 
-object Localization {
+object Localization2D {
 
     private val synchronousOdometry = Object()
 

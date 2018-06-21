@@ -17,7 +17,7 @@ class Robot : IterativeRobot() {
 
     override fun robotInit() {
         PathGenerator
-        Localization
+        Localization2D
         NetworkInterface
         Autonomous
         NavX

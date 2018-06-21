@@ -51,7 +51,7 @@ object Autonomous {
 
                     folder = if (startingPosition.name.first().toUpperCase() == scaleSide.name.first().toUpperCase()) "LS-LL" else "LS-RR"
 
-                    Localization.reset(position = startingPosition.relativePos)
+                    Localization2D.reset(position = startingPosition.relativePos)
 
                     JUST = getAutoCommand()
                 }
