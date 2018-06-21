@@ -19,7 +19,7 @@ object PathGenerator {
     // Use the keep track of all the path generation tasks
     private val generatorJob = Job()
 
-    private val pathMap = mutableMapOf<String, Deferred<Trajectory>>()
+    private val pathMap = mutableMapOf<String, CompletableDeferred<Trajectory>>()
     private val rawPathFolder = File("src/main/resources/Raw")
 
     init {
@@ -36,34 +36,41 @@ object PathGenerator {
         }
     }
 
-    private fun generatePath(filepath: String) = async(context = generatorContext, parent = generatorJob) {
-        val json = File(filepath)
-        val file = File("src/main/resources/${json.nameWithoutExtension}${json.readText().md5()}.csv")
+    private fun generatePath(filepath: String): CompletableDeferred<Trajectory> {
+        val future = CompletableDeferred<Trajectory>()
+        launch(context = generatorContext, parent = generatorJob) {
+            val json = File(filepath)
+            val file = File("src/main/resources/${json.nameWithoutExtension}${json.readText().md5()}.csv")
 
-        val trajectory: Trajectory
+            val trajectory: Trajectory
 
-        if (!file.isFile) {
-            System.out.printf("[PATHGENERATOR] Generating %-20s...%n", "\"${json.nameWithoutExtension}\"")
-            val startTime = System.currentTimeMillis()
+            if (!file.isFile) {
+                System.out.printf("[PATHGENERATOR] Generating %-20s...%n", "\"${json.nameWithoutExtension}\"")
+                val startTime = System.currentTimeMillis()
 
-            val parameters = Gson().fromJson<PathGeneratorInfo>(FileReader(json))
-            val config = Trajectory.Config(
-                    parameters.fitMethod,
-                    parameters.sampleRate,
-                    parameters.dt,
-                    parameters.vmax,
-                    parameters.amax,
-                    parameters.jmax)
-            val waypoints = parameters.waypoints.toTypedArray()
+                val parameters = Gson().fromJson<PathGeneratorInfo>(FileReader(json))
+                val config = Trajectory.Config(
+                        parameters.fitMethod,
+                        parameters.sampleRate,
+                        parameters.dt,
+                        parameters.vmax,
+                        parameters.amax,
+                        parameters.jmax)
+                val waypoints = parameters.waypoints.toTypedArray()
 
-            trajectory = Pathfinder.generate(waypoints, config)
-            Pathfinder.writeToCSV(file, trajectory)
-            System.out.printf("[PATHGENERATOR] %-31s%-5d ms%n%n", "\"${json.nameWithoutExtension}\" Time ->", System.currentTimeMillis() - startTime)
-        } else {
-            System.out.printf("[PATHGENERATOR] Using preloaded version of %-20s %n", "\"${json.nameWithoutExtension}\"")
-            trajectory = Pathfinder.readFromCSV(file)
+                trajectory = Pathfinder.generate(waypoints, config)
+                Pathfinder.writeToCSV(file, trajectory)
+                System.out.printf("[PATHGENERATOR] %-31s%-5d ms%n%n", "\"${json.nameWithoutExtension}\" Time ->", System.currentTimeMillis() - startTime)
+            } else {
+                System.out.printf("[PATHGENERATOR] Using preloaded version of %-20s %n", "\"${json.nameWithoutExtension}\"")
+                trajectory = Pathfinder.readFromCSV(file)
+            }
+            future.complete(trajectory)
+        }.invokeOnCompletion {
+            if(!future.isCompleted && it != null) future.completeExceptionally(it)
+            future.cancel()
         }
-        return@async trajectory
+        return future
     }
 
     operator fun get(filename: String) = runBlocking {
