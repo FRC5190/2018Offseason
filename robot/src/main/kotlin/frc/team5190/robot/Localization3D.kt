@@ -27,7 +27,6 @@ object Localization3D {
     private var leftLastPos: Distance = NativeUnits(0)
     private var rightLastPos: Distance = NativeUnits(0)
     private var gyroLastAngle = 0.0
-    private var gyroLastPitch = 0.0
 
     init {
         reset()
@@ -40,7 +39,6 @@ object Localization3D {
             leftLastPos = DriveSubsystem.leftPosition
             rightLastPos = DriveSubsystem.rightPosition
             gyroLastAngle = NavX.correctedAngle
-            gyroLastPitch = NavX.pitch.toDouble()
         }
     }
 
@@ -84,9 +82,13 @@ object Localization3D {
 
             robotPosition = robotPosition.add(Vector3D(
                     twodimvector.x cos gyropitch,
-                    twodimvector.y sin gyropitch,
+                    twodimvector.y cos gyropitch,
                     d sin gyropitch
             ))
+
+            leftLastPos = leftPos
+            rightLastPos = rightPos
+            gyroLastAngle = gyroAngle
         }
     }
 }

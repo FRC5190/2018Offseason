@@ -14,7 +14,7 @@ import java.io.FileReader
 object PathGenerator {
 
     // Context used for generating paths
-    private val generatorContext = newFixedThreadPoolContext(2, "Path Generation")
+    private val generatorContext = newFixedThreadPoolContext(1, "Path Generation")
 
     // Use the keep track of all the path generation tasks
     private val generatorJob = Job()
