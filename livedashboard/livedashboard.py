@@ -70,8 +70,13 @@ class Dashboard(tk.Frame):
             0, -2, '', fontproperties=kanit_italic, size=11, color='#690a0f')
         robot_y_display = field_plot.text(
             0, -3, '', fontproperties=kanit_italic, size=11, color='#690a0f')
-        robot_heading_display = field_plot.text(
+        robot_z_display = field_plot.text(
             0, -4, '', fontproperties=kanit_italic, size=11, color='#690a0f')
+
+        robot_heading_display = field_plot.text(
+            10, -2, '', fontproperties=kanit_italic, size=11, color='#690a0f')
+        robot_pitch_display = field_plot.text(
+            10, -3, '', fontproperties=kanit_italic, size=11, color='#690a0f')
 
         # Auto Display
         starting_pos_display = field_plot.text(
@@ -149,11 +154,16 @@ class Dashboard(tk.Frame):
                    bottom_right, bottom_left, top_left]
             return box
 
-        def update_text(rx, ry, rh, sp, ssa, ca, dle, dlp, dla, dre, drp, dra, ee, ep, ea, ae, ap, aa, ce, cp, cam, ic, c, e, gd):
-            robot_x_display.set_text('Robot X: ' + str(rx))
-            robot_y_display.set_text('Robot Y: ' + str(ry))
+        def update_text(rx, ry, rz, rh, rp, sp, ssa, ca, dle, dlp, dla, dre, drp, dra, ee, ep, ea, ae, ap, aa, ce, cp, cam, ic, c, e, gd):
+            robot_x_display.set_text('Robot X: ' + "%.3f" % (rx))
+            robot_y_display.set_text('Robot Y: ' + "%.3f" % (ry))
+            robot_z_display.set_text('Robot Z: ' + "%.3f" % (rz))
+
             robot_heading_display.set_text(
-                'Robot Heading: ' + str(np.degrees(rh)) + '°')
+                'Robot Angle: ' + "{0:.3f}".format(np.degrees(rh)) + '°')
+
+            robot_pitch_display.set_text(
+                'Robot Pitch: ' + "{0:.3f}".format(np.degrees(rp)) + '°')
 
             starting_pos_display.set_text('Starting Position: ' + sp)
 
@@ -189,7 +199,8 @@ class Dashboard(tk.Frame):
 
             game_data_display.set_text('Game Data: ' + gd)
 
-            return [robot_x_display, robot_y_display, robot_heading_display,
+            return [robot_x_display, robot_y_display, robot_z_display, 
+                    robot_heading_display, robot_pitch_display,
                     starting_pos_display, same_side_auto_display, cross_auto_display,
                     subsystems_display, climb_display,
                     connection_display, is_enabled_display,
@@ -225,7 +236,10 @@ class Dashboard(tk.Frame):
 
             rx = nt_instance.getNumber('Robot X', 1.5)
             ry = nt_instance.getNumber('Robot Y', default_y)
+            rz = nt_instance.getNumber('Robot Z', 0.0)
+
             rh = nt_instance.getNumber('Robot Heading', default_heading)
+            rp = nt_instance.getNumber('Robot Pitch', 0.0)
 
             px = nt_instance.getNumber('Path X', 1.5)
             py = nt_instance.getNumber('Path Y', default_y)
@@ -289,7 +303,7 @@ class Dashboard(tk.Frame):
             path.set_data(path_x_values, path_y_values)
 
             return [robot_point, path_point, lookahead_point, robot, robot_path, path,
-                    *update_text(rx, ry, rh, sp, ssa, ca, dle, dlp, dla, dre, drp, dra, ee, ep, ea, ae, ap, aa, ce, cp, cam, ic, c, e, gd)]
+                    *update_text(rx, ry, rz, rh, rp, sp, ssa, ca, dle, dlp, dla, dre, drp, dra, ee, ep, ea, ae, ap, aa, ce, cp, cam, ic, c, e, gd)]
 
         def on_click(event):
             if event.ydata < -1.5:

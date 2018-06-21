@@ -11,10 +11,15 @@ object NavX : AHRS(SPI.Port.kMXP) {
 
     init {
         reset()
+
     }
 
     var angleOffset = 0.0
+    var pitchOffset = 0.0
 
     val correctedAngle: Double
         get() = Pathfinder.boundHalfDegrees(-angle + angleOffset)
+
+    val correctedPitch: Double
+        get() = Pathfinder.boundHalfDegrees(roll.toDouble() - pitchOffset)
 }

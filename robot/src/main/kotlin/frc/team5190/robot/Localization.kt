@@ -1,0 +1,112 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
+package frc.team5190.robot
+
+import edu.wpi.first.wpilibj.Notifier
+import frc.team5190.lib.cos
+import frc.team5190.lib.enforceBounds
+import frc.team5190.lib.epsilonEquals
+import frc.team5190.lib.math.Pose3D
+import frc.team5190.lib.sin
+import frc.team5190.lib.units.Distance
+import frc.team5190.lib.units.NativeUnits
+import frc.team5190.robot.drive.DriveSubsystem
+import frc.team5190.robot.sensors.NavX
+import jaci.pathfinder.Pathfinder
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
+import kotlin.math.absoluteValue
+import kotlin.math.cos
+import kotlin.math.sin
+
+object Localization {
+
+    private const val PITCH_FILTER = 0.7777
+    private const val ANGLE_FILTER = 0.9999
+
+    private val loc = Object()
+
+    var robotPosition = Pose3D(Vector3D.ZERO, 0.0, 0.0)
+        private set
+
+    private var prevL: Distance = NativeUnits(0)
+    private var prevR: Distance = NativeUnits(0)
+    private var prevA = 0.0
+    private var prevP = 0.0
+
+    init {
+        reset()
+        Notifier(this::run).startPeriodic(0.05)
+    }
+
+    fun reset(pose: Pose3D = Pose3D(Vector3D.ZERO, 0.0, 0.0)) {
+        synchronized(loc) {
+            robotPosition = pose
+            prevL = DriveSubsystem.leftPosition
+            prevR = DriveSubsystem.rightPosition
+            prevA = Math.toRadians(NavX.correctedAngle)
+            prevP = Math.toRadians(NavX.correctedPitch)
+        }
+    }
+
+    fun reset(vector2d: Vector2D) = reset(Pose3D(vector2d))
+
+    private fun run() {
+        synchronized(loc) {
+            val posL = DriveSubsystem.leftPosition
+            val posR = DriveSubsystem.rightPosition
+
+            // Run a basic filter to reduce uncessary noise
+            val angA = Math.toRadians(Pathfinder.boundHalfDegrees(
+                    (ANGLE_FILTER * NavX.correctedAngle) + ((1 - ANGLE_FILTER) * prevA)))
+
+            // Since pitch doesn't play an important role, set it to zero if it's less than 4.0 degrees
+            val angP = if (NavX.correctedPitch.absoluteValue < 4.0) {
+                0.0
+            } else {
+                Math.toRadians(Pathfinder.boundHalfDegrees(
+                        (PITCH_FILTER * NavX.correctedPitch) + ((1 - PITCH_FILTER) * prevP)))
+            }
+
+            val deltaL = posL - prevL
+            val deltaR = posR - prevR
+            val deltaA = (angA - prevA).enforceBounds()
+
+            val distance = (deltaL + deltaR).FT.value / 2.0
+
+            val sinDeltaA = sin(deltaA)
+            val cosDeltaA = cos(deltaA)
+
+            val s: Double
+            val c: Double
+
+            if (deltaA epsilonEquals 0.0) {
+                s = 1.0 - 1.0 / 6.0 * deltaA * deltaA
+                c = .5 * deltaA
+            } else {
+                s = sinDeltaA / deltaA
+                c = (1.0 - cosDeltaA) / deltaA
+            }
+
+            val x = distance * s
+            val y = distance * c
+
+            val prevACos = cos(prevA)
+            val prevASin = sin(prevA)
+
+            val twodimvector = Vector2D(
+                    x * prevACos - y * prevASin,
+                    x * prevASin + y * prevACos)
+
+            robotPosition = Pose3D(robotPosition.vector.add(Vector3D(
+                    twodimvector.x cos angP,
+                    twodimvector.y cos angP,
+                    distance sin angP
+            )), angA, angP)
+
+            prevL = posL
+            prevR = posR
+            prevA = angA
+        }
+    }
+}

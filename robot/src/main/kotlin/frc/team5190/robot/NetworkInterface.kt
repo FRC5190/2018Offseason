@@ -16,7 +16,10 @@ object NetworkInterface {
 
     private val robotX = ntInstance.getEntry("Robot X")
     private val robotY = ntInstance.getEntry("Robot Y")
+    private val robotZ = ntInstance.getEntry("Robot Z")
+
     private val robotHdg = ntInstance.getEntry("Robot Heading")
+    private val robotPtc = ntInstance.getEntry("Robot Pitch")
 
     private val pathX = ntInstance.getEntry("Path X")
     private val pathY = ntInstance.getEntry("Path Y")
@@ -41,9 +44,12 @@ object NetworkInterface {
 
     init {
         notifier = Notifier {
-            robotX.setDouble(Localization3D.robotPosition.x)
-            robotY.setDouble(Localization3D.robotPosition.y)
+            robotX.setDouble(Localization.robotPosition.vector.x)
+            robotY.setDouble(Localization.robotPosition.vector.y)
+            robotZ.setDouble(Localization.robotPosition.vector.z)
+
             robotHdg.setDouble(Math.toRadians(NavX.correctedAngle))
+            robotPtc.setDouble(Math.toRadians(NavX.correctedPitch))
 
             pathX.setDouble(FollowPathCommand.pathX)
             pathY.setDouble(FollowPathCommand.pathY)

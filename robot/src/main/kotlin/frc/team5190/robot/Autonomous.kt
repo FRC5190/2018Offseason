@@ -7,7 +7,6 @@ import frc.team5190.robot.drive.FollowPathCommand
 import frc.team5190.robot.sensors.NavX
 import kotlinx.coroutines.experimental.launch
 import openrio.powerup.MatchData
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
 object Autonomous {
@@ -52,7 +51,7 @@ object Autonomous {
 
                     folder = if (startingPosition.name.first().toUpperCase() == scaleSide.name.first().toUpperCase()) "LS-LL" else "LS-RR"
 
-                    Localization3D.reset(position = Vector3D(startingPosition.relativePos.x, startingPosition.relativePos.y, 0.0))
+                    Localization.reset(vector2d = Vector2D(startingPosition.relativePos.x, startingPosition.relativePos.y))
 
                     JUST = getAutoCommand()
                 }
@@ -63,7 +62,8 @@ object Autonomous {
 
     private fun getAutoCommand(): CommandGroup {
         NavX.reset()
-        NavX.angleOffset = 180.0
+        NavX.angleOffset = 0.0
+        NavX.pitchOffset = NavX.roll.toDouble()
 
         NetworkInterface.ntInstance.getEntry("Reset").setBoolean(true)
 
