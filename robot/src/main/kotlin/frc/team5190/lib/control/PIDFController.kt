@@ -35,6 +35,6 @@ class PIDFController {
   
         lastError = error
 
-        return output.coerceIn(-0.4,0.4)
+        return output
     }
 }
