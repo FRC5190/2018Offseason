@@ -72,10 +72,6 @@ object Autonomous {
                     robotReversed = false,
                     resetRobotPosition = true,
                     pathMirrored = startingPosition == StartingPositions.RIGHT))
-            addSequential(FollowTrajectoryCommand("Angled Test",
-                    robotReversed = true,
-                    pathReversed = true,
-                    pathMirrored = startingPosition == StartingPositions.RIGHT))
         }
     }
 }

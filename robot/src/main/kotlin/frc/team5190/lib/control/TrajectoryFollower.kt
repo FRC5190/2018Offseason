@@ -8,7 +8,6 @@ import frc.team5190.lib.math.Pose2D
 import frc.team5190.lib.sin
 import frc.team5190.robot.drive.DriveSubsystem
 import jaci.pathfinder.Trajectory
-import kotlin.math.PI
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -73,20 +72,17 @@ class TrajectoryFollower(private val trajectory: Trajectory) {
         private const val zeta = 0.175
 
         // Returns linear velocity
-        fun calculateLinearVelocity(xError: Double, yError: Double, thetaError: Double, pathV: Double, pathW: Double, theta: Double): Double {
-            return ((pathV cos thetaError) +
-                    (gainFunc(pathV, pathW) * ((xError cos theta) + (yError sin theta))))
-                    .coerceIn(-10.0, 10.0) // Limit linear velocity to 10 feet per second
+        fun calculateLinearVelocity(xError: Double, yError: Double, thetaError: Double, pathV: Double, pathW: Double, theta: Double) =
+                (pathV cos thetaError) +
+                        (gainFunc(pathV, pathW) * ((xError cos theta) + (yError sin theta)))
 
-        }
 
         // Returns angular velocity
-        fun calculateAngularVelocity(xError: Double, yError: Double, thetaError: Double, pathV: Double, pathW: Double, theta: Double): Double {
-            return (pathW +
-                    (b * pathV * (sin(thetaError) / thetaError) * ((yError cos theta) - (xError sin theta))) +
-                    (gainFunc(pathV, pathW) * thetaError))
-                    .coerceIn(-PI, PI) // Limit angular velocity to PI radians per second
-        }
+        fun calculateAngularVelocity(xError: Double, yError: Double, thetaError: Double, pathV: Double, pathW: Double, theta: Double) =
+                pathW +
+                        (b * pathV * (sin(thetaError) / thetaError) * ((yError cos theta) - (xError sin theta))) +
+                        (gainFunc(pathV, pathW) * thetaError)
+
 
         // Gain function
         private fun gainFunc(v: Double, w: Double): Double {
