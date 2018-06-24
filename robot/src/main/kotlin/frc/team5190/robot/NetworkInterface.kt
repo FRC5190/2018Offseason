@@ -4,7 +4,7 @@ import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Notifier
 import frc.team5190.robot.drive.DriveSubsystem
-import frc.team5190.robot.drive.FollowPathCommand
+import frc.team5190.robot.drive.FollowTrajectoryCommand
 import frc.team5190.robot.sensors.NavX
 
 @Suppress("HasPlatformType")
@@ -50,12 +50,12 @@ object NetworkInterface {
             robotHdg.setDouble(Math.toRadians(NavX.correctedAngle))
             robotPtc.setDouble(Math.toRadians(NavX.correctedPitch))
 
-            pathX.setDouble(FollowPathCommand.pathX)
-            pathY.setDouble(FollowPathCommand.pathY)
-            pathHdg.setDouble(FollowPathCommand.pathHdg)
+            pathX.setDouble(FollowTrajectoryCommand.pathX)
+            pathY.setDouble(FollowTrajectoryCommand.pathY)
+            pathHdg.setDouble(FollowTrajectoryCommand.pathHdg)
 
-            lookaheadX.setDouble(FollowPathCommand.lookaheadX)
-            lookaheadY.setDouble(FollowPathCommand.lookaheadY)
+            lookaheadX.setDouble(FollowTrajectoryCommand.lookaheadX)
+            lookaheadY.setDouble(FollowTrajectoryCommand.lookaheadY)
 
             driveLeftEncoder.setDouble(DriveSubsystem.leftPosition.STU.value.toDouble())
             driveLeftPercent.setDouble(DriveSubsystem.leftPercent * 100)

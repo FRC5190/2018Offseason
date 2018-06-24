@@ -17,10 +17,18 @@ class PostureStabilizer(targetPos: Pose2D) {
 
     private val targetFOR = FrameOfReference(targetPos.positionVector, targetPos.angle)
 
+    var isFinished = false
+        private set
+
     fun getRobotVelocity(robotPose: Pose2D): RobotVelocities {
         // Get position relative to target
         val relativePos = robotPose.convertTo(targetFOR)
         val velocities = getLinAndAngVelocities(relativePos)
+
+        if (relativePos.positionVector.norm < 1E-2) {
+            isFinished = true
+            return RobotVelocities(0.0, 0.0)
+        }
 
         System.out.printf("V: %.3f, A: %.3f, Polar X: %.3f, Polar Y: %.3f",
                 velocities.v, velocities.w, relativePos.positionVector.x, relativePos.positionVector.y)

@@ -4,17 +4,17 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.control.PIDFController
-import frc.team5190.lib.control.PathFollower
+import frc.team5190.lib.control.TrajectoryFollower
 import frc.team5190.robot.Kinematics
 import frc.team5190.robot.Localization
 import frc.team5190.robot.PathGenerator
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
-class FollowPathCommand(file: String,
-                        private val robotReversed: Boolean = false,
-                        private val pathMirrored: Boolean = false,
-                        private val pathReversed: Boolean = false,
-                        private val resetRobotPosition: Boolean = false) : Command() {
+class FollowTrajectoryCommand(file: String,
+                              private val robotReversed: Boolean = false,
+                              private val pathMirrored: Boolean = false,
+                              private val pathReversed: Boolean = false,
+                              private val resetRobotPosition: Boolean = false) : Command() {
 
     // Notifier objects
     private val pf = Object()
@@ -25,7 +25,7 @@ class FollowPathCommand(file: String,
     private val trajectory = PathGenerator[file]!!
 
     // Path follower
-    private val pathFollower: PathFollower
+    private val trajectoryFollower: TrajectoryFollower
 
     // PIDF controllers
     private val lController = PIDFController()
@@ -38,7 +38,7 @@ class FollowPathCommand(file: String,
         modifyTrajectory()
 
         // Initialize path follower
-        pathFollower = PathFollower(trajectory = trajectory)
+        trajectoryFollower = TrajectoryFollower(trajectory = trajectory)
 
         // Set PIDF Values
         lController.apply {
@@ -63,7 +63,7 @@ class FollowPathCommand(file: String,
 
                 // Get left and right wheel outputs
                 val output = Kinematics.inverseKinematics(
-                        pathFollower.getRobotVelocity(Localization.robotPosition))
+                        trajectoryFollower.getRobotVelocity(Localization.robotPosition))
 
                 // Update PIDF controller setpoints
                 val l = lController.getPIDFOutput(target = output.left, actual = DriveSubsystem.leftVelocity.FPS.value)
@@ -123,21 +123,21 @@ class FollowPathCommand(file: String,
     }
 
     fun hasPassedMarker(marker: Marker): Boolean {
-        return marker.commandInstance == this && pathFollower.currentSegment.position >= marker.position
+        return marker.commandInstance == this && trajectoryFollower.currentSegment.position >= marker.position
     }
 
     private fun updateDashboard() {
-        pathX = pathFollower.currentSegment.x
-        pathY = pathFollower.currentSegment.y
-        pathHdg = pathFollower.currentSegment.heading
+        pathX = trajectoryFollower.currentSegment.x
+        pathY = trajectoryFollower.currentSegment.y
+        pathHdg = trajectoryFollower.currentSegment.heading
 
-        lookaheadX = pathFollower.currentSegment.x
-        lookaheadY = pathFollower.currentSegment.y
+        lookaheadX = trajectoryFollower.currentSegment.x
+        lookaheadY = trajectoryFollower.currentSegment.y
     }
 
     override fun initialize() {
-        DriveSubsystem.resetEncoders()
         if (resetRobotPosition) {
+            DriveSubsystem.resetEncoders()
             Localization.reset(vector2d = Vector2D(trajectory.segments[0].x, trajectory.segments[0].y))
         }
         notifier.startPeriodic(trajectory.segments[0].dt)
@@ -151,7 +151,7 @@ class FollowPathCommand(file: String,
         }
     }
 
-    override fun isFinished() = pathFollower.isFinished
+    override fun isFinished() = trajectoryFollower.isFinished
 
     companion object {
         var pathX = 0.0
@@ -168,4 +168,4 @@ class FollowPathCommand(file: String,
     }
 }
 
-class Marker(val commandInstance: FollowPathCommand, val position: Double)
+class Marker(val commandInstance: FollowTrajectoryCommand, val position: Double)

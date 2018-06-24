@@ -3,7 +3,7 @@ package frc.team5190.robot
 import edu.wpi.first.wpilibj.command.CommandGroup
 import frc.team5190.lib.S3ND
 import frc.team5190.lib.commandGroup
-import frc.team5190.robot.drive.FollowPathCommand
+import frc.team5190.robot.drive.FollowTrajectoryCommand
 import frc.team5190.robot.sensors.NavX
 import kotlinx.coroutines.experimental.launch
 import openrio.powerup.MatchData
@@ -68,7 +68,7 @@ object Autonomous {
         NetworkInterface.ntInstance.getEntry("Reset").setBoolean(true)
 
         return commandGroup {
-            addSequential(FollowPathCommand("Angled Test",
+            addSequential(FollowTrajectoryCommand("Angled Test",
                     robotReversed = true,
                     resetRobotPosition = true,
                     pathMirrored = startingPosition == StartingPositions.RIGHT))

@@ -2,10 +2,10 @@ package frc.team5190.lib.control
 
 import org.junit.Test
 
-class PathFollowerTest {
+class TrajectoryFollowerTest {
     @Test
     fun testPathFollowerOutputs() {
-        println(PathFollower.calculateLinearVelocity(
+        println(TrajectoryFollower.calculateLinearVelocity(
                 xError = 0.0,
                 yError = 0.0,
                 thetaError = 0.0,
@@ -13,7 +13,7 @@ class PathFollowerTest {
                 pathW = 1.0,
                 theta = Math.toRadians(30.0)
         ))
-        println(PathFollower.calculateAngularVelocity(
+        println(TrajectoryFollower.calculateAngularVelocity(
                 xError = 0.0,
                 yError = 0.0,
                 thetaError = 1E-9,

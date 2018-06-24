@@ -16,7 +16,7 @@ import kotlin.math.sqrt
 // https://www.dis.uniroma1.it/~labrob/pub/papers/Ramsete01.pdf
 // Equation 5.12
 
-class PathFollower(private val trajectory: Trajectory) {
+class TrajectoryFollower(private val trajectory: Trajectory) {
 
     // Stores the current segment index
     private var currentSegmentIndex = 0
@@ -61,7 +61,7 @@ class PathFollower(private val trajectory: Trajectory) {
         // Increment segment index
         currentSegmentIndex++
 
-        System.out.printf("[DEBUG] V: %2.3f, A: %2.3f, X Error: %2.3f, Y Error: %2.3f, Theta Error: %2.3f, Actual Speed: %2.3f %n",
+        System.out.printf("[Path Follower] V: %2.3f, A: %2.3f, X Error: %2.3f, Y Error: %2.3f, Theta Error: %2.3f, Actual Speed: %2.3f %n",
                 v, w, xError, yError, thetaError, (DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity).FPS.value / 2)
 
         return RobotVelocities(v, w)
