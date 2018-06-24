@@ -12,11 +12,9 @@ import kotlin.math.PI
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-/*
-Class that follows a path given a trajectory while closing the loop on
-X, Y, and Theta error
-https://www.dis.uniroma1.it/~labrob/pub/papers/Ramsete01.pdf
-*/
+
+// https://www.dis.uniroma1.it/~labrob/pub/papers/Ramsete01.pdf
+// Equation 5.12
 
 class PathFollower(private val trajectory: Trajectory) {
 
@@ -32,18 +30,18 @@ class PathFollower(private val trajectory: Trajectory) {
 
 
     // Returns desired linear and angular velocity of the robot
-    fun getLinAndAngVelocities(pose: Pose2D): RobotVelocities {
+    fun getRobotVelocity(pose: Pose2D): RobotVelocities {
 
         // Update the current segment
         if (currentSegmentIndex >= trajectory.segments.size) return RobotVelocities(0.0, 0.0)
         currentSegment = trajectory.segments[currentSegmentIndex]
 
         // Calculate X and Y error
-        val xError = currentSegment.x - pose.vector.x
-        val yError = currentSegment.y - pose.vector.y
+        val xError = currentSegment.x - pose.positionVector.x
+        val yError = currentSegment.y - pose.positionVector.y
 
         // Calculate Theta Error
-        var thetaError = (currentSegment.heading - pose.yaw).enforceBounds()
+        var thetaError = (currentSegment.heading - pose.angle).enforceBounds()
         thetaError = thetaError.let { if (it epsilonEquals 0.0) EPSILON else it }
 
         // Linear Velocity of the Segment
@@ -57,8 +55,8 @@ class PathFollower(private val trajectory: Trajectory) {
         }
 
         // Calculate Linear and Angular Velocity based on errors
-        val v = calculateLinearVelocity(xError, yError, thetaError, sv, sw, pose.yaw)
-        val w = calculateAngularVelocity(xError, yError, thetaError, sv, sw, pose.yaw)
+        val v = calculateLinearVelocity(xError, yError, thetaError, sv, sw, pose.angle)
+        val w = calculateAngularVelocity(xError, yError, thetaError, sv, sw, pose.angle)
 
         // Increment segment index
         currentSegmentIndex++

@@ -5,6 +5,7 @@ package frc.team5190.lib
 import com.ctre.phoenix.CANifier
 import edu.wpi.first.wpilibj.command.CommandGroup
 import frc.team5190.lib.math.EPSILON
+import org.apache.commons.math3.linear.Array2DRowRealMatrix
 import java.awt.Color
 import java.security.MessageDigest
 import kotlin.math.PI
@@ -52,3 +53,7 @@ infix fun Double.cos(other: Double): Double {
 infix fun Double.sin(other: Double): Double {
     return this * Math.sin(other)
 }
+
+typealias Matrix = Array2DRowRealMatrix
+
+operator fun Matrix.times(other: Matrix) = this.multiply(other)!!

@@ -63,7 +63,7 @@ class FollowPathCommand(file: String,
 
                 // Get left and right wheel outputs
                 val output = Kinematics.inverseKinematics(
-                        pathFollower.getLinAndAngVelocities(Localization.robotPosition.pose2d))
+                        pathFollower.getRobotVelocity(Localization.robotPosition))
 
                 // Update PIDF controller setpoints
                 val l = lController.getPIDFOutput(target = output.left, actual = DriveSubsystem.leftVelocity.FPS.value)

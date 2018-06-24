@@ -44,9 +44,8 @@ object NetworkInterface {
 
     init {
         notifier = Notifier {
-            robotX.setDouble(Localization.robotPosition.vector.x)
-            robotY.setDouble(Localization.robotPosition.vector.y)
-            robotZ.setDouble(Localization.robotPosition.vector.z)
+            robotX.setDouble(Localization.robotPosition.positionVector.x)
+            robotY.setDouble(Localization.robotPosition.positionVector.y)
 
             robotHdg.setDouble(Math.toRadians(NavX.correctedAngle))
             robotPtc.setDouble(Math.toRadians(NavX.correctedPitch))
