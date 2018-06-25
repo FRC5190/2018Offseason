@@ -1,11 +1,11 @@
 package frc.team5190.lib.control
 
-import frc.team5190.lib.cos
-import frc.team5190.lib.enforceBounds
-import frc.team5190.lib.epsilonEquals
+import frc.team5190.lib.extensions.cos
+import frc.team5190.lib.extensions.enforceBounds
+import frc.team5190.lib.extensions.epsilonEquals
 import frc.team5190.lib.math.EPSILON
 import frc.team5190.lib.math.Pose2D
-import frc.team5190.lib.sin
+import frc.team5190.lib.extensions.sin
 import frc.team5190.robot.drive.DriveSubsystem
 import jaci.pathfinder.Trajectory
 import kotlin.math.sin

@@ -3,8 +3,8 @@
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.Notifier
-import frc.team5190.lib.enforceBounds
-import frc.team5190.lib.epsilonEquals
+import frc.team5190.lib.extensions.enforceBounds
+import frc.team5190.lib.extensions.epsilonEquals
 import frc.team5190.lib.math.Pose2D
 import frc.team5190.lib.units.Distance
 import frc.team5190.lib.units.NativeUnits
@@ -58,7 +58,7 @@ object Localization {
             val deltaR = posR - prevR
             val deltaA = (angA - prevA).enforceBounds()
 
-            val distance = (deltaL + deltaR).FT.value / 2.0
+            val distance = ((deltaL + deltaR) / 2.0).FT.value
 
             val sinDeltaA = sin(deltaA)
             val cosDeltaA = cos(deltaA)
@@ -80,11 +80,11 @@ object Localization {
             val prevACos = cos(prevA)
             val prevASin = sin(prevA)
 
-            val twodimvector = Vector2D(
+            val vector = Vector2D(
                     x * prevACos - y * prevASin,
                     x * prevASin + y * prevACos)
 
-            robotPosition = Pose2D(robotPosition.positionVector.add(twodimvector), angA)
+            robotPosition = Pose2D(robotPosition.positionVector.add(vector), angA)
 
             prevL = posL
             prevR = posR

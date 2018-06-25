@@ -1,7 +1,7 @@
 package frc.team5190.lib.math
 
-import frc.team5190.lib.Matrix
-import frc.team5190.lib.times
+import frc.team5190.lib.extensions.Matrix
+import frc.team5190.lib.extensions.times
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 import kotlin.math.cos
 import kotlin.math.sin

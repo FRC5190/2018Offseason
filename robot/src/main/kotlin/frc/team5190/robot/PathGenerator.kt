@@ -2,7 +2,7 @@ package frc.team5190.robot
 
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
-import frc.team5190.lib.md5
+import frc.team5190.lib.extensions.md5
 import jaci.pathfinder.Pathfinder
 import jaci.pathfinder.Trajectory
 import jaci.pathfinder.Waypoint

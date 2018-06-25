@@ -1,8 +1,8 @@
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.command.CommandGroup
-import frc.team5190.lib.S3ND
-import frc.team5190.lib.commandGroup
+import frc.team5190.lib.extensions.S3ND
+import frc.team5190.lib.extensions.sequential
 import frc.team5190.robot.drive.FollowTrajectoryCommand
 import frc.team5190.robot.sensors.NavX
 import kotlinx.coroutines.experimental.launch
@@ -33,7 +33,7 @@ object Autonomous {
         // Poll for FMS Data
         launch {
             @Suppress("LocalVariableName")
-            var JUST = commandGroup { }
+            var JUST = sequential { }
 
             while (!(Robot.INSTANCE.isAutonomous &&
                             Robot.INSTANCE.isEnabled &&
@@ -63,17 +63,14 @@ object Autonomous {
     private fun getAutoCommand(): CommandGroup {
         NavX.reset()
         NavX.angleOffset = 0.0
-        NavX.pitchOffset = NavX.roll.toDouble()
 
         NetworkInterface.ntInstance.getEntry("Reset").setBoolean(true)
 
-        return commandGroup {
-            addSequential(FollowTrajectoryCommand("Angled Test",
-                    robotReversed = false,
-                    resetRobotPosition = true,
-                    pathMirrored = startingPosition == StartingPositions.RIGHT))
+        return sequential {
+            FollowTrajectoryCommand("LS-LL 1st Cube")
         }
     }
+
 }
 
 enum class StartingPositions(val relativePos: Vector2D) {
