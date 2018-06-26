@@ -1,1 +1,1 @@
-{"dt":0.02,"vmax":8.0,"amax":5.0,"jmax":60.0,"wheelbasewidth":2.458,"waypoints":[{"x":1.75,"y":23.5,"angle":0.0},{"x":17.0,"y":22.5,"angle":-0.3490658503988659},{"x":23.0,"y":20.0,"angle":-0.17453292519943295}],"fitMethod":"HERMITE_QUINTIC","sampleRate":100000}
+{"dt":0.02,"vmax":11.0,"amax":5.0,"jmax":50.0,"wheelbasewidth":2.458,"waypoints":[{"x":1.5,"y":23.5,"angle":0.0},{"x":19.0,"y":21.5,"angle":-0.3490658503988659},{"x":23.0,"y":20.0,"angle":-0.17453292519943295}],"fitMethod":"HERMITE_QUINTIC","sampleRate":100000}
