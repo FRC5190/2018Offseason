@@ -13,12 +13,13 @@ import java.io.FileReader
 
 object PathGenerator {
 
-    // Context used for generating paths
+    // Context used for generating paths.
     private val generatorContext = newFixedThreadPoolContext(1, "Path Generation")
 
-    // Use the keep track of all the path generation tasks
+    // Use the keep track of all the path generation tasks.
     private val generatorJob = Job()
 
+    // Map that contains a map of all paths.
     private val pathMap = mutableMapOf<String, Deferred<Trajectory>>()
     private val rawPathFolder = File("/home/lvuser/paths/Raw")
 
@@ -26,10 +27,12 @@ object PathGenerator {
         val startTime = System.currentTimeMillis()
         println("[PathGenerator] Loading Paths...")
 
+        // Generate one path for each JSON
         rawPathFolder.listFiles { it -> it.isFile && it.extension == "json" }.forEach { file ->
             pathMap[file.nameWithoutExtension] = generatePath(file.path)
         }
 
+        // Asynchronous magic.
         launch {
             join()
             println("[PathGenerator] Finished Loading Paths. Job took ${System.currentTimeMillis() - startTime} ms")
@@ -42,6 +45,7 @@ object PathGenerator {
 
         val trajectory: Trajectory
 
+        // Generate path if hash does not match, else load pre-generated path.
         if (!file.isFile) {
             val startTime = System.currentTimeMillis()
 
@@ -65,17 +69,18 @@ object PathGenerator {
         return@async trajectory
     }
 
+    // Returns the path.
     operator fun get(filename: String) = runBlocking {
         pathMap[filename]?.await()
     }
 
-    // Waits for all path generation to complete
+    // Waits for all path generation to complete.
     fun join() = runBlocking {
         pathMap.values.awaitAll()
     }
 }
 
-
+// Contains info for JSON parsing.
 data class PathGeneratorInfo(val dt: Double,
                              val vmax: Double,
                              val amax: Double,

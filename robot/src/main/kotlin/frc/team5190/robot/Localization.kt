@@ -1,5 +1,3 @@
-@file:Suppress("MemberVisibilityCanBePrivate")
-
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.Notifier
@@ -33,7 +31,7 @@ object Localization {
         Notifier(this::run).startPeriodic(0.05)
     }
 
-    fun reset(pose: Pose2D = Pose2D(Vector2D.ZERO, 0.0)) {
+    private fun reset(pose: Pose2D = Pose2D(Vector2D.ZERO, 0.0)) {
         synchronized(loc) {
             robotPosition = pose
             prevL = DriveSubsystem.leftPosition
@@ -49,23 +47,24 @@ object Localization {
             val posL = DriveSubsystem.leftPosition
             val posR = DriveSubsystem.rightPosition
 
-            // Run a basic filter to reduce uncessary noise
             val angA = Math.toRadians(Pathfinder.boundHalfDegrees(
                     (ANGLE_FILTER * NavX.correctedAngle) + ((1 - ANGLE_FILTER) * prevA)))
-
 
             val deltaL = posL - prevL
             val deltaR = posR - prevR
             val deltaA = (angA - prevA).enforceBounds()
 
+            // Get total distance traveled.
             val distance = ((deltaL + deltaR) / 2.0).FT.value
 
+            // Sine and cosine of delta angle
             val sinDeltaA = sin(deltaA)
             val cosDeltaA = cos(deltaA)
 
             val s: Double
             val c: Double
 
+            // Apply Taylor Series if Theta is zero to prevent NaN
             if (deltaA epsilonEquals 0.0) {
                 s = 1.0 - 1.0 / 6.0 * deltaA * deltaA
                 c = .5 * deltaA
@@ -80,6 +79,7 @@ object Localization {
             val prevACos = cos(prevA)
             val prevASin = sin(prevA)
 
+            // Rotation Matrix
             val vector = Vector2D(
                     x * prevACos - y * prevASin,
                     x * prevASin + y * prevACos)

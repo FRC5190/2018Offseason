@@ -16,10 +16,8 @@ object NetworkInterface {
 
     private val robotX = ntInstance.getEntry("Robot X")
     private val robotY = ntInstance.getEntry("Robot Y")
-    private val robotZ = ntInstance.getEntry("Robot Z")
 
     private val robotHdg = ntInstance.getEntry("Robot Heading")
-    private val robotPtc = ntInstance.getEntry("Robot Pitch")
 
     private val pathX = ntInstance.getEntry("Path X")
     private val pathY = ntInstance.getEntry("Path Y")
@@ -48,7 +46,6 @@ object NetworkInterface {
             robotY.setDouble(Localization.robotPosition.positionVector.y)
 
             robotHdg.setDouble(Math.toRadians(NavX.correctedAngle))
-            robotPtc.setDouble(Math.toRadians(NavX.correctedPitch))
 
             pathX.setDouble(FollowTrajectoryCommand.pathX)
             pathY.setDouble(FollowTrajectoryCommand.pathY)
