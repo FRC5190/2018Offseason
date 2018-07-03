@@ -6,6 +6,7 @@ import frc.team5190.lib.extensions.epsilonEquals
 import frc.team5190.lib.math.EPSILON
 import frc.team5190.lib.math.Pose2D
 import frc.team5190.lib.extensions.sin
+import frc.team5190.lib.kinematics.Pose2d
 import frc.team5190.robot.drive.DriveSubsystem
 import jaci.pathfinder.Trajectory
 import kotlin.math.sin
@@ -29,18 +30,18 @@ class TrajectoryFollower(private val trajectory: Trajectory) {
 
 
     // Returns desired linear and angular velocity of the robot
-    fun getRobotVelocity(pose: Pose2D): RobotVelocities {
+    fun getRobotVelocity(pose: Pose2d): RobotVelocities {
 
         // Update the current segment
         if (currentSegmentIndex >= trajectory.segments.size) return RobotVelocities(0.0, 0.0)
         currentSegment = trajectory.segments[currentSegmentIndex]
 
         // Calculate X and Y error
-        val xError = currentSegment.x - pose.positionVector.x
-        val yError = currentSegment.y - pose.positionVector.y
+        val xError = currentSegment.x - pose.translation.x
+        val yError = currentSegment.y - pose.translation.y
 
         // Calculate Theta Error
-        var thetaError = (currentSegment.heading - pose.angle).enforceBounds()
+        var thetaError = (currentSegment.heading - pose.rotation.radians).enforceBounds()
         thetaError = thetaError.let { if (it epsilonEquals 0.0) EPSILON else it }
 
         // Linear Velocity of the Segment
@@ -54,8 +55,8 @@ class TrajectoryFollower(private val trajectory: Trajectory) {
         }
 
         // Calculate Linear and Angular Velocity based on errors
-        val v = calculateLinearVelocity(xError, yError, thetaError, sv, sw, pose.angle)
-        val w = calculateAngularVelocity(xError, yError, thetaError, sv, sw, pose.angle)
+        val v = calculateLinearVelocity(xError, yError, thetaError, sv, sw, pose.rotation.radians)
+        val w = calculateAngularVelocity(xError, yError, thetaError, sv, sw, pose.rotation.radians)
 
         // Increment segment index
         currentSegmentIndex++

@@ -3,12 +3,17 @@ package frc.team5190.robot
 import edu.wpi.first.wpilibj.Notifier
 import frc.team5190.lib.extensions.enforceBounds
 import frc.team5190.lib.extensions.epsilonEquals
+import frc.team5190.lib.kinematics.Pose2d
+import frc.team5190.lib.kinematics.Rotation2d
+import frc.team5190.lib.kinematics.Translation2d
+import frc.team5190.lib.kinematics.Twist2d
 import frc.team5190.lib.math.Pose2D
 import frc.team5190.lib.units.Distance
 import frc.team5190.lib.units.NativeUnits
 import frc.team5190.robot.drive.DriveSubsystem
 import frc.team5190.robot.sensors.NavX
 import jaci.pathfinder.Pathfinder
+import javafx.geometry.Pos
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 import kotlin.math.cos
 import kotlin.math.sin
@@ -19,7 +24,7 @@ object Localization {
 
     private val loc = Object()
 
-    var robotPosition = Pose2D(Vector2D.ZERO, 0.0)
+    var robotPosition = Pose2d()
         private set
 
     private var prevL: Distance = NativeUnits(0)
@@ -31,7 +36,7 @@ object Localization {
         Notifier(this::run).startPeriodic(0.05)
     }
 
-    private fun reset(pose: Pose2D = Pose2D(Vector2D.ZERO, 0.0)) {
+    private fun reset(pose: Pose2d = Pose2d(Translation2d(), Rotation2d())) {
         synchronized(loc) {
             robotPosition = pose
             prevL = DriveSubsystem.leftPosition
@@ -40,7 +45,7 @@ object Localization {
         }
     }
 
-    fun reset(vector2d: Vector2D) = reset(Pose2D(vector2d, 0.0))
+    fun reset(translation2d: Translation2d) = reset(Pose2d(translation2d, Rotation2d()))
 
     private fun run() {
         synchronized(loc) {
@@ -54,41 +59,10 @@ object Localization {
             val deltaR = posR - prevR
             val deltaA = (angA - prevA).enforceBounds()
 
-            // Get total distance traveled.
             val distance = ((deltaL + deltaR) / 2.0).FT.value
+            val delta = Twist2d(dx = distance, dy = 0.0, dtheta = deltaA)
 
-            // Sine and cosine of delta angle
-            val sinDeltaA = sin(deltaA)
-            val cosDeltaA = cos(deltaA)
-
-            val s: Double
-            val c: Double
-
-            // Apply Taylor Series if Theta is zero to prevent NaN
-            if (deltaA epsilonEquals 0.0) {
-                s = 1.0 - 1.0 / 6.0 * deltaA * deltaA
-                c = .5 * deltaA
-            } else {
-                s = sinDeltaA / deltaA
-                c = (1.0 - cosDeltaA) / deltaA
-            }
-
-            val x = distance * s
-            val y = distance * c
-
-            val prevACos = cos(prevA)
-            val prevASin = sin(prevA)
-
-            // Rotation Matrix
-            val vector = Vector2D(
-                    x * prevACos - y * prevASin,
-                    x * prevASin + y * prevACos)
-
-            robotPosition = Pose2D(robotPosition.positionVector.add(vector), angA)
-
-            prevL = posL
-            prevR = posR
-            prevA = angA
+            robotPosition = robotPosition.transformBy(Pose2d.fromDelta(delta))
         }
     }
 }

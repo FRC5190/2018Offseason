@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.control.PIDFController
 import frc.team5190.lib.control.TrajectoryFollower
+import frc.team5190.lib.kinematics.Translation2d
 import frc.team5190.robot.Kinematics
 import frc.team5190.robot.Localization
 import frc.team5190.robot.PathGenerator
@@ -138,7 +139,7 @@ class FollowTrajectoryCommand(file: String,
     override fun initialize() {
         if (resetRobotPosition) {
             DriveSubsystem.resetEncoders()
-            Localization.reset(vector2d = Vector2D(trajectory.segments[0].x, trajectory.segments[0].y))
+            Localization.reset(translation2d = Translation2d(trajectory.segments[0].x, trajectory.segments[0].y))
         }
         notifier.startPeriodic(trajectory.segments[0].dt)
     }

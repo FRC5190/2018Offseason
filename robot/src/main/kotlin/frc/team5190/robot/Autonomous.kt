@@ -3,6 +3,7 @@ package frc.team5190.robot
 import edu.wpi.first.wpilibj.command.CommandGroup
 import frc.team5190.lib.extensions.S3ND
 import frc.team5190.lib.extensions.sequential
+import frc.team5190.lib.kinematics.Translation2d
 import frc.team5190.robot.drive.FollowTrajectoryCommand
 import frc.team5190.robot.sensors.NavX
 import kotlinx.coroutines.experimental.launch
@@ -51,7 +52,7 @@ object Autonomous {
 
                     folder = if (startingPosition.name.first().toUpperCase() == scaleSide.name.first().toUpperCase()) "LS-LL" else "LS-RR"
 
-                    Localization.reset(vector2d = Vector2D(startingPosition.relativePos.x, startingPosition.relativePos.y))
+                    Localization.reset(Translation2d(startingPosition.relativePos.x, startingPosition.relativePos.y))
 
                     JUST = getAutoCommand()
                 }
