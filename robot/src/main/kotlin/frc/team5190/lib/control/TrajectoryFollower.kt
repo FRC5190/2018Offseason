@@ -3,10 +3,10 @@ package frc.team5190.lib.control
 import frc.team5190.lib.extensions.cos
 import frc.team5190.lib.extensions.enforceBounds
 import frc.team5190.lib.extensions.epsilonEquals
-import frc.team5190.lib.math.EPSILON
-import frc.team5190.lib.math.Pose2D
 import frc.team5190.lib.extensions.sin
 import frc.team5190.lib.kinematics.Pose2d
+import frc.team5190.lib.kinematics.RobotVelocities
+import frc.team5190.lib.math.EPSILON
 import frc.team5190.robot.drive.DriveSubsystem
 import jaci.pathfinder.Trajectory
 import kotlin.math.sin
@@ -29,7 +29,7 @@ class TrajectoryFollower(private val trajectory: Trajectory) {
         get() = currentSegmentIndex == trajectory.segments.size - 1
 
 
-    // Returns desired linear and angular velocity of the robot
+    // Returns desired linear and angular cruiseVelocity of the robot
     fun getRobotVelocity(pose: Pose2d): RobotVelocities {
 
         // Update the current segment
@@ -72,13 +72,13 @@ class TrajectoryFollower(private val trajectory: Trajectory) {
         private const val b = 0.65
         private const val zeta = 0.175
 
-        // Returns linear velocity
+        // Returns linear cruiseVelocity
         fun calculateLinearVelocity(xError: Double, yError: Double, thetaError: Double, pathV: Double, pathW: Double, theta: Double) =
                 (pathV cos thetaError) +
                         (gainFunc(pathV, pathW) * ((xError cos theta) + (yError sin theta)))
 
 
-        // Returns angular velocity
+        // Returns angular cruiseVelocity
         fun calculateAngularVelocity(xError: Double, yError: Double, thetaError: Double, pathV: Double, pathW: Double, theta: Double) =
                 pathW +
                         (b * pathV * (sin(thetaError) / thetaError) * ((yError cos theta) - (xError sin theta))) +

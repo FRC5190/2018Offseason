@@ -21,20 +21,6 @@ class Rotation2d : Interpolable<Rotation2d> {
 
     var rotation: Vector2d = Vector2d(1.0, 0.0)
 
-    constructor()
-
-    constructor(cos: Double, sin: Double) {
-        rotation = Vector2d(cos, sin).normalize()
-    }
-
-    constructor(toSet: Rotation2d) {
-        rotation = toSet.rotation.normalize()
-    }
-
-    constructor(toSetVector: Vector2d) {
-        rotation = toSetVector.normalize()
-    }
-
     var cos: Double
         get() = rotation.x
         set(value) {
@@ -73,14 +59,27 @@ class Rotation2d : Interpolable<Rotation2d> {
             radians = value
         }
 
+    val inverse: Rotation2d
+        get() = Rotation2d(cos, -sin)
+
+    constructor()
+
+    constructor(cos: Double, sin: Double) {
+        rotation = Vector2d(cos, sin).normalize()
+    }
+
+    constructor(toSet: Rotation2d) {
+        rotation = toSet.rotation.normalize()
+    }
+
+    constructor(toSetVector: Vector2d) {
+        rotation = toSetVector.normalize()
+    }
+
     infix fun rotateBy(toRotateBy: Rotation2d): Rotation2d {
         val rotated = rotateVector2d(rotation, toRotateBy.rotation)
         return Rotation2d(rotated)
     }
-
-
-    val inverse: Rotation2d
-        get() = Rotation2d(cos, -sin)
 
     override fun interpolate(upperVal: Rotation2d, interpolatePoint: Double): Rotation2d {
         return when {
@@ -90,9 +89,5 @@ class Rotation2d : Interpolable<Rotation2d> {
                     Rotation2d.createFromRadians(inverse.rotateBy(upperVal).radians * interpolatePoint)
             )
         }
-    }
-
-    override fun toString(): String {
-        return "cos: ${"%.3f".format(cos)} sin: ${"%.3f".format(sin)} deg: ${"%.3f".format(degrees)}"
     }
 }

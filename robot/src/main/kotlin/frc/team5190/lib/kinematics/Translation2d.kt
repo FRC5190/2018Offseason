@@ -23,6 +23,16 @@ class Translation2d : Interpolable<Translation2d> {
             position = Vector2d(x, value)
         }
 
+    val norm: Double
+        get() = position.norm
+
+    val normalized: Vector2d
+        get() = position.normalize()
+
+
+    val inverse: Translation2d
+        get() = Translation2d(position.negate())
+
     constructor()
 
     constructor(x: Double, y: Double) {
@@ -37,11 +47,6 @@ class Translation2d : Interpolable<Translation2d> {
         position = vector
     }
 
-    val norm: Double
-        get() = position.norm
-
-    val normalized: Vector2d
-        get() = position.normalize()
 
     infix fun translateBy(other: Translation2d): Translation2d = translateBy(other.position)
     infix fun translateBy(other: Vector2d): Translation2d =
@@ -49,8 +54,6 @@ class Translation2d : Interpolable<Translation2d> {
 
     infix fun rotateByOrigin(rotation: Rotation2d): Translation2d =
             Translation2d(rotateVector2d(position, rotation.rotation))
-
-    fun inverse(): Translation2d = Translation2d(position.negate())
 
     override fun interpolate(upperVal: Translation2d, interpolatePoint: Double): Translation2d =
             when {
@@ -64,8 +67,5 @@ class Translation2d : Interpolable<Translation2d> {
                     extrapolatePoint * (slopePoint.x - position.x) + position.x,
                     extrapolatePoint * (slopePoint.y - position.y) + position.y
             )
-
-    override fun toString(): String =
-            "[x: ${"%.3f".format(position.x)}, y: ${"%.3f".format(position.y)}]"
 }
 

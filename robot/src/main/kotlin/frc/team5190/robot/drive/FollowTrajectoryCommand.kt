@@ -3,7 +3,7 @@ package frc.team5190.robot.drive
 import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
-import frc.team5190.lib.control.PIDFController
+import frc.team5190.lib.control.VelocityPIDFController
 import frc.team5190.lib.control.TrajectoryFollower
 import frc.team5190.lib.kinematics.Translation2d
 import frc.team5190.robot.Kinematics
@@ -29,8 +29,8 @@ class FollowTrajectoryCommand(file: String,
     private val trajectoryFollower: TrajectoryFollower
 
     // PIDF controllers
-    private val lController = PIDFController()
-    private val rController = PIDFController()
+    private val lController = VelocityPIDFController()
+    private val rController = VelocityPIDFController()
 
     init {
         requires(DriveSubsystem)

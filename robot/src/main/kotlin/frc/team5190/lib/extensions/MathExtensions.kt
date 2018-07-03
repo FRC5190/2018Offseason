@@ -39,48 +39,17 @@ fun rotateVector2d(source: Vector2D, rotation: Vector2D): Vector2D {
 }
 
 operator fun Vector2D.minus(other: Vector2D): Vector2D = Vector2D(this.x - other.x, this.y - other.y)
-
 operator fun Vector2D.plus(other: Vector2D): Vector2D = add(other)
-
 operator fun Vector2D.times(scalar: Double): Vector2D = scalarMultiply(scalar)
-
 operator fun Vector2D.div(scalar: Double): Vector2D = scalarMultiply(1 / scalar)
-
 operator fun Vector2D.unaryPlus(): Vector2D = Vector2D(+this.x, +this.y)
 operator fun Vector2D.unaryMinus(): Vector2D = Vector2D(-this.x, -this.y)
-
-fun avg(vararg numbers: Double): Double {
-    var total = 0.0
-    numbers.forEach { total += it }
-    return total / numbers.size
-}
-
-fun sum(vararg numbers: Double): Double {
-    var total = 0.0
-    numbers.forEach { total += it }
-    return total
-}
-
-
-val Vector2D.l1: Double
-    get() = norm1
-
-val Vector2D.l2: Double
-    get() = norm
 
 val Vector2D.atan2: Double
     get() = Math.atan2(this.y, this.x)
 
-val Vector2D.avg: Double
-    get() = avg(this.x, this.y)
-
-val Vector2D.sum: Double
-    get() = sum(this.x, this.y)
-
 operator fun Vector2D.get(index: Int) =
         if (index == 0) x else y
-
-
 
 typealias Matrix = Array2DRowRealMatrix
 typealias Vector2d = Vector2D

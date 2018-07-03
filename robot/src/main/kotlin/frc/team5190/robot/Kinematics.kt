@@ -1,7 +1,7 @@
 package frc.team5190.robot
 
-import frc.team5190.lib.control.RobotVelocities
-import frc.team5190.lib.control.WheelVelocities
+import frc.team5190.lib.kinematics.RobotVelocities
+import frc.team5190.lib.kinematics.WheelVelocities
 
 // Object that contains kinematic equations
 object Kinematics {

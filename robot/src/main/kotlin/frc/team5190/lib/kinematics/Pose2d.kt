@@ -41,6 +41,10 @@ class Pose2d : Interpolable<Pose2d> {
     var rotation: Rotation2d = Rotation2d()
     var frameOfReference = FramesOfReference.FIELD
 
+    val inverse: Pose2d
+        get() =
+            Pose2d(translation.inverse.rotateByOrigin(rotation.inverse), rotation.inverse)
+
     val x: Double
         get() = translation.x
     val y: Double
@@ -74,18 +78,11 @@ class Pose2d : Interpolable<Pose2d> {
     }
 
     fun convertTo(other: FramesOfReference): Pose2d {
-        val theta = frameOfReference.orientationRelativeToField.radians - other.orientationRelativeToField.radians
-        val dx =  frameOfReference.originRelativeToField.x - other.originRelativeToField.x
-        val dy = frameOfReference.originRelativeToField.y - other.originRelativeToField.y
+        val rotation = other.orientationRelativeToField.inverse.rotateBy(frameOfReference.orientationRelativeToField)
+        val translation = other.originRelativeToField.inverse.translateBy(frameOfReference.originRelativeToField)
 
-        val relativeOrigin = Pose2d(Translation2d(dx, dy), Rotation2d.createFromRadians(theta))
-        return relativeOrigin.transformBy(this)
+        return Pose2d(translation, rotation).transformBy(this)
     }
-
-    val inverse: Pose2d
-        get() =
-            Pose2d(translation.inverse().rotateByOrigin(rotation.inverse), rotation.inverse)
-
 
     override fun interpolate(upperVal: Pose2d, interpolatePoint: Double): Pose2d =
             when {

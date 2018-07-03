@@ -2,25 +2,17 @@ package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.Notifier
 import frc.team5190.lib.extensions.enforceBounds
-import frc.team5190.lib.extensions.epsilonEquals
 import frc.team5190.lib.kinematics.Pose2d
 import frc.team5190.lib.kinematics.Rotation2d
 import frc.team5190.lib.kinematics.Translation2d
 import frc.team5190.lib.kinematics.Twist2d
-import frc.team5190.lib.math.Pose2D
 import frc.team5190.lib.units.Distance
 import frc.team5190.lib.units.NativeUnits
 import frc.team5190.robot.drive.DriveSubsystem
 import frc.team5190.robot.sensors.NavX
 import jaci.pathfinder.Pathfinder
-import javafx.geometry.Pos
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
-import kotlin.math.cos
-import kotlin.math.sin
 
 object Localization {
-
-    private const val ANGLE_FILTER = 0.9999
 
     private val loc = Object()
 
@@ -52,8 +44,7 @@ object Localization {
             val posL = DriveSubsystem.leftPosition
             val posR = DriveSubsystem.rightPosition
 
-            val angA = Math.toRadians(Pathfinder.boundHalfDegrees(
-                    (ANGLE_FILTER * NavX.correctedAngle) + ((1 - ANGLE_FILTER) * prevA)))
+            val angA = Math.toRadians(NavX.correctedAngle)
 
             val deltaL = posL - prevL
             val deltaR = posR - prevR

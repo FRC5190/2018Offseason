@@ -3,7 +3,7 @@ package frc.team5190.lib.control
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
-class PIDFController {
+class VelocityPIDFController {
     var p = 0.0
     var i = 0.0
     var izone = 0.0
