@@ -7,22 +7,27 @@ import org.junit.Test
 class SCurveFollowerTest {
     @Test
     fun testSCurve() {
-        val follower = SCurveFollower(initialPos = 0.0, targetPos = 30.0, cruiseVelocity = 10.0, averageAcceleration = 5.0, jerk = 10.0)
+        val follower = SCurveFollower(initialPos = 0.0, targetPos = 15.0, cruiseVelocity = 10.0, maxAcceleration = 15.0, jerk = 60.0)
 
         val xlist = arrayListOf<Double>()
         val yList = arrayListOf<Double>()
 
-        println("T Path: ${follower.tpath}")
+        val aList = arrayListOf<Double>()
 
+        println("T Path: ${follower.tpath}")
 
         var t = 0.0
 
-        while (follower.t < follower.tpath) {
-            xlist.add(follower.t)
-            yList.add(follower.getOutput(0.0).second)
+        while (t < follower.tpath) {
+            xlist.add(t)
 
-            Thread.sleep(20)
+            val x = follower.getTestOutput(t)
+
+            yList.add(x.second)
+            aList.add(x.third)
+
             t += 0.02
+//            Thread.sleep(20)
         }
 
         val chart = QuickChart.getChart("Velocity Over Time", "Time", "Velocity",

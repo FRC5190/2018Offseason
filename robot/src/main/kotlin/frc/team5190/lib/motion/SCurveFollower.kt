@@ -1,12 +1,13 @@
 package frc.team5190.lib.motion
 
 import frc.team5190.lib.control.PositionPIDFController
+import kotlin.math.min
 import kotlin.math.sqrt
 
 class SCurveFollower(private val initialPos: Double,
                      targetPos: Double,
-                     private var cruiseVelocity: Double,
-                     averageAcceleration: Double,
+                     cruiseVelocity: Double,
+                     private val maxAcceleration: Double,
                      private val jerk: Double) {
 
     // Variables on initialization
@@ -18,37 +19,54 @@ class SCurveFollower(private val initialPos: Double,
         private set
 
     // Total path distance
-    private val totalDistance = targetPos - initialPos
+    private val distance = targetPos - initialPos
 
-    private val maxAcceleration = sqrt(cruiseVelocity * jerk)
+    // Cruise Velocity
+    private val vmax: Double
+
+    init {
+        val a2 = maxAcceleration * maxAcceleration
+        val j2 = jerk * jerk
+
+        vmax = min(cruiseVelocity,
+                (-a2 + sqrt(a2 * a2 + 4 * (j2 * maxAcceleration * distance))) / (2 * jerk))
+    }
 
     // Time spent accelerating
-    private val taccel = cruiseVelocity / averageAcceleration
+    private val taccel = (sqrt(4 * vmax * jerk) / jerk)
 
-    private val tconcave = taccel / 2.0
-    private val tconvex = taccel / 2.0
+    // Time spent in concave, linear, and convex portions of acceleration
+    private val tconcave = maxAcceleration / jerk
+    private val tlinear = taccel - (2 * tconcave)
+    private val tconvex = maxAcceleration / jerk
 
+    // Velocity at end of concave, linear, and convex portions of acceleration
+    private val vaconcave = velocityEquation(v0 = 0.0, a0 = 0.0, j = jerk, t = tconcave)
+    private val valinear = velocityEquation(v0 = vaconcave, a0 = maxAcceleration, j = 0.0, t = tlinear)
+    private val vaconvex = velocityEquation(v0 = valinear, a0 = maxAcceleration, j = -jerk, t = tconvex)
+
+    // Velocity at end of convex, linear, and concave portions of deceleration
+    private val vdconvex = velocityEquation(v0 = vaconvex, a0 = 0.0, j = -jerk, t = tconvex)
+    private val vdlinear = velocityEquation(v0 = vdconvex, a0 = -maxAcceleration, j = 0.0, t = tlinear)
+
+    // Distance at end of concave, linear, and convex portions of acceleration
     private val dconcave = positionEquation(s0 = 0.0, v0 = 0.0, a0 = 0.0, j = jerk, t = tconcave)
-    private val dconvex = positionEquation(s0 = 0.0, v0 = cruiseVelocity / 2.0, a0 = maxAcceleration, j = -jerk, t = tconvex)
+    private val dlinear = positionEquation(s0 = 0.0, v0 = vaconcave, a0 = maxAcceleration, j = 0.0, t = tlinear)
+    private val dconvex = positionEquation(s0 = 0.0, v0 = vaconvex / 2.0, a0 = maxAcceleration, j = -jerk, t = tconvex)
 
-    private val tcruise = (totalDistance - (2 * dconcave) - (2 * dconvex)) / cruiseVelocity
-    private val dcruise = (cruiseVelocity * tcruise)
-
+    // Time and distance at end of cruise
+    private val tcruise = (distance - (2 * dconcave) - (2 * dconvex)) / vmax
+    private val dcruise = (vmax * tcruise)
 
     // PIDF Controller
     private val pidfController = PositionPIDFController()
 
     // Total time for path
-    val tpath = tconcave + tconvex + tcruise + tconvex + tconcave
+    val tpath = tconcave + tlinear + tconvex + tcruise + tconvex +tlinear + tconcave
 
 
     // Set PIDF Values for PID Controller
-    fun setPIDFValues(proportional: Double,
-                      integral: Double,
-                      derivative: Double,
-                      velocityFF: Double,
-                      vi: Double,
-                      integralZone: Double) {
+    fun setPIDFValues(proportional: Double, integral: Double, derivative: Double, velocityFF: Double, vi: Double, integralZone: Double) {
         pidfController.apply {
             p = proportional
             i = integral
@@ -59,6 +77,7 @@ class SCurveFollower(private val initialPos: Double,
         }
     }
 
+    // Returns output (PID output, target velocity, target position)
     fun getOutput(currentPos: Double): Triple<Double, Double, Double> {
         // Initialize variables
         if (!hasStartedProfile) {
@@ -69,6 +88,7 @@ class SCurveFollower(private val initialPos: Double,
 
         val velocity: Double
         val position: Double
+        val acceleration: Double
 
         when {
         // Acceleration Concave Phase
@@ -77,54 +97,146 @@ class SCurveFollower(private val initialPos: Double,
 
                 velocity = velocityEquation(v0 = 0.0, a0 = 0.0, j = jerk, t = t1)
                 position = positionEquation(s0 = 0.0, v0 = 0.0, a0 = 0.0, j = jerk, t = t1)
+                acceleration = accelerationEquation(a0 = 0.0, j = jerk, t = t1)
+            }
+        // Acceleration Linear Phase
+            t < tconcave + tlinear -> {
+                val t2 = t - tconcave
+
+                velocity = velocityEquation(v0 = vaconcave, a0 = maxAcceleration, j = 0.0, t = t2)
+                position = positionEquation(s0 = dconcave, v0 = vaconcave, a0 = maxAcceleration, j = 0.0, t = t2)
+                acceleration = accelerationEquation(a0 = maxAcceleration, j = 0.0, t = t2)
             }
         // Acceleration Convex Phase
-            t < tconcave + tconvex -> {
-                val t2 = t - tconcave
-                val vh = cruiseVelocity / 2.0
+            t < tconcave + tlinear + tconvex -> {
+                val t3 = t - tconcave - tlinear
 
-                velocity = velocityEquation(v0 = vh, a0 = maxAcceleration, j = -jerk, t = t2)
-                position = positionEquation(s0 = dconcave, v0 = vh, a0 = maxAcceleration, j = -jerk, t = t2)
+                velocity = velocityEquation(v0 = valinear, a0 = maxAcceleration, j = -jerk, t = t3)
+                position = positionEquation(s0 = dconcave + dlinear, v0 = valinear, a0 = maxAcceleration, j = -jerk, t = t3)
+                acceleration = accelerationEquation(a0 = maxAcceleration, j = -jerk, t = t3)
             }
         // Cruising
-            t < tconcave + tconvex + tcruise -> {
-                val t3 = t - tconcave - tconvex
+            t < tconcave + tlinear + tconvex + tcruise -> {
+                val t4 = t - tconcave - tlinear - tconvex
 
-                velocity = velocityEquation(v0 = cruiseVelocity, a0 = 0.0, j = 0.0, t = t3)
-                position = positionEquation(s0 = dconcave + dconvex, v0 = cruiseVelocity, a0 = 0.0, j = 0.0, t = t3)
+                velocity = velocityEquation(v0 = vmax, a0 = 0.0, j = 0.0, t = t4)
+                position = positionEquation(s0 = dconcave + dlinear + dconvex, v0 = vmax, a0 = 0.0, j = 0.0, t = t4)
+                acceleration = accelerationEquation(a0 = 0.0, j = 0.0, t = t4)
             }
         // Deceleration Convex Phase
-            t < tconcave + tconvex + tcruise + tconvex -> {
-                val t4 = t - tconcave - tconvex - tcruise
+            t < tconcave + tlinear + tconvex + tcruise + tconvex -> {
+                val t5 = t - tconcave - tlinear - tconvex - tcruise
 
-                velocity = velocityEquation(v0 = cruiseVelocity, a0 = 0.0, j = -jerk, t = t4)
-                position = positionEquation(s0 = dconcave + dconvex + dcruise, v0 = cruiseVelocity, a0 = 0.0, j = -jerk, t = t4)
+                velocity = velocityEquation(v0 = vmax, a0 = 0.0, j = -jerk, t = t5)
+                position = positionEquation(s0 = dconcave + dlinear + dconvex + dcruise, v0 = vmax, a0 = 0.0, j = -jerk, t = t5)
+                acceleration = accelerationEquation(a0 = 0.0, j = -jerk, t = t5)
+            }
+        // Deceleration Linear Phase
+            t < tconcave + tlinear + tconvex + tcruise + tconvex + tlinear -> {
+                val t6 = t - tconcave - tlinear - tconvex - tcruise - tconcave
+
+                velocity = velocityEquation(v0 = vdconvex, a0 = -maxAcceleration, j = 0.0, t = t6)
+                position = positionEquation(s0 = dconcave + dlinear + dconvex + dcruise + dconvex, v0 = vdconvex, a0 = -maxAcceleration, j = 0.0, t = t6)
+                acceleration = accelerationEquation(a0 = -maxAcceleration, j = 0.0, t = t6)
             }
         // Deceleration Concave Phase
-            t < tconcave + tconvex + tcruise + tconvex + tconcave -> {
-                val t5 = t - tconcave - tconvex - tcruise - tconvex
-                val vh = cruiseVelocity / 2.0
+            t < tconcave + tlinear + tconvex + tcruise + tconvex + +tlinear + tconcave -> {
+                val t7 = t - tconcave - tlinear - tconvex - tcruise - tconvex
 
-                velocity = velocityEquation(v0 = vh, a0 = -maxAcceleration, j = jerk, t = t5)
-                position = positionEquation(s0 = dconcave + dconvex + dcruise + dconvex, v0 = vh, a0 = -maxAcceleration, j = jerk, t = t5)
+                velocity = velocityEquation(v0 = vdlinear, a0 = -maxAcceleration, j = jerk, t = t7)
+                position = positionEquation(s0 = dconcave + dlinear + dconvex + dcruise + dconvex + dlinear, v0 = vdlinear, a0 = -maxAcceleration, j = jerk, t = t7)
+                acceleration = accelerationEquation(a0 = -maxAcceleration, j = jerk, t = t7)
             }
         // Rest
             else -> {
                 velocity = 0.0
                 position = 0.0
+                acceleration = 0.0
             }
         }
-        return Triple(pidfController.getPIDFOutput(position + initialPos, velocity, currentPos), velocity, position)
+        return Triple(pidfController.getPIDFOutput(position + initialPos, velocity, currentPos), velocity, acceleration)
+    }
+
+    fun getTestOutput(t: Double): Triple<Double, Double, Double> {
+        val velocity: Double
+        val position: Double
+        val acceleration: Double
+
+        when {
+        // Acceleration Concave Phase
+            t < tconcave -> {
+                val t1 = t
+
+                velocity = velocityEquation(v0 = 0.0, a0 = 0.0, j = jerk, t = t1)
+                position = positionEquation(s0 = 0.0, v0 = 0.0, a0 = 0.0, j = jerk, t = t1)
+                acceleration = accelerationEquation(a0 = 0.0, j = jerk, t = t1)
+            }
+        // Acceleration Linear Phase
+            t < tconcave + tlinear -> {
+                val t2 = t - tconcave
+
+                velocity = velocityEquation(v0 = vaconcave, a0 = maxAcceleration, j = 0.0, t = t2)
+                position = positionEquation(s0 = dconcave, v0 = vaconcave, a0 = maxAcceleration, j = 0.0, t = t2)
+                acceleration = accelerationEquation(a0 = maxAcceleration, j = 0.0, t = t2)
+            }
+        // Acceleration Convex Phase
+            t < tconcave + tlinear + tconvex -> {
+                val t3 = t - tconcave - tlinear
+
+                velocity = velocityEquation(v0 = valinear, a0 = maxAcceleration, j = -jerk, t = t3)
+                position = positionEquation(s0 = dconcave + dlinear, v0 = valinear, a0 = maxAcceleration, j = -jerk, t = t3)
+                acceleration = accelerationEquation(a0 = maxAcceleration, j = -jerk, t = t3)
+            }
+        // Cruising
+            t < tconcave + tlinear + tconvex + tcruise -> {
+                val t4 = t - tconcave - tlinear - tconvex
+
+                velocity = velocityEquation(v0 = vaconvex, a0 = 0.0, j = 0.0, t = t4)
+                position = positionEquation(s0 = dconcave + dlinear + dconvex, v0 = vmax, a0 = 0.0, j = 0.0, t = t4)
+                acceleration = accelerationEquation(a0 = 0.0, j = 0.0, t = t4)
+            }
+        // Deceleration Convex Phase
+            t < tconcave + tlinear + tconvex + tcruise + tconvex -> {
+                val t5 = t - tconcave - tlinear - tconvex - tcruise
+
+                velocity = velocityEquation(v0 = vaconvex, a0 = 0.0, j = -jerk, t = t5)
+                position = positionEquation(s0 = dconcave + dlinear + dconvex + dcruise, v0 = vmax, a0 = 0.0, j = -jerk, t = t5)
+                acceleration = accelerationEquation(a0 = 0.0, j = -jerk, t = t5)
+            }
+        // Deceleration Linear Phase
+            t < tconcave + tlinear + tconvex + tcruise + tconvex + tlinear -> {
+                val t6 = t - tconcave - tlinear - tconvex - tcruise - tconvex
+
+                velocity = velocityEquation(v0 = vdconvex, a0 = -maxAcceleration, j = 0.0, t = t6)
+                position = positionEquation(s0 = dconcave + dlinear + dconvex + dcruise + dconvex, v0 = vdconvex, a0 = -maxAcceleration, j = 0.0, t = t6)
+                acceleration = accelerationEquation(a0 = -maxAcceleration, j = 0.0, t = t6)
+            }
+        // Deceleration Concave Phase
+            t < tconcave + tlinear + tconvex + tcruise + tconvex + +tlinear + tconcave -> {
+                val t7 = t - tconcave - tlinear - tconvex - tcruise - tconvex - tlinear
+
+                velocity = velocityEquation(v0 = vdlinear, a0 = -maxAcceleration, j = jerk, t = t7)
+                position = positionEquation(s0 = dconcave + dlinear + dconvex + dcruise + dconvex + dlinear, v0 = vdlinear, a0 = -maxAcceleration, j = jerk, t = t7)
+                acceleration = accelerationEquation(a0 = -maxAcceleration, j = jerk, t = t7)
+            }
+        // Rest
+            else -> {
+                velocity = 0.0
+                position = 0.0
+                acceleration = 0.0
+            }
+        }
+        return Triple(position, velocity, acceleration)
     }
 
 
     private fun positionEquation(s0: Double, v0: Double, a0: Double, j: Double, t: Double) = s0 + (v0 * t) + (0.5 * a0 * t * t) + (0.167 * j * t * t * t)
     private fun velocityEquation(v0: Double, a0: Double, j: Double, t: Double) = v0 + (a0 * t) + (0.5 * j * t * t)
+    private fun accelerationEquation(a0: Double, j: Double, t: Double) = a0 + (j * t)
 
     private fun initialize() {
         hasStartedProfile = true
         tstart = System.currentTimeMillis() / 1000.0
         t = 0.0
     }
-
 }
