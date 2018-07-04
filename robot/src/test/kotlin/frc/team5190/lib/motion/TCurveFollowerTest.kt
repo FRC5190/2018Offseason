@@ -29,7 +29,7 @@ class TCurveFollowerTest {
                 "Value", xlist.toDoubleArray(), yList.toDoubleArray())
 
         val chart2 = QuickChart.getChart("Position Over Time", "Time", "Positon",
-                "Value", xlist.toDoubleArray(), yList2.toDoubleArray())
+                yList2[yList2.size - 2].toString(), xlist.toDoubleArray(), yList2.toDoubleArray())
 
         SwingWrapper(chart).displayChart()
         SwingWrapper(chart2).displayChart()

@@ -32,27 +32,21 @@ class SCurveFollower(private val initialPos: Double,
                 (-a2 + sqrt(a2 * a2 + 4 * (j2 * maxAcceleration * distance))) / (2 * jerk))
     }
 
-    // Time spent accelerating
-    private val taccel = (sqrt(4 * vmax * jerk) / jerk)
-
-    // Time spent in concave, linear, and convex portions of acceleration
+   
     private val tconcave = maxAcceleration / jerk
-    private val tlinear = taccel - (2 * tconcave)
-    private val tconvex = maxAcceleration / jerk
-
-    // Velocity at end of concave, linear, and convex portions of acceleration
-    private val vaconcave = velocityEquation(v0 = 0.0, a0 = 0.0, j = jerk, t = tconcave)
-    private val valinear = velocityEquation(v0 = vaconcave, a0 = maxAcceleration, j = 0.0, t = tlinear)
-    private val vaconvex = velocityEquation(v0 = valinear, a0 = maxAcceleration, j = -jerk, t = tconvex)
-
-    // Velocity at end of convex, linear, and concave portions of deceleration
-    private val vdconvex = velocityEquation(v0 = vaconvex, a0 = 0.0, j = -jerk, t = tconvex)
-    private val vdlinear = velocityEquation(v0 = vdconvex, a0 = -maxAcceleration, j = 0.0, t = tlinear)
-
-    // Distance at end of concave, linear, and convex portions of acceleration
     private val dconcave = positionEquation(s0 = 0.0, v0 = 0.0, a0 = 0.0, j = jerk, t = tconcave)
+    private val vaconcave = velocityEquation(v0 = 0.0, a0 = 0.0, j = jerk, t = tconcave)
+
+    private val tlinear = (cruiseVelocity - vaconcave - vaconcave) / maxAcceleration
     private val dlinear = positionEquation(s0 = 0.0, v0 = vaconcave, a0 = maxAcceleration, j = 0.0, t = tlinear)
-    private val dconvex = positionEquation(s0 = 0.0, v0 = vaconvex / 2.0, a0 = maxAcceleration, j = -jerk, t = tconvex)
+    private val valinear = velocityEquation(v0 = vaconcave, a0 = maxAcceleration, j = 0.0, t = tlinear)
+   
+    private val tconvex = maxAcceleration / jerk
+    private val dconvex = positionEquation(s0 = 0.0, v0 = valinear, a0 = maxAcceleration, j = -jerk, t = tconvex)
+    private val vaconvex = velocityEquation(v0 = valinear, a0 = maxAcceleration, j = -jerk, t = tconvex)
+    private val vdconvex = velocityEquation(v0 = vaconvex, a0 = 0.0, j = -jerk, t = tconvex)
+
+    private val vdlinear = velocityEquation(v0 = vdconvex, a0 = -maxAcceleration, j = 0.0, t = tlinear)
 
     // Time and distance at end of cruise
     private val tcruise = (distance - (2 * dconcave) - (2 * dconvex)) / vmax
@@ -191,7 +185,7 @@ class SCurveFollower(private val initialPos: Double,
             t < tconcave + tlinear + tconvex + tcruise -> {
                 val t4 = t - tconcave - tlinear - tconvex
 
-                velocity = velocityEquation(v0 = vaconvex, a0 = 0.0, j = 0.0, t = t4)
+                velocity = velocityEquation(v0 = vmax, a0 = 0.0, j = 0.0, t = t4)
                 position = positionEquation(s0 = dconcave + dlinear + dconvex, v0 = vmax, a0 = 0.0, j = 0.0, t = t4)
                 acceleration = accelerationEquation(a0 = 0.0, j = 0.0, t = t4)
             }
@@ -199,7 +193,7 @@ class SCurveFollower(private val initialPos: Double,
             t < tconcave + tlinear + tconvex + tcruise + tconvex -> {
                 val t5 = t - tconcave - tlinear - tconvex - tcruise
 
-                velocity = velocityEquation(v0 = vaconvex, a0 = 0.0, j = -jerk, t = t5)
+                velocity = velocityEquation(v0 = vmax, a0 = 0.0, j = -jerk, t = t5)
                 position = positionEquation(s0 = dconcave + dlinear + dconvex + dcruise, v0 = vmax, a0 = 0.0, j = -jerk, t = t5)
                 acceleration = accelerationEquation(a0 = 0.0, j = -jerk, t = t5)
             }
@@ -212,7 +206,7 @@ class SCurveFollower(private val initialPos: Double,
                 acceleration = accelerationEquation(a0 = -maxAcceleration, j = 0.0, t = t6)
             }
         // Deceleration Concave Phase
-            t < tconcave + tlinear + tconvex + tcruise + tconvex + +tlinear + tconcave -> {
+            t < tconcave + tlinear + tconvex + tcruise + tconvex +tlinear + tconcave -> {
                 val t7 = t - tconcave - tlinear - tconvex - tcruise - tconvex - tlinear
 
                 velocity = velocityEquation(v0 = vdlinear, a0 = -maxAcceleration, j = jerk, t = t7)

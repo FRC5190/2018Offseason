@@ -7,33 +7,35 @@ import org.junit.Test
 class SCurveFollowerTest {
     @Test
     fun testSCurve() {
-        val follower = SCurveFollower(initialPos = 0.0, targetPos = 15.0, cruiseVelocity = 10.0, maxAcceleration = 15.0, jerk = 60.0)
+        val follower = SCurveFollower(initialPos = 0.0, targetPos = 40.0, cruiseVelocity = 20.0, maxAcceleration = 10.0, jerk = 10.0)
 
-        val xlist = arrayListOf<Double>()
-        val yList = arrayListOf<Double>()
-
-        val aList = arrayListOf<Double>()
+        val tList = arrayListOf<Double>()
+        val vList = arrayListOf<Double>()
+        val pList = arrayListOf<Double>()
 
         println("T Path: ${follower.tpath}")
 
         var t = 0.0
 
         while (t < follower.tpath) {
-            xlist.add(t)
+            tList.add(t)
 
             val x = follower.getTestOutput(t)
 
-            yList.add(x.second)
-            aList.add(x.third)
+            vList.add(x.second)
+            pList.add(x.first)
 
             t += 0.02
-//            Thread.sleep(20)
         }
 
         val chart = QuickChart.getChart("Velocity Over Time", "Time", "Velocity",
-                "y(x)", xlist.toDoubleArray(), yList.toDoubleArray())
+                pList.last().toString(), tList.toDoubleArray(), vList.toDoubleArray())
+
+        val chart2 = QuickChart.getChart("Position Over Time", "Time", "Velocity",
+                pList.last().toString(), tList.toDoubleArray(), pList.toDoubleArray())
 
         SwingWrapper(chart).displayChart()
+        SwingWrapper(chart2).displayChart()
         Thread.sleep(1000000)
     }
 }
