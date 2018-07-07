@@ -2,15 +2,13 @@ package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.Notifier
 import frc.team5190.lib.extensions.enforceBounds
-import frc.team5190.lib.kinematics.Pose2d
-import frc.team5190.lib.kinematics.Rotation2d
-import frc.team5190.lib.kinematics.Translation2d
-import frc.team5190.lib.kinematics.Twist2d
+import frc.team5190.lib.geometry.Pose2d
+import frc.team5190.lib.geometry.Rotation2d
+import frc.team5190.lib.geometry.Translation2d
 import frc.team5190.lib.units.Distance
 import frc.team5190.lib.units.NativeUnits
 import frc.team5190.robot.drive.DriveSubsystem
 import frc.team5190.robot.sensors.NavX
-import jaci.pathfinder.Pathfinder
 
 object Localization {
 
@@ -50,10 +48,8 @@ object Localization {
             val deltaR = posR - prevR
             val deltaA = (angA - prevA).enforceBounds()
 
-            val distance = ((deltaL + deltaR) / 2.0).FT.value
-            val delta = Twist2d(dx = distance, dy = 0.0, dtheta = deltaA)
-
-            robotPosition = robotPosition.transformBy(Pose2d.fromDelta(delta))
+            val kinematics = Kinematics.forwardKinematics(deltaL.FT.value, deltaR.FT.value, deltaA)
+            robotPosition = robotPosition.transformBy(Pose2d.fromTwist(kinematics))
         }
     }
 }

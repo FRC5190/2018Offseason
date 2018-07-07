@@ -3,7 +3,7 @@ package frc.team5190.robot
 import edu.wpi.first.wpilibj.command.CommandGroup
 import frc.team5190.lib.extensions.S3ND
 import frc.team5190.lib.extensions.sequential
-import frc.team5190.lib.kinematics.Translation2d
+import frc.team5190.lib.geometry.Translation2d
 import frc.team5190.robot.drive.FollowTrajectoryCommand
 import frc.team5190.robot.sensors.NavX
 import kotlinx.coroutines.experimental.launch

@@ -62,7 +62,7 @@ class ManualDriveCommand : Command() {
         var leftMotorOutput = speed + angularPower
         var rightMotorOutput = speed - angularPower
 
-        // If rotation is overpowered, reduce both outputs to within acceptable range
+        // If rotationVector is overpowered, reduce both outputs to within acceptable range
         if (overPower) {
             when {
                 leftMotorOutput > 1.0 -> {

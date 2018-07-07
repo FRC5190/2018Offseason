@@ -4,8 +4,8 @@ import frc.team5190.lib.extensions.cos
 import frc.team5190.lib.extensions.enforceBounds
 import frc.team5190.lib.extensions.epsilonEquals
 import frc.team5190.lib.extensions.sin
-import frc.team5190.lib.kinematics.Pose2d
-import frc.team5190.lib.kinematics.RobotVelocities
+import frc.team5190.lib.geometry.Pose2d
+import frc.team5190.lib.geometry.Twist2d
 import frc.team5190.lib.math.EPSILON
 import frc.team5190.robot.drive.DriveSubsystem
 import jaci.pathfinder.Trajectory
@@ -30,10 +30,10 @@ class TrajectoryFollower(private val trajectory: Trajectory) {
 
 
     // Returns desired linear and angular cruiseVelocity of the robot
-    fun getRobotVelocity(pose: Pose2d): RobotVelocities {
+    fun getRobotVelocity(pose: Pose2d): Twist2d {
 
         // Update the current segment
-        if (currentSegmentIndex >= trajectory.segments.size) return RobotVelocities(0.0, 0.0)
+        if (currentSegmentIndex >= trajectory.segments.size) return Twist2d()
         currentSegment = trajectory.segments[currentSegmentIndex]
 
         // Calculate X and Y error
@@ -64,7 +64,7 @@ class TrajectoryFollower(private val trajectory: Trajectory) {
         System.out.printf("[Path Follower] V: %2.3f, A: %2.3f, X Error: %2.3f, Y Error: %2.3f, Theta Error: %2.3f, Actual Speed: %2.3f %n",
                 v, w, xError, yError, thetaError, (DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity).FPS.value / 2)
 
-        return RobotVelocities(v, w)
+        return Twist2d(dx = v, dy = 0.0, dtheta = w)
     }
 
     companion object {

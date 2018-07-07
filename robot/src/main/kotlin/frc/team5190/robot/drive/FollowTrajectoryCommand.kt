@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.control.VelocityPIDFController
 import frc.team5190.lib.control.TrajectoryFollower
-import frc.team5190.lib.kinematics.Translation2d
+import frc.team5190.lib.geometry.Translation2d
 import frc.team5190.robot.Kinematics
 import frc.team5190.robot.Localization
 import frc.team5190.robot.PathGenerator

@@ -1,14 +1,22 @@
+/*
+ * Original Work by
+ * NASA Ames Robotics "The Cheesy Poofs"
+ * Team 254
+ *
+ * Rewritten and Modified in Kotlin by Team 5190
+ */
+
 @file:Suppress("unused", "MemberVisibilityCanBePrivate")
 
-package frc.team5190.lib.kinematics
+package frc.team5190.lib.geometry
 
 import frc.team5190.lib.extensions.Vector2d
 import frc.team5190.lib.extensions.atan2
 import frc.team5190.lib.extensions.rotateVector2d
+import frc.team5190.lib.geometry.interfaces.IRotation2d
 import frc.team5190.lib.math.EPSILON
-import frc.team5190.lib.types.Interpolable
 
-class Rotation2d : Interpolable<Rotation2d> {
+class Rotation2d : IRotation2d<Rotation2d> {
 
     companion object {
         fun createFromRadians(angleRadians: Double): Rotation2d =
@@ -19,38 +27,41 @@ class Rotation2d : Interpolable<Rotation2d> {
     }
 
 
-    var rotation: Vector2d = Vector2d(1.0, 0.0)
+    override val rotation
+        get() = this
+
+    var rotationVector: Vector2d = Vector2d(1.0, 0.0)
 
     var cos: Double
-        get() = rotation.x
+        get() = rotationVector.x
         set(value) {
-            rotation = Vector2d(value, rotation.x)
+            rotationVector = Vector2d(value, rotationVector.x)
         }
 
     var sin: Double
-        get() = rotation.y
+        get() = rotationVector.y
         set(value) {
-            rotation = Vector2d(rotation.y, value)
+            rotationVector = Vector2d(rotationVector.y, value)
         }
 
     val tan: Double
         get() =
             when {
-                rotation.x > EPSILON -> rotation.y / rotation.x
-                rotation.y >= 0.0 -> Double.POSITIVE_INFINITY
+                rotationVector.x > EPSILON -> rotationVector.y / rotationVector.x
+                rotationVector.y >= 0.0 -> Double.POSITIVE_INFINITY
                 else -> Double.NEGATIVE_INFINITY
             }
 
     var radians: Double
-        get() = rotation.atan2
+        get() = rotationVector.atan2
         set(value) {
-            rotation = createFromRadians(value).rotation
+            rotationVector = createFromRadians(value).rotationVector
         }
 
     var degrees: Double
         get() = Math.toDegrees(radians)
         set(value) {
-            rotation = createFromDegrees(value).rotation
+            rotationVector = createFromDegrees(value).rotationVector
         }
 
     var theta: Double
@@ -62,24 +73,30 @@ class Rotation2d : Interpolable<Rotation2d> {
     val inverse: Rotation2d
         get() = Rotation2d(cos, -sin)
 
+    val normal: Rotation2d
+        get() = Rotation2d(-sin, cos)
+
     constructor()
 
     constructor(cos: Double, sin: Double) {
-        rotation = Vector2d(cos, sin).normalize()
+        rotationVector = Vector2d(cos, sin).normalize()
     }
 
     constructor(toSet: Rotation2d) {
-        rotation = toSet.rotation.normalize()
+        rotationVector = toSet.rotationVector.normalize()
     }
 
     constructor(toSetVector: Vector2d) {
-        rotation = toSetVector.normalize()
+        rotationVector = toSetVector.normalize()
     }
 
-    infix fun rotateBy(toRotateBy: Rotation2d): Rotation2d {
-        val rotated = rotateVector2d(rotation, toRotateBy.rotation)
+    fun rotateBy(toRotateBy: Rotation2d): Rotation2d {
+        val rotated = rotateVector2d(rotationVector, toRotateBy.rotationVector)
         return Rotation2d(rotated)
     }
+
+
+    override fun distance(other: Rotation2d) = inverse.rotateBy(other).radians
 
     override fun interpolate(upperVal: Rotation2d, interpolatePoint: Double): Rotation2d {
         return when {

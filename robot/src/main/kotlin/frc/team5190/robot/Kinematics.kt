@@ -1,20 +1,23 @@
 package frc.team5190.robot
 
-import frc.team5190.lib.kinematics.RobotVelocities
-import frc.team5190.lib.kinematics.WheelVelocities
+import frc.team5190.lib.extensions.epsilonEquals
+import frc.team5190.lib.geometry.Twist2d
+import frc.team5190.lib.kinematics.DriveVelocity
 
-// Object that contains kinematic equations
+
 object Kinematics {
 
-    // Converts linear and angular velocity into Feet Per Second values for the Talon SRX.
-    fun inverseKinematics(vel: RobotVelocities): WheelVelocities {
-        val v = vel.v
-        val w = vel.w
+    fun forwardKinematics(leftDelta: Double, rightDelta: Double, rotationDelta: Double): Twist2d {
+        val dx = (leftDelta + rightDelta) / 2.0
+        return Twist2d(dx = dx, dy = 0.0, dtheta = rotationDelta)
+    }
 
-        val leftRadS = ((2 * v) - (DriveConstants.TRACK_WIDTH * w)) / (DriveConstants.WHEEL_RADIUS / 6.0)
-        val rightRadS = ((2 * v) + (DriveConstants.TRACK_WIDTH * w)) / (DriveConstants.WHEEL_RADIUS / 6.0)
+    fun inverseKinematics(velocity: Twist2d): DriveVelocity {
+        if (velocity.dtheta epsilonEquals 0.0) {
+            return DriveVelocity(left = velocity.dx, right = velocity.dx)
+        }
 
-        fun convertToFPS(value: Double) = value * (DriveConstants.WHEEL_RADIUS / 12.0)
-        return WheelVelocities(convertToFPS(leftRadS), convertToFPS(rightRadS))
+        val deltaV = DriveConstants.TRACK_WIDTH * velocity.dx / 2
+        return DriveVelocity(left = velocity.dx - deltaV, right = velocity.dx + deltaV)
     }
 }
