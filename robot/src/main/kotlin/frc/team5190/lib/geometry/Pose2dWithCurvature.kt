@@ -9,8 +9,10 @@
 
 package frc.team5190.lib.geometry
 
+import com.sun.javafx.binding.StringFormatter
 import frc.team5190.lib.geometry.interfaces.ICurvature
 import frc.team5190.lib.geometry.interfaces.IPose2d
+import frc.team5190.lib.geometry.interfaces.State
 import frc.team5190.lib.types.Interpolable
 
 
@@ -39,6 +41,10 @@ class Pose2dWithCurvature(override val pose: Pose2d = Pose2d(), override val cur
 
     override val translation: Translation2d
         get() = pose.translation
+
+    override fun toString(): String {
+        return StringFormatter.format("X: %3f, Y: %3f, Theta: %3f", pose.x, pose.y, pose.rotation.degrees).valueSafe
+    }
 
 
 }

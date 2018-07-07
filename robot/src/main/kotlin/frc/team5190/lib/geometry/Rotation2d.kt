@@ -12,6 +12,7 @@ package frc.team5190.lib.geometry
 
 import frc.team5190.lib.extensions.Vector2d
 import frc.team5190.lib.extensions.atan2
+import frc.team5190.lib.extensions.epsilonEquals
 import frc.team5190.lib.extensions.rotateVector2d
 import frc.team5190.lib.geometry.interfaces.IRotation2d
 import frc.team5190.lib.math.EPSILON
@@ -90,11 +91,31 @@ class Rotation2d : IRotation2d<Rotation2d> {
         rotationVector = toSetVector.normalize()
     }
 
+    constructor (x: Double, y: Double, normalize: Boolean) {
+        if (normalize) {
+            val magnitude = Math.hypot(x, y)
+            if (magnitude > EPSILON) {
+                sin = y / magnitude
+                cos = x / magnitude
+            } else {
+                sin = 0.0
+                cos = 1.0
+            }
+        } else {
+            cos = x
+            sin = y
+        }
+    }
+
+
     fun rotateBy(toRotateBy: Rotation2d): Rotation2d {
         val rotated = rotateVector2d(rotationVector, toRotateBy.rotationVector)
         return Rotation2d(rotated)
     }
 
+    fun toTranslation() = Translation2d(cos, sin)
+
+    fun isParallel(other: Rotation2d) = Translation2d.cross(toTranslation(), other.toTranslation()) epsilonEquals 0.0
 
     override fun distance(other: Rotation2d) = inverse.rotateBy(other).radians
 

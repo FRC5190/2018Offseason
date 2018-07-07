@@ -17,6 +17,12 @@ import frc.team5190.lib.geometry.interfaces.ITranslation2d
 
 class Translation2d : ITranslation2d<Translation2d> {
 
+    companion object {
+        fun cross(a: Translation2d, b: Translation2d): Double {
+            return a.x * b.y - a.y * b.x
+        }
+    }
+
     var position = Vector2d(0.0, 0.0)
 
     var x: Double
@@ -53,6 +59,11 @@ class Translation2d : ITranslation2d<Translation2d> {
 
     constructor(toCopy: Translation2d) {
         position = toCopy.position
+    }
+
+    constructor(start: Translation2d, end: Translation2d) {
+        x = end.x - start.x
+        y = end.y - start.y
     }
 
     constructor(vector: Vector2d) {

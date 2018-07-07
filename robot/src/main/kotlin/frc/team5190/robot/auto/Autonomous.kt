@@ -1,9 +1,12 @@
-package frc.team5190.robot
+package frc.team5190.robot.auto
 
 import edu.wpi.first.wpilibj.command.CommandGroup
 import frc.team5190.lib.extensions.S3ND
 import frc.team5190.lib.extensions.sequential
 import frc.team5190.lib.geometry.Translation2d
+import frc.team5190.robot.Localization
+import frc.team5190.robot.NetworkInterface
+import frc.team5190.robot.Robot
 import frc.team5190.robot.drive.FollowTrajectoryCommand
 import frc.team5190.robot.sensors.NavX
 import kotlinx.coroutines.experimental.launch

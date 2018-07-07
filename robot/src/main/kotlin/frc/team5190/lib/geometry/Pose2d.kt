@@ -10,10 +10,12 @@
 
 package frc.team5190.lib.geometry
 
+import frc.team5190.lib.extensions.epsilonEquals
 import frc.team5190.lib.extensions.rotateVector2d
 import frc.team5190.lib.geometry.interfaces.IPose2d
 import frc.team5190.lib.kinematics.FrameOfReference
 import frc.team5190.lib.math.EPSILON
+import frc.team5190.lib.types.Interpolable
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
 
@@ -104,8 +106,15 @@ class Pose2d : IPose2d<Pose2d> {
         return Pose2d(translation, rotation).transformBy(this)
     }
 
+    fun isColinear(other: Pose2d): Boolean {
+        if (!rotation.isParallel(other.rotation))
+            return false
+        val twist = Twist2d.fromPose(inverse.transformBy(other))
+        return twist.dy epsilonEquals  0.0 && twist.dtheta epsilonEquals 0.0
+    }
 
-    override fun mirror() = Pose2d(translation.x, 27.0 - translation.y, rotation.inverse)
+
+    override fun mirror() = Pose2d(translation.x, -translation.y, rotation.inverse)
     override fun distance(other: Pose2d) = Twist2d.fromPose(this.inverse.transformBy(other)).norm
 
 
