@@ -58,7 +58,7 @@ object TrajectoryGenerator {
 
         allConstraints.addAll(constraints)
 
-        val timedTrajectory = TimingUtil.timeParameterizeTrajectory(reversed, DistanceView<Pose2dWithCurvature>(trajectory), 0.02, allConstraints,
+        val timedTrajectory = TimingUtil.timeParameterizeTrajectory(reversed, DistanceView<Pose2dWithCurvature>(trajectory), MAX_DX, allConstraints,
                 startVel, endVel, maxVelocity, maxAcceleration)
 
         return timedTrajectory

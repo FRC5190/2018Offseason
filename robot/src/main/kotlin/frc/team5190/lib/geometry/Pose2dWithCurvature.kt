@@ -43,7 +43,7 @@ class Pose2dWithCurvature(override val pose: Pose2d = Pose2d(), override val cur
         get() = pose.translation
 
     override fun toString(): String {
-        return StringFormatter.format("X: %3f, Y: %3f, Theta: %3f", pose.x, pose.y, pose.rotation.degrees).valueSafe
+        return StringFormatter.format("X: %3f, Y: %3f, Theta: %3f", pose.x, pose.y, curvature).valueSafe
     }
 
 
