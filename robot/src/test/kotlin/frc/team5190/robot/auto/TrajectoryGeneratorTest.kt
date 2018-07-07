@@ -17,7 +17,8 @@ class TrajectoryGeneratorTest {
                 Pose2d(1.5, 23.5, Rotation2d()),
                 Pose2d(10.0, 23.5, Rotation2d.createFromRadians(0.0)),
                 Pose2d(20.0, 16.5, Rotation2d.createFromRadians(-1.57)),
-                Pose2d(20.0, 9.0, Rotation2d.createFromRadians(-1.57))
+                Pose2d(20.0, 9.0, Rotation2d.createFromRadians(-1.57)),
+                Pose2d(23.0, 7.0, Rotation2d.createFromRadians(0.174))
         )
 
         val startTime = System.currentTimeMillis()

@@ -12,8 +12,8 @@ import frc.team5190.lib.geometry.Rotation2d
 
 object TrajectoryGenerator {
 
-    const val MAX_DX = 2.0
-    const val MAX_DY = 0.25
+    const val MAX_DX = 2.0 / 12.0
+    const val MAX_DY = 0.25 / 12.0
     const val MAX_DTHETA = 0.1
 
 
