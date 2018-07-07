@@ -2,11 +2,13 @@ package frc.team5190.robot.auto
 
 import com.xeiam.xchart.QuickChart
 import com.xeiam.xchart.SwingWrapper
+import frc.team254.lib.trajectory.TrajectoryIterator
+import frc.team254.lib.trajectory.timing.TimedState
 import frc.team5190.lib.geometry.Pose2d
+import frc.team5190.lib.geometry.Pose2dWithCurvature
 import frc.team5190.lib.geometry.Rotation2d
-import frc.team5190.lib.geometry.Twist2d
 import org.junit.Test
-import java.lang.Math.atan2
+import kotlin.math.atan2
 
 class TrajectoryGeneratorTest {
     @Test
@@ -15,52 +17,39 @@ class TrajectoryGeneratorTest {
                 Pose2d(1.5, 23.5, Rotation2d()),
                 Pose2d(10.0, 23.5, Rotation2d.createFromRadians(0.0)),
                 Pose2d(20.0, 16.5, Rotation2d.createFromRadians(-1.57)),
-                Pose2d(20.0, 9.0, Rotation2d.createFromRadians(-1.57)),
-                Pose2d(23.0, 7.0, Rotation2d.createFromRadians(0.174))
+                Pose2d(20.0, 9.0, Rotation2d.createFromRadians(-1.57))
         )
 
         val startTime = System.currentTimeMillis()
         val trajectory = TrajectoryGenerator.generateTrajectory(false, waypoints, listOf(),
-                10.0, 5.0, 6.0)
+                20.0, 10.0, 6.0)
+
+        val totalTime = System.currentTimeMillis() - startTime
 
         val xList = arrayListOf<Double>()
         val yList = arrayListOf<Double>()
 
-        val totalTime = System.currentTimeMillis() - startTime
-
-        if (trajectory != null) {
-            var i = 0.0
-            var pose = Pose2d()
-
-            var x = 0.0
-            var y = 0.0
-
-            while (i < trajectory.length()) {
-
-                val state_ = trajectory.getInterpolated(i).state()
-
-                val twist = Twist2d.fromPose(state_.state().pose)
-
-                val dy = state_.state().pose.y - trajectory.getInterpolated(i - 0.02).state().state().pose.y
-                val dx = state_.state().pose.x - trajectory.getInterpolated(i - 0.02).state().state().pose.x
-                val dt = state_.t() - state_.t()
+        val trajectoryIterator = TrajectoryIterator<TimedState<Pose2dWithCurvature>>(trajectory!!.IndexView())
 
 
-                pose = pose.transformBy(Pose2d.fromTwist(Twist2d(state_.velocity(), 0.0, state_.state().curvature)))
+        var prevX = 0.0
+        var prevY = 0.0
+
+        while (!trajectoryIterator.isDone) {
+
+            val point = trajectoryIterator.advance(0.02)
+
+            val dx = point.state().state().pose.x - prevX
+            val dy = point.state().state().pose.y - prevY
 
 
-                xList.add(state_.state().pose.x)
-                yList.add(state_.state().pose.y)
+            println("X: ${point.state().state().pose.x}, Y: ${point.state().state().pose.y}, Theta: ${Math.toDegrees(atan2(dy / 0.02, dx / 0.02))}")
 
-                val ydot = dy / dt
-                val xdot = dx / dt
+            xList.add(point.state().state().pose.x)
+            yList.add(point.state().state().pose.y)
 
-                val state = state_
-
-                System.out.printf("X: %3f, Y: %3f, Theta: %3f\n", state.state().pose.x, state.state().pose.y, pose.rotation.degrees)
-
-                i += 0.02
-            }
+            prevX = point.state().state().pose.x
+            prevY = point.state().state().pose.y
         }
 
 
