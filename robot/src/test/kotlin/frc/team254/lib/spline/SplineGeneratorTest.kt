@@ -2,6 +2,8 @@ package frc.team254.lib.spline
 
 import com.xeiam.xchart.QuickChart
 import com.xeiam.xchart.SwingWrapper
+import frc.team5190.lib.spline.QuinticHermiteSpline
+import frc.team5190.lib.spline.SplineGenerator
 import frc.team5190.lib.geometry.Pose2d
 import frc.team5190.lib.geometry.Rotation2d
 import org.junit.Test

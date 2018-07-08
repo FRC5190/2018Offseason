@@ -1,4 +1,4 @@
-package frc.team254.lib.spline;
+package frc.team5190.lib.spline;
 
 import frc.team5190.lib.geometry.Pose2d;
 import frc.team5190.lib.geometry.Pose2dWithCurvature;

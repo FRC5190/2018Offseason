@@ -2,8 +2,8 @@ package frc.team5190.robot.auto
 
 import com.xeiam.xchart.QuickChart
 import com.xeiam.xchart.SwingWrapper
-import frc.team254.lib.trajectory.TrajectoryIterator
-import frc.team254.lib.trajectory.timing.TimedState
+import frc.team5190.lib.trajectory.TrajectoryIterator
+import frc.team5190.lib.trajectory.timing.TimedState
 import frc.team5190.lib.geometry.Pose2d
 import frc.team5190.lib.geometry.Pose2dWithCurvature
 import frc.team5190.lib.geometry.Rotation2d
@@ -23,7 +23,7 @@ class TrajectoryGeneratorTest {
 
         val startTime = System.currentTimeMillis()
         val trajectory = TrajectoryGenerator.generateTrajectory(false, waypoints, listOf(),
-                20.0, 10.0, 6.0)
+                20.0, 10.0)
 
         val totalTime = System.currentTimeMillis() - startTime
 
@@ -40,17 +40,17 @@ class TrajectoryGeneratorTest {
 
             val point = trajectoryIterator.advance(0.02)
 
-            val dx = point.state().state().pose.x - prevX
-            val dy = point.state().state().pose.y - prevY
+            val dx = point.state.state.pose.x - prevX
+            val dy = point.state.state.pose.y - prevY
 
 
-            println("X: ${point.state().state().pose.x}, Y: ${point.state().state().pose.y}, Theta: ${Math.toDegrees(atan2(dy / 0.02, dx / 0.02))}")
+            println("X: ${point.state.state.pose.x}, Y: ${point.state.state.pose.y}, Theta: ${Math.toDegrees(atan2(dy / 0.02, dx / 0.02))}")
 
-            xList.add(point.state().state().pose.x)
-            yList.add(point.state().state().pose.y)
+            xList.add(point.state.state.pose.x)
+            yList.add(point.state.state.pose.y)
 
-            prevX = point.state().state().pose.x
-            prevY = point.state().state().pose.y
+            prevX = point.state.state.pose.x
+            prevY = point.state.state.pose.y
         }
 
 

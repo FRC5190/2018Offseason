@@ -1,36 +1,31 @@
 package frc.team5190.robot.auto
 
-import frc.team254.lib.trajectory.DistanceView
-import frc.team254.lib.trajectory.Trajectory
-import frc.team254.lib.trajectory.TrajectoryUtil
-import frc.team254.lib.trajectory.timing.TimedState
-import frc.team254.lib.trajectory.timing.TimingConstraint
-import frc.team254.lib.trajectory.timing.TimingUtil
+import frc.team5190.lib.trajectory.DistanceView
+import frc.team5190.lib.trajectory.Trajectory
+import frc.team5190.lib.trajectory.TrajectoryUtil
+import frc.team5190.lib.trajectory.timing.TimedState
+import frc.team5190.lib.trajectory.timing.TimingConstraint
+import frc.team5190.lib.trajectory.timing.TimingUtil
 import frc.team5190.lib.geometry.Pose2d
 import frc.team5190.lib.geometry.Pose2dWithCurvature
 import frc.team5190.lib.geometry.Rotation2d
 
 object TrajectoryGenerator {
 
-    const val MAX_DX = 2.0 / 12.0
-    const val MAX_DY = 0.25 / 12.0
-    const val MAX_DTHETA = 0.1
+    private const val MAX_DX = 2.0 / 12.0
+    private const val MAX_DY = 0.25 / 12.0
+    private const val MAX_DTHETA = 0.1
 
-
-    var lastTime = Double.POSITIVE_INFINITY
-    var setpoint = TimedState(Pose2dWithCurvature())
-    var error = Pose2d()
 
     fun generateTrajectory(
             reversed: Boolean,
             waypoints: MutableList<Pose2d>,
             constraints: List<TimingConstraint<Pose2dWithCurvature>>,
             maxVelocity: Double,
-            maxAcceleration: Double,
-            maxVoltage: Double
+            maxAcceleration: Double
     ): Trajectory<TimedState<Pose2dWithCurvature>>? {
 
-        return generateTrajectory(reversed, waypoints, constraints, 0.0, 0.0, maxVelocity, maxAcceleration, maxVoltage)
+        return generateTrajectory(reversed, waypoints, constraints, 0.0, 0.0, maxVelocity, maxAcceleration)
     }
 
     fun generateTrajectory(
@@ -40,8 +35,7 @@ object TrajectoryGenerator {
             startVel: Double,
             endVel: Double,
             maxVelocity: Double,
-            maxAcceleration: Double,
-            maxVoltage: Double
+            maxAcceleration: Double
     ): Trajectory<TimedState<Pose2dWithCurvature>>? {
 
         var finalWaypoints = waypoints
