@@ -12,9 +12,7 @@ import frc.team5190.robot.auto.Localization
 import frc.team5190.robot.auto.Trajectories
 
 class FollowTrajectoryCommand(file: String,
-                              private val robotReversed: Boolean = false,
-                              private val pathMirrored: Boolean = false,
-                              private val pathReversed: Boolean = false,
+                              pathMirrored: Boolean = false,
                               private val resetRobotPosition: Boolean = false) : Command() {
 
     // Notifier objects
@@ -92,7 +90,7 @@ class FollowTrajectoryCommand(file: String,
         if (resetRobotPosition) {
             DriveSubsystem.resetEncoders()
             Localization.reset(
-            Translation2d(trajectory.firstState.state.translation.x, trajectory.firstState.state.translation.y))
+                    Translation2d(trajectory.firstState.state.translation.x, trajectory.firstState.state.translation.y))
         }
         notifier.startPeriodic(trajectoryFollower.dt)
     }

@@ -10,7 +10,7 @@ class TrajectoryGeneratorTest {
     fun testTrajectoryGenerator() {
 
 
-        val trajectory = Trajectories["Cube 2 to Far Scale"]
+        val trajectory = Trajectories["Start to Left Switch"]
 
 
         val iterator = TrajectoryIterator(trajectory.indexView)
@@ -23,10 +23,9 @@ class TrajectoryGeneratorTest {
             xList.add(point.state.state.translation.x)
             yList.add(point.state.state.translation.y)
 
-            println(point.state.state.rotation.degrees)
+//            println(point.state.velocity)
         }
 
-        xList.add(0.0); yList.add(0.0)
 
         SwingWrapper(QuickChart.getChart(" ", " ", " ", " ", xList.toDoubleArray(), yList.toDoubleArray())).displayChart()
         Thread.sleep(10000000)

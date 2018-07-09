@@ -22,9 +22,9 @@ object TrajectoryGenerator {
     fun generateTrajectory(
             reversed: Boolean,
             waypoints: MutableList<Pose2d>,
-            constraints: List<TimingConstraint<Pose2dWithCurvature>>,
             maxVelocity: Double,
-            maxAcceleration: Double
+            maxAcceleration: Double,
+            constraints: List<TimingConstraint<Pose2dWithCurvature>> = listOf()
     ): Trajectory<TimedState<Pose2dWithCurvature>>? {
 
         return generateTrajectory(reversed, waypoints, constraints, 0.0, 0.0, maxVelocity, maxAcceleration)
