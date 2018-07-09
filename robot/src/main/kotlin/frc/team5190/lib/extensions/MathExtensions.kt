@@ -1,6 +1,6 @@
 package frc.team5190.lib.extensions
 
-import frc.team5190.lib.math.EPSILON
+import frc.team5190.lib.EPSILON
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 import org.apache.commons.math3.linear.Array2DRowRealMatrix
 import kotlin.math.PI

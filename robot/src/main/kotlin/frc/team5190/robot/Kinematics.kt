@@ -2,7 +2,7 @@ package frc.team5190.robot
 
 import frc.team5190.lib.extensions.epsilonEquals
 import frc.team5190.lib.geometry.Twist2d
-import frc.team5190.lib.kinematics.DriveVelocity
+import frc.team5190.lib.motion.kinematics.DriveVelocity
 
 
 object Kinematics {

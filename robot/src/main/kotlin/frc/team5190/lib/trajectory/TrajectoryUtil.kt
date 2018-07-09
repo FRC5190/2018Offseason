@@ -6,7 +6,7 @@ import frc.team5190.lib.geometry.Pose2d
 import frc.team5190.lib.geometry.Pose2dWithCurvature
 import frc.team5190.lib.geometry.interfaces.IPose2d
 import frc.team5190.lib.geometry.interfaces.State
-import frc.team5190.lib.math.EPSILON
+import frc.team5190.lib.EPSILON
 import frc.team5190.lib.spline.QuinticHermiteSpline
 import frc.team5190.lib.spline.Spline
 import frc.team5190.lib.spline.SplineGenerator

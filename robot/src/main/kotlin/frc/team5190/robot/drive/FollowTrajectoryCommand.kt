@@ -3,11 +3,11 @@ package frc.team5190.robot.drive
 import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
-import frc.team5190.lib.control.VelocityPIDFController
-import frc.team5190.lib.control.TrajectoryFollower
+import frc.team5190.lib.pid.VelocityPIDFController
+import frc.team5190.lib.trajectory.TrajectoryFollower
 import frc.team5190.lib.geometry.Translation2d
 import frc.team5190.robot.Kinematics
-import frc.team5190.robot.Localization
+import frc.team5190.robot.auto.Localization
 import frc.team5190.robot.PathGenerator
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 

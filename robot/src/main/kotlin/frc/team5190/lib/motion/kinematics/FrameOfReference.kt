@@ -6,7 +6,7 @@
  * Rewritten and Modified in Kotlin by Team 5190
  */
 
-package frc.team5190.lib.kinematics
+package frc.team5190.lib.motion.kinematics
 
 import frc.team5190.lib.geometry.Rotation2d
 import frc.team5190.lib.geometry.Translation2d

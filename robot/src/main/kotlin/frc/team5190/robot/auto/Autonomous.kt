@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.command.CommandGroup
 import frc.team5190.lib.extensions.S3ND
 import frc.team5190.lib.extensions.sequential
 import frc.team5190.lib.geometry.Translation2d
-import frc.team5190.robot.Localization
 import frc.team5190.robot.NetworkInterface
 import frc.team5190.robot.Robot
 import frc.team5190.robot.drive.FollowTrajectoryCommand
@@ -75,8 +74,8 @@ object Autonomous {
         }
     }
 
-}
+    enum class StartingPositions(val relativePos: Vector2D) {
+        LEFT(Vector2D(1.75, 23.5)), CENTER(Vector2D(1.75, 13.25)), RIGHT(Vector2D(1.75, 3.5))
+    }
 
-enum class StartingPositions(val relativePos: Vector2D) {
-    LEFT(Vector2D(1.75, 23.5)), CENTER(Vector2D(1.75, 13.25)), RIGHT(Vector2D(1.75, 3.5))
 }

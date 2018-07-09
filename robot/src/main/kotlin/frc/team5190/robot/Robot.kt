@@ -3,6 +3,7 @@ package frc.team5190.robot
 import edu.wpi.first.wpilibj.IterativeRobot
 import edu.wpi.first.wpilibj.command.Scheduler
 import frc.team5190.robot.auto.Autonomous
+import frc.team5190.robot.auto.Localization
 import frc.team5190.robot.drive.DriveSubsystem
 import frc.team5190.robot.sensors.NavX
 

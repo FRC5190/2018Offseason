@@ -11,6 +11,10 @@ import java.text.DecimalFormat
 
 open class TimedState<S : State<S>> : State<TimedState<S>> {
 
+    override fun toCSV(): String {
+        return ""
+    }
+
     val state: S
     var t: Double = 0.toDouble() // Time we achieve this state.
     var velocity: Double = 0.toDouble() // ds/dt

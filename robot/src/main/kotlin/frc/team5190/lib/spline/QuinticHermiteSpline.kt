@@ -1,11 +1,14 @@
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
+
 package frc.team5190.lib.spline
 
 import frc.team5190.lib.extensions.Matrix
-import frc.team5190.lib.extensions.times
 import frc.team5190.lib.geometry.Pose2d
 import frc.team5190.lib.geometry.Rotation2d
 import frc.team5190.lib.geometry.Translation2d
-
 
 
 class QuinticHermiteSpline(private val x0: Double,
@@ -21,17 +24,18 @@ class QuinticHermiteSpline(private val x0: Double,
                            private var ddy0: Double,
                            private var ddy1: Double) : Spline() {
 
+
     constructor(start: Pose2d, end: Pose2d) : this(
-            x0 = start.x,
-            x1 = end.x,
-            dx0 = 1.2 * start.translation.distance(end.translation) * start.cos,
-            dx1 = 1.2 * start.translation.distance(end.translation) * end.cos,
+            x0 = start.translation.x,
+            x1 = end.translation.x,
+            dx0 = 1.2 * start.translation.distance(end.translation) * start.rotation.cos,
+            dx1 = 1.2 * start.translation.distance(end.translation) * end.rotation.cos,
             ddx0 = 0.0,
             ddx1 = 0.0,
-            y0 = start.y,
-            y1 = end.y,
-            dy0 = 1.2 * start.translation.distance(end.translation) * start.sin,
-            dy1 = 1.2 * start.translation.distance(end.translation) * end.sin,
+            y0 = start.translation.y,
+            y1 = end.translation.y,
+            dy0 = 1.2 * start.translation.distance(end.translation) * start.rotation.sin,
+            dy1 = 1.2 * start.translation.distance(end.translation) * end.rotation.sin,
             ddy0 = 0.0,
             ddy1 = 0.0)
 
@@ -91,8 +95,8 @@ class QuinticHermiteSpline(private val x0: Double,
                 doubleArrayOf(y1)
         ))
 
-        xCoefficients = (hermiteQuinticInterpolationMatrix * xMatrix).data
-        yCoefficients = (hermiteQuinticInterpolationMatrix * yMatrix).data
+        xCoefficients = (hermiteQuinticInterpolationMatrix.multiply(xMatrix)).data
+        yCoefficients = (hermiteQuinticInterpolationMatrix.multiply(yMatrix)).data
     }
 
     override fun getPoint(t: Double): Translation2d {
@@ -213,14 +217,14 @@ class QuinticHermiteSpline(private val x0: Double,
 
             for (i in 0 until splines.size - 1) {
                 //don't try to optimize colinear points
-                if (splines[i].startPose.isColinear(splines[i + 1].startPose) || splines[i].endPose.isColinear(splines[i + 1].endPose)) {
+                if (splines[i].startPose.isCollinear(splines[i + 1].startPose) || splines[i].endPose.isCollinear(splines[i + 1].endPose)) {
                     continue
                 }
                 val original = sumDCurvature2(splines)
                 val temp: QuinticHermiteSpline = splines[i]
                 val temp1: QuinticHermiteSpline = splines[i + 1]
 
-                controlPoints[i] = ControlPoint() //holds the gradient at a control point
+                controlPoints[i] = ControlPoint() //holds the gradient at a pid point
 
                 //calculate partial derivatives of sumDCurvature2
                 splines[i] = QuinticHermiteSpline(temp.x0, temp.x1, temp.dx0, temp.dx1, temp.ddx0, temp.ddx1 + kEpsilon, temp.y0, temp.y1, temp.dy0, temp.dy1, temp.ddy0, temp.ddy1)
@@ -244,7 +248,7 @@ class QuinticHermiteSpline(private val x0: Double,
             val p2 = Translation2d(0.0, sumDCurvature2(splines)) //middle point is at the current location
 
             for (i in 0 until splines.size - 1) { //first point is offset from the middle location by -stepSize
-                if (splines[i].startPose.isColinear(splines[i + 1].startPose) || splines[i].endPose.isColinear(splines[i + 1].endPose)) {
+                if (splines[i].startPose.isCollinear(splines[i + 1].startPose) || splines[i].endPose.isCollinear(splines[i + 1].endPose)) {
                     continue
                 }
                 //normalize to step size
@@ -264,7 +268,7 @@ class QuinticHermiteSpline(private val x0: Double,
             val p1 = Translation2d(-kStepSize, sumDCurvature2(splines))
 
             for (i in 0 until splines.size - 1) { //last point is offset from the middle location by +stepSize
-                if (splines[i].startPose.isColinear(splines[i + 1].startPose) || splines[i].endPose.isColinear(splines[i + 1].endPose)) {
+                if (splines[i].startPose.isCollinear(splines[i + 1].startPose) || splines[i].endPose.isCollinear(splines[i + 1].endPose)) {
                     continue
                 }
                 //move along the gradient by 2 times the step size amount (to return to original location and move by 1
@@ -284,7 +288,7 @@ class QuinticHermiteSpline(private val x0: Double,
             val stepSize = fitParabola(p1, p2, p3) //approximate step size to minimize sumDCurvature2 along the gradient
 
             for (i in 0 until splines.size - 1) {
-                if (splines[i].startPose.isColinear(splines[i + 1].startPose) || splines[i].endPose.isColinear(splines[i + 1].endPose)) {
+                if (splines[i].startPose.isCollinear(splines[i + 1].startPose) || splines[i].endPose.isCollinear(splines[i + 1].endPose)) {
                     continue
                 }
                 //move by the step size calculated by the parabola fit (+1 to offset for the final transformation to find
@@ -315,7 +319,6 @@ class QuinticHermiteSpline(private val x0: Double,
             return -b / (2 * a)
         }
     }
-
 
 
 }

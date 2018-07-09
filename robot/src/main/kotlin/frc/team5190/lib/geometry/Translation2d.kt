@@ -1,64 +1,39 @@
 /*
- * Original Work by
- * NASA Ames Robotics "The Cheesy Poofs"
- * Team 254
- *
- * Rewritten and Modified in Kotlin by Team 5190
+ * FRC Team 5190
+ * Green Hope Falcons
  */
 
-@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+@file:Suppress("KDocUnresolvedReference", "EqualsOrHashCode")
 
 package frc.team5190.lib.geometry
 
-import frc.team5190.lib.extensions.Vector2d
-import frc.team5190.lib.extensions.plus
-import frc.team5190.lib.extensions.rotateVector2d
+import frc.team5190.lib.extensions.epsilonEquals
 import frc.team5190.lib.geometry.interfaces.ITranslation2d
+import frc.team5190.lib.EPSILON
+import java.text.DecimalFormat
+
 
 class Translation2d : ITranslation2d<Translation2d> {
 
-    companion object {
-        fun cross(a: Translation2d, b: Translation2d): Double {
-            return a.x * b.y - a.y * b.x
-        }
-    }
-
-    var position = Vector2d(0.0, 0.0)
-
-    var x: Double
-        get() = position.x
-        set(value) {
-            position = Vector2d(value, y)
-        }
-
-    var y: Double
-        get() = position.y
-        set(value) {
-            position = Vector2d(x, value)
-        }
-
-    val norm: Double
-        get() = position.norm
-
-    val normalized: Vector2d
-        get() = position.normalize()
-
-
-    val inverse: Translation2d
-        get() = Translation2d(position.negate())
+    var x: Double = 0.toDouble()
+    var y: Double = 0.toDouble()
 
     override val translation: Translation2d
         get() = this
 
-
-    constructor()
-
-    constructor(x: Double, y: Double) {
-        position = Vector2d(x, y)
+    constructor() {
+        x = 0.0
+        y = 0.0
     }
 
-    constructor(toCopy: Translation2d) {
-        position = toCopy.position
+    constructor(x: Double, y: Double) {
+        this.x = x
+        this.y = y
+    }
+
+    constructor(other: Translation2d) {
+        x = other.x
+        y = other.y
     }
 
     constructor(start: Translation2d, end: Translation2d) {
@@ -66,29 +41,72 @@ class Translation2d : ITranslation2d<Translation2d> {
         y = end.y - start.y
     }
 
-    constructor(vector: Vector2d) {
-        position = vector
+
+    private val norm: Double
+        get() {
+            return Math.hypot(x, y)
+        }
+
+
+    fun translateBy(other: Translation2d): Translation2d {
+        return Translation2d(x + other.x, y + other.y)
     }
 
 
-    fun translateBy(other: Translation2d): Translation2d = translateBy(other.position)
-    fun translateBy(other: Vector2d): Translation2d = Translation2d(position + other)
+    fun rotateBy(rotation: Rotation2d): Translation2d {
+        return Translation2d(x * rotation.cos - y * rotation.sin, x * rotation.sin + y * rotation.cos)
+    }
 
-    fun extrapolate(slopePoint: Translation2d, extrapolatePoint: Double): Translation2d =
-            Translation2d(
-                    extrapolatePoint * (slopePoint.x - position.x) + position.x,
-                    extrapolatePoint * (slopePoint.y - position.y) + position.y
-            )
 
-    fun rotateBy(rotation: Rotation2d): Translation2d = Translation2d(rotateVector2d(position, rotation.rotationVector))
+    val inverse: Translation2d
+        get() {
+            return Translation2d(-x, -y)
+        }
 
-    override fun interpolate(upperVal: Translation2d, interpolatePoint: Double): Translation2d =
-            when {
-                (interpolatePoint <= 0) -> Translation2d(this)
-                (interpolatePoint >= 1) -> Translation2d(upperVal)
-                else -> extrapolate(upperVal, interpolatePoint)
-            }
+    override fun interpolate(other: Translation2d, x: Double): Translation2d {
+        if (x <= 0) {
+            return Translation2d(this)
+        } else if (x >= 1) {
+            return Translation2d(other)
+        }
+        return extrapolate(other, x)
+    }
 
-    override fun distance(other: Translation2d) = inverse.translateBy(other).norm
+    private fun extrapolate(other: Translation2d, x: Double): Translation2d {
+        return Translation2d(x * (other.x - x) + x, x * (other.y - y) + y)
+    }
+
+    fun scale(s: Double): Translation2d {
+        return Translation2d(x * s, y * s)
+    }
+
+    fun epsilonEquals(other: Translation2d): Boolean {
+        return x epsilonEquals other.x && y epsilonEquals other.y
+    }
+
+    override fun toString(): String {
+        val fmt = DecimalFormat("#0.000")
+        return "(" + fmt.format(x) + "," + fmt.format(y) + ")"
+    }
+
+    override fun toCSV(): String {
+        val fmt = DecimalFormat("#0.000")
+        return fmt.format(x) + "," + fmt.format(y)
+    }
+
+
+    override fun distance(other: Translation2d): Double {
+        return inverse.translateBy(other).norm
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return if (other == null || other !is Translation2d) false else distance(other) < EPSILON
+    }
+
+    companion object {
+        fun cross(a: Translation2d, b: Translation2d): Double {
+            return a.x * b.y - a.y * b.x
+        }
+    }
+
 }
-

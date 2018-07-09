@@ -1,6 +1,6 @@
 package frc.team5190.lib.motion
 
-import frc.team5190.lib.control.PositionPIDFController
+import frc.team5190.lib.pid.PositionPIDFController
 import kotlin.math.sqrt
 
 class TCurveFollower(private val initialPos: Double,

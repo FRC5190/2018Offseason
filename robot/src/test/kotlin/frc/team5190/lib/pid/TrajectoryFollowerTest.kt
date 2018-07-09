@@ -1,5 +1,6 @@
-package frc.team5190.lib.control
+package frc.team5190.lib.pid
 
+import frc.team5190.lib.trajectory.TrajectoryFollower
 import org.junit.Test
 
 class TrajectoryFollowerTest {

@@ -15,10 +15,10 @@ class TrajectoryGeneratorTest {
     fun testTrajectoryGenerator() {
         val waypoints = mutableListOf(
                 Pose2d(1.5, 23.5, Rotation2d()),
-                Pose2d(10.0, 23.5, Rotation2d.createFromRadians(0.0)),
-                Pose2d(20.0, 16.5, Rotation2d.createFromRadians(-1.57)),
-                Pose2d(20.0, 9.0, Rotation2d.createFromRadians(-1.57)),
-                Pose2d(23.0, 7.0, Rotation2d.createFromRadians(0.174))
+                Pose2d(10.0, 23.5, Rotation2d.fromRadians(0.0)),
+                Pose2d(20.0, 16.5, Rotation2d.fromRadians(-1.57)),
+                Pose2d(20.0, 9.0, Rotation2d.fromRadians(-1.57)),
+                Pose2d(23.0, 7.0, Rotation2d.fromRadians(0.174))
         )
 
         val startTime = System.currentTimeMillis()
@@ -40,17 +40,17 @@ class TrajectoryGeneratorTest {
 
             val point = trajectoryIterator.advance(0.02)
 
-            val dx = point.state.state.pose.x - prevX
-            val dy = point.state.state.pose.y - prevY
+            val dx = point.state.state.pose.translation.x - prevX
+            val dy = point.state.state.pose.translation.y - prevY
 
 
-            println("X: ${point.state.state.pose.x}, Y: ${point.state.state.pose.y}, Theta: ${Math.toDegrees(atan2(dy / 0.02, dx / 0.02))}")
+//            println("X: ${point.state.state.pose.x}, Y: ${point.state.state.pose.y}, Theta: ${Math.toDegrees(atan2(dy / 0.02, dx / 0.02))}")
 
-            xList.add(point.state.state.pose.x)
-            yList.add(point.state.state.pose.y)
+            xList.add(point.state.state.pose.translation.x)
+            yList.add(point.state.state.pose.translation.y)
 
-            prevX = point.state.state.pose.x
-            prevY = point.state.state.pose.y
+            prevX = point.state.state.pose.translation.x
+            prevY = point.state.state.pose.translation.y
         }
 
 

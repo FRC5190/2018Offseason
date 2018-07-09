@@ -12,8 +12,8 @@ import frc.team5190.lib.geometry.Rotation2d
 
 object TrajectoryGenerator {
 
-    private const val MAX_DX = 2.0 / 12.0
-    private const val MAX_DY = 0.25 / 12.0
+    private const val MAX_DX = 2.0
+    private const val MAX_DY = 0.25
     private const val MAX_DTHETA = 0.1
 
 
@@ -28,7 +28,7 @@ object TrajectoryGenerator {
         return generateTrajectory(reversed, waypoints, constraints, 0.0, 0.0, maxVelocity, maxAcceleration)
     }
 
-    fun generateTrajectory(
+    private fun generateTrajectory(
             reversed: Boolean,
             waypoints: MutableList<Pose2d>,
             constraints: List<TimingConstraint<Pose2dWithCurvature>>,
@@ -52,10 +52,8 @@ object TrajectoryGenerator {
 
         allConstraints.addAll(constraints)
 
-        val timedTrajectory = TimingUtil.timeParameterizeTrajectory(reversed, DistanceView<Pose2dWithCurvature>(trajectory), MAX_DX, allConstraints,
+        return TimingUtil.timeParameterizeTrajectory(reversed, DistanceView(trajectory), MAX_DX, allConstraints,
                 startVel, endVel, maxVelocity, maxAcceleration)
-
-        return timedTrajectory
     }
 
 }

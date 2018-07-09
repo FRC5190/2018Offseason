@@ -3,6 +3,7 @@ package frc.team5190.robot
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Notifier
+import frc.team5190.robot.auto.Localization
 import frc.team5190.robot.drive.DriveSubsystem
 import frc.team5190.robot.drive.FollowTrajectoryCommand
 import frc.team5190.robot.sensors.NavX

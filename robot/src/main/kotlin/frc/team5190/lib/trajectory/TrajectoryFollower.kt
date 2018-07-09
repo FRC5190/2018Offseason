@@ -1,4 +1,9 @@
-package frc.team5190.lib.control
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
+
+package frc.team5190.lib.trajectory
 
 import frc.team5190.lib.extensions.cos
 import frc.team5190.lib.extensions.enforceBounds
@@ -6,7 +11,7 @@ import frc.team5190.lib.extensions.epsilonEquals
 import frc.team5190.lib.extensions.sin
 import frc.team5190.lib.geometry.Pose2d
 import frc.team5190.lib.geometry.Twist2d
-import frc.team5190.lib.math.EPSILON
+import frc.team5190.lib.EPSILON
 import frc.team5190.robot.drive.DriveSubsystem
 import jaci.pathfinder.Trajectory
 import kotlin.math.sin

@@ -1,9 +1,9 @@
-package frc.team5190.lib.control
+package frc.team5190.lib.pid
 
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
-class PositionPIDFController {
+class VelocityPIDFController {
     var p = 0.0
     var i = 0.0
     var izone = 0.0
@@ -19,20 +19,20 @@ class PositionPIDFController {
     private var derivative = 0.0
     private var integral = 0.0
 
-    fun getPIDFOutput(targetPos: Double, targetVelocity: Double, actualPos: Double): Double {
-        val error = targetPos - actualPos
-
+    fun getPIDFOutput(target: Double, actual: Double): Double {
+        val error = target - actual
+        
         integral += (error * dt)
         derivative = (error - lastError) / dt
 
         if (izone > 0.0 && integral > izone) integral = 0.0
 
-        val output = if (targetPos.absoluteValue > deadband) {
-            (p * error) + (i * integral) + (d * derivative) + (v * targetVelocity) + (vIntercept * sign(targetVelocity))
+        val output = if (target.absoluteValue > deadband) {
+            (p * error) + (i * integral) + (d * derivative) + (v * target) + (vIntercept * sign(target))
         } else {
             0.0
         }
-
+  
         lastError = error
 
         return output

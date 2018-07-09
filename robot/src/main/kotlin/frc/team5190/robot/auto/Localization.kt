@@ -1,4 +1,9 @@
-package frc.team5190.robot
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
+
+package frc.team5190.robot.auto
 
 import edu.wpi.first.wpilibj.Notifier
 import frc.team5190.lib.extensions.enforceBounds
@@ -7,6 +12,7 @@ import frc.team5190.lib.geometry.Rotation2d
 import frc.team5190.lib.geometry.Translation2d
 import frc.team5190.lib.units.Distance
 import frc.team5190.lib.units.NativeUnits
+import frc.team5190.robot.Kinematics
 import frc.team5190.robot.drive.DriveSubsystem
 import frc.team5190.robot.sensors.NavX
 

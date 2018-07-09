@@ -1,97 +1,59 @@
 /*
- * Original Work by
- * NASA Ames Robotics "The Cheesy Poofs"
- * Team 254
- *
- * Rewritten and Modified in Kotlin by Team 5190
+ * FRC Team 5190
+ * Green Hope Falcons
  */
 
-@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+@file:Suppress("unused", "EqualsOrHashCode")
 
 package frc.team5190.lib.geometry
 
-import frc.team5190.lib.extensions.Vector2d
-import frc.team5190.lib.extensions.atan2
 import frc.team5190.lib.extensions.epsilonEquals
-import frc.team5190.lib.extensions.rotateVector2d
 import frc.team5190.lib.geometry.interfaces.IRotation2d
-import frc.team5190.lib.math.EPSILON
+import frc.team5190.lib.EPSILON
+import java.text.DecimalFormat
+
 
 class Rotation2d : IRotation2d<Rotation2d> {
 
-    companion object {
-        fun createFromRadians(angleRadians: Double): Rotation2d =
-                Rotation2d(Math.cos(angleRadians), Math.sin(angleRadians))
-
-        fun createFromDegrees(angleDegrees: Double): Rotation2d =
-                createFromRadians(Math.toRadians(angleDegrees))
-    }
-
-
-    override val rotation
-        get() = this
-
-    var rotationVector: Vector2d = Vector2d(1.0, 0.0)
-
-    var cos: Double
-        get() = rotationVector.x
-        set(value) {
-            rotationVector = Vector2d(value, rotationVector.x)
-        }
-
-    var sin: Double
-        get() = rotationVector.y
-        set(value) {
-            rotationVector = Vector2d(rotationVector.y, value)
-        }
+    val cos: Double
+    val sin: Double
 
     val tan: Double
-        get() =
-            when {
-                rotationVector.x > EPSILON -> rotationVector.y / rotationVector.x
-                rotationVector.y >= 0.0 -> Double.POSITIVE_INFINITY
-                else -> Double.NEGATIVE_INFINITY
-            }
-
-    var radians: Double
-        get() = rotationVector.atan2
-        set(value) {
-            rotationVector = createFromRadians(value).rotationVector
+        get() {
+            return if (Math.abs(cos) < EPSILON) {
+                if (sin >= 0.0) {
+                    java.lang.Double.POSITIVE_INFINITY
+                } else {
+                    java.lang.Double.NEGATIVE_INFINITY
+                }
+            } else sin / cos
         }
 
-    var degrees: Double
+
+    private var unboundedDegrees = 0.0
+
+
+    val radians: Double
+        get() = Math.atan2(sin, cos)
+
+    val degrees: Double
         get() = Math.toDegrees(radians)
-        set(value) {
-            rotationVector = createFromDegrees(value).rotationVector
-        }
 
-    var theta: Double
-        get() = radians
-        set(value) {
-            radians = value
+    val normal: Rotation2d
+        get() {
+            return Rotation2d(-sin, cos, false)
         }
 
     val inverse: Rotation2d
-        get() = Rotation2d(cos, -sin)
+        get() {
+            return Rotation2d(cos, -sin, false)
+        }
 
-    val normal: Rotation2d
-        get() = Rotation2d(-sin, cos)
+    override val rotation: Rotation2d
+        get() = this
 
-    constructor()
 
-    constructor(cos: Double, sin: Double) {
-        rotationVector = Vector2d(cos, sin).normalize()
-    }
-
-    constructor(toSet: Rotation2d) {
-        rotationVector = toSet.rotationVector.normalize()
-    }
-
-    constructor(toSetVector: Vector2d) {
-        rotationVector = toSetVector.normalize()
-    }
-
-    constructor (x: Double, y: Double, normalize: Boolean) {
+    constructor(x: Double = 1.0, y: Double = 0.0, normalize: Boolean = false) {
         if (normalize) {
             val magnitude = Math.hypot(x, y)
             if (magnitude > EPSILON) {
@@ -105,27 +67,79 @@ class Rotation2d : IRotation2d<Rotation2d> {
             cos = x
             sin = y
         }
+        unboundedDegrees = Math.toDegrees(Math.atan2(sin, cos))
+    }
+
+    constructor(other: Rotation2d) {
+        cos = other.cos
+        sin = other.sin
+        unboundedDegrees = Math.toDegrees(Math.atan2(sin, cos))
+    }
+
+    constructor(theta_degrees: Double) {
+        cos = Math.cos(Math.toRadians(theta_degrees))
+        sin = Math.sin(Math.toRadians(theta_degrees))
+        this.unboundedDegrees = theta_degrees
+    }
+
+    constructor(direction: Translation2d, normalize: Boolean) : this(direction.x, direction.y, normalize)
+
+
+    fun rotateBy(other: Rotation2d): Rotation2d {
+        return Rotation2d(cos * other.cos - sin * other.sin,
+                cos * other.sin + sin * other.cos, true)
     }
 
 
-    fun rotateBy(toRotateBy: Rotation2d): Rotation2d {
-        val rotated = rotateVector2d(rotationVector, toRotateBy.rotationVector)
-        return Rotation2d(rotated)
+    fun isParallel(other: Rotation2d): Boolean {
+        return Translation2d.cross(toTranslation(), other.toTranslation()) epsilonEquals 0.0
     }
 
-    fun toTranslation() = Translation2d(cos, sin)
+    fun toTranslation(): Translation2d {
+        return Translation2d(cos, sin)
+    }
 
-    fun isParallel(other: Rotation2d) = Translation2d.cross(toTranslation(), other.toTranslation()) epsilonEquals 0.0
+    override fun interpolate(other: Rotation2d, x: Double): Rotation2d {
+        if (x <= 0) {
+            return Rotation2d(this)
+        } else if (x >= 1) {
+            return Rotation2d(other)
+        }
+        val angleDiff = inverse.rotateBy(other).radians
+        return this.rotateBy(Rotation2d.fromRadians(angleDiff * x))
+    }
 
-    override fun distance(other: Rotation2d) = inverse.rotateBy(other).radians
+    override fun toString(): String {
+        val fmt = DecimalFormat("#0.000")
+        return "(" + fmt.format(degrees) + " deg)"
+    }
 
-    override fun interpolate(upperVal: Rotation2d, interpolatePoint: Double): Rotation2d {
-        return when {
-            interpolatePoint <= 0 -> Rotation2d(this)
-            interpolatePoint >= 1 -> Rotation2d(upperVal)
-            else -> this.rotateBy(
-                    Rotation2d.createFromRadians(inverse.rotateBy(upperVal).radians * interpolatePoint)
-            )
+    override fun toCSV(): String {
+        val fmt = DecimalFormat("#0.000")
+        return fmt.format(degrees)
+    }
+
+    override fun distance(other: Rotation2d): Double {
+        return inverse.rotateBy(other).radians
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return if (other == null || other !is Rotation2d) false else distance(other) < EPSILON
+    }
+
+    companion object {
+        private val IDENTITY = Rotation2d()
+
+        fun identity(): Rotation2d {
+            return IDENTITY
+        }
+
+        fun fromRadians(angle_radians: Double): Rotation2d {
+            return Rotation2d(Math.cos(angle_radians), Math.sin(angle_radians), false)
+        }
+
+        fun fromDegrees(angle_degrees: Double): Rotation2d {
+            return Rotation2d(angle_degrees)
         }
     }
 }

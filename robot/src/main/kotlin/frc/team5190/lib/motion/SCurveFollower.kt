@@ -1,6 +1,6 @@
 package frc.team5190.lib.motion
 
-import frc.team5190.lib.control.PositionPIDFController
+import frc.team5190.lib.pid.PositionPIDFController
 import kotlin.math.min
 import kotlin.math.sqrt
 
