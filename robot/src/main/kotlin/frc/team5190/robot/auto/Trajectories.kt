@@ -13,6 +13,10 @@ import frc.team5190.lib.geometry.Rotation2d
 import frc.team5190.lib.trajectory.Trajectory
 import frc.team5190.lib.trajectory.timing.TimedState
 import frc.team5190.lib.trajectory.timing.TimingConstraint
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.awaitAll
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.runBlocking
 
 object Trajectories {
 
@@ -50,15 +54,20 @@ object Trajectories {
 
 
     // Trajectories
-    private val sameSideAutoTrajectory = TrajectoryGenerator.generateTrajectory(
-            false,
-            sameSideAutoWaypointsFromLeft, sameSideAutoConstraints,
-            kSameSideAutoMaxVelocity, kSameSideAutoMaxAcceleration
-    )
-    private val crossAutoTrajectory = TrajectoryGenerator.generateTrajectory(
-            false,
-            crossAutoWaypointsFromLeft, crossAutoConstraints,
-            kCrossAutoMaxVelocity, kCrossAutoMaxAcceleration)
+    private val sameSideAutoTrajectory = async {
+        return@async TrajectoryGenerator.generateTrajectory(
+                false,
+                sameSideAutoWaypointsFromLeft, sameSideAutoConstraints,
+                kSameSideAutoMaxVelocity, kSameSideAutoMaxAcceleration
+        )
+    }
+
+    private val crossAutoTrajectory = async {
+        return@async TrajectoryGenerator.generateTrajectory(
+                false,
+                crossAutoWaypointsFromLeft, crossAutoConstraints,
+                kCrossAutoMaxVelocity, kCrossAutoMaxAcceleration)
+    }
 
 
     // Hash Map
@@ -67,7 +76,11 @@ object Trajectories {
             "Cross Auto " to crossAutoTrajectory
     )
 
-    operator fun get(identifier: String): Trajectory<TimedState<Pose2dWithCurvature>> {
-        return trajectories[identifier]!!
+    init {
+        launch { trajectories.values.awaitAll() }
+    }
+
+    operator fun get(identifier: String): Trajectory<TimedState<Pose2dWithCurvature>> = runBlocking {
+        trajectories[identifier]?.await()!!
     }
 }
