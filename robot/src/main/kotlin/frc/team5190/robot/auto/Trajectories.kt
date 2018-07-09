@@ -102,49 +102,49 @@ object Trajectories {
 
     // Trajectories
     private val startToNearScaleTrajectory = async {
-        return@async TrajectoryGenerator.generateTrajectory(true, kStartToNearScaleWpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(true, kStartToNearScaleWpts, kMaxVelocity, kMaxAcceleration)
     }
     private val startToFarScaleTrajectory = async {
-        return@async TrajectoryGenerator.generateTrajectory(true, kStartToFarScaleWpts, kMaxVelocity, kMaxAcceleration, kCrossAutoVelocityConstraint)
+        TrajectoryGenerator.generateTrajectory(true, kStartToFarScaleWpts, kMaxVelocity, kMaxAcceleration, kCrossAutoVelocityConstraint)
     }
 
     private val nearScaleToCube1Trajectory = async {
-        return@async TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube1Wpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube1Wpts, kMaxVelocity, kMaxAcceleration)
     }
     private val cube1ToNearScaleTrajectory = async {
-        return@async TrajectoryGenerator.generateTrajectory(true, kCube1ToNearScaleWpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(true, kCube1ToNearScaleWpts, kMaxVelocity, kMaxAcceleration)
     }
 
     private val nearScaleToCube2Trajectory = async {
-        return@async TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube2Wpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube2Wpts, kMaxVelocity, kMaxAcceleration)
     }
     private val cube2ToNearScaleTrajectory = async {
-        return@async TrajectoryGenerator.generateTrajectory(true, kCube2ToNearScaleWpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(true, kCube2ToNearScaleWpts, kMaxVelocity, kMaxAcceleration)
     }
 
     private val nearScaleToCube3Trajectory = async {
-        return@async TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube3Wpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube3Wpts, kMaxVelocity, kMaxAcceleration)
     }
 
     private val farScaleToCube1Trajectory = async {
-        return@async TrajectoryGenerator.generateTrajectory(false, kFarScaleToCube1Wpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(false, kFarScaleToCube1Wpts, kMaxVelocity, kMaxAcceleration)
     }
     private val cube1ToFarScaleTrajectory = async {
-        return@async TrajectoryGenerator.generateTrajectory(true, kCube1ToFarScaleWpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(true, kCube1ToFarScaleWpts, kMaxVelocity, kMaxAcceleration)
     }
 
     private val farScaleToCube2Trajectory = async {
-        return@async TrajectoryGenerator.generateTrajectory(false, kFarScaleToCube2Wpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(false, kFarScaleToCube2Wpts, kMaxVelocity, kMaxAcceleration)
     }
     private val cube2ToFarScaleTrajectory = async {
-        return@async TrajectoryGenerator.generateTrajectory(true, kCube2ToFarScaleWpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(true, kCube2ToFarScaleWpts, kMaxVelocity, kMaxAcceleration)
     }
 
     private val centerToLeftSwitchTrajectory = async {
-        return@async TrajectoryGenerator.generateTrajectory(false, kCenterToLeftSwitchWpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(false, kCenterToLeftSwitchWpts, kMaxVelocity, kMaxAcceleration)
     }
     private val centerToRightSwitchTrajectory = async {
-        return@async TrajectoryGenerator.generateTrajectory(false, kCenterToRightSwitchWpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(false, kCenterToRightSwitchWpts, kMaxVelocity, kMaxAcceleration)
     }
 
     // Hash Map
