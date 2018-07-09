@@ -17,7 +17,7 @@ object Kinematics {
             return DriveVelocity(left = velocity.dx, right = velocity.dx)
         }
 
-        val deltaV = Constants.TRACK_WIDTH * velocity.dx / 2
+        val deltaV = Constants.TRACK_WIDTH * velocity.dtheta / 2
         return DriveVelocity(left = velocity.dx - deltaV, right = velocity.dx + deltaV)
     }
 }
