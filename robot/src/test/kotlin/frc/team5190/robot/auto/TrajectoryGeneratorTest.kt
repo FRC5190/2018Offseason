@@ -2,32 +2,16 @@ package frc.team5190.robot.auto
 
 import com.xeiam.xchart.QuickChart
 import com.xeiam.xchart.SwingWrapper
-import frc.team5190.lib.geometry.Pose2d
-import frc.team5190.lib.geometry.Rotation2d
-import frc.team5190.lib.geometry.Translation2d
-import frc.team5190.lib.trajectory.TrajectoryGenerator
 import frc.team5190.lib.trajectory.TrajectoryIterator
 import org.junit.Test
 
 class TrajectoryGeneratorTest {
     @Test
     fun testTrajectoryGenerator() {
-        val waypoints = mutableListOf(
-                Pose2d()
-        )
-
-        val startTime = System.currentTimeMillis()
 
 
+        val trajectory = Trajectories["Cube 2 to Far Scale"]
 
-        @Suppress("UNUSED_VARIABLE")
-        val trajectory = TrajectoryGenerator.generateTrajectory(false, waypoints, listOf(),
-                10.0, 6.0)!!
-
-        val totalTime = System.currentTimeMillis() - startTime
-        println("Trajectory Generation took $totalTime milliseconds.")
-
-        println("Trajectory Duration: ${trajectory.lastState.t} seconds")
 
         val iterator = TrajectoryIterator(trajectory.indexView)
 
@@ -39,8 +23,10 @@ class TrajectoryGeneratorTest {
             xList.add(point.state.state.translation.x)
             yList.add(point.state.state.translation.y)
 
-            println("X: ${point.state.state.translation.x}, Y: ${point.state.state.translation.y}, V: ${point.state.velocity}")
+            println(point.state.state.rotation.degrees)
         }
+
+        xList.add(0.0); yList.add(0.0)
 
         SwingWrapper(QuickChart.getChart(" ", " ", " ", " ", xList.toDoubleArray(), yList.toDoubleArray())).displayChart()
         Thread.sleep(10000000)

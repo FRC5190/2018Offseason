@@ -36,55 +36,131 @@ object Trajectories {
 
 
     // Field Relative Constants
-    private val kStart = Pose2d(Translation2d(1.50, 23.5), Rotation2d())
+    private val kSideStart = Pose2d(Translation2d(1.50, 23.5), Rotation2d.fromDegrees(180.0))
 
-    private val kNearScale = Pose2d(Translation2d(22.7, 20.0), Rotation2d.fromDegrees(-10.0))
-    private val kFarScale  = Pose2d(Translation2d(22.7, 07.0), Rotation2d.fromDegrees(-10.0))
+    private val kCenterToIntake = Pose2d(Translation2d(-2.0, 0.0), Rotation2d())
 
-    private val kNearFenceCube1 = Pose2d()
-    private val kNearFenceCube2 = Pose2d()
-    private val kNearFenceCube3 = Pose2d()
+    private val kNearScaleEmpty = Pose2d(Translation2d(22.7, 20.50), Rotation2d.fromDegrees(170.0))
+    private val kNearScaleFull  = Pose2d(Translation2d(22.7, 19.75), Rotation2d.fromDegrees(165.0))
 
-    private val kFarFenceCube1 = Pose2d()
-    private val kFarFenceCube2 = Pose2d()
-    private val kFarFenceCube3 = Pose2d()
+    private val kFarScaleEmpty = Pose2d(Translation2d(22.7, 06.50), Rotation2d.fromDegrees(190.0))
+    private val kFarScaleFull  = Pose2d(Translation2d(22.7, 07.75), Rotation2d.fromDegrees(195.0))
+
+    private val kNearCube1 = Pose2d(Translation2d(16.5, 19.5), Rotation2d.fromDegrees(190.0))
+    private val kNearCube2 = Pose2d(Translation2d(16.5, 17.0), Rotation2d.fromDegrees(245.0))
+    private val kNearCube3 = Pose2d(Translation2d(16.5, 14.5), Rotation2d.fromDegrees(240.0))
+
+    private val kNearFence1 = kNearCube1.transformBy(kCenterToIntake)
+    private val kNearFence2 = kNearCube2.transformBy(kCenterToIntake)
+    private val kNearFence3 = kNearCube3.transformBy(kCenterToIntake)
+
+    private val kFarCube1 = Pose2d(Translation2d(16.5, 07.5), Rotation2d.fromDegrees(170.0))
+    private val kFarCube2 = Pose2d(Translation2d(16.5, 10.0), Rotation2d.fromDegrees(115.0))
+    private val kFarCube3 = Pose2d(Translation2d(16.5, 12.5), Rotation2d.fromDegrees(120.0))
+
+    private val kFarFence1 = kFarCube1.transformBy(kCenterToIntake)
+    private val kFarFence2 = kFarCube2.transformBy(kCenterToIntake)
+    private val kFarFence3 = kFarCube3.transformBy(kCenterToIntake)
 
     private val kSwitchLeft  = Pose2d()
     private val kSwitchRight = Pose2d()
 
 
     // Waypoints
-    private val kNearAutoWaypoints = mutableListOf(
-            kStart, kStart.transformBy(Pose2d.fromTranslation(Translation2d(10.0, 0.0))), kNearScale
+    private val kStartToNearScaleWpts = mutableListOf(
+            kSideStart, kSideStart.transformBy(Pose2d.fromTranslation(Translation2d(-10.0, 0.0))), kNearScaleEmpty
+    )
+    private val kStartToFarScaleWpts = mutableListOf(
+            kSideStart,
+            kSideStart.transformBy(Pose2d(Translation2d(-13.0, 00.0), Rotation2d())),
+            kSideStart.transformBy(Pose2d(Translation2d(-18.3, 05.0), Rotation2d.fromDegrees(-90.0))),
+            kSideStart.transformBy(Pose2d(Translation2d(-18.3, 15.0), Rotation2d.fromDegrees(-90.0))),
+            kFarScaleEmpty
     )
 
-    private val kCrossAutoWaypoints = mutableListOf(
-            kStart,
-            kStart.transformBy(Pose2d(Translation2d(13.0, +00.0), Rotation2d())),
-            kStart.transformBy(Pose2d(Translation2d(18.3, -05.0), Rotation2d.fromDegrees(-90.0))),
-            kStart.transformBy(Pose2d(Translation2d(18.3, -15.0), Rotation2d.fromDegrees(-90.0))),
-            kFarScale
-    )
+    private val kNearScaleToCube1Wpts = mutableListOf(kNearScaleEmpty, kNearFence1)
+    private val kCube1ToNearScaleWpts = mutableListOf(kNearFence1, kNearScaleFull)
+
+    private val kNearScaleToCube2Wpts = mutableListOf(kNearScaleFull, kNearFence2)
+    private val kCube2ToNearScaleWpts = mutableListOf(kNearFence2, kNearScaleFull)
+
+    private val kNearScaleToCube3Wpts = mutableListOf(kNearScaleFull, kNearFence3)
+
+    private val kFarScaleToCube1Wpts = mutableListOf(kFarScaleEmpty, kFarFence1)
+    private val kCube1ToFarScaleWpts = mutableListOf(kFarFence1, kFarScaleFull)
+
+    private val kFarScaleToCube2Wpts = mutableListOf(kFarScaleEmpty, kFarFence2)
+    private val kCube2ToFarScaleWpts = mutableListOf(kFarFence2, kFarScaleFull)
 
 
 
     // Trajectories
-    private val sameSideAutoTrajectory  = async {
-        return@async TrajectoryGenerator.generateTrajectory(false, kCrossAutoWaypoints, listOf(), kMaxVelocity, kMaxAcceleration)
+    private val startToNearScaleTrajectory  = async {
+        return@async TrajectoryGenerator.generateTrajectory(true, kStartToNearScaleWpts, listOf(), kMaxVelocity, kMaxAcceleration)
     }
-    private val crossAutoTrajectory     = async {
-        return@async TrajectoryGenerator.generateTrajectory(false, kNearAutoWaypoints, kCrossAutoVelocityConstraint, kMaxVelocity, kMaxAcceleration)
+    private val startToFarScaleTrajectory     = async {
+        return@async TrajectoryGenerator.generateTrajectory(true, kStartToFarScaleWpts, kCrossAutoVelocityConstraint, kMaxVelocity, kMaxAcceleration)
     }
+
+    private val nearScaleToCube1Trajectory = async {
+        return@async TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube1Wpts, listOf(), kMaxVelocity, kMaxAcceleration)
+    }
+    private val cube1ToNearScaleTrajectory = async {
+        return@async TrajectoryGenerator.generateTrajectory(true, kCube1ToNearScaleWpts, listOf(), kMaxVelocity, kMaxAcceleration)
+    }
+
+    private val nearScaleToCube2Trajectory = async {
+        return@async TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube2Wpts, listOf(), kMaxVelocity, kMaxAcceleration)
+    }
+    private val cube2ToNearScaleTrajectory = async {
+        return@async TrajectoryGenerator.generateTrajectory(true, kCube2ToNearScaleWpts, listOf(), kMaxVelocity, kMaxAcceleration)
+    }
+
+    private val nearScaleToCube3Trajectory = async {
+        return@async TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube3Wpts, listOf(), kMaxVelocity, kMaxAcceleration)
+    }
+
+    private val farScaleToCube1Trajectory = async {
+        return@async TrajectoryGenerator.generateTrajectory(false, kFarScaleToCube1Wpts, listOf(), kMaxVelocity, kMaxAcceleration)
+    }
+    private val cube1ToFarScaleTrajectory = async {
+        return@async TrajectoryGenerator.generateTrajectory(true, kCube1ToFarScaleWpts, listOf(), kMaxVelocity, kMaxAcceleration)
+    }
+
+    private val farScaleToCube2Trajectory = async {
+        return@async TrajectoryGenerator.generateTrajectory(false, kFarScaleToCube2Wpts, listOf(), kMaxVelocity, kMaxAcceleration)
+    }
+    private val cube2ToFarScaleTrajectory = async {
+        return@async TrajectoryGenerator.generateTrajectory(true, kCube2ToFarScaleWpts, listOf(), kMaxVelocity, kMaxAcceleration)
+    }
+
 
 
     // Hash Map
     private val trajectories = hashMapOf(
-            "Same Side Auto" to sameSideAutoTrajectory,
-            "Cross Auto " to crossAutoTrajectory
+            "Start to Near Scale" to startToNearScaleTrajectory,
+            "Start to Far Scale"  to startToFarScaleTrajectory,
+
+            "Near Scale to Cube 1" to nearScaleToCube1Trajectory,
+            "Cube 1 to Near Scale" to cube1ToNearScaleTrajectory,
+            "Near Scale to Cube 2" to nearScaleToCube2Trajectory,
+            "Cube 2 to Near Scale" to cube2ToNearScaleTrajectory,
+            "Near Scale to Cube 3" to nearScaleToCube3Trajectory,
+
+            "Far Scale to Cube 1" to farScaleToCube1Trajectory,
+            "Cube 1 to Far Scale" to cube1ToFarScaleTrajectory,
+            "Far Scale to Cube 2" to farScaleToCube2Trajectory,
+            "Cube 2 to Far Scale" to cube2ToFarScaleTrajectory
     )
 
     init {
-        launch { trajectories.values.awaitAll() }
+        launch {
+            val startTime = System.currentTimeMillis()
+            trajectories.values.awaitAll()
+            val elapsedTime = System.currentTimeMillis() - startTime
+
+            println("Trajectory Generation of ${trajectories.size} trajectories took $elapsedTime milliseconds.")
+        }
     }
 
     operator fun get(identifier: String): Trajectory<TimedState<Pose2dWithCurvature>> = runBlocking {

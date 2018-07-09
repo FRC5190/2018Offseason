@@ -6,7 +6,7 @@ import frc.team5190.lib.geometry.Pose2d
 import frc.team5190.lib.geometry.Pose2dWithCurvature
 import frc.team5190.lib.geometry.interfaces.IPose2d
 import frc.team5190.lib.geometry.interfaces.State
-import frc.team5190.lib.EPSILON
+import frc.team5190.lib.kEpsilon
 import frc.team5190.lib.spline.QuinticHermiteSpline
 import frc.team5190.lib.spline.Spline
 import frc.team5190.lib.spline.SplineGenerator
@@ -42,7 +42,7 @@ object TrajectoryUtil {
 
     fun <S : State<S>> resample(
             trajectory_view: TrajectoryView<S>, interval: Double): Trajectory<S> {
-        if (interval <= EPSILON) {
+        if (interval <= kEpsilon) {
             return Trajectory()
         }
         val numStates = Math

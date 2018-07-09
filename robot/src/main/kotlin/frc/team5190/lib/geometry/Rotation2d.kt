@@ -9,7 +9,7 @@ package frc.team5190.lib.geometry
 
 import frc.team5190.lib.extensions.epsilonEquals
 import frc.team5190.lib.geometry.interfaces.IRotation2d
-import frc.team5190.lib.EPSILON
+import frc.team5190.lib.kEpsilon
 import java.text.DecimalFormat
 
 
@@ -20,7 +20,7 @@ class Rotation2d : IRotation2d<Rotation2d> {
 
     val tan: Double
         get() {
-            return if (Math.abs(cos) < EPSILON) {
+            return if (Math.abs(cos) < kEpsilon) {
                 if (sin >= 0.0) {
                     java.lang.Double.POSITIVE_INFINITY
                 } else {
@@ -56,7 +56,7 @@ class Rotation2d : IRotation2d<Rotation2d> {
     constructor(x: Double = 1.0, y: Double = 0.0, normalize: Boolean = false) {
         if (normalize) {
             val magnitude = Math.hypot(x, y)
-            if (magnitude > EPSILON) {
+            if (magnitude > kEpsilon) {
                 sin = y / magnitude
                 cos = x / magnitude
             } else {
@@ -124,14 +124,14 @@ class Rotation2d : IRotation2d<Rotation2d> {
     }
 
     override fun equals(other: Any?): Boolean {
-        return if (other == null || other !is Rotation2d) false else distance(other) < EPSILON
+        return if (other == null || other !is Rotation2d) false else distance(other) < kEpsilon
     }
 
     companion object {
-        private val IDENTITY = Rotation2d()
+        private val kIdentity = Rotation2d()
 
         fun identity(): Rotation2d {
-            return IDENTITY
+            return kIdentity
         }
 
         fun fromRadians(angle_radians: Double): Rotation2d {

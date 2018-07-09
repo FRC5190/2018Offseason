@@ -22,7 +22,7 @@ import kotlin.math.sqrt
 // Equation 5.12
 
 class TrajectoryFollower(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>,
-                         val dt: Double = 0.02, private val reversed: Boolean = false) {
+                         val dt: Double = 0.02) {
 
     private val trajectoryIterator = TrajectoryIterator(trajectory.indexView)
 
@@ -41,14 +41,12 @@ class TrajectoryFollower(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>
 
         currentPoint = trajectoryIterator.advance(dt)
 
-        val modifiedRads = currentPointPose.rotation.radians.let { if (reversed) (it + PI).enforceBounds() else it }
-
         val xError = currentPointPose.translation.x - pose.translation.x
         val yError = currentPointPose.translation.y - pose.translation.y
-        val thetaError = (modifiedRads - pose.rotation.radians).enforceBounds()
+        val thetaError = (currentPointPose.rotation.radians - pose.rotation.radians).enforceBounds()
 
-        val sv = currentPoint.state.velocity  * if (reversed) -1.0 else 1.0
-        val sw = (trajectoryIterator.preview(dt).state.state.rotation.radians - modifiedRads).enforceBounds()
+        val sv = currentPoint.state.velocity
+        val sw = (trajectoryIterator.preview(dt).state.state.rotation.radians - currentPointPose.rotation.radians).enforceBounds()
 
 
         val v = calculateLinearVelocity(xError, yError, thetaError, sv, sw, pose.rotation.radians)

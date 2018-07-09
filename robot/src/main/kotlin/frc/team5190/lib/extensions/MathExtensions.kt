@@ -1,13 +1,13 @@
 package frc.team5190.lib.extensions
 
-import frc.team5190.lib.EPSILON
+import frc.team5190.lib.kEpsilon
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 import org.apache.commons.math3.linear.Array2DRowRealMatrix
 import kotlin.math.PI
 import kotlin.math.absoluteValue
 
 infix fun Double.epsilonEquals(other: Double): Boolean {
-    return (this - other).absoluteValue < EPSILON
+    return (this - other).absoluteValue < kEpsilon
 }
 
 infix fun Double.cos(other: Double): Double {

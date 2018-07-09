@@ -20,7 +20,7 @@ class Pose2d : IPose2d<Pose2d> {
     override val pose: Pose2d
         get() = this
 
-    var frameOfReference = FrameOfReference.FIELD
+    var frameOfReference = FrameOfReference.kField
 
     constructor() {
         translation = Translation2d()
@@ -107,7 +107,7 @@ class Pose2d : IPose2d<Pose2d> {
     }
 
     override fun equals(other: Any?): Boolean {
-        return if (other == null || other !is Pose2d) false else epsilonEquals(other, EPSILON)
+        return if (other == null || other !is Pose2d) false else epsilonEquals(other, kEpsilon)
     }
 
     override fun mirror(): Pose2d {
@@ -122,13 +122,13 @@ class Pose2d : IPose2d<Pose2d> {
     }
 
     companion object {
-        private val IDENTITY = Pose2d()
+        private val kIdentity = Pose2d()
 
         fun identity(): Pose2d {
-            return IDENTITY
+            return kIdentity
         }
 
-        private const val EPSILON = 1E-9
+        private const val kEpsilon = 1E-9
 
         fun fromTranslation(translation: Translation2d): Pose2d {
             return Pose2d(translation, Rotation2d())
@@ -145,7 +145,7 @@ class Pose2d : IPose2d<Pose2d> {
             val s: Double
             val c: Double
 
-            if (Math.abs(delta.dtheta) < EPSILON) {
+            if (Math.abs(delta.dtheta) < kEpsilon) {
                 s = 1.0 - 1.0 / 6.0 * delta.dtheta * delta.dtheta
                 c = .5 * delta.dtheta
             } else {
@@ -163,7 +163,7 @@ class Pose2d : IPose2d<Pose2d> {
             val cosMinusOne = transform.rotation.cos - 1.0
             val halfThetaByTanOfHalfDTheta: Double
 
-            halfThetaByTanOfHalfDTheta = if (Math.abs(cosMinusOne) < EPSILON) {
+            halfThetaByTanOfHalfDTheta = if (Math.abs(cosMinusOne) < kEpsilon) {
                 1.0 - 1.0 / 12.0 * dtheta * dtheta
             } else {
                 -(halfDTheta * transform.rotation.sin) / cosMinusOne

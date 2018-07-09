@@ -7,15 +7,16 @@ package frc.team5190.lib.trajectory
 
 import frc.team5190.lib.geometry.Pose2d
 import frc.team5190.lib.geometry.Pose2dWithCurvature
+import frc.team5190.lib.geometry.Rotation2d
 import frc.team5190.lib.trajectory.timing.TimedState
 import frc.team5190.lib.trajectory.timing.TimingConstraint
 import frc.team5190.lib.trajectory.timing.TimingUtil
 
 object TrajectoryGenerator {
 
-    private const val MAX_DX = 2.0
-    private const val MAX_DY = 0.25
-    private const val MAX_DTHETA = 0.1
+    private const val kMaxDx = 2.0
+    private const val kMaxDy = 0.25
+    private const val kMaxDTheta = 0.1
 
 
     fun generateTrajectory(
@@ -39,13 +40,19 @@ object TrajectoryGenerator {
             maxAcceleration: Double
     ): Trajectory<TimedState<Pose2dWithCurvature>>? {
 
+        if (reversed) {
+            for (i in 0 until waypoints.size) {
+                waypoints[i] = Pose2d(waypoints[i].translation, waypoints[i].rotation.rotateBy(Rotation2d.fromDegrees(180.0)))
+            }
+        }
 
-        val trajectory = TrajectoryUtil.trajectoryFromSplineWaypoints(waypoints, MAX_DX, MAX_DY, MAX_DTHETA)
+
+        val trajectory = TrajectoryUtil.trajectoryFromSplineWaypoints(waypoints, kMaxDx, kMaxDy, kMaxDTheta)
         val allConstraints = arrayListOf<TimingConstraint<Pose2dWithCurvature>>()
 
         allConstraints.addAll(constraints)
 
-        return TimingUtil.timeParameterizeTrajectory(reversed, DistanceView(trajectory), MAX_DX, allConstraints,
+        return TimingUtil.timeParameterizeTrajectory(reversed, DistanceView(trajectory), kMaxDx, allConstraints,
                 startVel, endVel, maxVelocity, maxAcceleration)
     }
 }

@@ -1,3 +1,3 @@
 package frc.team5190.lib
 
-const val EPSILON = 1E-9
+const val kEpsilon = 1E-9

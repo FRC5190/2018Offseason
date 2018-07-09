@@ -11,14 +11,14 @@ import frc.team5190.robot.Constants
 
 object DriveSubsystem : Subsystem() {
 
-    private val leftMaster = FalconSRX(Constants.LEFT_MASTER)
-    private val rightMaster = FalconSRX(Constants.RIGHT_MASTER)
+    private val leftMaster = FalconSRX(Constants.kLeftMasterId)
+    private val rightMaster = FalconSRX(Constants.kRightMasterId)
 
-    private val leftSlave1 = FalconSRX(Constants.LEFT_SLAVE_1)
-    private val rightSlave1 = FalconSRX(Constants.RIGHT_SLAVE_1)
+    private val leftSlave1 = FalconSRX(Constants.kLeftSlaveId1)
+    private val rightSlave1 = FalconSRX(Constants.kRightSlaveId1)
 
-    private val leftSlave2 = FalconSRX(Constants.LEFT_SLAVE_2)
-    private val rightSlave2 = FalconSRX(Constants.RIGHT_SLAVE_2)
+    private val leftSlave2 = FalconSRX(Constants.kLeftSlaveId2)
+    private val rightSlave2 = FalconSRX(Constants.kRightSlaveId2)
 
     private val allMasters = arrayOf(leftMaster, rightMaster)
 

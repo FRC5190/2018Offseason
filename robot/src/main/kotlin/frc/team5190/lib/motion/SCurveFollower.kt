@@ -62,11 +62,11 @@ class SCurveFollower(private val initialPos: Double,
     // Set PIDF Values for PID Controller
     fun setPIDFValues(proportional: Double, integral: Double, derivative: Double, velocityFF: Double, vi: Double, integralZone: Double) {
         pidfController.apply {
-            p = proportional
-            i = integral
-            d = derivative
-            v = velocityFF
-            vIntercept = vi
+            kP = proportional
+            kI = integral
+            kD = derivative
+            kV = velocityFF
+            kVIntercept = vi
             izone = integralZone
         }
     }

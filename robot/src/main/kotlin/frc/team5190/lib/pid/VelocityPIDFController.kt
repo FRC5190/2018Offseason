@@ -4,12 +4,12 @@ import kotlin.math.absoluteValue
 import kotlin.math.sign
 
 class VelocityPIDFController {
-    var p = 0.0
-    var i = 0.0
+    var kP = 0.0
+    var kI = 0.0
     var izone = 0.0
-    var d = 0.0
-    var v = 0.0
-    var vIntercept = 0.0
+    var kD = 0.0
+    var kV = 0.0
+    var kVIntercept = 0.0
 
     var deadband = 0.01
 
@@ -28,7 +28,7 @@ class VelocityPIDFController {
         if (izone > 0.0 && integral > izone) integral = 0.0
 
         val output = if (target.absoluteValue > deadband) {
-            (p * error) + (i * integral) + (d * derivative) + (v * target) + (vIntercept * sign(target))
+            (kP * error) + (kI * integral) + (kD * derivative) + (kV * target) + (kVIntercept * sign(target))
         } else {
             0.0
         }

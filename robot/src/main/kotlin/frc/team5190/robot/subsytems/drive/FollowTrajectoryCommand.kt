@@ -3,8 +3,6 @@ package frc.team5190.robot.subsytems.drive
 import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
-import frc.team5190.lib.geometry.Pose2d
-import frc.team5190.lib.geometry.Rotation2d
 import frc.team5190.lib.geometry.Translation2d
 import frc.team5190.lib.pid.VelocityPIDFController
 import frc.team5190.lib.trajectory.TrajectoryFollower
@@ -12,8 +10,6 @@ import frc.team5190.lib.trajectory.TrajectoryUtil
 import frc.team5190.robot.Kinematics
 import frc.team5190.robot.auto.Localization
 import frc.team5190.robot.auto.Trajectories
-import jaci.pathfinder.Trajectory
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
 class FollowTrajectoryCommand(file: String,
                               private val robotReversed: Boolean = false,
@@ -48,16 +44,16 @@ class FollowTrajectoryCommand(file: String,
 
         // Set PIDF Values
         lController.apply {
-            p = 0.08
-            i = 0.01
-            v = 0.05
-            vIntercept = 0.1
+            kP = 0.08
+            kI = 0.01
+            kV = 0.05
+            kVIntercept = 0.1
         }
         rController.apply {
-            p = 0.08
-            i = 0.01
-            v = 0.05
-            vIntercept = 0.1
+            kP = 0.08
+            kI = 0.01
+            kV = 0.05
+            kVIntercept = 0.1
         }
 
         // Initialize notifier

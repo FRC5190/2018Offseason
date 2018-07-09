@@ -91,10 +91,10 @@ class Pose2dWithCurvature : IPose2d<Pose2dWithCurvature>, ICurvature<Pose2dWithC
     }
 
     companion object {
-        private val IDENTITY = Pose2dWithCurvature()
+        private val kIdentity = Pose2dWithCurvature()
 
         fun identity(): Pose2dWithCurvature {
-            return IDENTITY
+            return kIdentity
         }
     }
 }

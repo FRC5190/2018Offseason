@@ -34,7 +34,7 @@ open class TimedState<S : State<S>> : State<TimedState<S>> {
 
     override fun toString(): String {
         val fmt = DecimalFormat("#0.000")
-        return (state.toString() + ", t: " + fmt.format(t) + ", v: " + fmt.format(velocity) + ", a: "
+        return (state.toString() + ", t: " + fmt.format(t) + ", kV: " + fmt.format(velocity) + ", a: "
                 + fmt.format(acceleration))
     }
 

@@ -54,11 +54,11 @@ class TCurveFollower(private val initialPos: Double,
                       vi: Double,
                       integralZone: Double) {
         pidfController.apply {
-            p = proportional
-            i = integral
-            d = derivative
-            v = velocityFF
-            vIntercept = vi
+            kP = proportional
+            kI = integral
+            kD = derivative
+            kV = velocityFF
+            kVIntercept = vi
             izone = integralZone
         }
     }

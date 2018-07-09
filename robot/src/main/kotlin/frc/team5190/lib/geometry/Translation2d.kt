@@ -9,7 +9,7 @@ package frc.team5190.lib.geometry
 
 import frc.team5190.lib.extensions.epsilonEquals
 import frc.team5190.lib.geometry.interfaces.ITranslation2d
-import frc.team5190.lib.EPSILON
+import frc.team5190.lib.kEpsilon
 import java.text.DecimalFormat
 
 
@@ -100,7 +100,7 @@ class Translation2d : ITranslation2d<Translation2d> {
     }
 
     override fun equals(other: Any?): Boolean {
-        return if (other == null || other !is Translation2d) false else distance(other) < EPSILON
+        return if (other == null || other !is Translation2d) false else distance(other) < kEpsilon
     }
 
     companion object {
