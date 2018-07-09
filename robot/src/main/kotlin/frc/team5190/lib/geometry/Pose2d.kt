@@ -111,7 +111,7 @@ class Pose2d : IPose2d<Pose2d> {
     }
 
     override fun mirror(): Pose2d {
-        return Pose2d(Translation2d(translation.x, -translation.y), rotation.inverse)
+        return Pose2d(Translation2d(translation.x, 27-translation.y), rotation.inverse)
     }
 
     fun convertToFOR(newFOR: FrameOfReference): Pose2d {

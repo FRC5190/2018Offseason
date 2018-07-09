@@ -2,64 +2,48 @@ package frc.team5190.robot.auto
 
 import com.xeiam.xchart.QuickChart
 import com.xeiam.xchart.SwingWrapper
-import frc.team5190.lib.trajectory.TrajectoryIterator
-import frc.team5190.lib.trajectory.timing.TimedState
 import frc.team5190.lib.geometry.Pose2d
-import frc.team5190.lib.geometry.Pose2dWithCurvature
 import frc.team5190.lib.geometry.Rotation2d
+import frc.team5190.lib.geometry.Translation2d
+import frc.team5190.lib.trajectory.TrajectoryGenerator
+import frc.team5190.lib.trajectory.TrajectoryIterator
 import org.junit.Test
-import kotlin.math.atan2
 
 class TrajectoryGeneratorTest {
     @Test
     fun testTrajectoryGenerator() {
         val waypoints = mutableListOf(
-                Pose2d(1.5, 23.5, Rotation2d()),
-                Pose2d(10.0, 23.5, Rotation2d.fromRadians(0.0)),
-                Pose2d(20.0, 16.5, Rotation2d.fromRadians(-1.57)),
-                Pose2d(20.0, 9.0, Rotation2d.fromRadians(-1.57)),
-                Pose2d(23.0, 7.0, Rotation2d.fromRadians(0.174))
+                Pose2d()
         )
 
         val startTime = System.currentTimeMillis()
+
+
+
+        @Suppress("UNUSED_VARIABLE")
         val trajectory = TrajectoryGenerator.generateTrajectory(false, waypoints, listOf(),
-                20.0, 10.0)
+                10.0, 6.0)!!
 
         val totalTime = System.currentTimeMillis() - startTime
+        println("Trajectory Generation took $totalTime milliseconds.")
+
+        println("Trajectory Duration: ${trajectory.lastState.t} seconds")
+
+        val iterator = TrajectoryIterator(trajectory.indexView)
 
         val xList = arrayListOf<Double>()
         val yList = arrayListOf<Double>()
 
-        val trajectoryIterator = TrajectoryIterator<TimedState<Pose2dWithCurvature>>(trajectory!!.IndexView())
+        while (!iterator.isDone) {
+            val point = iterator.advance(0.02)
+            xList.add(point.state.state.translation.x)
+            yList.add(point.state.state.translation.y)
 
-
-        var prevX = 0.0
-        var prevY = 0.0
-
-        while (!trajectoryIterator.isDone) {
-
-            val point = trajectoryIterator.advance(0.02)
-
-            val dx = point.state.state.pose.translation.x - prevX
-            val dy = point.state.state.pose.translation.y - prevY
-
-
-            println("Theta: ${point.state.state.rotation.degrees}, Velocity: ${point.state.velocity}")
-
-            xList.add(point.state.state.pose.translation.x)
-            yList.add(point.state.state.pose.translation.y)
-
-            prevX = point.state.state.pose.translation.x
-            prevY = point.state.state.pose.translation.y
+            println("X: ${point.state.state.translation.x}, Y: ${point.state.state.translation.y}, V: ${point.state.velocity}")
         }
 
+        SwingWrapper(QuickChart.getChart(" ", " ", " ", " ", xList.toDoubleArray(), yList.toDoubleArray())).displayChart()
+        Thread.sleep(10000000)
 
-        val chart = QuickChart.getChart("Path", "X", "Y",
-                "Path", xList.toDoubleArray(), yList.toDoubleArray())
-
-        SwingWrapper(chart).displayChart()
-
-        println("\nJob took $totalTime milliseconds.")
-        Thread.sleep(100000)
     }
 }

@@ -1,14 +1,15 @@
-package frc.team5190.robot.auto
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
 
-import frc.team5190.lib.trajectory.DistanceView
-import frc.team5190.lib.trajectory.Trajectory
-import frc.team5190.lib.trajectory.TrajectoryUtil
+package frc.team5190.lib.trajectory
+
+import frc.team5190.lib.geometry.Pose2d
+import frc.team5190.lib.geometry.Pose2dWithCurvature
 import frc.team5190.lib.trajectory.timing.TimedState
 import frc.team5190.lib.trajectory.timing.TimingConstraint
 import frc.team5190.lib.trajectory.timing.TimingUtil
-import frc.team5190.lib.geometry.Pose2d
-import frc.team5190.lib.geometry.Pose2dWithCurvature
-import frc.team5190.lib.geometry.Rotation2d
 
 object TrajectoryGenerator {
 
