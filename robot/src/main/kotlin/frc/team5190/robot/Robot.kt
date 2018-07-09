@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.IterativeRobot
 import edu.wpi.first.wpilibj.command.Scheduler
 import frc.team5190.robot.auto.Autonomous
 import frc.team5190.robot.auto.Localization
-import frc.team5190.robot.drive.DriveSubsystem
+import frc.team5190.robot.subsytems.drive.DriveSubsystem
 import frc.team5190.robot.sensors.NavX
 
 class Robot : IterativeRobot() {
@@ -21,7 +21,6 @@ class Robot : IterativeRobot() {
 
     // Initialize all systems.
     override fun robotInit() {
-        PathGenerator
         Localization
         NetworkInterface
         Autonomous

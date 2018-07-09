@@ -13,7 +13,9 @@ object SplineGenerator {
     private const val kMinSampleSize = 1
 
 
-    private fun parameterizeSpline(s: Spline, maxDx: Double = kMaxDX, maxDy: Double = kMaxDY, maxDTheta: Double = kMaxDTheta, t0: Double = 0.0, t1: Double = 1.0): ArrayList<Pose2dWithCurvature> {
+    private fun parameterizeSpline(s: Spline, maxDx: Double = kMaxDX, maxDy: Double = kMaxDY, maxDTheta: Double = kMaxDTheta,
+                                   t0: Double = 0.0, t1: Double = 1.0): ArrayList<Pose2dWithCurvature> {
+
         val rv = ArrayList<Pose2dWithCurvature>()
         rv.add(s.getPose2dWithCurvature(0.0))
         val dt = t1 - t0

@@ -44,7 +44,7 @@ class TrajectoryGeneratorTest {
             val dy = point.state.state.pose.translation.y - prevY
 
 
-//            println("X: ${point.state.state.pose.x}, Y: ${point.state.state.pose.y}, Theta: ${Math.toDegrees(atan2(dy / 0.02, dx / 0.02))}")
+            println("Theta: ${point.state.state.rotation.degrees}, Velocity: ${point.state.velocity}")
 
             xList.add(point.state.state.pose.translation.x)
             yList.add(point.state.state.pose.translation.y)

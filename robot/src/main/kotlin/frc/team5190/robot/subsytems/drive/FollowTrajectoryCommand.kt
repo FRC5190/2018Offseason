@@ -1,14 +1,18 @@
-package frc.team5190.robot.drive
+package frc.team5190.robot.subsytems.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
+import frc.team5190.lib.geometry.Pose2d
+import frc.team5190.lib.geometry.Rotation2d
+import frc.team5190.lib.geometry.Translation2d
 import frc.team5190.lib.pid.VelocityPIDFController
 import frc.team5190.lib.trajectory.TrajectoryFollower
-import frc.team5190.lib.geometry.Translation2d
+import frc.team5190.lib.trajectory.TrajectoryUtil
 import frc.team5190.robot.Kinematics
 import frc.team5190.robot.auto.Localization
-import frc.team5190.robot.PathGenerator
+import frc.team5190.robot.auto.Trajectories
+import jaci.pathfinder.Trajectory
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 
 class FollowTrajectoryCommand(file: String,
@@ -23,7 +27,7 @@ class FollowTrajectoryCommand(file: String,
     private var stopNotifier = false
 
     // Trajectory
-    private val trajectory = PathGenerator[file]!!
+    private var trajectory = Trajectories[file]
 
     // Path follower
     private val trajectoryFollower: TrajectoryFollower
@@ -35,8 +39,9 @@ class FollowTrajectoryCommand(file: String,
     init {
         requires(DriveSubsystem)
 
-        // Modify trajectory if reversed or mirrored
-        modifyTrajectory()
+        if (pathMirrored) {
+            trajectory = TrajectoryUtil.mirrorTimed(trajectory)
+        }
 
         // Initialize path follower
         trajectoryFollower = TrajectoryFollower(trajectory = trajectory)
@@ -77,71 +82,23 @@ class FollowTrajectoryCommand(file: String,
         }
     }
 
-    // Modifies trajectories based on reversed / mirrored states.
-    private fun modifyTrajectory() {
-        // Reverse the order of segments when the path is reversed
-        if (pathReversed) {
-            val reversedTrajectory = trajectory.copy()
-            val distance = reversedTrajectory.segments.last().position
-
-            reversedTrajectory.segments.reverse()
-            reversedTrajectory.segments.forEach { it.position = distance - it.position }
-
-            trajectory.segments = reversedTrajectory.segments
-        }
-
-        trajectory.segments.forEach { segment ->
-            fun addPiToHeadings() {
-                var newHeading = segment.heading + Math.PI
-                if (newHeading > 2 * Math.PI) newHeading -= 2 * Math.PI
-
-                segment.heading = newHeading
-            }
-
-            // Mirror headings if path is mirrored
-            if (pathMirrored) {
-                segment.heading = -segment.heading + (2 * Math.PI)
-                segment.y = 27 - segment.y
-            }
-            // Add PI to the headings if path is reversed
-            if (pathReversed) {
-                addPiToHeadings()
-            }
-            // Negate derivatives if robot is reversed and add PI to headings if robot is reversed
-            if (robotReversed) {
-                addPiToHeadings()
-                segment.position = -segment.position
-                segment.velocity = -segment.velocity
-                segment.acceleration = -segment.acceleration
-                segment.jerk = -segment.jerk
-            }
-        }
-    }
-
-    fun addMarkerAt(pos: Vector2D): Marker {
-        val waypoint = if (pathMirrored) Vector2D(pos.x, 27 - pos.y) else pos
-        return Marker(this, trajectory.segments.minBy { waypoint.distance(Vector2D(it.x, it.y)) }!!.position)
-    }
-
-    fun hasPassedMarker(marker: Marker): Boolean {
-        return marker.commandInstance == this && trajectoryFollower.currentSegment.position >= marker.position
-    }
 
     private fun updateDashboard() {
-        pathX = trajectoryFollower.currentSegment.x
-        pathY = trajectoryFollower.currentSegment.y
-        pathHdg = trajectoryFollower.currentSegment.heading
+        pathX = trajectoryFollower.currentPointPose.translation.x
+        pathY = trajectoryFollower.currentPointPose.translation.y
+        pathHdg = trajectoryFollower.currentPointPose.rotation.radians
 
-        lookaheadX = trajectoryFollower.currentSegment.x
-        lookaheadY = trajectoryFollower.currentSegment.y
+        lookaheadX = pathX
+        lookaheadY = pathY
     }
 
     override fun initialize() {
         if (resetRobotPosition) {
             DriveSubsystem.resetEncoders()
-            Localization.reset(translation2d = Translation2d(trajectory.segments[0].x, trajectory.segments[0].y))
+            Localization.reset(
+            Translation2d(trajectory.firstState.state.translation.x, trajectory.firstState.state.translation.y))
         }
-        notifier.startPeriodic(trajectory.segments[0].dt)
+        notifier.startPeriodic(trajectoryFollower.dt)
     }
 
     override fun end() {
@@ -168,5 +125,3 @@ class FollowTrajectoryCommand(file: String,
             private set
     }
 }
-
-class Marker(val commandInstance: FollowTrajectoryCommand, val position: Double)

@@ -38,16 +38,8 @@ object TrajectoryGenerator {
             maxAcceleration: Double
     ): Trajectory<TimedState<Pose2dWithCurvature>>? {
 
-        var finalWaypoints = waypoints
-        val flip = Pose2d.fromRotation(Rotation2d(-1.0, 0.0))
 
-        if (reversed) {
-            finalWaypoints.forEachIndexed { i, it ->
-                finalWaypoints[i] = it.transformBy(flip)
-            }
-        }
-
-        val trajectory = TrajectoryUtil.trajectoryFromSplineWaypoints(finalWaypoints, MAX_DX, MAX_DY, MAX_DTHETA)
+        val trajectory = TrajectoryUtil.trajectoryFromSplineWaypoints(waypoints, MAX_DX, MAX_DY, MAX_DTHETA)
         val allConstraints = arrayListOf<TimingConstraint<Pose2dWithCurvature>>()
 
         allConstraints.addAll(constraints)
@@ -55,5 +47,4 @@ object TrajectoryGenerator {
         return TimingUtil.timeParameterizeTrajectory(reversed, DistanceView(trajectory), MAX_DX, allConstraints,
                 startVel, endVel, maxVelocity, maxAcceleration)
     }
-
 }
