@@ -18,7 +18,7 @@ class TCurveFollowerTest {
         while (follower.t < follower.tpath) {
             xlist.add(follower.t)
 
-            val x = follower.getOutput(0.0)
+            val x = follower.getOutput()
             yList.add(x.second)
             yList2.add(x.third)
 

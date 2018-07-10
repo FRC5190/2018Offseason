@@ -30,7 +30,7 @@ object Trajectories {
 
     // Constraints
     private val kCentripetalConstraint =
-            Arrays.asList(CentripetalAccelerationConstraint(7.0))
+            Arrays.asList(CentripetalAccelerationConstraint(6.0))
 
 
     // Robot Constants
@@ -44,8 +44,8 @@ object Trajectories {
 
 
     // Field Relative Constants
-    private val kSideStart = Pose2d(Translation2d((kRobotLength / 2.0) + kBumperLength, 23.5), Rotation2d.fromDegrees(180.0))
-    private val kCenterStart = Pose2d(Translation2d((kRobotLength / 2.0) + kBumperLength, 13.2), Rotation2d())
+    internal val kSideStart = Pose2d(Translation2d((kRobotLength / 2.0) + kBumperLength, 23.5), Rotation2d.fromDegrees(180.0))
+    internal val kCenterStart = Pose2d(Translation2d((kRobotLength / 2.0) + kBumperLength, 13.2), Rotation2d())
 
     private val kNearScaleEmpty = Pose2d(Translation2d(22.7, 20.50), Rotation2d.fromDegrees(170.0))
     private val kNearScaleFull = Pose2d(Translation2d(22.7, 20.00), Rotation2d.fromDegrees(165.0))
@@ -105,52 +105,59 @@ object Trajectories {
     private val kCenterToLeftSwitchWpts = mutableListOf(kCenterStart, kSwitchLeftAdjusted)
     private val kCenterToRightSwitchWpts = mutableListOf(kCenterStart, kSwitchRightAdjusted)
 
+    private val kBaselineWpts = mutableListOf(
+            kSideStart, kSideStart.transformBy(Pose2d(Translation2d(-10.0, 0.0), Rotation2d())))
+
 
     // Trajectories
     private val startToNearScaleTrajectory = async {
-        TrajectoryGenerator.generateTrajectory(true, kStartToNearScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
+        TrajectoryGenerator.generateTrajectory("Start to Near Scale", true, kStartToNearScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
     private val startToFarScaleTrajectory = async {
-        TrajectoryGenerator.generateTrajectory(true, kStartToFarScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
+        TrajectoryGenerator.generateTrajectory("Start to Far Scale", true, kStartToFarScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
 
     private val nearScaleToCube1Trajectory = async {
-        TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube1Wpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
+        TrajectoryGenerator.generateTrajectory("Near Scale to Cube 1", false, kNearScaleToCube1Wpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
     private val cube1ToNearScaleTrajectory = async {
-        TrajectoryGenerator.generateTrajectory(true, kCube1ToNearScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
+        TrajectoryGenerator.generateTrajectory("Cube 1 to Near Scale", true, kCube1ToNearScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
 
     private val nearScaleToCube2Trajectory = async {
-        TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube2Wpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
+        TrajectoryGenerator.generateTrajectory("Near Scale to Cube 2", false, kNearScaleToCube2Wpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
     private val cube2ToNearScaleTrajectory = async {
-        TrajectoryGenerator.generateTrajectory(true, kCube2ToNearScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
+        TrajectoryGenerator.generateTrajectory("Cube 2 to Near Scale", true, kCube2ToNearScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
 
     private val nearScaleToCube3Trajectory = async {
-        TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube3Wpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
+        TrajectoryGenerator.generateTrajectory("Near Scale to Cube 3", false, kNearScaleToCube3Wpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
 
     private val farScaleToCube1Trajectory = async {
-        TrajectoryGenerator.generateTrajectory(false, kFarScaleToCube1Wpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
+        TrajectoryGenerator.generateTrajectory("Far Scale to Cube 1", false, kFarScaleToCube1Wpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
     private val cube1ToFarScaleTrajectory = async {
-        TrajectoryGenerator.generateTrajectory(true, kCube1ToFarScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
+        TrajectoryGenerator.generateTrajectory("Cube 1 to Far Scale", true, kCube1ToFarScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
 
     private val farScaleToCube2Trajectory = async {
-        TrajectoryGenerator.generateTrajectory(false, kFarScaleToCube2Wpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
+        TrajectoryGenerator.generateTrajectory("Far Scale to Cube 2", false, kFarScaleToCube2Wpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
     private val cube2ToFarScaleTrajectory = async {
-        TrajectoryGenerator.generateTrajectory(true, kCube2ToFarScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
+        TrajectoryGenerator.generateTrajectory("Cube 2 to Far Scale", true, kCube2ToFarScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
 
     private val centerToLeftSwitchTrajectory = async {
-        TrajectoryGenerator.generateTrajectory(false, kCenterToLeftSwitchWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
+        TrajectoryGenerator.generateTrajectory("Start to Left Switch", false, kCenterToLeftSwitchWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
     private val centerToRightSwitchTrajectory = async {
-        TrajectoryGenerator.generateTrajectory(false, kCenterToRightSwitchWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
+        TrajectoryGenerator.generateTrajectory("Start to Right Switch", false, kCenterToRightSwitchWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
+    }
+
+    private val baselineTrajectory = async {
+        TrajectoryGenerator.generateTrajectory("Baseline", true, kBaselineWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
 
     // Hash Map
@@ -170,7 +177,9 @@ object Trajectories {
             "Cube 2 to Far Scale" to cube2ToFarScaleTrajectory,
 
             "Start to Left Switch" to centerToLeftSwitchTrajectory,
-            "Start to Right Switch" to centerToRightSwitchTrajectory
+            "Start to Right Switch" to centerToRightSwitchTrajectory,
+
+            "Baseline" to baselineTrajectory
     )
 
     init {
@@ -179,7 +188,7 @@ object Trajectories {
             trajectories.values.awaitAll()
             val elapsedTime = System.currentTimeMillis() - startTime
 
-            println("Trajectory Generation of ${trajectories.size} trajectories took $elapsedTime milliseconds.")
+            println("Asynchronous Trajectory Generation of ${trajectories.size} trajectories took $elapsedTime milliseconds.")
         }
     }
 

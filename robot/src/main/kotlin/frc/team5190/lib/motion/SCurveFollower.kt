@@ -1,15 +1,12 @@
 package frc.team5190.lib.motion
 
-import frc.team5190.lib.pid.PositionPIDFController
-import kotlin.math.min
-import kotlin.math.sqrt
-
 class SCurveFollower(private val initialPos: Double,
                      targetPos: Double,
                      cruiseVelocity: Double,
                      private val maxAcceleration: Double,
                      private val jerk: Double) {
 
+    /*
     // Variables on initialization
     private var tstart = 0.0
     private var hasStartedProfile = false
@@ -67,7 +64,7 @@ class SCurveFollower(private val initialPos: Double,
             kD = derivative
             kV = velocityFF
             kVIntercept = vi
-            izone = integralZone
+            kIZone = integralZone
         }
     }
 
@@ -233,4 +230,5 @@ class SCurveFollower(private val initialPos: Double,
         tstart = System.currentTimeMillis() / 1000.0
         t = 0.0
     }
+    */
 }

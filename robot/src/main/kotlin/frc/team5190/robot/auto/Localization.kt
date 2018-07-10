@@ -32,7 +32,7 @@ object Localization {
         Notifier(this::run).startPeriodic(0.05)
     }
 
-    private fun reset(pose: Pose2d = Pose2d(Translation2d(), Rotation2d())) {
+    fun reset(pose: Pose2d = Pose2d(Translation2d(), Rotation2d())) {
         synchronized(loc) {
             robotPosition = pose
             prevL = DriveSubsystem.leftPosition

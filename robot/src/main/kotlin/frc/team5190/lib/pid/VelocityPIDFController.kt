@@ -3,38 +3,40 @@ package frc.team5190.lib.pid
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
-class VelocityPIDFController {
-    var kP = 0.0
-    var kI = 0.0
-    var izone = 0.0
-    var kD = 0.0
-    var kV = 0.0
-    var kVIntercept = 0.0
+class VelocityPIDFController(private val kP: Double = 0.0,
+                             private val kI: Double = 0.0,
+                             private val kD: Double = 0.0,
+                             private val kV: Double = 0.0,
+                             private val kA: Double = 0.0,
+                             private val kS: Double = 0.0,
+                             private val kDt: Double = 0.02,
+                             private val kILimit: Double = 0.0,
+                             private val kDeadband: Double = 0.1,
+                             private val current: () -> Double) {
 
-    var deadband = 0.01
-
-    var dt = 0.02
 
     private var lastError = 0.0
     private var derivative = 0.0
     private var integral = 0.0
 
-    fun getPIDFOutput(target: Double, actual: Double): Double {
-        val error = target - actual
-        
-        integral += (error * dt)
-        derivative = (error - lastError) / dt
+    fun getPIDFOutput(target: Pair<Double, Double>): Double {
+        val (targetVelocity, targetAcceleration) = target
+        val current = current()
 
-        if (izone > 0.0 && integral > izone) integral = 0.0
+        val error = targetVelocity - current
 
-        val output = if (target.absoluteValue > deadband) {
-            (kP * error) + (kI * integral) + (kD * derivative) + (kV * target) + (kVIntercept * sign(target))
-        } else {
-            0.0
-        }
-  
+        integral += error * kDt
+        derivative += (error - lastError) / kDt
+
+        if (integral > kILimit) integral = kILimit
+
+        if (targetVelocity.absoluteValue < kDeadband) return 0.0
+
+        val feedback = (kP * error) + (kI * integral) + (kD * derivative)
+        val feedfrwd = (kV * targetVelocity) + (kA * targetAcceleration) + (kS * sign(targetVelocity))
+
         lastError = error
 
-        return output
+        return feedback + feedfrwd
     }
 }

@@ -2,37 +2,33 @@ package frc.team5190.robot.auto
 
 
 import frc.team5190.lib.trajectory.TrajectoryIterator
+import frc.team5190.lib.trajectory.TrajectoryUtil
 import org.junit.Test
 import org.knowm.xchart.SwingWrapper
 import org.knowm.xchart.XYChartBuilder
 import java.awt.Color
 import java.awt.Font
 import java.text.DecimalFormat
-import kotlin.math.absoluteValue
 
 class TrajectoriesTest {
     @Test
     fun testTrajectories() {
 
-        val name = "Near Scale to Cube 3"
+        val name = "Start to Far Scale"
 
-        val trajectory = Trajectories[name]
+        val trajectory = TrajectoryUtil.mirrorTimed(Trajectories[name])
         val iterator = TrajectoryIterator(trajectory.indexView)
 
         val xList = arrayListOf<Double>()
         val yList = arrayListOf<Double>()
 
-        val tList = arrayListOf<Double>()
-        val vList = arrayListOf<Double>()
-
         while (!iterator.isDone) {
             val point = iterator.advance(0.02)
             xList.add(point.state.state.translation.x)
             yList.add(point.state.state.translation.y)
-            tList.add(point.state.t)
-            vList.add(point.state.velocity.absoluteValue)
-            System.out.printf("X: %2.3f, Y: %2.3f, C: %2.3f, V: %2.3f\n", point.state.state.translation.x,
-                    point.state.state.translation.y, point.state.state.curvature, point.state.velocity)
+
+            System.out.printf("X: %2.3f, Y: %2.3f, C: %2.3f, T: %2.3f, V: %2.3f\n", point.state.state.translation.x,
+                    point.state.state.translation.y, point.state.state.curvature, point.state.state.rotation.degrees, point.state.velocity)
         }
 
 
@@ -42,7 +38,7 @@ class TrajectoriesTest {
                 .xAxisTitle("X").yAxisTitle("Y").build()
 
         chart.styler.markerSize = 4
-        chart.styler.seriesColors = arrayOf(Color.MAGENTA, Color.WHITE)
+        chart.styler.seriesColors = arrayOf(Color.MAGENTA)
 
         chart.styler.chartTitleFont = Font("Kanit", 1, 40)
         chart.styler.chartTitlePadding = 15
@@ -63,8 +59,6 @@ class TrajectoriesTest {
         chart.styler.plotBackgroundColor = Color.DARK_GRAY
 
         chart.addSeries("Trajectory", xList.toDoubleArray(), yList.toDoubleArray())
-        chart.addSeries("Velocity", tList.toDoubleArray(), vList.toDoubleArray())
-
 
         SwingWrapper(chart).displayChart()
         Thread.sleep(100000)

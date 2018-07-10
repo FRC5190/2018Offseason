@@ -3,79 +3,87 @@ package frc.team5190.robot.auto
 import edu.wpi.first.wpilibj.command.CommandGroup
 import frc.team5190.lib.extensions.S3ND
 import frc.team5190.lib.extensions.sequential
+import frc.team5190.lib.geometry.Pose2d
 import frc.team5190.lib.geometry.Translation2d
 import frc.team5190.robot.NetworkInterface
 import frc.team5190.robot.Robot
-import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 import frc.team5190.robot.sensors.NavX
+import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 import kotlinx.coroutines.experimental.launch
 import openrio.powerup.MatchData
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
+import openrio.powerup.MatchData.GameFeature.SCALE
+import openrio.powerup.MatchData.GameFeature.SWITCH_NEAR
+import openrio.powerup.MatchData.getOwnedSide
 
+@Suppress("LocalVariableName")
 object Autonomous {
 
-    // Switch side and scale side variables
     private var switchSide = MatchData.OwnedSide.UNKNOWN
     private var scaleSide = MatchData.OwnedSide.UNKNOWN
 
-
-    // Starting position
     private var startingPosition = StartingPositions.CENTER
 
-    // Contains folder in which paths are located
-    private var folder = ""
+    private var scale = ""
 
-    // Is FMS Data valid
     private val fmsDataValid
         get() = switchSide != MatchData.OwnedSide.UNKNOWN && scaleSide != MatchData.OwnedSide.UNKNOWN
 
-    // Random variable that make infix functions work
-    private const val IT = ""
+    private val networkStartingPosition
+        get() = StartingPositions.valueOf(NetworkInterface.startingPosition.getString("Left").toUpperCase())
+
+    private val continuePolling
+        get() = (Robot.INSTANCE.isAutonomous && Robot.INSTANCE.isEnabled && fmsDataValid).not()
+
+    private val dataChanged
+        get() = networkStartingPosition != startingPosition ||
+                getOwnedSide(SWITCH_NEAR) != switchSide ||
+                getOwnedSide(SCALE) != scaleSide
+
+    private val autoCommand: CommandGroup
+        get() {
+            NavX.reset()
+            NavX.angleOffset = startingPosition.pose.rotation.degrees
+
+            NetworkInterface.ntInstance.getEntry("Reset").setBoolean(true)
+
+            return sequential {
+                FollowTrajectoryCommand("Start to $scale Scale")
+                FollowTrajectoryCommand("$scale Scale to Cube 1")
+                FollowTrajectoryCommand("Cube 1 to $scale Scale")
+                FollowTrajectoryCommand("$scale Scale to Cube 2")
+                FollowTrajectoryCommand("Cube 2 to $scale Scale")
+            }
+        }
+
 
     init {
         // Poll for FMS Data
         launch {
-            @Suppress("LocalVariableName")
+
             var JUST = sequential { }
+            val IT = ""
 
-            while (!(Robot.INSTANCE.isAutonomous &&
-                            Robot.INSTANCE.isEnabled &&
-                            fmsDataValid)) {
-
-                val networkStartingPosition = StartingPositions.valueOf(NetworkInterface.startingPosition.getString("Left").toUpperCase())
-
-                if (networkStartingPosition != startingPosition ||
-                        MatchData.getOwnedSide(MatchData.GameFeature.SWITCH_NEAR) != switchSide ||
-                        MatchData.getOwnedSide(MatchData.GameFeature.SCALE) != scaleSide) {
-
-                    switchSide = MatchData.getOwnedSide(MatchData.GameFeature.SWITCH_NEAR)
-                    scaleSide = MatchData.getOwnedSide(MatchData.GameFeature.SCALE)
+            while (continuePolling) {
+                if (dataChanged) {
+                    switchSide = getOwnedSide(SWITCH_NEAR)
+                    scaleSide =  getOwnedSide(SCALE)
                     startingPosition = networkStartingPosition
 
-                    folder = if (startingPosition.name.first().toUpperCase() == scaleSide.name.first().toUpperCase()) "LS-LL" else "LS-RR"
+                    scale = if (startingPosition.name.first().toUpperCase() == scaleSide.name.first().toUpperCase()) "Near" else "Far"
 
-                    Localization.reset(Translation2d(startingPosition.relativePos.x, startingPosition.relativePos.y))
+                    Localization.reset(startingPosition.pose)
 
-                    JUST = getAutoCommand()
+                    JUST = autoCommand
                 }
             }
             JUST S3ND IT
         }
     }
 
-    private fun getAutoCommand(): CommandGroup {
-        NavX.reset()
-        NavX.angleOffset = 0.0
 
-        NetworkInterface.ntInstance.getEntry("Reset").setBoolean(true)
-
-        return sequential {
-            FollowTrajectoryCommand("LS-LL 1st Cube")
-        }
+    enum class StartingPositions(val pose: Pose2d) {
+        LEFT(Trajectories.kSideStart),
+        CENTER(Trajectories.kCenterStart),
+        RIGHT(Trajectories.kSideStart.mirror())
     }
-
-    enum class StartingPositions(val relativePos: Vector2D) {
-        LEFT(Vector2D(1.75, 23.5)), CENTER(Vector2D(1.75, 13.25)), RIGHT(Vector2D(1.75, 3.5))
-    }
-
 }

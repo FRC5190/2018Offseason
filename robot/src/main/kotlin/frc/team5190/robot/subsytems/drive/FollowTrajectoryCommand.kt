@@ -11,7 +11,7 @@ import frc.team5190.robot.Kinematics
 import frc.team5190.robot.auto.Localization
 import frc.team5190.robot.auto.Trajectories
 
-class FollowTrajectoryCommand(file: String,
+class FollowTrajectoryCommand(identifier: String,
                               pathMirrored: Boolean = false,
                               private val resetRobotPosition: Boolean = false) : Command() {
 
@@ -21,14 +21,14 @@ class FollowTrajectoryCommand(file: String,
     private var stopNotifier = false
 
     // Trajectory
-    private var trajectory = Trajectories[file]
+    private var trajectory = Trajectories[identifier]
 
     // Path follower
     private val trajectoryFollower: TrajectoryFollower
 
     // PIDF controllers
-    private val lController = VelocityPIDFController()
-    private val rController = VelocityPIDFController()
+    private val lController: VelocityPIDFController
+    private val rController: VelocityPIDFController
 
     init {
         requires(DriveSubsystem)
@@ -40,19 +40,22 @@ class FollowTrajectoryCommand(file: String,
         // Initialize path follower
         trajectoryFollower = TrajectoryFollower(trajectory = trajectory)
 
-        // Set PIDF Values
-        lController.apply {
-            kP = 0.08
-            kI = 0.01
-            kV = 0.05
-            kVIntercept = 0.1
-        }
-        rController.apply {
-            kP = 0.08
-            kI = 0.01
-            kV = 0.05
-            kVIntercept = 0.1
-        }
+        lController = VelocityPIDFController(
+                kP = 0.08,
+                kI = 0.01,
+                kV = 0.05,
+                kS = 0.10,
+                current = { DriveSubsystem.leftVelocity.FPS.value }
+        )
+
+        rController = VelocityPIDFController(
+                kP = 0.08,
+                kI = 0.01,
+                kV = 0.05,
+                kS = 0.10,
+                current = { DriveSubsystem.rightVelocity.FPS.value }
+        )
+
 
         // Initialize notifier
         notifier = Notifier {
@@ -61,16 +64,14 @@ class FollowTrajectoryCommand(file: String,
                     return@Notifier
                 }
 
-                // Get left and right wheel outputs
                 val output = Kinematics.inverseKinematics(
-                        trajectoryFollower.getRobotVelocity(Localization.robotPosition))
+                        trajectoryFollower.getRobotVelocity(Localization.robotPosition)
+                )
 
-                // Update PIDF controller setpoints
-                val l = lController.getPIDFOutput(target = output.left, actual = DriveSubsystem.leftVelocity.FPS.value)
-                val r = rController.getPIDFOutput(target = output.right, actual = DriveSubsystem.rightVelocity.FPS.value)
+                DriveSubsystem.set(ControlMode.PercentOutput,
+                        lController.getPIDFOutput(output.left to 0.0),
+                        rController.getPIDFOutput(output.right to 0.0))
 
-                // Set drive motors and update companion values
-                DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = l, rightOutput = r)
                 updateDashboard()
             }
         }

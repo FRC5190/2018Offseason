@@ -40,7 +40,7 @@ class TCurveFollower(private val initialPos: Double,
     private val dcruise = tcruise * cruiseVelocity
 
     // PIDF Controller
-    private val pidfController = PositionPIDFController()
+    private lateinit var pidfController: PositionPIDFController
 
     // Total time for path
     val tpath = taccel + tcruise + taccel
@@ -52,19 +52,22 @@ class TCurveFollower(private val initialPos: Double,
                       derivative: Double,
                       velocityFF: Double,
                       vi: Double,
-                      integralZone: Double) {
-        pidfController.apply {
-            kP = proportional
-            kI = integral
-            kD = derivative
-            kV = velocityFF
-            kVIntercept = vi
-            izone = integralZone
-        }
+                      integralZone: Double,
+                      currentPosition: () -> Double) {
+
+        pidfController = PositionPIDFController(
+                kP = proportional,
+                kI = integral,
+                kD = derivative,
+                kV = velocityFF,
+                kS = vi,
+                kILimit = integralZone,
+                current = currentPosition
+        )
     }
 
     // Get output to apply to motors
-    fun getOutput(currentPos: Double): Triple<Double, Double, Double> {
+    fun getOutput(): Triple<Double, Double, Double> {
         // Initialize variables
         if (!hasStartedProfile) {
             initialize()
@@ -103,7 +106,7 @@ class TCurveFollower(private val initialPos: Double,
                 position = 0.0
             }
         }
-        return Triple(pidfController.getPIDFOutput(position + initialPos, velocity, currentPos), velocity, position)
+        return Triple(pidfController.getPIDFOutput(Triple(position, velocity, acceleration)), velocity, position)
     }
 
     private fun positionEquation(s0: Double, v0: Double, a: Double, t: Double) = s0 + (v0 * t) + (0.5 * a * t * t)

@@ -19,7 +19,9 @@ object TrajectoryGenerator {
     private const val kMaxDTheta = 0.1
 
 
+    // Generate Trajectory with no bounds on start and end velocity.
     fun generateTrajectory(
+            name: String,
             reversed: Boolean,
             waypoints: MutableList<Pose2d>,
             maxVelocity: Double,
@@ -27,9 +29,13 @@ object TrajectoryGenerator {
             constraints: List<TimingConstraint<Pose2dWithCurvature>> = listOf()
     ): Trajectory<TimedState<Pose2dWithCurvature>>? {
 
-        return generateTrajectory(reversed, waypoints, constraints, 0.0, 0.0, maxVelocity, maxAcceleration)
+        val startTime = System.nanoTime()
+        return generateTrajectory(reversed, waypoints, constraints, 0.0, 0.0, maxVelocity, maxAcceleration).also {
+            System.out.printf("[TrajectoryGenerator] Generation of %-25s took %07.3f milliseconds.\n", "\"$name\"", (System.nanoTime() - startTime) / 1000000.0)
+        }
     }
 
+    // Generate trajectory with custom start and end velocity.
     private fun generateTrajectory(
             reversed: Boolean,
             waypoints: MutableList<Pose2d>,
@@ -40,19 +46,22 @@ object TrajectoryGenerator {
             maxAcceleration: Double
     ): Trajectory<TimedState<Pose2dWithCurvature>>? {
 
+        // Make theta normal for trajectory generation if path is reversed.
         if (reversed) {
             for (i in 0 until waypoints.size) {
                 waypoints[i] = Pose2d(waypoints[i].translation, waypoints[i].rotation.rotateBy(Rotation2d.fromDegrees(180.0)))
             }
         }
 
+        var trajectory = TrajectoryUtil.trajectoryFromSplineWaypoints(waypoints, kMaxDx, kMaxDy, kMaxDTheta)
 
-        val trajectory = TrajectoryUtil.trajectoryFromSplineWaypoints(waypoints, kMaxDx, kMaxDy, kMaxDTheta)
-        val allConstraints = arrayListOf<TimingConstraint<Pose2dWithCurvature>>()
+        // After trajectory generation, flip theta back so it's relative to the field.
+        if (reversed) {
+            trajectory = TrajectoryUtil.transform(trajectory, Pose2d.fromRotation(Rotation2d(-1.0, 0.0, true)))
+        }
 
-        allConstraints.addAll(constraints)
-
-        return TimingUtil.timeParameterizeTrajectory(reversed, DistanceView(trajectory), kMaxDx, allConstraints,
+        // Parameterize by time and return.
+        return TimingUtil.timeParameterizeTrajectory(reversed, DistanceView(trajectory), kMaxDx, constraints,
                 startVel, endVel, maxVelocity, maxAcceleration)
     }
 }
