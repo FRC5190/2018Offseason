@@ -13,8 +13,8 @@ import frc.team5190.lib.geometry.Rotation2d
 import frc.team5190.lib.geometry.Translation2d
 import frc.team5190.lib.trajectory.Trajectory
 import frc.team5190.lib.trajectory.TrajectoryGenerator
+import frc.team5190.lib.trajectory.timing.CentripetalAccelerationConstraint
 import frc.team5190.lib.trajectory.timing.TimedState
-import frc.team5190.lib.trajectory.timing.VelocityLimitRegionConstraint
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.awaitAll
 import kotlinx.coroutines.experimental.launch
@@ -24,28 +24,34 @@ import java.util.*
 object Trajectories {
 
     // Constants in Feet Per Second
-    private const val kMaxVelocity = 10.0
-    private const val kMaxAcceleration = 5.0
+    private const val kMaxVelocity = 11.0
+    private const val kMaxAcceleration = 6.0
 
 
     // Constraints
-    private val kCrossAutoVelocityConstraint =
-            Arrays.asList(VelocityLimitRegionConstraint<Pose2dWithCurvature>(
-                    Translation2d(19.0, 6.5), Translation2d(23.0, 7.5), 3.0))
+    private val kCentripetalConstraint =
+            Arrays.asList(CentripetalAccelerationConstraint(7.0))
+
+
+    // Robot Constants
+    private const val kRobotWidth = 27.0 / 12.0
+    private const val kRobotLength = 33.0 / 12.0
+    private const val kIntakeLength = 16.0 / 12.0
+    private const val kBumperLength = 02.0 / 12.0
+
+    private val kCenterToIntake = Pose2d(Translation2d(-(kRobotLength / 2.0) - kIntakeLength, 0.0), Rotation2d())
+    private val kCenterToFrontBumper = Pose2d(Translation2d(-(kRobotLength / 2.0) - kBumperLength, 0.0), Rotation2d())
 
 
     // Field Relative Constants
-    private val kSideStart   = Pose2d(Translation2d(1.50, 23.5), Rotation2d.fromDegrees(180.0))
-    private val kCenterStart = Pose2d(Translation2d(1.50, 13.2), Rotation2d())
-
-    private val kCenterToIntake      = Pose2d(Translation2d(-2.25, 0.0), Rotation2d())
-    private val kCenterToFrontBumper = Pose2d(Translation2d(-1.58, 0.0), Rotation2d())
+    private val kSideStart = Pose2d(Translation2d((kRobotLength / 2.0) + kBumperLength, 23.5), Rotation2d.fromDegrees(180.0))
+    private val kCenterStart = Pose2d(Translation2d((kRobotLength / 2.0) + kBumperLength, 13.2), Rotation2d())
 
     private val kNearScaleEmpty = Pose2d(Translation2d(22.7, 20.50), Rotation2d.fromDegrees(170.0))
-    private val kNearScaleFull  = Pose2d(Translation2d(22.7, 19.75), Rotation2d.fromDegrees(165.0))
+    private val kNearScaleFull = Pose2d(Translation2d(22.7, 20.00), Rotation2d.fromDegrees(165.0))
 
     private val kFarScaleEmpty = Pose2d(Translation2d(22.7, 06.50), Rotation2d.fromDegrees(190.0))
-    private val kFarScaleFull  = Pose2d(Translation2d(22.7, 07.75), Rotation2d.fromDegrees(195.0))
+    private val kFarScaleFull = Pose2d(Translation2d(22.7, 07.00), Rotation2d.fromDegrees(195.0))
 
     private val kNearCube1 = Pose2d(Translation2d(16.5, 19.5), Rotation2d.fromDegrees(190.0))
     private val kNearCube2 = Pose2d(Translation2d(16.5, 17.0), Rotation2d.fromDegrees(245.0))
@@ -63,10 +69,10 @@ object Trajectories {
     private val kFarCube2Adjusted = kFarCube2.transformBy(kCenterToIntake)
     private val kFarCube3Adjusted = kFarCube3.transformBy(kCenterToIntake)
 
-    private val kSwitchLeft  = Pose2d(Translation2d(11.5, 18.8), Rotation2d())
+    private val kSwitchLeft = Pose2d(Translation2d(11.5, 18.8), Rotation2d())
     private val kSwitchRight = Pose2d(Translation2d(11.5, 08.2), Rotation2d())
 
-    private val kSwitchLeftAdjusted  = kSwitchLeft.transformBy(kCenterToFrontBumper)
+    private val kSwitchLeftAdjusted = kSwitchLeft.transformBy(kCenterToFrontBumper)
     private val kSwitchRightAdjusted = kSwitchRight.transformBy(kCenterToFrontBumper)
 
 
@@ -96,55 +102,55 @@ object Trajectories {
     private val kFarScaleToCube2Wpts = mutableListOf(kFarScaleEmpty, kFarCube2Adjusted)
     private val kCube2ToFarScaleWpts = mutableListOf(kFarCube2Adjusted, kFarScaleFull)
 
-    private val kCenterToLeftSwitchWpts  = mutableListOf(kCenterStart, kSwitchLeftAdjusted)
+    private val kCenterToLeftSwitchWpts = mutableListOf(kCenterStart, kSwitchLeftAdjusted)
     private val kCenterToRightSwitchWpts = mutableListOf(kCenterStart, kSwitchRightAdjusted)
 
 
     // Trajectories
     private val startToNearScaleTrajectory = async {
-        TrajectoryGenerator.generateTrajectory(true, kStartToNearScaleWpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(true, kStartToNearScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
     private val startToFarScaleTrajectory = async {
-        TrajectoryGenerator.generateTrajectory(true, kStartToFarScaleWpts, kMaxVelocity, kMaxAcceleration, kCrossAutoVelocityConstraint)
+        TrajectoryGenerator.generateTrajectory(true, kStartToFarScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
 
     private val nearScaleToCube1Trajectory = async {
-        TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube1Wpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube1Wpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
     private val cube1ToNearScaleTrajectory = async {
-        TrajectoryGenerator.generateTrajectory(true, kCube1ToNearScaleWpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(true, kCube1ToNearScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
 
     private val nearScaleToCube2Trajectory = async {
-        TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube2Wpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube2Wpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
     private val cube2ToNearScaleTrajectory = async {
-        TrajectoryGenerator.generateTrajectory(true, kCube2ToNearScaleWpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(true, kCube2ToNearScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
 
     private val nearScaleToCube3Trajectory = async {
-        TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube3Wpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(false, kNearScaleToCube3Wpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
 
     private val farScaleToCube1Trajectory = async {
-        TrajectoryGenerator.generateTrajectory(false, kFarScaleToCube1Wpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(false, kFarScaleToCube1Wpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
     private val cube1ToFarScaleTrajectory = async {
-        TrajectoryGenerator.generateTrajectory(true, kCube1ToFarScaleWpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(true, kCube1ToFarScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
 
     private val farScaleToCube2Trajectory = async {
-        TrajectoryGenerator.generateTrajectory(false, kFarScaleToCube2Wpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(false, kFarScaleToCube2Wpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
     private val cube2ToFarScaleTrajectory = async {
-        TrajectoryGenerator.generateTrajectory(true, kCube2ToFarScaleWpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(true, kCube2ToFarScaleWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
 
     private val centerToLeftSwitchTrajectory = async {
-        TrajectoryGenerator.generateTrajectory(false, kCenterToLeftSwitchWpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(false, kCenterToLeftSwitchWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
     private val centerToRightSwitchTrajectory = async {
-        TrajectoryGenerator.generateTrajectory(false, kCenterToRightSwitchWpts, kMaxVelocity, kMaxAcceleration)
+        TrajectoryGenerator.generateTrajectory(false, kCenterToRightSwitchWpts, kMaxVelocity, kMaxAcceleration, kCentripetalConstraint)
     }
 
     // Hash Map

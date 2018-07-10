@@ -11,6 +11,6 @@ class CentripetalAccelerationConstraint(private val mMaxCentripetalAccel: Double
     }
 
     override fun getMinMaxAcceleration(state: Pose2dWithCurvature, velocity: Double): TimingConstraint.MinMaxAcceleration {
-        return TimingConstraint.MinMaxAcceleration.NO_LIMITS
+        return TimingConstraint.MinMaxAcceleration.kNoLimits
     }
 }

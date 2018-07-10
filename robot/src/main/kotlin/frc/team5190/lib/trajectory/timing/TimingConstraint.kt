@@ -29,7 +29,7 @@ interface TimingConstraint<S : State<S>> {
 
 
         companion object {
-            var NO_LIMITS = MinMaxAcceleration()
+            var kNoLimits = MinMaxAcceleration()
         }
     }
 }

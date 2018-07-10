@@ -1,8 +1,8 @@
 package frc.team5190.lib.motion
 
-import com.xeiam.xchart.QuickChart
-import com.xeiam.xchart.SwingWrapper
 import org.junit.Test
+import org.knowm.xchart.QuickChart
+import org.knowm.xchart.SwingWrapper
 
 class SCurveFollowerTest {
     @Test

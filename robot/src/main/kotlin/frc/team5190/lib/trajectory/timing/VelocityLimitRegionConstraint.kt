@@ -19,7 +19,7 @@ class VelocityLimitRegionConstraint<S : ITranslation2d<S>>(
     }
 
     override fun getMinMaxAcceleration(state: S, velocity: Double): TimingConstraint.MinMaxAcceleration {
-        return TimingConstraint.MinMaxAcceleration.NO_LIMITS
+        return TimingConstraint.MinMaxAcceleration.kNoLimits
     }
 
 }
