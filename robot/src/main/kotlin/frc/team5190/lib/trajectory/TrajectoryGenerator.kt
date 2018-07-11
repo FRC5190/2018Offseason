@@ -19,24 +19,8 @@ object TrajectoryGenerator {
     private const val kMaxDTheta = 0.1
 
 
-    // Generate Trajectory with no bounds on start and end velocity.
-    fun generateTrajectory(
-            name: String,
-            reversed: Boolean,
-            waypoints: MutableList<Pose2d>,
-            maxVelocity: Double,
-            maxAcceleration: Double,
-            constraints: List<TimingConstraint<Pose2dWithCurvature>> = listOf()
-    ): Trajectory<TimedState<Pose2dWithCurvature>>? {
-
-        val startTime = System.nanoTime()
-        return generateTrajectory(reversed, waypoints, constraints, 0.0, 0.0, maxVelocity, maxAcceleration).also {
-            System.out.printf("[TrajectoryGenerator] Generation of %-25s took %07.3f milliseconds.\n", "\"$name\"", (System.nanoTime() - startTime) / 1000000.0)
-        }
-    }
-
     // Generate trajectory with custom start and end velocity.
-    private fun generateTrajectory(
+    fun generateTrajectory(
             reversed: Boolean,
             waypoints: MutableList<Pose2d>,
             constraints: List<TimingConstraint<Pose2dWithCurvature>>,

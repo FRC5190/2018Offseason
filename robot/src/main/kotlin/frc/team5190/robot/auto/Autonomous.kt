@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.command.CommandGroup
 import frc.team5190.lib.extensions.S3ND
 import frc.team5190.lib.extensions.sequential
 import frc.team5190.lib.geometry.Pose2d
-import frc.team5190.lib.geometry.Translation2d
 import frc.team5190.robot.NetworkInterface
 import frc.team5190.robot.Robot
 import frc.team5190.robot.sensors.NavX
@@ -23,7 +22,7 @@ object Autonomous {
 
     private var startingPosition = StartingPositions.CENTER
 
-    private var scale = ""
+    private var farScale = false
 
     private val fmsDataValid
         get() = switchSide != MatchData.OwnedSide.UNKNOWN && scaleSide != MatchData.OwnedSide.UNKNOWN
@@ -39,6 +38,9 @@ object Autonomous {
                 getOwnedSide(SWITCH_NEAR) != switchSide ||
                 getOwnedSide(SCALE) != scaleSide
 
+    private val mirroredStart
+        get() = startingPosition == StartingPositions.RIGHT
+
     private val autoCommand: CommandGroup
         get() {
             NavX.reset()
@@ -47,11 +49,13 @@ object Autonomous {
             NetworkInterface.ntInstance.getEntry("Reset").setBoolean(true)
 
             return sequential {
-                FollowTrajectoryCommand("Start to $scale Scale")
-                FollowTrajectoryCommand("$scale Scale to Cube 1")
-                FollowTrajectoryCommand("Cube 1 to $scale Scale")
-                FollowTrajectoryCommand("$scale Scale to Cube 2")
-                FollowTrajectoryCommand("Cube 2 to $scale Scale")
+                FollowTrajectoryCommand(if (farScale) "Left Start to Far Scale" else "Left Start to Near Scale", mirroredStart)
+                FollowTrajectoryCommand("Near Scale to Cube 1", scaleSide == MatchData.OwnedSide.RIGHT)
+                FollowTrajectoryCommand("Cube 1 to Near Scale", scaleSide == MatchData.OwnedSide.RIGHT)
+                FollowTrajectoryCommand("Near Scale to Cube 2", scaleSide == MatchData.OwnedSide.RIGHT)
+                FollowTrajectoryCommand("Cube 2 to Near Scale", scaleSide == MatchData.OwnedSide.RIGHT)
+                FollowTrajectoryCommand("Near Scale to Cube 3", scaleSide == MatchData.OwnedSide.RIGHT)
+                FollowTrajectoryCommand("Cube 3 to Near Scale", scaleSide == MatchData.OwnedSide.RIGHT)
             }
         }
 
@@ -69,7 +73,7 @@ object Autonomous {
                     scaleSide =  getOwnedSide(SCALE)
                     startingPosition = networkStartingPosition
 
-                    scale = if (startingPosition.name.first().toUpperCase() == scaleSide.name.first().toUpperCase()) "Near" else "Far"
+                    farScale = startingPosition.name.first().toUpperCase() != scaleSide.name.first().toUpperCase()
 
                     Localization.reset(startingPosition.pose)
 

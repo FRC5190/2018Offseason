@@ -14,7 +14,7 @@ class TrajectoriesTest {
     @Test
     fun testTrajectories() {
 
-        val name = "Start to Far Scale"
+        val name = "Left Start to Far Scale"
 
         val trajectory = TrajectoryUtil.mirrorTimed(Trajectories[name])
         val iterator = TrajectoryIterator(trajectory.indexView)
@@ -37,8 +37,8 @@ class TrajectoriesTest {
         val chart = XYChartBuilder().width(1600).height(1520).title("$name: $fm seconds.")
                 .xAxisTitle("X").yAxisTitle("Y").build()
 
-        chart.styler.markerSize = 4
-        chart.styler.seriesColors = arrayOf(Color.MAGENTA)
+        chart.styler.markerSize = 8
+        chart.styler.seriesColors = arrayOf(Color(151, 60, 67))
 
         chart.styler.chartTitleFont = Font("Kanit", 1, 40)
         chart.styler.chartTitlePadding = 15
