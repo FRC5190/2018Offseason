@@ -8,10 +8,11 @@ package frc.team5190.robot.subsytems.drive
 import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
+import frc.team5190.lib.control.VelocityPIDFController
 import frc.team5190.lib.geometry.Translation2d
-import frc.team5190.lib.pid.VelocityPIDFController
 import frc.team5190.lib.trajectory.TrajectoryFollower
 import frc.team5190.lib.trajectory.TrajectoryUtil
+import frc.team5190.robot.Constants
 import frc.team5190.robot.Kinematics
 import frc.team5190.robot.auto.Localization
 import frc.team5190.robot.auto.Trajectories
@@ -46,18 +47,18 @@ class FollowTrajectoryCommand(identifier: String,
         trajectoryFollower = TrajectoryFollower(trajectory = trajectory)
 
         lController = VelocityPIDFController(
-                kP = 0.08,
-                kI = 0.01,
-                kV = 0.05,
-                kS = 0.10,
+                kP = Constants.kPLeftDriveVelocity,
+                kI = Constants.kILeftDriveVelocity,
+                kV = Constants.kVLeftDriveVelocity,
+                kS = Constants.kSLeftDriveVelocity,
                 current = { DriveSubsystem.leftVelocity.FPS }
         )
 
         rController = VelocityPIDFController(
-                kP = 0.08,
-                kI = 0.01,
-                kV = 0.05,
-                kS = 0.10,
+                kP = Constants.kPRightDriveVelocity,
+                kI = Constants.kIRightDriveVelocity,
+                kV = Constants.kVRightDriveVelocity,
+                kS = Constants.kSRightDriveVelocity,
                 current = { DriveSubsystem.rightVelocity.FPS }
         )
 
@@ -74,8 +75,8 @@ class FollowTrajectoryCommand(identifier: String,
                 )
 
                 DriveSubsystem.set(ControlMode.PercentOutput,
-                        lController.getPIDFOutput(output.left to 0.0),
-                        rController.getPIDFOutput(output.right to 0.0))
+                        lController.getPIDFOutput(output.first to 0.0),
+                        rController.getPIDFOutput(output.second to 0.0))
 
                 updateDashboard()
             }

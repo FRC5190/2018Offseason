@@ -15,59 +15,50 @@ import frc.team5190.lib.trajectory.TrajectoryGenerator
 import frc.team5190.lib.trajectory.timing.CentripetalAccelerationConstraint
 import frc.team5190.lib.trajectory.timing.TimedState
 import frc.team5190.lib.trajectory.timing.TimingConstraint
+import frc.team5190.robot.Constants
+import frc.team5190.robot.Constants.kCenterToFrontBumper
+import frc.team5190.robot.Constants.kCenterToIntake
+import frc.team5190.robot.Constants.kRobotCenterStartY
+import frc.team5190.robot.Constants.kRobotSideStartY
+import frc.team5190.robot.Constants.kRobotStartX
 import kotlinx.coroutines.experimental.*
 
 object Trajectories {
 
     // Constants in Feet Per Second
-    private const val kMaxVelocity = 11.0
+    private const val kMaxVelocity     = 11.0
     private const val kMaxAcceleration = 6.0
 
 
     // Constraints
-    private val kConstraints =
-            mutableListOf(
-                    CentripetalAccelerationConstraint(6.0))
-
-
-    // Robot Constants
-    private const val kRobotWidth = 27.0 / 12.0
-    private const val kRobotLength = 33.0 / 12.0
-    private const val kIntakeLength = 16.0 / 12.0
-    private const val kBumperLength = 02.0 / 12.0
-
-    private val kCenterToIntake = Pose2d(Translation2d(-(kRobotLength / 2.0) - kIntakeLength, 0.0), Rotation2d())
-    private val kCenterToFrontBumper = Pose2d(Translation2d(-(kRobotLength / 2.0) - kBumperLength, 0.0), Rotation2d())
+    private val kConstraints = mutableListOf(CentripetalAccelerationConstraint(6.0))
 
 
     // Field Relative Constants
-    private const val kExchangeZone = 14.6
+    internal val kSideStart               = Pose2d(Translation2d(kRobotStartX, kRobotSideStartY),   Rotation2d(-1.0, 0.0))
+    internal val kCenterStart             = Pose2d(Translation2d(kRobotStartX, kRobotCenterStartY), Rotation2d())
 
-    internal val kSideStart = Pose2d(Translation2d((kRobotLength / 2.0) + kBumperLength, 23.5), Rotation2d.fromDegrees(180.0))
-    internal val kCenterStart = Pose2d(Translation2d((kRobotLength / 2.0) + kBumperLength,
-            kExchangeZone - (kRobotWidth / 2.0) - kBumperLength), Rotation2d())
+    private val kNearScaleEmpty           = Pose2d(Translation2d(22.7, 20.50), Rotation2d.fromDegrees(170.0))
+    private val kNearScaleFull            = Pose2d(Translation2d(22.7, 20.00), Rotation2d.fromDegrees(165.0))
 
-    private val kNearScaleEmpty = Pose2d(Translation2d(22.7, 20.50), Rotation2d.fromDegrees(170.0))
-    private val kNearScaleFull = Pose2d(Translation2d(22.7, 20.00), Rotation2d.fromDegrees(165.0))
+    private val kFarScaleEmpty            = Pose2d(Translation2d(22.7, 06.50), Rotation2d.fromDegrees(190.0))
 
-    private val kFarScaleEmpty = Pose2d(Translation2d(22.7, 06.50), Rotation2d.fromDegrees(190.0))
+    private val kNearCube1                = Pose2d(Translation2d(16.5, 19.5), Rotation2d.fromDegrees(190.0))
+    private val kNearCube2                = Pose2d(Translation2d(16.5, 17.0), Rotation2d.fromDegrees(245.0))
+    private val kNearCube3                = Pose2d(Translation2d(16.5, 14.5), Rotation2d.fromDegrees(240.0))
 
-    private val kNearCube1 = Pose2d(Translation2d(16.5, 19.5), Rotation2d.fromDegrees(190.0))
-    private val kNearCube2 = Pose2d(Translation2d(16.5, 17.0), Rotation2d.fromDegrees(245.0))
-    private val kNearCube3 = Pose2d(Translation2d(16.5, 14.5), Rotation2d.fromDegrees(240.0))
+    private val kNearCube1Adjusted        = kNearCube1.transformBy(kCenterToIntake)
+    private val kNearCube2Adjusted        = kNearCube2.transformBy(kCenterToIntake)
+    private val kNearCube3Adjusted        = kNearCube3.transformBy(kCenterToIntake)
 
-    private val kNearCube1Adjusted = kNearCube1.transformBy(kCenterToIntake)
-    private val kNearCube2Adjusted = kNearCube2.transformBy(kCenterToIntake)
-    private val kNearCube3Adjusted = kNearCube3.transformBy(kCenterToIntake)
+    private val kSwitchLeft               = Pose2d(Translation2d(11.5, 18.8), Rotation2d())
+    private val kSwitchRight              = Pose2d(Translation2d(11.5, 08.2), Rotation2d())
 
-    private val kSwitchLeft = Pose2d(Translation2d(11.5, 18.8), Rotation2d())
-    private val kSwitchRight = Pose2d(Translation2d(11.5, 08.2), Rotation2d())
+    private val kSwitchLeftAdjusted       = kSwitchLeft .transformBy(kCenterToFrontBumper)
+    private val kSwitchRightAdjusted      = kSwitchRight.transformBy(kCenterToFrontBumper)
 
-    private val kSwitchLeftAdjusted = kSwitchLeft.transformBy(kCenterToFrontBumper)
-    private val kSwitchRightAdjusted = kSwitchRight.transformBy(kCenterToFrontBumper)
-
-    private val kFrontPyramidCube = Pose2d(Translation2d(9.0, 13.5), Rotation2d())
-    private val kFrontPyramidCubeAdjusted = kFrontPyramidCube.transformBy(kCenterToIntake)
+    private val kFrontPyramidCube         = Pose2d(Translation2d(9.0, 13.5), Rotation2d())
+    private val kFrontPyramidCubeAdjusted = kFrontPyramidCube.transformBy(Constants.kCenterToIntake)
 
 
     // Hash Map

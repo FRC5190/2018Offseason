@@ -106,14 +106,14 @@ class Rotation2d : IRotation2d<Rotation2d> {
         return Translation2d(cos, sin)
     }
 
-    override fun interpolate(other: Rotation2d, x: Double): Rotation2d {
-        if (x <= 0) {
+    override fun interpolate(upperVal: Rotation2d, interpolatePoint: Double): Rotation2d {
+        if (interpolatePoint <= 0) {
             return Rotation2d(this)
-        } else if (x >= 1) {
-            return Rotation2d(other)
+        } else if (interpolatePoint >= 1) {
+            return Rotation2d(upperVal)
         }
-        val angleDiff = inverse.rotateBy(other).radians
-        return this.rotateBy(Rotation2d.fromRadians(angleDiff * x))
+        val angleDiff = inverse.rotateBy(upperVal).radians
+        return this.rotateBy(Rotation2d.fromRadians(angleDiff * interpolatePoint))
     }
 
     override fun toString(): String {

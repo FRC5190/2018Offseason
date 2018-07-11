@@ -231,7 +231,7 @@ class QuinticHermiteSpline(private val x0: Double,
                 val temp: QuinticHermiteSpline = splines[i]
                 val temp1: QuinticHermiteSpline = splines[i + 1]
 
-                controlPoints[i] = ControlPoint() //holds the gradient at a pid point
+                controlPoints[i] = ControlPoint() //holds the gradient at a control point
 
                 //calculate partial derivatives of sumDCurvature2
                 splines[i] = QuinticHermiteSpline(temp.x0, temp.x1, temp.dx0, temp.dx1, temp.ddx0, temp.ddx1 + kEpsilon, temp.y0, temp.y1, temp.dy0, temp.dy1, temp.ddy0, temp.ddy1)

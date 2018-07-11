@@ -70,13 +70,13 @@ class Translation2d : ITranslation2d<Translation2d> {
             return Translation2d(-x, -y)
         }
 
-    override fun interpolate(other: Translation2d, x: Double): Translation2d {
-        if (x <= 0) {
+    override fun interpolate(upperVal: Translation2d, interpolatePoint: Double): Translation2d {
+        if (interpolatePoint <= 0) {
             return Translation2d(this)
-        } else if (x >= 1) {
-            return Translation2d(other)
+        } else if (interpolatePoint >= 1) {
+            return Translation2d(upperVal)
         }
-        return extrapolate(other, x)
+        return extrapolate(upperVal, interpolatePoint)
     }
 
     private fun extrapolate(other: Translation2d, x: Double): Translation2d {

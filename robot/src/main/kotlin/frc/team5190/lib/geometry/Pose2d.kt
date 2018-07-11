@@ -15,7 +15,6 @@ package frc.team5190.lib.geometry
 
 import frc.team5190.lib.extensions.epsilonEquals
 import frc.team5190.lib.geometry.interfaces.IPose2d
-import frc.team5190.lib.motion.kinematics.FrameOfReference
 
 
 class Pose2d : IPose2d<Pose2d> {
@@ -25,8 +24,6 @@ class Pose2d : IPose2d<Pose2d> {
 
     override val pose: Pose2d
         get() = this
-
-    var frameOfReference = FrameOfReference.kField
 
     constructor() {
         translation = Translation2d()
@@ -85,7 +82,7 @@ class Pose2d : IPose2d<Pose2d> {
         return twist.dy epsilonEquals 0.00 && twist.dtheta epsilonEquals 0.0
     }
 
-    private fun epsilonEquals(other: Pose2d, epsilon: Double): Boolean {
+    private fun epsilonEquals(other: Pose2d): Boolean {
         return translation.epsilonEquals(other.translation) && rotation.isParallel(other.rotation)
     }
 
@@ -113,18 +110,11 @@ class Pose2d : IPose2d<Pose2d> {
     }
 
     override fun equals(other: Any?): Boolean {
-        return if (other == null || other !is Pose2d) false else epsilonEquals(other, kEpsilon)
+        return if (other == null || other !is Pose2d) false else epsilonEquals(other)
     }
 
     override fun mirror(): Pose2d {
-        return Pose2d(Translation2d(translation.x, 27-translation.y), rotation.inverse)
-    }
-
-    fun convertToFOR(newFOR: FrameOfReference): Pose2d {
-        val rotation = newFOR.orientationRelativeToField.inverse.rotateBy(frameOfReference.orientationRelativeToField)
-        val translation = newFOR.originRelativeToField.inverse.translateBy(frameOfReference.originRelativeToField)
-
-        return Pose2d(translation, rotation).transformBy(this)
+        return Pose2d(Translation2d(translation.x, 27 - translation.y), rotation.inverse)
     }
 
     companion object {

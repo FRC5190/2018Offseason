@@ -10,9 +10,9 @@ interface Interpolable<T> {
 
     companion object {
         fun interpolate(a: Double, b: Double, x: Double): Double {
-            var x = x
-            x = x.coerceIn(0.0, 1.0)
-            return a + (b - a) * x
+            var x1 = x
+            x1 = x1.coerceIn(0.0, 1.0)
+            return a + (b - a) * x1
         }
     }
 }

@@ -3,8 +3,9 @@
  * Green Hope Falcons
  */
 
-package frc.team5190.lib.pid
+package frc.team5190.lib.control
 
+import frc.team5190.lib.extensions.epsilonEquals
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
@@ -33,7 +34,7 @@ class VelocityPIDFController(private val kP: Double = 0.0,
         integral += error * kDt
         derivative += (error - lastError) / kDt
 
-        if (integral > kILimit) integral = kILimit
+        if (integral > kILimit && (kILimit epsilonEquals 0.0).not()) integral = kILimit
 
         if (targetVelocity.absoluteValue < kDeadband) return 0.0
 

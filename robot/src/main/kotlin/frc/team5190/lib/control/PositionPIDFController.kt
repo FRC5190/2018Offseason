@@ -3,8 +3,9 @@
  * Green Hope Falcons
  */
 
-package frc.team5190.lib.pid
+package frc.team5190.lib.control
 
+import frc.team5190.lib.extensions.epsilonEquals
 import kotlin.math.sign
 
 class PositionPIDFController(private val kP: Double = 0.0,
@@ -33,7 +34,7 @@ class PositionPIDFController(private val kP: Double = 0.0,
         integral += error * kDt
         derivative = (error - lastError) / kDt
 
-        if (integral > kILimit) integral = kILimit
+        if (integral > kILimit && (kILimit epsilonEquals 0.0).not()) integral = kILimit
 
         val feedback = (kP * error) + (kI * integral) + (kD * derivative)
         val feedfrwd = (kV * targetVelocity) + (kA * targetAcceleration) + (kS * sign(targetPosition))

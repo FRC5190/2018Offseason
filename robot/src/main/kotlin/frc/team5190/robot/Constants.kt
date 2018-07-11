@@ -5,7 +5,13 @@
 
 package frc.team5190.robot
 
+import frc.team5190.lib.geometry.Pose2d
+import frc.team5190.lib.geometry.Rotation2d
+import frc.team5190.lib.geometry.Translation2d
+
+@Suppress("MemberVisibilityCanBePrivate")
 object Constants {
+
     const val kLeftMasterId = 1
     const val kLeftSlaveId1 = 2
     const val kLeftSlaveId2 = 3
@@ -14,7 +20,33 @@ object Constants {
     const val kRightSlaveId1 = 5
     const val kRightSlaveId2 = 6
 
+    const val kRobotWidth   = 27.0 / 12.0
+    const val kRobotLength  = 33.0 / 12.0
+    const val kIntakeLength = 16.0 / 12.0
+    const val kBumperLength = 02.0 / 12.0
+
+    const val kRobotStartX = (kRobotLength / 2.0) + kBumperLength
+
+    const val kExchangeZoneBottomY = 14.6
+
+    const val kRobotSideStartY   = 23.5
+    const val kRobotCenterStartY = kExchangeZoneBottomY - (Constants.kRobotWidth / 2.0) - Constants.kBumperLength
+
+    val kCenterToIntake      = Pose2d(Translation2d(-(kRobotLength / 2.0) - kIntakeLength, 0.0), Rotation2d())
+    val kCenterToFrontBumper = Pose2d(Translation2d(-(kRobotLength / 2.0) - kBumperLength, 0.0), Rotation2d())
+
     const val kDriveSensorsUnitsPerRotation = 1440
-    const val kWheelRadiusInches = 3.0
-    const val kTrackWidth = 25 / 12.0
+    const val kWheelRadiusInches            = 3.0
+    const val kTrackWidth                   = 25 / 12.0
+
+    const val kPLeftDriveVelocity = 0.08
+    const val kILeftDriveVelocity = 0.01
+    const val kVLeftDriveVelocity = 0.05
+    const val kSLeftDriveVelocity = 0.10
+
+    const val kPRightDriveVelocity = 0.08
+    const val kIRightDriveVelocity = 0.01
+    const val kVRightDriveVelocity = 0.05
+    const val kSRightDriveVelocity = 0.10
+
 }
