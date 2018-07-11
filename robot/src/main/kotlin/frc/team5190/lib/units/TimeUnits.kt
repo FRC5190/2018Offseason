@@ -3,20 +3,20 @@
 package frc.team5190.lib.units
 
 interface Time {
-    val SEC: Seconds
-    val MS: Milliseconds
+    val SEC: Double
+    val MS: Int
 }
 
 class Seconds(val value: Double) : Time {
     override val SEC
-        get() = this
+        get() = value
     override val MS
-        get() = Milliseconds((value * 1000).toInt())
+        get() = (value * 1000).toInt()
 }
 
 class Milliseconds(val value: Int) : Time {
     override val MS
-        get() = this
+        get() = value
     override val SEC
-        get() = Seconds(value / 1000.0)
+        get() = value / 1000.0
 }

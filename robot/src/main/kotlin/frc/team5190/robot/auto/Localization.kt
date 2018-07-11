@@ -54,7 +54,7 @@ object Localization {
             val deltaR = posR - prevR
             val deltaA = (angA - prevA).enforceBounds()
 
-            val kinematics = Kinematics.forwardKinematics(deltaL.FT.value, deltaR.FT.value, deltaA)
+            val kinematics = Kinematics.forwardKinematics(deltaL.FT, deltaR.FT, deltaA)
             robotPosition = robotPosition.transformBy(Pose2d.fromTwist(kinematics))
         }
     }

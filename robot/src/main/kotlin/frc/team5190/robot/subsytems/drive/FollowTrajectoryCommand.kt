@@ -45,7 +45,7 @@ class FollowTrajectoryCommand(identifier: String,
                 kI = 0.01,
                 kV = 0.05,
                 kS = 0.10,
-                current = { DriveSubsystem.leftVelocity.FPS.value }
+                current = { DriveSubsystem.leftVelocity.FPS }
         )
 
         rController = VelocityPIDFController(
@@ -53,7 +53,7 @@ class FollowTrajectoryCommand(identifier: String,
                 kI = 0.01,
                 kV = 0.05,
                 kS = 0.10,
-                current = { DriveSubsystem.rightVelocity.FPS.value }
+                current = { DriveSubsystem.rightVelocity.FPS }
         )
 
 

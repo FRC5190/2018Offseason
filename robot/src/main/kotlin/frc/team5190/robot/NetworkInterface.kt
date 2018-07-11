@@ -55,11 +55,11 @@ object NetworkInterface {
             lookaheadX.setDouble(FollowTrajectoryCommand.lookaheadX)
             lookaheadY.setDouble(FollowTrajectoryCommand.lookaheadY)
 
-            driveLeftEncoder.setDouble(DriveSubsystem.leftPosition.STU.value.toDouble())
+            driveLeftEncoder.setDouble(DriveSubsystem.leftPosition.STU.toDouble())
             driveLeftPercent.setDouble(DriveSubsystem.leftPercent * 100)
             driveLeftAmps.setDouble(DriveSubsystem.leftAmperage)
 
-            driveRightEncoder.setDouble(DriveSubsystem.rightPosition.STU.value.toDouble())
+            driveRightEncoder.setDouble(DriveSubsystem.rightPosition.STU.toDouble())
             driveRightPercent.setDouble(DriveSubsystem.rightPercent * 100)
             driveRightAmps.setDouble(DriveSubsystem.rightAmperage)
 

@@ -54,7 +54,7 @@ class TrajectoryFollower(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>
 
 
         System.out.printf("[Path Follower] V: %2.3f, A: %2.3f, X Error: %2.3f, Y Error: %2.3f, Theta Error: %2.3f, Actual Speed: %2.3f %n",
-                v, w, xError, yError, thetaError, (DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity).FPS.value / 2)
+                v, w, xError, yError, thetaError, (DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity).FPS / 2)
 
         return Twist2d(dx = v, dy = 0.0, dtheta = w)
     }
