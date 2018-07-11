@@ -1,3 +1,8 @@
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
+
 import {Rectangle, Score, Command, Alliance, FieldObject} from "./fieldobject";
 import Field from "./field";
 import Cube from "./cube";

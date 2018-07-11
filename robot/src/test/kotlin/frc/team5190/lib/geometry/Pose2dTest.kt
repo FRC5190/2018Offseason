@@ -1,3 +1,8 @@
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
+
 package frc.team5190.lib.geometry
 
 import frc.team5190.lib.motion.kinematics.FrameOfReference

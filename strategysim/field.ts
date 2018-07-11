@@ -1,3 +1,8 @@
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
+
 import {Rectangle, Alliance, FieldObject} from "./fieldobject";
 import {Balance} from "./balance";
 import {Exchange, VaultCommand, VaultCommandQueue} from "./exchange";

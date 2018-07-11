@@ -1,3 +1,8 @@
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
+
 import {Score, Alliance, Command, FieldObject, Rectangle} from "./fieldobject";
 import Field from "./field";
 import { Strategy } from "./strategies/strategy";

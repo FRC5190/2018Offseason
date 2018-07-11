@@ -3,9 +3,16 @@
  * Green Hope Falcons
  */
 
+/*
+ * Some implementations and algorithms borrowed from:
+ * NASA Ames Robotics "The Cheesy Poofs"
+ * Team 254
+ */
+
 package frc.team5190.lib.spline
 
 import frc.team5190.lib.extensions.Matrix
+import frc.team5190.lib.extensions.times
 import frc.team5190.lib.geometry.Pose2d
 import frc.team5190.lib.geometry.Rotation2d
 import frc.team5190.lib.geometry.Translation2d
@@ -95,8 +102,8 @@ class QuinticHermiteSpline(private val x0: Double,
                 doubleArrayOf(y1)
         ))
 
-        xCoefficients = (hermiteQuinticInterpolationMatrix.multiply(xMatrix)).data
-        yCoefficients = (hermiteQuinticInterpolationMatrix.multiply(yMatrix)).data
+        xCoefficients = (hermiteQuinticInterpolationMatrix * xMatrix).data
+        yCoefficients = (hermiteQuinticInterpolationMatrix * yMatrix).data
     }
 
     override fun getPoint(t: Double): Translation2d {

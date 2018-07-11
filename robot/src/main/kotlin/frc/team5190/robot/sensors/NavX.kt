@@ -1,3 +1,8 @@
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
+
 package frc.team5190.robot.sensors
 
 import com.kauailabs.navx.frc.AHRS
@@ -20,6 +25,4 @@ object NavX : AHRS(SPI.Port.kMXP) {
     val correctedAngle: Double
         get() = Pathfinder.boundHalfDegrees(-angle + angleOffset)
 
-    val correctedPitch: Double
-        get() = Pathfinder.boundHalfDegrees(roll.toDouble() - pitchOffset)
 }

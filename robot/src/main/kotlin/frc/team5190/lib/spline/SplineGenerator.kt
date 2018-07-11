@@ -1,3 +1,15 @@
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
+
+/*
+ * Some implementations and algorithms borrowed from:
+ * NASA Ames Robotics "The Cheesy Poofs"
+ * Team 254
+ */
+
+
 package frc.team5190.lib.spline
 
 import frc.team5190.lib.geometry.Pose2d

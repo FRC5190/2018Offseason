@@ -3,6 +3,7 @@
  * Green Hope Falcons
  */
 
+
 package frc.team5190.lib.trajectory
 
 import frc.team5190.lib.extensions.cos
