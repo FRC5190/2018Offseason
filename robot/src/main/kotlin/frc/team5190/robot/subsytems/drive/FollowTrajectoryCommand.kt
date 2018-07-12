@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.control.VelocityPIDFController
 import frc.team5190.lib.geometry.Translation2d
 import frc.team5190.lib.trajectory.TrajectoryFollower
+import frc.team5190.lib.trajectory.TrajectoryIterator
 import frc.team5190.lib.trajectory.TrajectoryUtil
 import frc.team5190.robot.Constants
 import frc.team5190.robot.Kinematics
@@ -83,6 +84,24 @@ class FollowTrajectoryCommand(identifier: String,
         }
     }
 
+    fun addMarkerAt(waypoint: Translation2d): Marker {
+        // Iterate through the trajectory and add a data point every 50 ms.
+        val iterator = TrajectoryIterator(trajectory.indexView)
+        val dataArray = arrayListOf<Pair<Double, Translation2d>>()
+
+        while (iterator.isDone) {
+            val point = iterator.advance(0.05)
+            dataArray.add(point.state.t to point.state.state.translation)
+        }
+
+        // Find t where the distance between the provided waypoint and the actual point is shortest.
+        val t = dataArray.minBy { waypoint.distance(it.second) }?.first ?: dataArray.last().first
+        return Marker(this, t)
+    }
+
+    fun hasCrossedMarker(marker: Marker): Boolean {
+        return marker.instance == this && trajectoryFollower.currentPoint.state.t > marker.t
+    }
 
     private fun updateDashboard() {
         pathX = trajectoryFollower.currentPointPose.translation.x
@@ -125,4 +144,6 @@ class FollowTrajectoryCommand(identifier: String,
         var lookaheadY = 0.0
             private set
     }
+
+    class Marker(val instance: FollowTrajectoryCommand, val t: Double)
 }

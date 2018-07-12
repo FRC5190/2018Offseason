@@ -30,5 +30,6 @@ fun parallel(block: ArrayList<Command>.() -> Unit): CommandGroup {
     return group
 }
 
+
 @Suppress("FunctionName", "UNUSED_PARAMETER")
 infix fun CommandGroup.S3ND(other: String) { this.start() }
