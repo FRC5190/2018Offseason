@@ -82,8 +82,8 @@ class Pose2d : IPose2d<Pose2d> {
         return twist.dy epsilonEquals 0.00 && twist.dtheta epsilonEquals 0.0
     }
 
-    private fun epsilonEquals(other: Pose2d): Boolean {
-        return translation.epsilonEquals(other.translation) && rotation.isParallel(other.rotation)
+    private infix fun epsilonEquals(other: Pose2d): Boolean {
+        return translation epsilonEquals other.translation && rotation.isParallel(other.rotation)
     }
 
 
@@ -179,7 +179,7 @@ class Pose2d : IPose2d<Pose2d> {
             val tanB = br.tan
             val t = ((at.x - bt.x) * tanB + bt.y - at.y) / (ar.sin - ar.cos * tanB)
             return if (java.lang.Double.isNaN(t)) {
-                Translation2d(java.lang.Double.POSITIVE_INFINITY, java.lang.Double.POSITIVE_INFINITY)
+                Translation2d(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY)
             } else at.translateBy(ar.toTranslation().scale(t))
         }
     }

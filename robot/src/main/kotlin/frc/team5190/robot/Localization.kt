@@ -3,7 +3,6 @@
  * Green Hope Falcons
  */
 
-
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.Notifier
@@ -29,7 +28,7 @@ object Localization {
 
     init {
         reset()
-        Notifier(this::run).startPeriodic(0.05)
+        Notifier(::run).startPeriodic(0.05)
     }
 
     fun reset(pose: Pose2d = Pose2d(Translation2d(), Rotation2d())) {
@@ -37,18 +36,16 @@ object Localization {
             robotPosition = pose
             prevL = DriveSubsystem.leftPosition
             prevR = DriveSubsystem.rightPosition
-            prevA = Math.toRadians(NavX.correctedAngle)
+            prevA = NavX.correctedAngle.radians
         }
     }
-
-    fun reset(translation2d: Translation2d) = reset(Pose2d(translation2d, Rotation2d()))
 
     private fun run() {
         synchronized(loc) {
             val posL = DriveSubsystem.leftPosition
             val posR = DriveSubsystem.rightPosition
 
-            val angA = Math.toRadians(NavX.correctedAngle)
+            val angA = NavX.correctedAngle.radians
 
             val deltaL = posL - prevL
             val deltaR = posR - prevR

@@ -8,12 +8,12 @@ package frc.team5190.robot.auto.routines
 import edu.wpi.first.wpilibj.command.CommandGroup
 import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.extensions.sequential
-import frc.team5190.robot.Localization
 import frc.team5190.robot.auto.Autonomous
 import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 import openrio.powerup.MatchData
 
-class RoutineSwitchFromCenter(private val switchSide: MatchData.OwnedSide) : BaseRoutine() {
+class RoutineSwitchFromCenter(startingPosition: Autonomous.StartingPositions,
+                              private val switchSide: MatchData.OwnedSide) : BaseRoutine(startingPosition) {
     override val routine: CommandGroup
         get() {
             val switch = if (switchSide == MatchData.OwnedSide.LEFT) {
@@ -21,15 +21,12 @@ class RoutineSwitchFromCenter(private val switchSide: MatchData.OwnedSide) : Bas
             } else "Right"
             val mirrored = switchSide == MatchData.OwnedSide.RIGHT
 
-            Localization.reset(Autonomous.StartingPositions.CENTER.pose)
-
             return sequential {
                 // 1st Cube in Switch
                 add(parallel {
                     add(FollowTrajectoryCommand(
                             identifier = "Center Start to $switch Switch",
-                            pathMirrored = false,
-                            resetRobotPosition = true))
+                            pathMirrored = false))
                 })
 
                 // Come Back to Center

@@ -11,13 +11,12 @@ import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.extensions.sequential
 import frc.team5190.lib.geometry.Translation2d
 import frc.team5190.lib.util.StateCommand
-import frc.team5190.robot.Localization
 import frc.team5190.robot.auto.Autonomous
 import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 import openrio.powerup.MatchData
 
 class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPositions,
-                           private val scaleSide: MatchData.OwnedSide) : BaseRoutine() {
+                           private val scaleSide: MatchData.OwnedSide) : BaseRoutine(startingPosition) {
 
     override val routine: CommandGroup
         get() {
@@ -26,12 +25,9 @@ class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPosi
             } else "Far"
             val mirrored = scaleSide == MatchData.OwnedSide.RIGHT
 
-            Localization.reset(startingPosition.pose)
-
             val drop1stCube = FollowTrajectoryCommand(
                     identifier = "Left Start to $scale Scale",
-                    pathMirrored = startingPosition == Autonomous.StartingPositions.RIGHT,
-                    resetRobotPosition = true)
+                    pathMirrored = startingPosition == Autonomous.StartingPositions.RIGHT)
 
             val pickup2ndCube = FollowTrajectoryCommand(identifier = "Scale to Cube 1", pathMirrored = mirrored)
             val drop2ndCube   = FollowTrajectoryCommand(identifier = "Cube 1 to Scale", pathMirrored = mirrored)

@@ -21,7 +21,7 @@ class TrajectoriesTest {
 
         val name = "Pyramid to Scale"
 
-        val trajectory = TrajectoryUtil.mirrorTimed(Trajectories[name])
+        val trajectory = Trajectories[name]
         val iterator = TrajectoryIterator(trajectory.indexView)
 
         val xList = arrayListOf<Double>()

@@ -7,21 +7,18 @@ package frc.team5190.robot.sensors
 
 import com.kauailabs.navx.frc.AHRS
 import edu.wpi.first.wpilibj.SPI
-import frc.team5190.lib.extensions.boundDegrees
+import frc.team5190.lib.geometry.Rotation2d
 
-/**
- * Creates a NavX singleton object
- */
+
 object NavX : AHRS(SPI.Port.kMXP) {
 
     init {
         reset()
-
     }
 
     var angleOffset = 0.0
 
-    val correctedAngle: Double
-        get() = (-angle + angleOffset).boundDegrees()
+    val correctedAngle: Rotation2d
+        get() = Rotation2d.fromDegrees(-angle + angleOffset)
 
 }

@@ -8,39 +8,40 @@ package frc.team5190.robot
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Notifier
-import frc.team5190.robot.sensors.NavX
 import frc.team5190.robot.subsytems.drive.DriveSubsystem
 import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 
 @Suppress("HasPlatformType")
 object NetworkInterface  {
 
-    val kInstance = NetworkTableInstance.getDefault().getTable("Live Dashboard")
+    val INSTANCE = NetworkTableInstance.getDefault().getTable("Live Dashboard")
 
-    val startingPosition = kInstance.getEntry("Starting Position")
+    val startingPosition = INSTANCE.getEntry("Starting Position")
 
-    private val robotX = kInstance.getEntry("Robot X")
-    private val robotY = kInstance.getEntry("Robot Y")
+    val switchAutoMode = INSTANCE.getEntry("Switch Auto Mode")
 
-    private val robotHdg = kInstance.getEntry("Robot Heading")
+    private val robotX = INSTANCE.getEntry("Robot X")
+    private val robotY = INSTANCE.getEntry("Robot Y")
 
-    private val pathX = kInstance.getEntry("Path X")
-    private val pathY = kInstance.getEntry("Path Y")
-    private val pathHdg = kInstance.getEntry("Path Heading")
+    private val robotHdg = INSTANCE.getEntry("Robot Heading")
 
-    private val lookaheadX = kInstance.getEntry("Lookahead X")
-    private val lookaheadY = kInstance.getEntry("Lookahead Y")
+    private val pathX = INSTANCE.getEntry("Path X")
+    private val pathY = INSTANCE.getEntry("Path Y")
+    private val pathHdg = INSTANCE.getEntry("Path Heading")
 
-    private val driveLeftEncoder = kInstance.getEntry("Drive Left Encoder")
-    private val driveLeftPercent = kInstance.getEntry("Drive Left Pct")
-    private val driveLeftAmps = kInstance.getEntry("Drive Left Amps")
+    private val lookaheadX = INSTANCE.getEntry("Lookahead X")
+    private val lookaheadY = INSTANCE.getEntry("Lookahead Y")
 
-    private val driveRightEncoder = kInstance.getEntry("Drive Right Encoder")
-    private val driveRightPercent = kInstance.getEntry("Drive Right Pct")
-    private val driveRightAmps = kInstance.getEntry("Drive Right Amps")
+    private val driveLeftEncoder = INSTANCE.getEntry("Drive Left Encoder")
+    private val driveLeftPercent = INSTANCE.getEntry("Drive Left Pct")
+    private val driveLeftAmps = INSTANCE.getEntry("Drive Left Amps")
 
-    private val isEnabled = kInstance.getEntry("Is Enabled")
-    private val gameData = kInstance.getEntry("Game Data")
+    private val driveRightEncoder = INSTANCE.getEntry("Drive Right Encoder")
+    private val driveRightPercent = INSTANCE.getEntry("Drive Right Pct")
+    private val driveRightAmps = INSTANCE.getEntry("Drive Right Amps")
+
+    private val isEnabled = INSTANCE.getEntry("Is Enabled")
+    private val gameData = INSTANCE.getEntry("Game Data")
 
     private val notifier: Notifier
 
@@ -50,7 +51,7 @@ object NetworkInterface  {
             robotX.setDouble(Localization.robotPosition.translation.x)
             robotY.setDouble(Localization.robotPosition.translation.y)
 
-            robotHdg.setDouble(Math.toRadians(NavX.correctedAngle))
+            robotHdg.setDouble(Localization.robotPosition.rotation.degrees)
 
             pathX.setDouble(FollowTrajectoryCommand.pathX)
             pathY.setDouble(FollowTrajectoryCommand.pathY)

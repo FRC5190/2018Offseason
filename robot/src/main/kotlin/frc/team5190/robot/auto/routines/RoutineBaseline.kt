@@ -7,16 +7,16 @@ package frc.team5190.robot.auto.routines
 
 import edu.wpi.first.wpilibj.command.CommandGroup
 import frc.team5190.lib.extensions.sequential
+import frc.team5190.robot.auto.Autonomous
 import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 
-class RoutineBaseline : BaseRoutine() {
+class RoutineBaseline(startingPosition: Autonomous.StartingPositions) : BaseRoutine(startingPosition) {
     override val routine: CommandGroup
         get() {
             return sequential {
                 add(FollowTrajectoryCommand(
                         identifier = "Baseline",
-                        pathMirrored = false,
-                        resetRobotPosition = true))
+                        pathMirrored = false))
             }
         }
 }

@@ -141,12 +141,12 @@ class Rotation2d : IRotation2d<Rotation2d> {
             return kIdentity
         }
 
-        fun fromRadians(angle_radians: Double): Rotation2d {
-            return Rotation2d(Math.cos(angle_radians), Math.sin(angle_radians), false)
+        fun fromRadians(angleRadians: Double): Rotation2d {
+            return Rotation2d(Math.cos(angleRadians), Math.sin(angleRadians), false)
         }
 
-        fun fromDegrees(angle_degrees: Double): Rotation2d {
-            return Rotation2d(angle_degrees)
+        fun fromDegrees(angleDegrees: Double): Rotation2d {
+            return Rotation2d(angleDegrees)
         }
     }
 }

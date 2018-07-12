@@ -87,7 +87,7 @@ class Translation2d : ITranslation2d<Translation2d> {
         return Translation2d(x * s, y * s)
     }
 
-    fun epsilonEquals(other: Translation2d): Boolean {
+    infix fun epsilonEquals(other: Translation2d): Boolean {
         return x epsilonEquals other.x && y epsilonEquals other.y
     }
 

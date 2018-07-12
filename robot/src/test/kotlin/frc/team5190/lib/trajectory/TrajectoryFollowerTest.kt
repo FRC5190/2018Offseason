@@ -17,7 +17,7 @@ import java.text.DecimalFormat
 class TrajectoryFollowerTest {
     @Test
     fun testTrajectoryFollower() {
-        val name       = "Left Start to Far Scale"
+        val name       = "Pyramid to Scale"
         val trajectory = Trajectories[name]
         val iterator = TrajectoryIterator(trajectory.indexView)
         val follower = TrajectoryFollower(trajectory)
@@ -56,11 +56,6 @@ class TrajectoryFollowerTest {
 
         chart.styler.chartFontColor = Color.WHITE
         chart.styler.axisTickLabelsColor = Color.WHITE
-
-//        chart.styler.xAxisMin = 1.0
-//        chart.styler.xAxisMax = 26.0
-//        chart.styler.yAxisMin = 1.0
-//        chart.styler.yAxisMax = 26.0
 
         chart.styler.isPlotGridLinesVisible = true
         chart.styler.isLegendVisible = false

@@ -18,9 +18,7 @@ import frc.team5190.robot.Kinematics
 import frc.team5190.robot.Localization
 import frc.team5190.robot.auto.Trajectories
 
-class FollowTrajectoryCommand(identifier: String,
-                              pathMirrored: Boolean = false,
-                              private val resetRobotPosition: Boolean = false) : Command() {
+class FollowTrajectoryCommand(identifier: String, pathMirrored: Boolean = false) : Command() {
 
     // Notifier objects
     private val pf = Object()
@@ -80,6 +78,10 @@ class FollowTrajectoryCommand(identifier: String,
                         rController.getPIDFOutput(output.second to 0.0))
 
                 updateDashboard()
+                System.out.printf("[Trajectory Follower] X Error: %3.3f, Y Error: %3.3f, T Error: %3.3f",
+                        trajectoryFollower.currentPointPose.translation.x - Localization.robotPosition.translation.x,
+                        trajectoryFollower.currentPointPose.translation.y - Localization.robotPosition.translation.y,
+                        trajectoryFollower.currentPointPose.rotation.degrees - Localization.robotPosition.rotation.degrees)
             }
         }
     }
@@ -113,11 +115,6 @@ class FollowTrajectoryCommand(identifier: String,
     }
 
     override fun initialize() {
-        if (resetRobotPosition) {
-            DriveSubsystem.resetEncoders()
-            Localization.reset(
-                    Translation2d(trajectory.firstState.state.translation.x, trajectory.firstState.state.translation.y))
-        }
         notifier.startPeriodic(trajectoryFollower.dt)
     }
 
