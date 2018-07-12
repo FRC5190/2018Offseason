@@ -38,10 +38,10 @@ object Trajectories {
     internal val kSideStart               = Pose2d(Translation2d(kRobotStartX, kRobotSideStartY),   Rotation2d(-1.0, 0.0))
     internal val kCenterStart             = Pose2d(Translation2d(kRobotStartX, kRobotCenterStartY), Rotation2d())
 
-    private val kNearScaleEmpty           = Pose2d(Translation2d(22.7, 20.50), Rotation2d.fromDegrees(170.0))
-    private val kNearScaleFull            = Pose2d(Translation2d(22.7, 20.00), Rotation2d.fromDegrees(165.0))
+    private val kNearScaleEmpty           = Pose2d(Translation2d(22.7, 20.5), Rotation2d.fromDegrees(170.0))
+    private val kNearScaleFull            = Pose2d(Translation2d(22.7, 20.0), Rotation2d.fromDegrees(165.0))
 
-    private val kFarScaleEmpty            = Pose2d(Translation2d(22.7, 06.50), Rotation2d.fromDegrees(190.0))
+    private val kFarScaleEmpty            = Pose2d(Translation2d(22.7, 06.5), Rotation2d.fromDegrees(190.0))
 
     private val kNearCube1                = Pose2d(Translation2d(16.5, 19.5), Rotation2d.fromDegrees(190.0))
     private val kNearCube2                = Pose2d(Translation2d(16.5, 17.0), Rotation2d.fromDegrees(245.0))
@@ -74,7 +74,8 @@ object Trajectories {
         // Left Start to Near Scale
         mutableListOf(
                 kSideStart,
-                kSideStart.transformBy(Pose2d.fromTranslation(Translation2d(-10.0, 0.0))), kNearScaleEmpty
+                kSideStart.transformBy(Pose2d.fromTranslation(Translation2d(-10.0, 0.0))),
+                kNearScaleEmpty
         ).also { generateTrajectory("Left Start to Near Scale", true, it) }
 
 
@@ -87,38 +88,37 @@ object Trajectories {
                 kFarScaleEmpty
         ).also { generateTrajectory("Left Start to Far Scale", true, it) }
 
-        // Near Scale to Cube 1
+        // Scale to Cube 1
         mutableListOf(
                 kNearScaleEmpty,
                 kNearCube1Adjusted
         ).also { generateTrajectory("Scale to Cube 1", false, it) }
 
-        // Cube 1 to Near Scale
+        // Cube 1 to Scale
         mutableListOf(
                 kNearCube1Adjusted,
                 kNearScaleFull
         ).also { generateTrajectory("Cube 1 to Scale", true, it) }
 
-        // Near Scale to Cube 2
+        // Scale to Cube 2
         mutableListOf(
                 kNearScaleFull,
                 kNearCube2Adjusted
         ).also { generateTrajectory("Scale to Cube 2", false, it) }
 
-        // Cube 2 to Near Scale
+        // Cube 2 to Scale
         mutableListOf(
                 kNearCube2Adjusted,
                 kNearScaleFull
         ).also { generateTrajectory("Cube 2 to Scale", true, it) }
 
-        // Near Scale to Cube 3
+        // Scale to Cube 3
         mutableListOf(
                 kNearScaleFull,
                 kNearCube3Adjusted
         ).also { generateTrajectory("Scale to Cube 3", false, it) }
 
-
-        // Cube 3 to Near Scale
+        // Cube 3 to Scale
         mutableListOf(
                 kNearCube3Adjusted,
                 kNearScaleFull
@@ -136,7 +136,7 @@ object Trajectories {
                 kSwitchRightAdjusted
         ).also { generateTrajectory("Center Start to Right Switch", false, it) }
 
-        // Left Switch to Center
+        // Switch to Center
         mutableListOf(
                 kSwitchLeftAdjusted,
                 kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-4.0, 0.0)))
@@ -154,11 +154,19 @@ object Trajectories {
                 kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-4.0, 0.0)))
         ).also { generateTrajectory("Pyramid to Center", true, it) }
 
-        // Center to Left Switch
+        // Center to Switch
         mutableListOf(
                 kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-4.0, 0.0))),
                 kSwitchLeftAdjusted
         ).also { generateTrajectory("Center to Switch", false, it) }
+
+        // Pyramid to Scale
+        mutableListOf(
+                kFrontPyramidCubeAdjusted,
+                kFrontPyramidCubeAdjusted.transformBy(Pose2d(Translation2d(0.0, 9.0), Rotation2d.fromDegrees(180.0))),
+                kFrontPyramidCubeAdjusted.transformBy(Pose2d(Translation2d(7.0, 9.0), Rotation2d.fromDegrees(180.0))),
+                kNearScaleEmpty
+        ).also { generateTrajectory("Pyramid to Scale", true, it) }
 
         // Baseline
         mutableListOf(

@@ -7,6 +7,7 @@ package frc.team5190.robot.auto
 
 
 import frc.team5190.lib.trajectory.TrajectoryIterator
+import frc.team5190.lib.trajectory.TrajectoryUtil
 import org.junit.Test
 import org.knowm.xchart.SwingWrapper
 import org.knowm.xchart.XYChartBuilder
@@ -18,9 +19,9 @@ class TrajectoriesTest {
     @Test
     fun testTrajectories() {
 
-        val name = "Cube 3 to Scale"
+        val name = "Pyramid to Scale"
 
-        val trajectory = Trajectories[name]
+        val trajectory = TrajectoryUtil.mirrorTimed(Trajectories[name])
         val iterator = TrajectoryIterator(trajectory.indexView)
 
         val xList = arrayListOf<Double>()
@@ -31,10 +32,9 @@ class TrajectoriesTest {
             xList.add(point.state.state.translation.x)
             yList.add(point.state.state.translation.y)
 
-//            System.out.printf("X: %2.3f, Y: %2.3f, C: %2.3f, T: %2.3f, V: %2.3f\n", point.state.state.translation.x,
-//                    point.state.state.translation.y, point.state.state.curvature, point.state.state.rotation.degrees, point.state.velocity)
+            System.out.printf("X: %2.3f, Y: %2.3f, C: %2.3f, T: %2.3f, V: %2.3f\n", point.state.state.translation.x,
+                    point.state.state.translation.y, point.state.state.curvature, point.state.state.rotation.degrees, point.state.velocity)
         }
-
 
         val fm = DecimalFormat("#.###").format(trajectory.lastState.t)
 
