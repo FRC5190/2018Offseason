@@ -5,14 +5,14 @@
 
 package frc.team5190.robot.auto
 
-import edu.wpi.first.wpilibj.command.CommandGroup
+import edu.wpi.first.wpilibj.DriverStation
 import frc.team5190.lib.extensions.S3ND
-import frc.team5190.lib.extensions.sequential
 import frc.team5190.lib.geometry.Pose2d
 import frc.team5190.robot.NetworkInterface
 import frc.team5190.robot.Robot
-import frc.team5190.robot.sensors.NavX
-import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
+import frc.team5190.robot.auto.routines.RoutineBaseline
+import frc.team5190.robot.auto.routines.RoutineScaleFromSide
+import frc.team5190.robot.auto.routines.RoutineSwitchFromCenter
 import kotlinx.coroutines.experimental.launch
 import openrio.powerup.MatchData
 import openrio.powerup.MatchData.GameFeature.SCALE
@@ -27,7 +27,6 @@ object Autonomous {
 
     private var startingPosition = StartingPositions.CENTER
 
-    private var farScale = false
 
     private val fmsDataValid
         get() = switchSide != MatchData.OwnedSide.UNKNOWN && scaleSide != MatchData.OwnedSide.UNKNOWN
@@ -43,48 +42,31 @@ object Autonomous {
                 getOwnedSide(SWITCH_NEAR) != switchSide ||
                 getOwnedSide(SCALE) != scaleSide
 
-    private val mirroredStart
-        get() = startingPosition == StartingPositions.RIGHT
-
-    private val autoCommand: CommandGroup
-        get() {
-            NavX.reset()
-            NavX.angleOffset = startingPosition.pose.rotation.degrees
-
-            NetworkInterface.ntInstance.getEntry("Reset").setBoolean(true)
-
-            return sequential {
-                FollowTrajectoryCommand(if (farScale) "Left Start to Far Scale" else "Left Start to Near Scale", mirroredStart)
-                FollowTrajectoryCommand("Near Scale to Cube 1", scaleSide == MatchData.OwnedSide.RIGHT)
-                FollowTrajectoryCommand("Cube 1 to Near Scale", scaleSide == MatchData.OwnedSide.RIGHT)
-                FollowTrajectoryCommand("Near Scale to Cube 2", scaleSide == MatchData.OwnedSide.RIGHT)
-                FollowTrajectoryCommand("Cube 2 to Near Scale", scaleSide == MatchData.OwnedSide.RIGHT)
-                FollowTrajectoryCommand("Near Scale to Cube 3", scaleSide == MatchData.OwnedSide.RIGHT)
-                FollowTrajectoryCommand("Cube 3 to Near Scale", scaleSide == MatchData.OwnedSide.RIGHT)
-            }
-        }
-
 
     init {
         // Poll for FMS Data
         launch {
 
-            var JUST = sequential { }
+            var JUST = RoutineBaseline().routine
             val IT = ""
 
             while (continuePolling) {
                 if (dataChanged) {
-                    switchSide = getOwnedSide(SWITCH_NEAR)
-                    scaleSide =  getOwnedSide(SCALE)
+
+                    switchSide       = getOwnedSide(SWITCH_NEAR)
+                    scaleSide        = getOwnedSide(SCALE)
                     startingPosition = networkStartingPosition
 
-                    farScale = startingPosition.name.first().toUpperCase() != scaleSide.name.first().toUpperCase()
 
-                    Localization.reset(startingPosition.pose)
-
-                    JUST = autoCommand
+                    JUST = when (startingPosition) {
+                        StartingPositions.LEFT   -> RoutineScaleFromSide(startingPosition, scaleSide).routine
+                        StartingPositions.RIGHT  -> RoutineScaleFromSide(startingPosition, scaleSide).routine
+                        StartingPositions.CENTER -> RoutineSwitchFromCenter(switchSide).routine
+                    }
                 }
             }
+
+            println("[Autonomous] Game Data Received from FMS --> ${DriverStation.getInstance().gameSpecificMessage}")
             JUST S3ND IT
         }
     }

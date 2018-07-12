@@ -45,7 +45,7 @@ class TCurveFollower(private val initialPos: Double,
     private val dcruise = tcruise * cruiseVelocity
 
     // PIDF Controller
-    private lateinit var pidfController: PositionPIDFController
+    private var pidfController = PositionPIDFController(current = {0.0})
 
     // Total time for path
     val tpath = taccel + tcruise + taccel
@@ -111,7 +111,7 @@ class TCurveFollower(private val initialPos: Double,
                 position = 0.0
             }
         }
-        return Triple(pidfController.getPIDFOutput(Triple(position, velocity, acceleration)), velocity, position)
+        return Triple(pidfController.getPIDFOutput(Triple(position, velocity, acceleration)), position, velocity)
     }
 
     private fun positionEquation(s0: Double, v0: Double, a: Double, t: Double) = s0 + (v0 * t) + (0.5 * a * t * t)

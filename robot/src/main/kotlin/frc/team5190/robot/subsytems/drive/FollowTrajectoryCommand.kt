@@ -14,7 +14,7 @@ import frc.team5190.lib.trajectory.TrajectoryFollower
 import frc.team5190.lib.trajectory.TrajectoryUtil
 import frc.team5190.robot.Constants
 import frc.team5190.robot.Kinematics
-import frc.team5190.robot.auto.Localization
+import frc.team5190.robot.Localization
 import frc.team5190.robot.auto.Trajectories
 
 class FollowTrajectoryCommand(identifier: String,

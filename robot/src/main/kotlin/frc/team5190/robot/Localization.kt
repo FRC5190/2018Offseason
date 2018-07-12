@@ -3,17 +3,21 @@
  * Green Hope Falcons
  */
 
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
 
-package frc.team5190.robot.auto
+
+package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.Notifier
-import frc.team5190.lib.extensions.enforceBounds
+import frc.team5190.lib.extensions.boundRadians
 import frc.team5190.lib.geometry.Pose2d
 import frc.team5190.lib.geometry.Rotation2d
 import frc.team5190.lib.geometry.Translation2d
 import frc.team5190.lib.units.Distance
 import frc.team5190.lib.units.NativeUnits
-import frc.team5190.robot.Kinematics
 import frc.team5190.robot.subsytems.drive.DriveSubsystem
 import frc.team5190.robot.sensors.NavX
 
@@ -53,7 +57,7 @@ object Localization {
 
             val deltaL = posL - prevL
             val deltaR = posR - prevR
-            val deltaA = (angA - prevA).enforceBounds()
+            val deltaA = (angA - prevA).boundRadians()
 
             val kinematics = Kinematics.forwardKinematics(deltaL.FT, deltaR.FT, deltaA)
             robotPosition = robotPosition.transformBy(Pose2d.fromTwist(kinematics))

@@ -90,38 +90,38 @@ object Trajectories {
         mutableListOf(
                 kNearScaleEmpty,
                 kNearCube1Adjusted
-        ).also { generateTrajectory("Near Scale to Cube 1", false, it) }
+        ).also { generateTrajectory("Scale to Cube 1", false, it) }
 
         // Cube 1 to Near Scale
         mutableListOf(
                 kNearCube1Adjusted,
                 kNearScaleFull
-        ).also { generateTrajectory("Cube 1 to Near Scale", true, it) }
+        ).also { generateTrajectory("Cube 1 to Scale", true, it) }
 
         // Near Scale to Cube 2
         mutableListOf(
                 kNearScaleFull,
                 kNearCube2Adjusted
-        ).also { generateTrajectory("Near Scale to Cube 2", false, it) }
+        ).also { generateTrajectory("Scale to Cube 2", false, it) }
 
         // Cube 2 to Near Scale
         mutableListOf(
                 kNearCube2Adjusted,
                 kNearScaleFull
-        ).also { generateTrajectory("Cube 2 to Near Scale", true, it) }
+        ).also { generateTrajectory("Cube 2 to Scale", true, it) }
 
         // Near Scale to Cube 3
         mutableListOf(
                 kNearScaleFull,
                 kNearCube3Adjusted
-        ).also { generateTrajectory("Near Scale to Cube 3", false, it) }
+        ).also { generateTrajectory("Scale to Cube 3", false, it) }
 
 
         // Cube 3 to Near Scale
         mutableListOf(
                 kNearCube3Adjusted,
                 kNearScaleFull
-        ).also { generateTrajectory("Cube 3 to Near Scale", true, it) }
+        ).also { generateTrajectory("Cube 3 to Scale", true, it) }
 
         // Center Start to Left Switch
         mutableListOf(
@@ -138,26 +138,26 @@ object Trajectories {
         // Left Switch to Center
         mutableListOf(
                 kSwitchLeftAdjusted,
-                kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-5.0, 0.0)))
-        ).also { generateTrajectory("Left Switch to Center", true, it) }
+                kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-4.0, 0.0)))
+        ).also { generateTrajectory("Switch to Center", true, it) }
 
         // Center to Pyramid
         mutableListOf(
-                kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-5.0, 0.0))),
+                kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-4.0, 0.0))),
                 kFrontPyramidCubeAdjusted
         ).also { generateTrajectory("Center to Pyramid", false, it) }
 
         // Pyramid to Center
         mutableListOf(
                 kFrontPyramidCubeAdjusted,
-                kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-5.0, 0.0)))
+                kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-4.0, 0.0)))
         ).also { generateTrajectory("Pyramid to Center", true, it) }
 
         // Center to Left Switch
         mutableListOf(
-                kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-5.0, 0.0))),
+                kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-4.0, 0.0))),
                 kSwitchLeftAdjusted
-        ).also { generateTrajectory("Center to Left Switch", false, it) }
+        ).also { generateTrajectory("Center to Switch", false, it) }
 
         // Baseline
         mutableListOf(
@@ -167,11 +167,7 @@ object Trajectories {
 
 
         launch {
-            val startTime = System.currentTimeMillis()
             trajectories.values.awaitAll()
-            val elapsedTime = System.currentTimeMillis() - startTime
-
-            println("Asynchronous Trajectory Generation of ${trajectories.size} trajectories took $elapsedTime milliseconds.")
         }
     }
 
@@ -186,8 +182,11 @@ object Trajectories {
                                    maxAcceleration: Double = kMaxAcceleration,
                                    constraints: List<TimingConstraint<Pose2dWithCurvature>> = kConstraints
     ) {
+        val start = System.nanoTime()
         trajectories[name] = async {
-            TrajectoryGenerator.generateTrajectory(reversed, waypoints, constraints, 0.0, 0.0, maxVelocity, maxAcceleration)!!
+            TrajectoryGenerator.generateTrajectory(reversed, waypoints, constraints, 0.0, 0.0, maxVelocity, maxAcceleration)!!.also {
+                System.out.printf("[TrajectoryGenerator] Generation of %-35s took %3.3f milliseconds.%n", "\"$name\"", (System.nanoTime() - start) / 1000000.0)
+            }
         }
     }
 }

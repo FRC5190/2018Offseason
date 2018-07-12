@@ -3,10 +3,10 @@
  * Green Hope Falcons
  */
 
-package frc.team5190.robot.auto
+package frc.team5190.lib.trajectory
 
-
-import frc.team5190.lib.trajectory.TrajectoryIterator
+import frc.team5190.lib.geometry.Pose2d
+import frc.team5190.robot.auto.Trajectories
 import org.junit.Test
 import org.knowm.xchart.SwingWrapper
 import org.knowm.xchart.XYChartBuilder
@@ -14,27 +14,34 @@ import java.awt.Color
 import java.awt.Font
 import java.text.DecimalFormat
 
-class TrajectoriesTest {
+class TrajectoryFollowerTest {
     @Test
-    fun testTrajectories() {
-
-        val name = "Cube 3 to Scale"
-
+    fun testTrajectoryFollower() {
+        val name       = "Left Start to Far Scale"
         val trajectory = Trajectories[name]
         val iterator = TrajectoryIterator(trajectory.indexView)
+        val follower = TrajectoryFollower(trajectory)
+
+
+        var totalpose = trajectory.firstState.state.pose
 
         val xList = arrayListOf<Double>()
         val yList = arrayListOf<Double>()
 
         while (!iterator.isDone) {
-            val point = iterator.advance(0.02)
-            xList.add(point.state.state.translation.x)
-            yList.add(point.state.state.translation.y)
+            val pose = iterator.advance(0.02).state.state.pose
+            val output = follower.getRobotVelocity(pose)
 
-//            System.out.printf("X: %2.3f, Y: %2.3f, C: %2.3f, T: %2.3f, V: %2.3f\n", point.state.state.translation.x,
-//                    point.state.state.translation.y, point.state.state.curvature, point.state.state.rotation.degrees, point.state.velocity)
+            System.out.printf("Linear Velocity: %3.3f, Angular Velocity: %3.3f%n", output.dx, output.dtheta)
+
+            val positiondelta = output.scaled(0.02)
+            val transformed   = totalpose.transformBy(Pose2d.fromTwist(positiondelta))
+
+            xList.add(totalpose.translation.x)
+            yList.add(totalpose.translation.y)
+
+            totalpose = transformed
         }
-
 
         val fm = DecimalFormat("#.###").format(trajectory.lastState.t)
 
@@ -50,10 +57,10 @@ class TrajectoriesTest {
         chart.styler.chartFontColor = Color.WHITE
         chart.styler.axisTickLabelsColor = Color.WHITE
 
-        chart.styler.xAxisMin = 1.0
-        chart.styler.xAxisMax = 26.0
-        chart.styler.yAxisMin = 1.0
-        chart.styler.yAxisMax = 26.0
+//        chart.styler.xAxisMin = 1.0
+//        chart.styler.xAxisMax = 26.0
+//        chart.styler.yAxisMin = 1.0
+//        chart.styler.yAxisMax = 26.0
 
         chart.styler.isPlotGridLinesVisible = true
         chart.styler.isLegendVisible = false
@@ -66,6 +73,5 @@ class TrajectoriesTest {
 
         SwingWrapper(chart).displayChart()
         Thread.sleep(100000)
-
     }
 }

@@ -8,36 +8,52 @@ package frc.team5190.lib.motion
 import org.junit.Test
 import org.knowm.xchart.QuickChart
 import org.knowm.xchart.SwingWrapper
+import org.knowm.xchart.XYChartBuilder
+import java.awt.Color
+import java.awt.Font
 
 class TCurveFollowerTest {
     @Test
     fun testTrapezoid() {
         val follower = TCurveFollower(initialPos = 0.0, targetPos = 10.0, cruiseVelocity = 10.0, acceleration = 7.0)
 
-        val xlist = arrayListOf<Double>()
-        val yList = arrayListOf<Double>()
-        val yList2 = arrayListOf<Double>()
+        val tList = arrayListOf<Double>()
+        val pList = arrayListOf<Double>()
+        val vList = arrayListOf<Double>()
 
         println("T Path: ${follower.tpath}")
 
         while (follower.t < follower.tpath) {
-            xlist.add(follower.t)
+            tList.add(follower.t)
 
             val x = follower.getOutput()
-            yList.add(x.second)
-            yList2.add(x.third)
+            pList.add(x.second)
+            vList.add(x.third)
 
             Thread.sleep(20)
         }
 
-        val chart = QuickChart.getChart("Velocity Over Time", "Time", "Velocity",
-                "Value", xlist.toDoubleArray(), yList.toDoubleArray())
+        val chart = XYChartBuilder().width(1600).height(1520).title("Trapezoidal Velocity Profile").xAxisTitle("X").yAxisTitle("Y").build()
+        chart.styler.markerSize = 8
+        chart.styler.seriesColors = arrayOf(Color.BLUE, Color.ORANGE)
 
-        val chart2 = QuickChart.getChart("Position Over Time", "Time", "Positon",
-                yList2[yList2.size - 2].toString(), xlist.toDoubleArray(), yList2.toDoubleArray())
+        chart.styler.chartTitleFont = Font("Kanit", 1, 40)
+        chart.styler.chartTitlePadding = 15
+
+        chart.styler.chartFontColor = Color.WHITE
+        chart.styler.axisTickLabelsColor = Color.WHITE
+
+        chart.styler.isPlotGridLinesVisible = true
+        chart.styler.isLegendVisible = true
+
+        chart.styler.plotGridLinesColor = Color.GRAY
+        chart.styler.chartBackgroundColor = Color.DARK_GRAY
+        chart.styler.plotBackgroundColor = Color.DARK_GRAY
+
+        chart.addSeries("Position", tList.toDoubleArray(), pList.toDoubleArray())
+        chart.addSeries("Velocity", tList.toDoubleArray(), vList.toDoubleArray())
 
         SwingWrapper(chart).displayChart()
-        SwingWrapper(chart2).displayChart()
         Thread.sleep(1000000)
     }
 }

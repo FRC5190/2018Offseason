@@ -7,14 +7,14 @@
 package frc.team5190.lib.trajectory
 
 import frc.team5190.lib.extensions.cos
-import frc.team5190.lib.extensions.enforceBounds
+import frc.team5190.lib.extensions.boundRadians
+import frc.team5190.lib.extensions.epsilonEquals
 import frc.team5190.lib.extensions.sin
 import frc.team5190.lib.geometry.Pose2d
 import frc.team5190.lib.geometry.Pose2dWithCurvature
 import frc.team5190.lib.geometry.Twist2d
+import frc.team5190.lib.kEpsilon
 import frc.team5190.lib.trajectory.timing.TimedState
-import frc.team5190.robot.subsytems.drive.DriveSubsystem
-import kotlin.math.PI
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -44,18 +44,16 @@ class TrajectoryFollower(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>
 
         val xError = currentPointPose.translation.x - pose.translation.x
         val yError = currentPointPose.translation.y - pose.translation.y
-        val thetaError = (currentPointPose.rotation.radians - pose.rotation.radians).enforceBounds()
+        val thetaError = (currentPointPose.rotation.radians - pose.rotation.radians).boundRadians().let {
+            if (it epsilonEquals 0.0) kEpsilon else it
+        }
 
         val sv = currentPoint.state.velocity
-        val sw = (trajectoryIterator.preview(dt).state.state.rotation.radians - currentPointPose.rotation.radians).enforceBounds()
+        val sw = ((trajectoryIterator.preview(dt).state.state.rotation.radians - currentPointPose.rotation.radians) / dt).boundRadians()
 
 
         val v = calculateLinearVelocity(xError, yError, thetaError, sv, sw, pose.rotation.radians)
         val w = calculateAngularVelocity(xError, yError, thetaError, sv, sw, pose.rotation.radians)
-
-
-        System.out.printf("[Path Follower] V: %2.3f, A: %2.3f, X Error: %2.3f, Y Error: %2.3f, Theta Error: %2.3f, Actual Speed: %2.3f %n",
-                v, w, xError, yError, thetaError, (DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity).FPS / 2)
 
         return Twist2d(dx = v, dy = 0.0, dtheta = w)
     }

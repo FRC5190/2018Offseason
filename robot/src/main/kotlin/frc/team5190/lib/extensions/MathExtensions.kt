@@ -23,12 +23,21 @@ infix fun Double.sin(other: Double): Double {
     return this * Math.sin(other)
 }
 
-fun Double.enforceBounds(): Double {
+fun Double.boundRadians(): Double {
     var x = this
     while (x >= PI) x -= (2 * PI)
     while (x < -PI) x += (2 * PI)
     return x
 }
+
+fun Double.boundDegrees(): Double {
+    var x = this
+    while (x >= 180.0) x -= 360.0
+    while (x < -180.0) x += 360.0
+    return x
+}
+
+
 
 operator fun Vector2D.minus(other: Vector2D): Vector2D = Vector2D(this.x - other.x, this.y - other.y)
 operator fun Vector2D.plus(other: Vector2D): Vector2D = add(other)
