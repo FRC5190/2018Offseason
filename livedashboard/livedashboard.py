@@ -214,8 +214,8 @@ class Dashboard(tk.Frame):
                 nt_instance.putBoolean('Reset', False)
 
             sp = nt_instance.getString('Starting Position', 'Left')
-            ssa = nt_instance.getString('Same Side Auto', '3 Scale')
-            ca = nt_instance.getString('Cross Auto', '2 Scale')
+            ssa = nt_instance.getString('Near Scale Auto Mode', '3 Scale')
+            ca = nt_instance.getString('Far Scale Auto Mode', '2 Scale')
 
             default_y = 23.5
             default_heading = np.pi
@@ -319,11 +319,10 @@ class Dashboard(tk.Frame):
                     nt_instance.putString('Starting Position', to_set)
 
                 # Change Same Side Auto
-                elif event.xdata > 45 and event.xdata < 54 and event.ydata > -3.5 and nt_instance.getString('Starting Position', 'Left') != 'Center':
+                elif 45 < event.xdata < 54 and event.ydata > -3.5 and nt_instance.getString('Starting Position', 'Left') != 'Center':
 
                     current = nt_instance.getString(
-                        'Same Side Auto', '3 Scale')
-                    to_set = ''
+                        'Near Scale Auto Mode', '3 Scale')
 
                     if current == '3 Scale':
                         to_set = 'Baseline'
@@ -332,12 +331,12 @@ class Dashboard(tk.Frame):
                     else:
                         to_set = '3 Scale'
 
-                    nt_instance.putString('Same Side Auto', to_set)
+                    nt_instance.putString('Near Scale Auto Mode', to_set)
 
                 # Change Cross Auto
-                elif event.xdata > 45 and event.xdata < 54 and event.ydata > -4.5 and nt_instance.getString('Starting Position', 'Left') != 'Center':
+                elif 45 < event.xdata < 54 and event.ydata > -4.5 and nt_instance.getString('Starting Position', 'Left') != 'Center':
 
-                    current = nt_instance.getString('Cross Auto', '2 Scale')
+                    current = nt_instance.getString('Far Scale Auto Mode', '2 Scale')
                     to_set = ''
 
                     if current == '2 Scale':
@@ -347,7 +346,7 @@ class Dashboard(tk.Frame):
                     else:
                         to_set = '2 Scale'
 
-                    nt_instance.putString('Cross Auto', to_set)
+                    nt_instance.putString('Near Scale Auto Mode', to_set)
 
         draw_field(field_plot)
 

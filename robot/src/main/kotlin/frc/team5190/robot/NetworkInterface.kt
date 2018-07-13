@@ -19,6 +19,8 @@ object NetworkInterface  {
     val startingPosition = INSTANCE.getEntry("Starting Position")
 
     val switchAutoMode = INSTANCE.getEntry("Switch Auto Mode")
+    val nearScaleAutoMode = INSTANCE.getEntry("Near Scale Auto Mode")
+    val farScaleAutoMode = INSTANCE.getEntry("Far Scale Auto Mode")
 
     private val robotX = INSTANCE.getEntry("Robot X")
     private val robotY = INSTANCE.getEntry("Robot Y")

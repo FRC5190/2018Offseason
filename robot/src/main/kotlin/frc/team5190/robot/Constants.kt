@@ -9,7 +9,7 @@ import frc.team5190.lib.geometry.Pose2d
 import frc.team5190.lib.geometry.Rotation2d
 import frc.team5190.lib.geometry.Translation2d
 
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate", "unused")
 object Constants {
 
     const val kLeftMasterId = 1
@@ -19,6 +19,17 @@ object Constants {
     const val kRightMasterId = 4
     const val kRightSlaveId1 = 5
     const val kRightSlaveId2 = 6
+
+    const val kElevatorMasterId = 5
+    const val kElevatorSlaveId  = 6
+
+    const val kIntakeMasterId = 7
+    const val kIntakeSlaveId  = 9
+
+    const val kArmId = 8
+
+    const val kWinchMasterId = 10
+    const val kWinchSlaveId  = 59
 
     const val kRobotWidth   = 27.0 / 12.0
     const val kRobotLength  = 33.0 / 12.0

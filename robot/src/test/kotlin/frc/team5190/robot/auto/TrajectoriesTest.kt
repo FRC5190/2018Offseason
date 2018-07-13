@@ -7,7 +7,6 @@ package frc.team5190.robot.auto
 
 
 import frc.team5190.lib.trajectory.TrajectoryIterator
-import frc.team5190.lib.trajectory.TrajectoryUtil
 import org.junit.Test
 import org.knowm.xchart.SwingWrapper
 import org.knowm.xchart.XYChartBuilder
@@ -19,7 +18,7 @@ class TrajectoriesTest {
     @Test
     fun testTrajectories() {
 
-        val name = "Pyramid to Scale"
+        val name = "Scale to Cube 1"
 
         val trajectory = Trajectories[name]
         val iterator = TrajectoryIterator(trajectory.indexView)

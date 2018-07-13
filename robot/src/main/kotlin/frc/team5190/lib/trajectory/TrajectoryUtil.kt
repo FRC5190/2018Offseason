@@ -23,6 +23,7 @@ import frc.team5190.lib.spline.QuinticHermiteSpline
 import frc.team5190.lib.spline.Spline
 import frc.team5190.lib.spline.SplineGenerator
 import frc.team5190.lib.trajectory.timing.TimedState
+import frc.team5190.lib.trajectory.view.TrajectoryView
 import java.util.*
 
 object TrajectoryUtil {

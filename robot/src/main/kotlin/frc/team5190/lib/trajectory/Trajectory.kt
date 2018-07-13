@@ -15,6 +15,7 @@
 package frc.team5190.lib.trajectory
 
 import frc.team5190.lib.geometry.interfaces.State
+import frc.team5190.lib.trajectory.view.TrajectoryView
 import java.util.*
 
 class Trajectory<S : State<S>> {

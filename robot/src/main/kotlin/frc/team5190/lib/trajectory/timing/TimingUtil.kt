@@ -12,7 +12,7 @@
 
 package frc.team5190.lib.trajectory.timing
 
-import frc.team5190.lib.trajectory.DistanceView
+import frc.team5190.lib.trajectory.view.DistanceView
 import frc.team5190.lib.trajectory.Trajectory
 import frc.team5190.lib.geometry.interfaces.State
 

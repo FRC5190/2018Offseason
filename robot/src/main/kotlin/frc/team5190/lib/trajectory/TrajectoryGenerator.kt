@@ -18,6 +18,7 @@ import frc.team5190.lib.geometry.Rotation2d
 import frc.team5190.lib.trajectory.timing.TimedState
 import frc.team5190.lib.trajectory.timing.TimingConstraint
 import frc.team5190.lib.trajectory.timing.TimingUtil
+import frc.team5190.lib.trajectory.view.DistanceView
 
 object TrajectoryGenerator {
 

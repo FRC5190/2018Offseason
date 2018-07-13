@@ -10,13 +10,13 @@ import frc.team5190.lib.extensions.sequential
 import frc.team5190.robot.auto.Autonomous
 import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 
-class RoutineBaseline(startingPosition: Autonomous.StartingPositions) : BaseRoutine(startingPosition) {
+class RoutineBaseline(private val startingPosition: Autonomous.StartingPositions) : BaseRoutine(startingPosition) {
     override val routine: CommandGroup
         get() {
             return sequential {
                 add(FollowTrajectoryCommand(
                         identifier = "Baseline",
-                        pathMirrored = false))
+                        pathMirrored = startingPosition == Autonomous.StartingPositions.RIGHT))
             }
         }
 }

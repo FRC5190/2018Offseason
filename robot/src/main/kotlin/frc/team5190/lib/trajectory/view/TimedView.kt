@@ -4,6 +4,11 @@
  */
 
 /*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
+
+/*
  * Some implementations and algorithms borrowed from:
  * NASA Ames Robotics "The Cheesy Poofs"
  * Team 254
@@ -12,11 +17,13 @@
 
 @file:Suppress("unused")
 
-package frc.team5190.lib.trajectory
+package frc.team5190.lib.trajectory.view
 
 
 import frc.team5190.lib.extensions.epsilonEquals
 import frc.team5190.lib.geometry.interfaces.State
+import frc.team5190.lib.trajectory.Trajectory
+import frc.team5190.lib.trajectory.TrajectorySamplePoint
 import frc.team5190.lib.trajectory.timing.TimedState
 
 class TimedView<S : State<S>>(override val trajectory: Trajectory<TimedState<S>>) : TrajectoryView<TimedState<S>> {

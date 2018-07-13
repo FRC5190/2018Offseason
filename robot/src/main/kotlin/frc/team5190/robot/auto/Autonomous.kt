@@ -28,7 +28,12 @@ object Autonomous {
 
     private var startingPosition = StartingPositions.CENTER
     private var switchAutoMode = SwitchAutoMode.SWITCH
+    private var nearScaleAutoMode = ScaleAutoMode.SCALE
+    private var farScaleAutoMode = ScaleAutoMode.SCALE
 
+
+    private val farScale
+        get() = startingPosition.name.first().toUpperCase() != scaleSide.name.first().toUpperCase()
 
     private val fmsDataValid
         get() = switchSide != MatchData.OwnedSide.UNKNOWN && scaleSide != MatchData.OwnedSide.UNKNOWN
@@ -37,7 +42,13 @@ object Autonomous {
         get() = StartingPositions.valueOf(NetworkInterface.startingPosition.getString("Left").toUpperCase())
 
     private val networkSwitchAutoMode
-        get() = StartingPositions.valueOf(NetworkInterface.switchAutoMode.getString("Switch").toUpperCase())
+        get() = SwitchAutoMode.valueOf(NetworkInterface.switchAutoMode.getString("Switch").toUpperCase())
+
+    private val networkNearScaleAutoMode
+        get() = ScaleAutoMode.valueOf(NetworkInterface.nearScaleAutoMode.getString("Scale").toUpperCase())
+
+    private val networkFarScaleAutoMode
+        get() = ScaleAutoMode.valueOf(NetworkInterface.farScaleAutoMode.getString("Scale").toUpperCase())
 
 
     private val continuePolling
@@ -47,30 +58,43 @@ object Autonomous {
         get() = networkStartingPosition != startingPosition ||
                 getOwnedSide(SWITCH_NEAR) != switchSide ||
                 getOwnedSide(SCALE) != scaleSide ||
-                networkSwitchAutoMode != switchAutoMode
+                networkSwitchAutoMode != switchAutoMode ||
+                networkNearScaleAutoMode != nearScaleAutoMode ||
+                networkFarScaleAutoMode != farScaleAutoMode
 
 
     init {
         // Poll for FMS Data
         launch {
-            var JUST = RoutineBaseline().routine
+            var JUST = RoutineBaseline(startingPosition).routine
             val IT = ""
 
             while (continuePolling) {
                 if (dataChanged) {
 
-                    switchSide       = getOwnedSide(SWITCH_NEAR)
-                    scaleSide        = getOwnedSide(SCALE)
+                    switchSide = getOwnedSide(SWITCH_NEAR)
+                    scaleSide = getOwnedSide(SCALE)
                     startingPosition = networkStartingPosition
 
 
                     JUST = when (startingPosition) {
-                        StartingPositions.LEFT   -> RoutineScaleFromSide(startingPosition, scaleSide).routine
-                        StartingPositions.RIGHT  -> RoutineScaleFromSide(startingPosition, scaleSide).routine
+                        StartingPositions.LEFT, StartingPositions.RIGHT -> {
+                            if (farScale) {
+                                when (farScaleAutoMode) {
+                                    Autonomous.ScaleAutoMode.SCALE -> RoutineScaleFromSide(startingPosition, scaleSide).routine
+                                    Autonomous.ScaleAutoMode.BASELINE -> RoutineBaseline(startingPosition).routine
+                                }
+                            } else {
+                                when (nearScaleAutoMode) {
+                                    Autonomous.ScaleAutoMode.SCALE -> RoutineScaleFromSide(startingPosition, scaleSide).routine
+                                    Autonomous.ScaleAutoMode.BASELINE -> RoutineBaseline(startingPosition).routine
+                                }
+                            }
+                        }
                         StartingPositions.CENTER -> {
                             when (switchAutoMode) {
-                                Autonomous.SwitchAutoMode.SWITCH -> RoutineSwitchFromCenter(switchSide).routine
-                                Autonomous.SwitchAutoMode.ROBONAUTS -> RoutineSwitchScaleFromCenter(switchSide, scaleSide).routine
+                                Autonomous.SwitchAutoMode.SWITCH -> RoutineSwitchFromCenter(startingPosition, switchSide).routine
+                                Autonomous.SwitchAutoMode.ROBONAUTS -> RoutineSwitchScaleFromCenter(startingPosition, switchSide, scaleSide).routine
                             }
                         }
                     }
@@ -89,5 +113,9 @@ object Autonomous {
 
     enum class SwitchAutoMode {
         SWITCH, ROBONAUTS
+    }
+
+    enum class ScaleAutoMode {
+        SCALE, BASELINE
     }
 }

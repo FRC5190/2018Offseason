@@ -8,8 +8,12 @@ package frc.team5190.robot
 import edu.wpi.first.wpilibj.IterativeRobot
 import edu.wpi.first.wpilibj.command.Scheduler
 import frc.team5190.robot.auto.Autonomous
-import frc.team5190.robot.subsytems.drive.DriveSubsystem
 import frc.team5190.robot.sensors.NavX
+import frc.team5190.robot.subsytems.arm.ArmSubsystem
+import frc.team5190.robot.subsytems.climb.ClimbSubsystem
+import frc.team5190.robot.subsytems.drive.DriveSubsystem
+import frc.team5190.robot.subsytems.elevator.ElevatorSubsystem
+import frc.team5190.robot.subsytems.intake.IntakeSubsystem
 
 class Robot : IterativeRobot() {
 
@@ -31,6 +35,10 @@ class Robot : IterativeRobot() {
         NavX
 
         DriveSubsystem
+        ArmSubsystem
+        ElevatorSubsystem
+        IntakeSubsystem
+        ClimbSubsystem
     }
 
     // Run scheduler for command based processes.
