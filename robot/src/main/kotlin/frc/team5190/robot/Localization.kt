@@ -1,78 +1,58 @@
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
+
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.Notifier
+import frc.team5190.lib.extensions.boundRadians
+import frc.team5190.lib.geometry.Pose2d
+import frc.team5190.lib.geometry.Rotation2d
+import frc.team5190.lib.geometry.Translation2d
 import frc.team5190.lib.units.Distance
 import frc.team5190.lib.units.NativeUnits
-import frc.team5190.robot.drive.DriveSubsystem
-import frc.team5190.robot.sensors.Pigeon
-import jaci.pathfinder.Pathfinder
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
+import frc.team5190.robot.sensors.NavX
+import frc.team5190.robot.subsytems.drive.DriveSubsystem
 
 object Localization {
 
-    private val synchronousOdometry = Object()
+    private val loc = Object()
 
-
-    var robotPosition: Vector2D = Vector2D.ZERO
+    var robotPosition = Pose2d()
         private set
 
-    private var leftLastPos: Distance = NativeUnits(0)
-    private var rightLastPos: Distance = NativeUnits(0)
-    private var gyroLastAngle = 0.0
+    private var prevL: Distance = NativeUnits(0)
+    private var prevR: Distance = NativeUnits(0)
+    private var prevA = 0.0
 
     init {
         reset()
-        Notifier(this::run).startPeriodic(0.05)
+        Notifier(::run).startPeriodic(0.05)
     }
 
-
-    fun reset(startingPosition: Vector2D = Vector2D.ZERO) {
-        synchronized(synchronousOdometry) {
-            robotPosition = startingPosition
-            leftLastPos = DriveSubsystem.leftPosition
-            rightLastPos = DriveSubsystem.rightPosition
-            gyroLastAngle = Pigeon.correctedAngle
+    fun reset(pose: Pose2d = Pose2d(Translation2d(), Rotation2d())) {
+        synchronized(loc) {
+            robotPosition = pose
+            prevL = DriveSubsystem.leftPosition
+            prevR = DriveSubsystem.rightPosition
+            prevA = NavX.correctedAngle.radians
         }
     }
 
     private fun run() {
-        synchronized(synchronousOdometry) {
-            val leftPos = DriveSubsystem.leftPosition
-            val rightPos = DriveSubsystem.rightPosition
-            val gyroAngle = Pigeon.correctedAngle
+        synchronized(loc) {
+            val posL = DriveSubsystem.leftPosition
+            val posR = DriveSubsystem.rightPosition
 
-            val dleft = leftPos - leftLastPos
-            val dright = rightPos - rightLastPos
-            val dgyroangle = Math.toRadians(Pathfinder.boundHalfDegrees(gyroAngle - gyroLastAngle))
+            val angA = NavX.correctedAngle.radians
 
-            val distanceTraveled = (dleft + dright).FT.value / 2.0
+            val deltaL = posL - prevL
+            val deltaR = posR - prevR
+            val deltaA = (angA - prevA).boundRadians()
 
-            val sinTheta = Math.sin(dgyroangle)
-            val cosTheta = Math.cos(dgyroangle)
-
-            val s: Double
-            val c: Double
-
-            if (Math.abs(dgyroangle) < 1E-9) {
-                s = 1.0 - 1.0 / 6.0 * dgyroangle * dgyroangle
-                c = .5 * dgyroangle
-            } else {
-                s = sinTheta / dgyroangle
-                c = (1.0 - cosTheta) / dgyroangle
-            }
-
-            val x = distanceTraveled * s
-            val y = distanceTraveled * c
-
-            val lastAngleRad = Math.toRadians(gyroLastAngle)
-            val lastAngleCos = Math.cos(lastAngleRad)
-            val lastAngleSin = Math.sin(lastAngleRad)
-
-            robotPosition = robotPosition.add(Vector2D(x * lastAngleCos - y * lastAngleSin, x * lastAngleSin + y * lastAngleCos))
-
-            leftLastPos = leftPos
-            rightLastPos = rightPos
-            gyroLastAngle = gyroAngle
+            val kinematics = Kinematics.forwardKinematics(deltaL.FT, deltaR.FT, deltaA)
+            robotPosition = robotPosition.transformBy(Pose2d.fromTwist(kinematics))
         }
     }
 }

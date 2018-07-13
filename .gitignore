@@ -23,3 +23,5 @@ robot/.settings
 robot/.gradle
 robot/bin
 robot/build
+
+*.code-workspace

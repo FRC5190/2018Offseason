@@ -1,37 +1,52 @@
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
+
 package frc.team5190.robot
 
-object MotorIDs {
-    const val FRONT_LEFT = 1
-    const val REAR_LEFT = 2
-    const val FRONT_RIGHT = 3
-    const val REAR_RIGHT = 4
+import frc.team5190.lib.geometry.Pose2d
+import frc.team5190.lib.geometry.Rotation2d
+import frc.team5190.lib.geometry.Translation2d
 
-    const val ELEVATOR_MASTER = 5
-    const val ELEVATOR_SLAVE = 6
-    const val ARM = 8
+@Suppress("MemberVisibilityCanBePrivate")
+object Constants {
 
-    const val INTAKE_MASTER = 7
-    const val INTAKE_SLAVE = 9
+    const val kLeftMasterId = 1
+    const val kLeftSlaveId1 = 2
+    const val kLeftSlaveId2 = 3
 
-    const val WINCH_MASTER = 10
-    const val WINCH_SLAVE = 59
-}
+    const val kRightMasterId = 4
+    const val kRightSlaveId1 = 5
+    const val kRightSlaveId2 = 6
 
-object ChannelIDs {
-    const val LEFT_CUBE_SENSOR = 2
-    const val RIGHT_CUBE_SENSOR = 3
+    const val kRobotWidth   = 27.0 / 12.0
+    const val kRobotLength  = 33.0 / 12.0
+    const val kIntakeLength = 16.0 / 12.0
+    const val kBumperLength = 02.0 / 12.0
 
-    const val LIDAR_SERVO = 0
-}
+    const val kRobotStartX = (kRobotLength / 2.0) + kBumperLength
 
-object SolenoidIDs {
-    const val PCM = 41
+    const val kExchangeZoneBottomY = 14.6
 
-    const val DRIVE = 3
-    const val INTAKE = 2
-}
+    const val kRobotSideStartY   = 23.5
+    const val kRobotCenterStartY = kExchangeZoneBottomY - (Constants.kRobotWidth / 2.0) - Constants.kBumperLength
 
-object DriveConstants {
-    const val SENSOR_UNITS_PER_ROTATION = 1440
-    const val WHEEL_RADIUS = 3.0
+    val kCenterToIntake      = Pose2d(Translation2d(-(kRobotLength / 2.0) - kIntakeLength, 0.0), Rotation2d())
+    val kCenterToFrontBumper = Pose2d(Translation2d(-(kRobotLength / 2.0) - kBumperLength, 0.0), Rotation2d())
+
+    const val kDriveSensorsUnitsPerRotation = 1440
+    const val kWheelRadiusInches            = 3.0
+    const val kTrackWidth                   = 25 / 12.0
+
+    const val kPLeftDriveVelocity = 0.08
+    const val kILeftDriveVelocity = 0.01
+    const val kVLeftDriveVelocity = 0.05
+    const val kSLeftDriveVelocity = 0.10
+
+    const val kPRightDriveVelocity = 0.08
+    const val kIRightDriveVelocity = 0.01
+    const val kVRightDriveVelocity = 0.05
+    const val kSRightDriveVelocity = 0.10
+
 }

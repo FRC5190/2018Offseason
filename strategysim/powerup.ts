@@ -1,3 +1,8 @@
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
+
 import { Command } from "./fieldobject";
 import Field from "./field";
 import { app, Menu, BrowserWindow, ipcMain } from 'electron';

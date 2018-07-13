@@ -1,3 +1,10 @@
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
+
 include 'robot'
+
+rootProject.name='2018Offseason'
 
 

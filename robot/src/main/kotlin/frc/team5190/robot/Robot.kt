@@ -1,49 +1,49 @@
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
+
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.IterativeRobot
 import edu.wpi.first.wpilibj.command.Scheduler
-import frc.team5190.lib.util.Pathreader
-import frc.team5190.robot.arm.ArmSubsystem
-import frc.team5190.robot.climb.ClimbSubsystem
-import frc.team5190.robot.drive.DriveSubsystem
-import frc.team5190.robot.elevator.ElevatorSubsystem
-import frc.team5190.robot.intake.IntakeSubsystem
-import frc.team5190.robot.sensors.Canifier
-import frc.team5190.robot.sensors.LEDs
-import frc.team5190.robot.sensors.Pigeon
+import frc.team5190.robot.auto.Autonomous
+import frc.team5190.robot.subsytems.drive.DriveSubsystem
+import frc.team5190.robot.sensors.NavX
 
 class Robot : IterativeRobot() {
 
-    // Global Robot Variables
-    var isClimbing = false
-    var isAutoReady = false
-
+    // Can't make entire class an object, so INSTANCE is initialized in a companion object.
     companion object {
         lateinit var INSTANCE: Robot
     }
 
+    // Initialize instance.
     init {
         INSTANCE = this
     }
 
+    // Initialize all systems.
     override fun robotInit() {
         Localization
         NetworkInterface
-        Pathreader
         Autonomous
-        Canifier
-        Pigeon
-        LEDs
+        NavX
 
         DriveSubsystem
-        ElevatorSubsystem
-        IntakeSubsystem
-        ClimbSubsystem
-        ArmSubsystem
     }
 
+    // Run scheduler for command based processes.
     override fun robotPeriodic() {
-        Pigeon.update()
         Scheduler.getInstance().run()
     }
+
+    override fun disabledInit() {}
+    override fun disabledPeriodic() {}
+
+    override fun autonomousInit() {}
+    override fun autonomousPeriodic() {}
+
+    override fun teleopInit() {}
+    override fun teleopPeriodic() {}
 }

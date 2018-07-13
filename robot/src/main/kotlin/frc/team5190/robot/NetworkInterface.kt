@@ -1,104 +1,74 @@
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
+
 package frc.team5190.robot
 
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Notifier
-import frc.team5190.robot.arm.ArmSubsystem
-import frc.team5190.robot.climb.ClimbSubsystem
-import frc.team5190.robot.drive.DriveSubsystem
-import frc.team5190.robot.drive.FollowPathCommand
-import frc.team5190.robot.elevator.ElevatorSubsystem
-import frc.team5190.robot.sensors.Pigeon
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
-import java.util.concurrent.TimeUnit
-import kotlin.math.roundToInt
+import frc.team5190.robot.subsytems.drive.DriveSubsystem
+import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 
 @Suppress("HasPlatformType")
-object NetworkInterface {
+object NetworkInterface  {
 
-    val ntInstance = NetworkTableInstance.getDefault().getTable("Live Dashboard")
+    val INSTANCE = NetworkTableInstance.getDefault().getTable("Live Dashboard")
 
-    val startingPosition = ntInstance.getEntry("Starting Position")
+    val startingPosition = INSTANCE.getEntry("Starting Position")
 
-    val sameSideAuto = ntInstance.getEntry("Same Side Auto")
-    val crossAuto = ntInstance.getEntry("Cross Auto")
+    val switchAutoMode = INSTANCE.getEntry("Switch Auto Mode")
 
-    private val robotX = ntInstance.getEntry("Robot X")
-    private val robotY = ntInstance.getEntry("Robot Y")
-    private val robotHdg = ntInstance.getEntry("Robot Heading")
+    private val robotX = INSTANCE.getEntry("Robot X")
+    private val robotY = INSTANCE.getEntry("Robot Y")
 
-    private val pathX = ntInstance.getEntry("Path X")
-    private val pathY = ntInstance.getEntry("Path Y")
-    private val pathHdg = ntInstance.getEntry("Path Heading")
+    private val robotHdg = INSTANCE.getEntry("Robot Heading")
 
-    private val lookaheadX = ntInstance.getEntry("Lookahead X")
-    private val lookaheadY = ntInstance.getEntry("Lookahead Y")
+    private val pathX = INSTANCE.getEntry("Path X")
+    private val pathY = INSTANCE.getEntry("Path Y")
+    private val pathHdg = INSTANCE.getEntry("Path Heading")
 
-    private val driveLeftEncoder = ntInstance.getEntry("Drive Left Encoder")
-    private val driveLeftPercent = ntInstance.getEntry("Drive Left Pct")
-    private val driveLeftAmps = ntInstance.getEntry("Drive Left Amps")
+    private val lookaheadX = INSTANCE.getEntry("Lookahead X")
+    private val lookaheadY = INSTANCE.getEntry("Lookahead Y")
 
-    private val driveRightEncoder = ntInstance.getEntry("Drive Right Encoder")
-    private val driveRightPercent = ntInstance.getEntry("Drive Right Pct")
-    private val driveRightAmps = ntInstance.getEntry("Drive Right Amps")
+    private val driveLeftEncoder = INSTANCE.getEntry("Drive Left Encoder")
+    private val driveLeftPercent = INSTANCE.getEntry("Drive Left Pct")
+    private val driveLeftAmps = INSTANCE.getEntry("Drive Left Amps")
 
-    private val elevatorEncoder = ntInstance.getEntry("Elevator Encoder")
-    private val elevatorPercent = ntInstance.getEntry("Elevator Pct")
-    private val elevatorAmps = ntInstance.getEntry("Elevator Amps")
+    private val driveRightEncoder = INSTANCE.getEntry("Drive Right Encoder")
+    private val driveRightPercent = INSTANCE.getEntry("Drive Right Pct")
+    private val driveRightAmps = INSTANCE.getEntry("Drive Right Amps")
 
-    private val armEncoder = ntInstance.getEntry("Arm Encoder")
-    private val armPercent = ntInstance.getEntry("Arm Pct")
-    private val armAmps = ntInstance.getEntry("Arm Amps")
-
-    private val climbEncoder = ntInstance.getEntry("Climb Encoder")
-    private val climbPercent = ntInstance.getEntry("Climb Pct")
-    private val climbAmps = ntInstance.getEntry("Climb Amps")
-
-    private val isClimbing = ntInstance.getEntry("Is Climbing")
-    private val isEnabled = ntInstance.getEntry("Is Enabled")
-
-    private val gameData = ntInstance.getEntry("Game Data")
+    private val isEnabled = INSTANCE.getEntry("Is Enabled")
+    private val gameData = INSTANCE.getEntry("Game Data")
 
     private val notifier: Notifier
 
 
     init {
         notifier = Notifier {
-            robotX.setDouble(Localization.robotPosition.x)
-            robotY.setDouble(Localization.robotPosition.y)
-            robotHdg.setDouble(Math.toRadians(Pigeon.correctedAngle))
+            robotX.setDouble(Localization.robotPosition.translation.x)
+            robotY.setDouble(Localization.robotPosition.translation.y)
 
-            pathX.setDouble(FollowPathCommand.pathX)
-            pathY.setDouble(FollowPathCommand.pathY)
-            pathHdg.setDouble(FollowPathCommand.pathHdg)
+            robotHdg.setDouble(Localization.robotPosition.rotation.degrees)
 
-            lookaheadX.setDouble(FollowPathCommand.lookaheadX)
-            lookaheadY.setDouble(FollowPathCommand.lookaheadY)
+            pathX.setDouble(FollowTrajectoryCommand.pathX)
+            pathY.setDouble(FollowTrajectoryCommand.pathY)
+            pathHdg.setDouble(FollowTrajectoryCommand.pathHdg)
 
-            driveLeftEncoder.setDouble(DriveSubsystem.leftPosition.STU.value.toDouble())
-            driveLeftPercent.setDouble(DriveSubsystem.leftPercent.roundToInt() * 100.0)
+            lookaheadX.setDouble(FollowTrajectoryCommand.lookaheadX)
+            lookaheadY.setDouble(FollowTrajectoryCommand.lookaheadY)
+
+            driveLeftEncoder.setDouble(DriveSubsystem.leftPosition.STU.toDouble())
+            driveLeftPercent.setDouble(DriveSubsystem.leftPercent * 100)
             driveLeftAmps.setDouble(DriveSubsystem.leftAmperage)
 
-            driveRightEncoder.setDouble(DriveSubsystem.rightPosition.STU.value.toDouble())
-            driveRightPercent.setDouble(DriveSubsystem.rightPercent.roundToInt() * 100.0)
+            driveRightEncoder.setDouble(DriveSubsystem.rightPosition.STU.toDouble())
+            driveRightPercent.setDouble(DriveSubsystem.rightPercent * 100)
             driveRightAmps.setDouble(DriveSubsystem.rightAmperage)
 
-            elevatorEncoder.setDouble(ElevatorSubsystem.currentPosition.STU.value.toDouble())
-            elevatorPercent.setDouble(ElevatorSubsystem.percent.roundToInt() * 100.0)
-            elevatorAmps.setDouble(ElevatorSubsystem.amperage)
-
-            armEncoder.setDouble(ArmSubsystem.currentPosition.STU.value.toDouble())
-            armPercent.setDouble(ArmSubsystem.percent.roundToInt() * 100.0)
-            armAmps.setDouble(ArmSubsystem.amperage)
-
-            climbEncoder.setDouble(ClimbSubsystem.currentPosition.STU.value.toDouble())
-            climbPercent.setDouble(ClimbSubsystem.percent.roundToInt() * 100.0)
-            climbAmps.setDouble(ClimbSubsystem.amperage)
-
-            isClimbing.setBoolean(Robot.INSTANCE.isClimbing)
-            isEnabled.setBoolean(Robot.INSTANCE.isEnabled)
-
+            isEnabled.setString(if (Robot.INSTANCE.isEnabled) "Enabled" else "Disabled")
             gameData.setString(DriverStation.getInstance().gameSpecificMessage ?: "null")
         }
 
