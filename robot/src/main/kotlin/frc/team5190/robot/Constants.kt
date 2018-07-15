@@ -38,17 +38,18 @@ object Constants {
 
     const val kRobotStartX = (kRobotLength / 2.0) + kBumperLength
 
-    const val kExchangeZoneBottomY = 14.6
+    const val kExchangeZoneBottomY = 14.5
+    const val kPortalZoneBottomY   = 27 - (29.69 / 12.0)
 
-    const val kRobotSideStartY   = 23.5
-    const val kRobotCenterStartY = kExchangeZoneBottomY - (Constants.kRobotWidth / 2.0) - Constants.kBumperLength
+    const val kRobotSideStartY   = kPortalZoneBottomY   - (kRobotWidth / 2.0) - kBumperLength
+    const val kRobotCenterStartY = kExchangeZoneBottomY - (kRobotWidth / 2.0) - kBumperLength
 
     val kCenterToIntake      = Pose2d(Translation2d(-(kRobotLength / 2.0) - kIntakeLength, 0.0), Rotation2d())
     val kCenterToFrontBumper = Pose2d(Translation2d(-(kRobotLength / 2.0) - kBumperLength, 0.0), Rotation2d())
 
-    const val kDriveSensorsUnitsPerRotation = 1440
-    const val kWheelRadiusInches            = 3.0
-    const val kTrackWidth                   = 25 / 12.0
+    const val kDriveSensorUnitsPerRotation = 1440
+    const val kWheelRadiusInches           = 3.0
+    const val kTrackWidth                  = 25 / 12.0
 
     const val kPLeftDriveVelocity = 0.08
     const val kILeftDriveVelocity = 0.01

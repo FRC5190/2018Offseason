@@ -18,7 +18,7 @@ class TrajectoriesTest {
     @Test
     fun testTrajectories() {
 
-        val name = "Scale to Cube 1"
+        val name = "Center Start to Left Switch"
 
         val trajectory = Trajectories[name]
         val iterator = TrajectoryIterator(trajectory.indexView)

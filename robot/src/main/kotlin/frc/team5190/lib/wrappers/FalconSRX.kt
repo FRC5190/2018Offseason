@@ -5,7 +5,8 @@
 
 package frc.team5190.lib.wrappers
 
-import com.ctre.phoenix.motorcontrol.*
+import com.ctre.phoenix.motorcontrol.FeedbackDevice
+import com.ctre.phoenix.motorcontrol.NeutralMode
 import com.ctre.phoenix.motorcontrol.can.TalonSRX
 import frc.team5190.lib.units.*
 
@@ -184,13 +185,17 @@ class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
         private set
         get() = NativeUnitsPer100Ms(getSelectedSensorVelocity(0))
 
-    fun setLimitSwitch(source: LimitSwitchSource, normal: LimitSwitchNormal) {
-        configForwardLimitSwitchSource(source, normal, timeoutMs)
-        configReverseLimitSwitchSource(source, normal, timeoutMs)
-    }
-
-    fun setStatusFramePeriod(frame: StatusFrameEnhanced, periodMs: Int) {
-        setStatusFramePeriod(frame, periodMs, timeoutMs)
+    init {
+        p = 0.0; i = 0.0; d = 0.0; f = 0.0
+        encoderPhase = false; overrideLimitSwitchesEnable = false
+        softLimitFwd = NativeUnits(0); softLimitFwdEnabled = false
+        softLimitRev = NativeUnits(0); softLimitRevEnabled = false
+        openLoopRamp = Seconds(0.0); closedLoopRamp = Seconds(0.0)
+        motionCruiseVelocity = NativeUnitsPer100Ms(0); motionAcceleration = 0
+        feedbackSensor = FeedbackDevice.None
+        peakCurrentLimit = Amps(0); continousCurrentLimit = Amps(0)
+        peakCurrentLimitDuration = Seconds(0.0); currentLimitingEnabled = false
+        voltageCompensationSaturation = Volts(12.0); voltageCompensationEnabled = false
     }
 
 }

@@ -26,12 +26,13 @@ import kotlinx.coroutines.experimental.*
 object Trajectories {
 
     // Constants in Feet Per Second
-    private const val kMaxVelocity     = 11.0
-    private const val kMaxAcceleration = 6.0
+    private const val kMaxVelocity                = 11.0
+    private const val kMaxAcceleration            = 6.0
+    private const val kMaxCentripetalAcceleration = 6.0
 
 
     // Constraints
-    private val kConstraints = mutableListOf(CentripetalAccelerationConstraint(6.0))
+    private val kConstraints = mutableListOf(CentripetalAccelerationConstraint(kMaxCentripetalAcceleration))
 
 
     // Field Relative Constants
