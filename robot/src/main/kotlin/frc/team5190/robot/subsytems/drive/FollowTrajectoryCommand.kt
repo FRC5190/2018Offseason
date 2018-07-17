@@ -91,7 +91,7 @@ class FollowTrajectoryCommand(identifier: String, pathMirrored: Boolean = false)
         val iterator = TrajectoryIterator(trajectory.indexView)
         val dataArray = arrayListOf<Pair<Double, Translation2d>>()
 
-        while (iterator.isDone) {
+        while (!iterator.isDone) {
             val point = iterator.advance(0.05)
             dataArray.add(point.state.t to point.state.state.translation)
         }

@@ -27,9 +27,9 @@ object Autonomous {
     private var scaleSide = MatchData.OwnedSide.UNKNOWN
 
     private var startingPosition = StartingPositions.CENTER
-    private var switchAutoMode = SwitchAutoMode.SWITCH
-    private var nearScaleAutoMode = ScaleAutoMode.SCALE
-    private var farScaleAutoMode = ScaleAutoMode.SCALE
+    private var switchAutoMode = SwitchAutoMode.BASIC
+    private var nearScaleAutoMode = ScaleAutoMode.THREECUBE
+    private var farScaleAutoMode = ScaleAutoMode.THREECUBE
 
 
     private val farScale
@@ -42,13 +42,13 @@ object Autonomous {
         get() = StartingPositions.valueOf(NetworkInterface.startingPosition.getString("Left").toUpperCase())
 
     private val networkSwitchAutoMode
-        get() = SwitchAutoMode.valueOf(NetworkInterface.switchAutoMode.getString("Switch").toUpperCase())
+        get() = SwitchAutoMode.valueOf(NetworkInterface.switchAutoMode.getString("Basic").toUpperCase())
 
     private val networkNearScaleAutoMode
-        get() = ScaleAutoMode.valueOf(NetworkInterface.nearScaleAutoMode.getString("Scale").toUpperCase())
+        get() = ScaleAutoMode.valueOf(NetworkInterface.nearScaleAutoMode.getString("ThreeCube").toUpperCase())
 
     private val networkFarScaleAutoMode
-        get() = ScaleAutoMode.valueOf(NetworkInterface.farScaleAutoMode.getString("Scale").toUpperCase())
+        get() = ScaleAutoMode.valueOf(NetworkInterface.farScaleAutoMode.getString("ThreeCube").toUpperCase())
 
 
     private val continuePolling
@@ -81,26 +81,33 @@ object Autonomous {
                         StartingPositions.LEFT, StartingPositions.RIGHT -> {
                             if (farScale) {
                                 when (farScaleAutoMode) {
-                                    Autonomous.ScaleAutoMode.SCALE -> RoutineScaleFromSide(startingPosition, scaleSide).routine
+                                    Autonomous.ScaleAutoMode.THREECUBE -> RoutineScaleFromSide(startingPosition, scaleSide).routine
                                     Autonomous.ScaleAutoMode.BASELINE -> RoutineBaseline(startingPosition).routine
                                 }
                             } else {
                                 when (nearScaleAutoMode) {
-                                    Autonomous.ScaleAutoMode.SCALE -> RoutineScaleFromSide(startingPosition, scaleSide).routine
+                                    Autonomous.ScaleAutoMode.THREECUBE -> RoutineScaleFromSide(startingPosition, scaleSide).routine
                                     Autonomous.ScaleAutoMode.BASELINE -> RoutineBaseline(startingPosition).routine
                                 }
                             }
                         }
                         StartingPositions.CENTER -> {
                             when (switchAutoMode) {
-                                Autonomous.SwitchAutoMode.SWITCH -> RoutineSwitchFromCenter(startingPosition, switchSide).routine
+                                Autonomous.SwitchAutoMode.BASIC -> RoutineSwitchFromCenter(startingPosition, switchSide).routine
                                 Autonomous.SwitchAutoMode.ROBONAUTS -> RoutineSwitchScaleFromCenter(startingPosition, switchSide, scaleSide).routine
                             }
                         }
                     }
+
+                    println("\n" +
+                            "[Autonomous]\n" +
+                            "Game Data:            ${DriverStation.getInstance().gameSpecificMessage}\n" +
+                            "Starting Position:    ${startingPosition.name}\n" +
+                            "Near Scale Auto Mode: $nearScaleAutoMode\n" +
+                            "Far Scale Auto Mode:  $farScaleAutoMode\n" +
+                            "Switch Auto Mode:     $switchAutoMode")
                 }
             }
-            println("[Autonomous] Game Data Received from FMS --> ${DriverStation.getInstance().gameSpecificMessage}")
             JUST S3ND IT
         }
     }
@@ -112,10 +119,10 @@ object Autonomous {
     }
 
     enum class SwitchAutoMode {
-        SWITCH, ROBONAUTS
+        BASIC, ROBONAUTS
     }
 
     enum class ScaleAutoMode {
-        SCALE, BASELINE
+        THREECUBE, BASELINE
     }
 }

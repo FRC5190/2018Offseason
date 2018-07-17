@@ -53,6 +53,10 @@ object Localization {
 
             val kinematics = Kinematics.forwardKinematics(deltaL.FT, deltaR.FT, deltaA)
             robotPosition = robotPosition.transformBy(Pose2d.fromTwist(kinematics))
+
+            prevL = posL
+            prevR = posR
+            prevA = angA
         }
     }
 }
