@@ -50,7 +50,7 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
         trajectoryFollower = TrajectoryFollower(trajectory = trajectory, dt = 0.05)
 
         lController = VelocityPIDFController(
-                kP = Constants.kPLeftDriveVelocity / 10.0,
+                kP = Constants.kPLeftDriveVelocity / 8.0,
                 kI = Constants.kILeftDriveVelocity,
                 kV = Constants.kVLeftDriveVelocity,
                 kS = Constants.kSLeftDriveVelocity,
@@ -58,7 +58,7 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
         )
 
         rController = VelocityPIDFController(
-                kP = Constants.kPRightDriveVelocity / 10.0,
+                kP = Constants.kPRightDriveVelocity / 8.0,
                 kI = Constants.kIRightDriveVelocity,
                 kV = Constants.kVRightDriveVelocity,
                 kS = Constants.kSRightDriveVelocity,

@@ -26,7 +26,6 @@ class TrajectoryFollower(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>
 
     private val trajectoryIterator = TrajectoryIterator(TimedView(trajectory))
 
-
     var trajectoryPoint = trajectoryIterator.preview(0.0)
 
     val trajectoryPose
@@ -35,49 +34,36 @@ class TrajectoryFollower(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>
     val isFinished
         get() = trajectoryIterator.isDone
 
-
     // Returns desired linear and angular cruiseVelocity of the robot
-    fun getRobotVelocity(pose: Pose2d): Twist2d {
-
-        trajectoryPoint = trajectoryIterator.advance(dt)
-
-        val xError = trajectoryPose.translation.x - pose.translation.x
-        val yError = trajectoryPose.translation.y - pose.translation.y
-        val thetaError = trajectoryPose.rotation - pose.rotation
-
-        val sv = trajectoryPoint.state.velocity
-        val sw = (trajectoryIterator.preview(dt).state.state.rotation - trajectoryPose.rotation).radians / dt
-
-
-        val v = calculateLinearVelocity(xError, yError, thetaError.radians, sv, sw, pose.rotation.radians)
-        val w = calculateAngularVelocity(xError, yError, thetaError.radians, sv, sw, pose.rotation.radians)
-
-        return Twist2d(dx = v, dy = 0.0, dtheta = w)
-    }
+    fun getRobotVelocity(pose: Pose2d) = calculateTwist(
+            xError = trajectoryPose.translation.x - pose.translation.x,
+            yError = trajectoryPose.translation.y - pose.translation.y,
+            thetaError = (trajectoryPose.rotation - pose.rotation).radians,
+            pathV = trajectoryPoint.state.velocity,
+            pathW = (trajectoryIterator.preview(dt).state.state.rotation - trajectoryPose.rotation).radians / dt,
+            theta = pose.rotation.radians
+    ).also { trajectoryPoint = trajectoryIterator.advance(dt) }
 
     companion object {
         // Constants
-        private const val b = 0.65
-        private const val zeta = 0.175
+        private const val b = 0.50
+        private const val zeta = 0.25
 
-        fun calculateLinearVelocity(xError: Double, yError: Double, thetaError: Double, pathV: Double, pathW: Double, theta: Double) =
-                (pathV cos thetaError) +
-                        (gainFunc(pathV, pathW) * ((xError cos theta) + (yError sin theta)))
+        fun calculateTwist(xError: Double, yError: Double, thetaError: Double, pathV: Double, pathW: Double, theta: Double) =
+                Twist2d(
+                        dx = calculateLinearVelocity(xError, yError, thetaError, pathV, pathW, theta),
+                        dy = 0.0,
+                        dtheta = calculateAngularVelocity(xError, yError, thetaError, pathV, pathW, theta))
 
-
-        fun calculateAngularVelocity(xError: Double, yError: Double, thetaError: Double, pathV: Double, pathW: Double, theta: Double) =
-                pathW +
-                        (b * pathV * safeFunc(thetaError) * ((yError cos theta) - (xError sin theta))) +
-                        (gainFunc(pathV, pathW) * thetaError)
-
-        private fun gainFunc(v: Double, w: Double): Double {
-            return 2 * zeta * sqrt((w * w) + ((b) * (v * v)))
+        private fun calculateLinearVelocity(xError: Double, yError: Double, thetaError: Double, pathV: Double, pathW: Double, theta: Double): Double {
+            return (pathV cos thetaError) + (gainFunc(pathV, pathW) * ((xError cos theta) + (yError sin theta)))
         }
 
-        private fun safeFunc(theta: Double) = if (theta epsilonEquals 0.0) {
-            1.0 - 1.0 / 6.0 * theta * theta
-        } else {
-            sin(theta) / theta
+        private fun calculateAngularVelocity(xError: Double, yError: Double, thetaError: Double, pathV: Double, pathW: Double, theta: Double): Double {
+            return pathW + (b * pathV * safeFunc(thetaError) * ((yError cos theta) - (xError sin theta))) + (gainFunc(pathV, pathW) * thetaError)
         }
+
+        private fun gainFunc(v: Double, w: Double) = 2 * zeta * sqrt((w * w) + ((b) * (v * v)))
+        private fun safeFunc(theta: Double): Double = if (theta epsilonEquals 0.0) 1.0 - 1.0 / 6.0 * theta * theta else sin(theta) / theta
     }
 }
