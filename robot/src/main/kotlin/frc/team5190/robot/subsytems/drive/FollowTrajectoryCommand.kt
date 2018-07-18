@@ -9,10 +9,13 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.control.VelocityPIDFController
+import frc.team5190.lib.geometry.Pose2dWithCurvature
 import frc.team5190.lib.geometry.Translation2d
 import frc.team5190.lib.trajectory.TrajectoryFollower
 import frc.team5190.lib.trajectory.TrajectoryIterator
+import frc.team5190.lib.trajectory.TrajectorySamplePoint
 import frc.team5190.lib.trajectory.TrajectoryUtil
+import frc.team5190.lib.trajectory.timing.TimedState
 import frc.team5190.robot.Constants
 import frc.team5190.robot.Kinematics
 import frc.team5190.robot.Localization
@@ -89,15 +92,14 @@ class FollowTrajectoryCommand(identifier: String, pathMirrored: Boolean = false)
     fun addMarkerAt(waypoint: Translation2d): Marker {
         // Iterate through the trajectory and add a data point every 50 ms.
         val iterator = TrajectoryIterator(trajectory.indexView)
-        val dataArray = arrayListOf<Pair<Double, Translation2d>>()
+        val dataArray = arrayListOf<TrajectorySamplePoint<TimedState<Pose2dWithCurvature>>>()
 
         while (!iterator.isDone) {
-            val point = iterator.advance(0.05)
-            dataArray.add(point.state.t to point.state.state.translation)
+            dataArray.add(iterator.advance(0.05))
         }
 
         // Find t where the distance between the provided waypoint and the actual point is shortest.
-        val t = dataArray.minBy { waypoint.distance(it.second) }?.first ?: dataArray.last().first
+        val t = dataArray.minBy { waypoint.distance(it.state.state.translation) }!!.state?.t
         return Marker(this, t)
     }
 

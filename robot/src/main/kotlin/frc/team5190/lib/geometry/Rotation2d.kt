@@ -106,6 +106,9 @@ class Rotation2d : IRotation2d<Rotation2d> {
         return Translation2d(cos, sin)
     }
 
+    operator fun plus(other: Rotation2d) = this.rotateBy(other)
+    operator fun minus(other: Rotation2d) = this.rotateBy(other.inverse)
+
     override fun interpolate(upperVal: Rotation2d, interpolatePoint: Double): Rotation2d {
         if (interpolatePoint <= 0) {
             return Rotation2d(this)

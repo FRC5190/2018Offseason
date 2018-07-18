@@ -6,7 +6,6 @@
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.Notifier
-import frc.team5190.lib.extensions.boundRadians
 import frc.team5190.lib.geometry.Pose2d
 import frc.team5190.lib.geometry.Rotation2d
 import frc.team5190.lib.geometry.Translation2d
@@ -24,7 +23,7 @@ object Localization {
 
     private var prevL: Distance = NativeUnits(0)
     private var prevR: Distance = NativeUnits(0)
-    private var prevA = 0.0
+    private var prevA = Rotation2d()
 
     init {
         reset()
@@ -36,7 +35,7 @@ object Localization {
             robotPosition = pose
             prevL = DriveSubsystem.leftPosition
             prevR = DriveSubsystem.rightPosition
-            prevA = NavX.correctedAngle.radians
+            prevA = NavX.correctedAngle
         }
     }
 
@@ -45,13 +44,13 @@ object Localization {
             val posL = DriveSubsystem.leftPosition
             val posR = DriveSubsystem.rightPosition
 
-            val angA = NavX.correctedAngle.radians
+            val angA = NavX.correctedAngle
 
             val deltaL = posL - prevL
             val deltaR = posR - prevR
-            val deltaA = (angA - prevA).boundRadians()
+            val deltaA = angA - prevA
 
-            val kinematics = Kinematics.forwardKinematics(deltaL.FT, deltaR.FT, deltaA)
+            val kinematics = Kinematics.forwardKinematics(deltaL.FT, deltaR.FT, deltaA.radians)
             robotPosition = robotPosition.transformBy(Pose2d.fromTwist(kinematics))
 
             prevL = posL
