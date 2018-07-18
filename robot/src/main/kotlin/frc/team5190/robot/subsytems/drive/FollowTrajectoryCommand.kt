@@ -16,12 +16,13 @@ import frc.team5190.lib.trajectory.TrajectoryIterator
 import frc.team5190.lib.trajectory.TrajectorySamplePoint
 import frc.team5190.lib.trajectory.TrajectoryUtil
 import frc.team5190.lib.trajectory.timing.TimedState
+import frc.team5190.lib.trajectory.view.TimedView
 import frc.team5190.robot.Constants
 import frc.team5190.robot.Kinematics
 import frc.team5190.robot.Localization
 import frc.team5190.robot.auto.Trajectories
 
-class FollowTrajectoryCommand(identifier: String, pathMirrored: Boolean = false) : Command() {
+class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = false) : Command() {
 
     // Notifier objects
     private val pf = Object()
@@ -46,10 +47,10 @@ class FollowTrajectoryCommand(identifier: String, pathMirrored: Boolean = false)
         }
 
         // Initialize path follower
-        trajectoryFollower = TrajectoryFollower(trajectory = trajectory)
+        trajectoryFollower = TrajectoryFollower(trajectory = trajectory, dt = 0.05)
 
         lController = VelocityPIDFController(
-                kP = Constants.kPLeftDriveVelocity,
+                kP = Constants.kPLeftDriveVelocity / 10.0,
                 kI = Constants.kILeftDriveVelocity,
                 kV = Constants.kVLeftDriveVelocity,
                 kS = Constants.kSLeftDriveVelocity,
@@ -57,7 +58,7 @@ class FollowTrajectoryCommand(identifier: String, pathMirrored: Boolean = false)
         )
 
         rController = VelocityPIDFController(
-                kP = Constants.kPRightDriveVelocity,
+                kP = Constants.kPRightDriveVelocity / 10.0,
                 kI = Constants.kIRightDriveVelocity,
                 kV = Constants.kVRightDriveVelocity,
                 kS = Constants.kSRightDriveVelocity,
@@ -72,26 +73,27 @@ class FollowTrajectoryCommand(identifier: String, pathMirrored: Boolean = false)
                     return@Notifier
                 }
 
-                val output = Kinematics.inverseKinematics(
-                        trajectoryFollower.getRobotVelocity(Localization.robotPosition)
-                )
+                val kinematics = trajectoryFollower.getRobotVelocity(Localization.robotPosition)
+                val output = Kinematics.inverseKinematics(kinematics)
 
                 DriveSubsystem.set(ControlMode.PercentOutput,
                         lController.getPIDFOutput(output.first to 0.0),
                         rController.getPIDFOutput(output.second to 0.0))
 
                 updateDashboard()
-                System.out.printf("[Trajectory Follower] X Error: %3.3f, Y Error: %3.3f, T Error: %3.3f",
-                        trajectoryFollower.currentPointPose.translation.x - Localization.robotPosition.translation.x,
-                        trajectoryFollower.currentPointPose.translation.y - Localization.robotPosition.translation.y,
-                        trajectoryFollower.currentPointPose.rotation.degrees - Localization.robotPosition.rotation.degrees)
+                System.out.printf("[Trajectory Follower] X Error: %3.3f, Y Error: %3.3f, T Error: %3.3f, L: %3.3f, A: %3.3f, Actual: %3.3f%n",
+                        trajectoryFollower.trajectoryPose.translation.x - Localization.robotPosition.translation.x,
+                        trajectoryFollower.trajectoryPose.translation.y - Localization.robotPosition.translation.y,
+                        (trajectoryFollower.trajectoryPose.rotation - Localization.robotPosition.rotation).degrees,
+                        kinematics.dx, kinematics.dtheta,
+                        ((DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity) / 2.0).FPS)
             }
         }
     }
 
     fun addMarkerAt(waypoint: Translation2d): Marker {
         // Iterate through the trajectory and add a data point every 50 ms.
-        val iterator = TrajectoryIterator(trajectory.indexView)
+        val iterator = TrajectoryIterator(TimedView(trajectory))
         val dataArray = arrayListOf<TrajectorySamplePoint<TimedState<Pose2dWithCurvature>>>()
 
         while (!iterator.isDone) {
@@ -99,18 +101,19 @@ class FollowTrajectoryCommand(identifier: String, pathMirrored: Boolean = false)
         }
 
         // Find t where the distance between the provided waypoint and the actual point is shortest.
-        val t = dataArray.minBy { waypoint.distance(it.state.state.translation) }!!.state?.t
+        val t = dataArray.minBy { waypoint.distance(it.state.state.translation) }!!.state.t
+        println("[Trajectory Follower] Added Marker to \"$identifier\" at T = $t seconds.")
         return Marker(this, t)
     }
 
     fun hasCrossedMarker(marker: Marker): Boolean {
-        return marker.instance == this && trajectoryFollower.currentPoint.state.t > marker.t
+        return marker.instance == this && trajectoryFollower.trajectoryPoint.state.t > marker.t
     }
 
     private fun updateDashboard() {
-        pathX = trajectoryFollower.currentPointPose.translation.x
-        pathY = trajectoryFollower.currentPointPose.translation.y
-        pathHdg = trajectoryFollower.currentPointPose.rotation.radians
+        pathX = trajectoryFollower.trajectoryPose.translation.x
+        pathY = trajectoryFollower.trajectoryPose.translation.y
+        pathHdg = trajectoryFollower.trajectoryPose.rotation.radians
 
         lookaheadX = pathX
         lookaheadY = pathY
@@ -124,6 +127,7 @@ class FollowTrajectoryCommand(identifier: String, pathMirrored: Boolean = false)
         synchronized(pf) {
             stopNotifier = true
             notifier.stop()
+            println(DriveSubsystem.leftPosition.FT)
             DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = 0.0, rightOutput = 0.0)
         }
     }

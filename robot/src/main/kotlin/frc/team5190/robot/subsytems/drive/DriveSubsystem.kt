@@ -79,22 +79,22 @@ object DriveSubsystem : Subsystem() {
             it.encoderPhase = true
         }
 
-        allMotors.forEach { srx ->
-            srx.peakFwdOutput = 1.0
-            srx.peakRevOutput = -1.0
+        allMotors.forEach {
+            it.peakFwdOutput = 1.0
+            it.peakRevOutput = -1.0
 
-            srx.nominalFwdOutput = 0.0
-            srx.nominalRevOutput = 0.0
+            it.nominalFwdOutput = 0.0
+            it.nominalRevOutput = 0.0
 
-            srx.brakeMode = NeutralMode.Brake
+            it.brakeMode = NeutralMode.Brake
 
-            srx.voltageCompensationSaturation = Volts(12.0)
-            srx.voltageCompensationEnabled = true
+            it.voltageCompensationSaturation = Volts(12.0)
+            it.voltageCompensationEnabled = true
 
-            srx.peakCurrentLimit = Amps(0)
-            srx.peakCurrentLimitDuration = Milliseconds(0)
-            srx.continousCurrentLimit = Amps(40)
-            srx.currentLimitingEnabled = true
+            it.peakCurrentLimit = Amps(0)
+            it.peakCurrentLimitDuration = Milliseconds(0)
+            it.continousCurrentLimit = Amps(40)
+            it.currentLimitingEnabled = true
         }
         resetEncoders()
     }

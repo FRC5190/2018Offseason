@@ -45,10 +45,10 @@ object Autonomous {
         get() = SwitchAutoMode.valueOf(NetworkInterface.switchAutoMode.getString("Basic").toUpperCase())
 
     private val networkNearScaleAutoMode
-        get() = ScaleAutoMode.valueOf(NetworkInterface.nearScaleAutoMode.getString("ThreeCube").toUpperCase())
+        get() = ScaleAutoMode.valueOf(NetworkInterface.nearScaleAutoMode.getString("Baseline").toUpperCase())
 
     private val networkFarScaleAutoMode
-        get() = ScaleAutoMode.valueOf(NetworkInterface.farScaleAutoMode.getString("ThreeCube").toUpperCase())
+        get() = ScaleAutoMode.valueOf(NetworkInterface.farScaleAutoMode.getString("Baseline").toUpperCase())
 
 
     private val continuePolling
@@ -75,6 +75,10 @@ object Autonomous {
                     switchSide = getOwnedSide(SWITCH_NEAR)
                     scaleSide = getOwnedSide(SCALE)
                     startingPosition = networkStartingPosition
+
+                    switchAutoMode = networkSwitchAutoMode
+                    nearScaleAutoMode = networkNearScaleAutoMode
+                    farScaleAutoMode = networkFarScaleAutoMode
 
 
                     JUST = when (startingPosition) {

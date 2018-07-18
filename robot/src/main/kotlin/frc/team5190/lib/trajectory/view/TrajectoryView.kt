@@ -3,10 +3,6 @@
  * Green Hope Falcons
  */
 
-/*
- * FRC Team 5190
- * Green Hope Falcons
- */
 
 /*
  * Some implementations and algorithms borrowed from:

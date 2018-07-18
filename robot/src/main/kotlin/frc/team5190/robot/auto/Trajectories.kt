@@ -195,7 +195,7 @@ object Trajectories {
         trajectories[name] = async {
             val start = System.nanoTime()
             TrajectoryGenerator.generateTrajectory(reversed, waypoints, constraints, 0.0, 0.0, maxVelocity, maxAcceleration)!!.also {
-                System.out.printf("[TrajectoryGenerator] Generation of %-35s took %3.3f milliseconds.%n", "\"$name\"", (System.nanoTime() - start) / 1000000.0)
+                System.out.printf("[Trajectory Generator] Generation of %-35s took %3.3f milliseconds.%n", "\"$name\"", (System.nanoTime() - start) / 1000000.0)
             }
         }
     }

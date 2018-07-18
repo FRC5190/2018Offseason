@@ -6,6 +6,9 @@
 package frc.team5190.lib.trajectory
 
 import frc.team5190.lib.geometry.Pose2d
+import frc.team5190.lib.geometry.Pose2dWithCurvature
+import frc.team5190.lib.trajectory.timing.TimedState
+import frc.team5190.lib.trajectory.view.TimedView
 import frc.team5190.robot.auto.Trajectories
 import org.junit.Test
 import org.knowm.xchart.SwingWrapper
@@ -18,8 +21,8 @@ class TrajectoryFollowerTest {
     @Test
     fun testTrajectoryFollower() {
         val name       = "Pyramid to Scale"
-        val trajectory = Trajectories[name]
-        val iterator = TrajectoryIterator(trajectory.indexView)
+        val trajectory: Trajectory<TimedState<Pose2dWithCurvature>> = Trajectories[name]
+        val iterator = TrajectoryIterator(TimedView(trajectory))
         val follower = TrajectoryFollower(trajectory)
 
 
@@ -41,6 +44,8 @@ class TrajectoryFollowerTest {
             yList.add(totalpose.translation.y)
 
             totalpose = transformed
+
+            Thread.sleep(20)
         }
 
         val fm = DecimalFormat("#.###").format(trajectory.lastState.t)
@@ -53,6 +58,11 @@ class TrajectoryFollowerTest {
 
         chart.styler.chartTitleFont = Font("Kanit", 1, 40)
         chart.styler.chartTitlePadding = 15
+
+        chart.styler.xAxisMin = 1.0
+        chart.styler.xAxisMax = 26.0
+        chart.styler.yAxisMin = 1.0
+        chart.styler.yAxisMax = 26.0
 
         chart.styler.chartFontColor = Color.WHITE
         chart.styler.axisTickLabelsColor = Color.WHITE

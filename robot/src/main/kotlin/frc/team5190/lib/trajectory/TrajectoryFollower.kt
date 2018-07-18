@@ -13,6 +13,7 @@ import frc.team5190.lib.geometry.Pose2d
 import frc.team5190.lib.geometry.Pose2dWithCurvature
 import frc.team5190.lib.geometry.Twist2d
 import frc.team5190.lib.trajectory.timing.TimedState
+import frc.team5190.lib.trajectory.view.TimedView
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -23,13 +24,13 @@ import kotlin.math.sqrt
 class TrajectoryFollower(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>,
                          val dt: Double = 0.02) {
 
-    private val trajectoryIterator = TrajectoryIterator(trajectory.indexView)
+    private val trajectoryIterator = TrajectoryIterator(TimedView(trajectory))
 
 
-    var currentPoint = trajectoryIterator.preview(0.0)
+    var trajectoryPoint = trajectoryIterator.preview(0.0)
 
-    val currentPointPose
-        get() = currentPoint.state.state.pose
+    val trajectoryPose
+        get() = trajectoryPoint.state.state.pose
 
     val isFinished
         get() = trajectoryIterator.isDone
@@ -37,14 +38,15 @@ class TrajectoryFollower(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>
 
     // Returns desired linear and angular cruiseVelocity of the robot
     fun getRobotVelocity(pose: Pose2d): Twist2d {
-        currentPoint = trajectoryIterator.advance(dt)
 
-        val xError = currentPointPose.translation.x - pose.translation.x
-        val yError = currentPointPose.translation.y - pose.translation.y
-        val thetaError = currentPointPose.rotation - pose.rotation
+        trajectoryPoint = trajectoryIterator.advance(dt)
 
-        val sv = currentPoint.state.velocity
-        val sw = (trajectoryIterator.preview(dt).state.state.rotation - currentPointPose.rotation).radians / dt
+        val xError = trajectoryPose.translation.x - pose.translation.x
+        val yError = trajectoryPose.translation.y - pose.translation.y
+        val thetaError = trajectoryPose.rotation - pose.rotation
+
+        val sv = trajectoryPoint.state.velocity
+        val sw = (trajectoryIterator.preview(dt).state.state.rotation - trajectoryPose.rotation).radians / dt
 
 
         val v = calculateLinearVelocity(xError, yError, thetaError.radians, sv, sw, pose.rotation.radians)

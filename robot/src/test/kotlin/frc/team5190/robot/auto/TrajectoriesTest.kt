@@ -6,7 +6,11 @@
 package frc.team5190.robot.auto
 
 
+import frc.team5190.lib.geometry.Pose2dWithCurvature
+import frc.team5190.lib.trajectory.Trajectory
 import frc.team5190.lib.trajectory.TrajectoryIterator
+import frc.team5190.lib.trajectory.timing.TimedState
+import frc.team5190.lib.trajectory.view.TimedView
 import org.junit.Test
 import org.knowm.xchart.SwingWrapper
 import org.knowm.xchart.XYChartBuilder
@@ -18,10 +22,10 @@ class TrajectoriesTest {
     @Test
     fun testTrajectories() {
 
-        val name = "Center Start to Left Switch"
+        val name = "Baseline"
 
-        val trajectory = Trajectories[name]
-        val iterator = TrajectoryIterator(trajectory.indexView)
+        val trajectory: Trajectory<TimedState<Pose2dWithCurvature>> = Trajectories[name]
+        val iterator = TrajectoryIterator(TimedView(trajectory))
 
         val xList = arrayListOf<Double>()
         val yList = arrayListOf<Double>()
@@ -32,7 +36,7 @@ class TrajectoriesTest {
             yList.add(point.state.state.translation.y)
 
             System.out.printf("X: %2.3f, Y: %2.3f, C: %2.3f, T: %2.3f, V: %2.3f\n", point.state.state.translation.x,
-                    point.state.state.translation.y, point.state.state.curvature, point.state.state.rotation.degrees, point.state.velocity)
+                    point.state.state.translation.y, point.state.state.curvature, point.state.t, point.state.velocity)
         }
 
         val fm = DecimalFormat("#.###").format(trajectory.lastState.t)
