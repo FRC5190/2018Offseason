@@ -24,7 +24,7 @@ import openrio.powerup.MatchData.getOwnedSide
 object Autonomous {
 
     private var switchSide = MatchData.OwnedSide.UNKNOWN
-    private var scaleSide = MatchData.OwnedSide.UNKNOWN
+    var scaleSide = MatchData.OwnedSide.UNKNOWN
 
     private var startingPosition = StartingPositions.CENTER
     private var switchAutoMode = SwitchAutoMode.BASIC

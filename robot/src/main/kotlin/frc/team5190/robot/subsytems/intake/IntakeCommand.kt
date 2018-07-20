@@ -27,9 +27,7 @@ class IntakeCommand(private val direction: IntakeSubsystem.Direction,
         })
     }
 
-    override fun end() {
-        IntakeSubsystem.set(ControlMode.PercentOutput, 0.0)
-    }
+    override fun end() = IntakeSubsystem.set(ControlMode.PercentOutput, 0.0)
 
     override fun isFinished() = isTimedOut ||
             (direction == IntakeSubsystem.Direction.IN && IntakeSubsystem.cubeIn) || exit()

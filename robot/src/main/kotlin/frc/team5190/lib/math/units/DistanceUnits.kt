@@ -53,6 +53,10 @@ interface Distance {
     operator fun unaryMinus(): Distance {
         return NativeUnits(-this.STU, this.settings)
     }
+
+    operator fun compareTo(other: Distance): Int {
+        return this.STU - other.STU
+    }
 }
 
 class NativeUnits(private val value: Int, override val settings: UnitPreferences = UnitPreferences()) : Distance {

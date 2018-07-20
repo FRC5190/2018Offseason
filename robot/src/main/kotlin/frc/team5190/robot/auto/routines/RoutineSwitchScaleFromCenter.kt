@@ -7,10 +7,9 @@ package frc.team5190.robot.auto.routines
 
 import edu.wpi.first.wpilibj.command.CommandGroup
 import edu.wpi.first.wpilibj.command.PrintCommand
-import frc.team5190.lib.extensions.parallel
+import frc.team5190.lib.commands.StateCommand
 import frc.team5190.lib.extensions.sequential
 import frc.team5190.lib.math.geometry.Translation2d
-import frc.team5190.lib.commands.StateCommand
 import frc.team5190.robot.auto.Autonomous
 import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 import openrio.powerup.MatchData
@@ -31,35 +30,35 @@ class RoutineSwitchScaleFromCenter(startingPosition: Autonomous.StartingPosition
 
             return sequential {
                 // 1st Cube in Switch
-                add(parallel {
+                parallel {
                     add(FollowTrajectoryCommand(
                             identifier = "Center Start to $switch Switch",
                             pathMirrored = false))
-                })
+                }
 
                 // Come Back to Center
-                add(parallel {
+                parallel {
                     add(FollowTrajectoryCommand(
                             identifier = "Switch to Center",
                             pathMirrored = switchMirrored
                     ))
-                })
+                }
 
                 // Pick Up 2nd Cube
-                add(parallel {
+                parallel {
                     add(FollowTrajectoryCommand(
                             identifier = "Center to Pyramid"
                     ))
-                })
+                }
 
                 // 2nd Cube in Scale
-                add(parallel {
+                parallel {
                     add(drop2ndCube)
-                    add(sequential {
+                    sequential {
                         add(StateCommand { drop2ndCube.hasCrossedMarker(shoot2ndCube) })
                         add(PrintCommand("Has Crossed Marker 1"))
-                    })
-                })
+                    }
+                }
             }
         }
 

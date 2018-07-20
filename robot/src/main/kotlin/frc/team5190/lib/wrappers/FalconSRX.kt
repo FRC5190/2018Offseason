@@ -12,25 +12,25 @@ import frc.team5190.lib.math.units.*
 
 class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
 
-    var p = 0.0
+    var kP = 0.0
         set(value) {
             config_kP(0, value, timeoutMs)
             field = value
         }
 
-    var i = 0.0
+    var kI = 0.0
         set(value) {
             config_kI(0, value, timeoutMs)
             field = value
         }
 
-    var d = 0.0
+    var kD = 0.0
         set(value) {
             config_kD(0, value, timeoutMs)
             field = value
         }
 
-    var f = 0.0
+    var kF = 0.0
         set(value) {
             config_kF(0, value, timeoutMs)
             field = value
@@ -186,7 +186,7 @@ class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
         get() = NativeUnitsPer100Ms(getSelectedSensorVelocity(0))
 
     init {
-        p = 0.0; i = 0.0; d = 0.0; f = 0.0
+        kP = 0.0; kI = 0.0; kD = 0.0; kF = 0.0
         encoderPhase = false; overrideLimitSwitchesEnable = false
         softLimitFwd = NativeUnits(0); softLimitFwdEnabled = false
         softLimitRev = NativeUnits(0); softLimitRevEnabled = false

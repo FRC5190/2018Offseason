@@ -45,6 +45,10 @@ interface Speed {
     operator fun unaryMinus(): Speed {
         return NativeUnitsPer100Ms(-this.STU, this.settings)
     }
+
+    operator fun compareTo(other: Speed): Int {
+        return this.STU - other.STU
+    }
 }
 
 

@@ -6,6 +6,7 @@
 package frc.team5190.robot.subsytems.intake
 
 import com.ctre.phoenix.motorcontrol.ControlMode
+import com.ctre.phoenix.motorcontrol.NeutralMode
 import edu.wpi.first.wpilibj.AnalogInput
 import edu.wpi.first.wpilibj.Solenoid
 import edu.wpi.first.wpilibj.command.Subsystem
@@ -26,9 +27,6 @@ object IntakeSubsystem : Subsystem() {
     val cubeIn
         get() = leftCubeSensor.voltage > Volts(0.9).volts && rightCubeSensor.voltage > Volts(0.9).volts
 
-    val amperage: Double
-        get() = intakeMaster.outputCurrent
-
     init {
         intakeMaster.apply {
             voltageCompensationSaturation = Volts(12.0)
@@ -36,6 +34,8 @@ object IntakeSubsystem : Subsystem() {
 
             continousCurrentLimit = Amps(18)
             currentLimitingEnabled = true
+
+            brakeMode = NeutralMode.Coast
         }
         intakeSlave.apply {
             follow(intakeMaster)
@@ -43,9 +43,7 @@ object IntakeSubsystem : Subsystem() {
         }
     }
 
-    fun set(controlMode: ControlMode, output: Double) {
-        intakeMaster.set(controlMode, output)
-    }
+    fun set(controlMode: ControlMode, output: Double) = intakeMaster.set(controlMode, output)
 
     override fun initDefaultCommand() {
         defaultCommand = IntakeHoldCommand()

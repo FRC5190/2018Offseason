@@ -42,7 +42,7 @@ object Trajectories {
     internal val kCenterStart             = Pose2d(Translation2d(kRobotStartX, kRobotCenterStartY), Rotation2d())
 
     private val kNearScaleEmpty           = Pose2d(Translation2d(22.7, 20.5), Rotation2d.fromDegrees(170.0))
-    private val kNearScaleFull            = Pose2d(Translation2d(22.7, 20.0), Rotation2d.fromDegrees(165.0))
+    internal val kNearScaleFull            = Pose2d(Translation2d(22.7, 20.0), Rotation2d.fromDegrees(165.0))
 
     private val kFarScaleEmpty            = Pose2d(Translation2d(22.7, 06.5), Rotation2d.fromDegrees(190.0))
 
