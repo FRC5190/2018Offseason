@@ -46,46 +46,46 @@ class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPosi
 
             return parallel {
                 sequential {
-                    add(drop1stCube)
-                    add(pickup2ndCube)
-                    add(drop2ndCube)
-                    add(pickup3rdCube)
-                    add(drop3rdCube)
-                    add(pickup4thCube)
-                    add(drop4thCube)
+                    +drop1stCube
+                    +pickup2ndCube
+                    +drop2ndCube
+                    +pickup3rdCube
+                    +drop3rdCube
+                    +pickup4thCube
+                    +drop4thCube
                 }
                 sequential {
-                     add(StateCommand { drop1stCube.hasCrossedMarker(elevatorUp) || drop1stCube.isCompleted })
-                     add(SubsystemPresetCommand(SubsystemPresetCommand.Preset.BEHIND) { drop1stCube.isCompleted })
-                     add(StateCommand { drop1stCube.hasCrossedMarker(shoot1stCube) || drop1stCube.isCompleted })
-                     add(IntakeCommand(IntakeSubsystem.Direction.OUT) { drop1stCube.isCompleted })
+                     +StateCommand { drop1stCube.hasCrossedMarker(elevatorUp) || drop1stCube.isCompleted }
+                     +SubsystemPresetCommand(SubsystemPresetCommand.Preset.BEHIND) { drop1stCube.isCompleted }
+                     +StateCommand { drop1stCube.hasCrossedMarker(shoot1stCube) || drop1stCube.isCompleted }
+                     +IntakeCommand(IntakeSubsystem.Direction.OUT) { drop1stCube.isCompleted }
 
                      parallel {
-                          add(SubsystemPresetCommand(SubsystemPresetCommand.Preset.INTAKE) { pickup2ndCube.isCompleted })
-                          add(IntakeCommand(IntakeSubsystem.Direction.IN) { pickup2ndCube.isCompleted })
+                          +SubsystemPresetCommand(SubsystemPresetCommand.Preset.INTAKE) { pickup2ndCube.isCompleted }
+                          +IntakeCommand(IntakeSubsystem.Direction.IN) { pickup2ndCube.isCompleted }
                      }
 
-                     add(SubsystemPresetCommand(SubsystemPresetCommand.Preset.BEHIND) { drop2ndCube.isCompleted })
-                     add(StateCommand { drop2ndCube.hasCrossedMarker(shoot2ndCube) })
-                     add(IntakeCommand(IntakeSubsystem.Direction.OUT) { drop2ndCube.isCompleted })
+                     +SubsystemPresetCommand(SubsystemPresetCommand.Preset.BEHIND) { drop2ndCube.isCompleted }
+                     +StateCommand { drop2ndCube.hasCrossedMarker(shoot2ndCube) }
+                     +IntakeCommand(IntakeSubsystem.Direction.OUT) { drop2ndCube.isCompleted }
 
                      parallel {
-                          add(SubsystemPresetCommand(SubsystemPresetCommand.Preset.INTAKE) { pickup3rdCube.isCompleted })
-                          add(IntakeCommand(IntakeSubsystem.Direction.IN) { pickup3rdCube.isCompleted })
+                          +SubsystemPresetCommand(SubsystemPresetCommand.Preset.INTAKE) { pickup3rdCube.isCompleted }
+                          +IntakeCommand(IntakeSubsystem.Direction.IN) { pickup3rdCube.isCompleted }
                      }
 
-                     add(SubsystemPresetCommand(SubsystemPresetCommand.Preset.BEHIND) { drop3rdCube.isCompleted })
-                     add(StateCommand { drop2ndCube.hasCrossedMarker(shoot3rdCube) })
-                     add(IntakeCommand(IntakeSubsystem.Direction.OUT) { drop3rdCube.isCompleted })
+                     +SubsystemPresetCommand(SubsystemPresetCommand.Preset.BEHIND) { drop3rdCube.isCompleted }
+                     +StateCommand { drop2ndCube.hasCrossedMarker(shoot3rdCube) }
+                     +IntakeCommand(IntakeSubsystem.Direction.OUT) { drop3rdCube.isCompleted }
 
                      parallel {
-                          add(SubsystemPresetCommand(SubsystemPresetCommand.Preset.INTAKE) { pickup4thCube.isCompleted })
-                          add(IntakeCommand(IntakeSubsystem.Direction.IN) { pickup4thCube.isCompleted })
+                          +SubsystemPresetCommand(SubsystemPresetCommand.Preset.INTAKE) { pickup4thCube.isCompleted }
+                          +IntakeCommand(IntakeSubsystem.Direction.IN) { pickup4thCube.isCompleted }
                      }
 
-                     add(SubsystemPresetCommand(SubsystemPresetCommand.Preset.BEHIND) { drop4thCube.isCompleted })
-                     add(StateCommand { drop4thCube.hasCrossedMarker(shoot4thCube) })
-                     add(IntakeCommand(IntakeSubsystem.Direction.OUT) { drop4thCube.isCompleted })
+                     +SubsystemPresetCommand(SubsystemPresetCommand.Preset.BEHIND) { drop4thCube.isCompleted }
+                     +StateCommand { drop4thCube.hasCrossedMarker(shoot4thCube) }
+                     +IntakeCommand(IntakeSubsystem.Direction.OUT) { drop4thCube.isCompleted }
                 }
             }
         }

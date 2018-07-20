@@ -33,6 +33,8 @@ fun parallel(block: CommandGroupBuilder.() -> Unit) = object : CommandGroup() {
 class CommandGroupBuilder(val commandGroup: CommandGroup) {
     val commands = mutableListOf<Command>()
 
+    operator fun Command.unaryPlus() = add(this)
+
     fun add(command: Command) {
         commands.add(command)
     }
