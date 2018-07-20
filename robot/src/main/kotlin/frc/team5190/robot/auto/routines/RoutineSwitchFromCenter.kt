@@ -6,7 +6,7 @@
 package frc.team5190.robot.auto.routines
 
 import edu.wpi.first.wpilibj.command.CommandGroup
-import frc.team5190.lib.extensions.sequential
+import frc.team5190.lib.extensions.parallel
 import frc.team5190.robot.auto.Autonomous
 import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 import openrio.powerup.MatchData
@@ -20,42 +20,16 @@ class RoutineSwitchFromCenter(startingPosition: Autonomous.StartingPositions,
             } else "Right"
             val mirrored = switchSide == MatchData.OwnedSide.RIGHT
 
-            return sequential {
-                // 1st Cube in Switch
-                parallel {
-                    add(FollowTrajectoryCommand(
-                            identifier = "Center Start to $switch Switch",
-                            pathMirrored = false))
+            return parallel {
+                sequential {
+                    add(FollowTrajectoryCommand("Center Start to $switch Switch"))
+                    add(FollowTrajectoryCommand("Switch to Center", pathMirrored = mirrored))
+                    add(FollowTrajectoryCommand("Center to Pyramid"))
+                    add(FollowTrajectoryCommand("Pyramid to Center"))
+                    add(FollowTrajectoryCommand("Center to Switch", pathMirrored = mirrored))
                 }
-
-                // Come Back to Center
-                parallel {
-                    add(FollowTrajectoryCommand(
-                            identifier = "Switch to Center",
-                            pathMirrored = mirrored
-                    ))
-                }
-
-                // Pick Up 2nd Cube
-                parallel {
-                    add(FollowTrajectoryCommand(
-                            identifier = "Center to Pyramid"
-                    ))
-                }
-
-                // Come Back to Center
-                parallel {
-                    add(FollowTrajectoryCommand(
-                            identifier = "Pyramid to Center"
-                    ))
-                }
-
-                // 2nd Cube in Switch
-                parallel {
-                    add(FollowTrajectoryCommand(
-                            identifier = "Center to Switch",
-                            pathMirrored = mirrored
-                    ))
+                sequential {
+                    // TODO
                 }
             }
         }
