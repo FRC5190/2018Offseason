@@ -6,11 +6,11 @@
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.Notifier
-import frc.team5190.lib.geometry.Pose2d
-import frc.team5190.lib.geometry.Rotation2d
-import frc.team5190.lib.geometry.Translation2d
-import frc.team5190.lib.units.Distance
-import frc.team5190.lib.units.NativeUnits
+import frc.team5190.lib.math.geometry.Pose2d
+import frc.team5190.lib.math.geometry.Rotation2d
+import frc.team5190.lib.math.geometry.Translation2d
+import frc.team5190.lib.math.units.Distance
+import frc.team5190.lib.math.units.NativeUnits
 import frc.team5190.robot.sensors.NavX
 import frc.team5190.robot.subsytems.drive.DriveSubsystem
 

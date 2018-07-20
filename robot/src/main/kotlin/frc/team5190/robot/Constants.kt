@@ -5,9 +5,9 @@
 
 package frc.team5190.robot
 
-import frc.team5190.lib.geometry.Pose2d
-import frc.team5190.lib.geometry.Rotation2d
-import frc.team5190.lib.geometry.Translation2d
+import frc.team5190.lib.math.geometry.Pose2d
+import frc.team5190.lib.math.geometry.Rotation2d
+import frc.team5190.lib.math.geometry.Translation2d
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 object Constants {
@@ -31,6 +31,14 @@ object Constants {
     const val kWinchMasterId = 10
     const val kWinchSlaveId  = 59
 
+    const val kPCMId = 41
+
+    const val kDriveSolenoidId = 3
+    const val kIntakeSolenoidId = 2
+
+    const val kLeftCubeSensorId = 2
+    const val kRightCubeSensorId = 3
+
     const val kRobotWidth   = 27.0 / 12.0
     const val kRobotLength  = 33.0 / 12.0
     const val kIntakeLength = 16.0 / 12.0
@@ -49,15 +57,15 @@ object Constants {
 
     const val kDriveSensorUnitsPerRotation = 1440
     const val kWheelRadiusInches           = 3.0
-    const val kTrackWidth                  = 25 / 12.0
+    const val kTrackWidth                  = 27 / 12.0
 
     const val kPLeftDriveVelocity = 0.08
-    const val kILeftDriveVelocity = 0.01
+    const val kILeftDriveVelocity = 0.0
     const val kVLeftDriveVelocity = 0.05
     const val kSLeftDriveVelocity = 0.10
 
     const val kPRightDriveVelocity = 0.08
-    const val kIRightDriveVelocity = 0.01
+    const val kIRightDriveVelocity = 0.0
     const val kVRightDriveVelocity = 0.05
     const val kSRightDriveVelocity = 0.10
 

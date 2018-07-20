@@ -7,7 +7,7 @@ package frc.team5190.robot.sensors
 
 import com.kauailabs.navx.frc.AHRS
 import edu.wpi.first.wpilibj.SPI
-import frc.team5190.lib.geometry.Rotation2d
+import frc.team5190.lib.math.geometry.Rotation2d
 
 
 object NavX : AHRS(SPI.Port.kMXP) {

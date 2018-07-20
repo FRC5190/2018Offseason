@@ -8,21 +8,22 @@ package frc.team5190.robot.subsytems.drive
 import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.command.Command
-import frc.team5190.lib.control.VelocityPIDFController
-import frc.team5190.lib.geometry.Pose2dWithCurvature
-import frc.team5190.lib.geometry.Translation2d
-import frc.team5190.lib.trajectory.TrajectoryFollower
-import frc.team5190.lib.trajectory.TrajectoryIterator
-import frc.team5190.lib.trajectory.TrajectorySamplePoint
-import frc.team5190.lib.trajectory.TrajectoryUtil
-import frc.team5190.lib.trajectory.timing.TimedState
-import frc.team5190.lib.trajectory.view.TimedView
+import frc.team5190.lib.math.control.VelocityPIDFController
+import frc.team5190.lib.math.geometry.Pose2dWithCurvature
+import frc.team5190.lib.math.geometry.Translation2d
+import frc.team5190.lib.math.trajectory.TrajectoryFollower
+import frc.team5190.lib.math.trajectory.TrajectoryIterator
+import frc.team5190.lib.math.trajectory.TrajectorySamplePoint
+import frc.team5190.lib.math.trajectory.TrajectoryUtil
+import frc.team5190.lib.math.trajectory.timing.TimedState
+import frc.team5190.lib.math.trajectory.view.TimedView
 import frc.team5190.robot.Constants
 import frc.team5190.robot.Kinematics
 import frc.team5190.robot.Localization
 import frc.team5190.robot.auto.Trajectories
 
-class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = false) : Command() {
+class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = false,
+                              private val exit: () -> Boolean = { false }) : Command() {
 
     // Notifier objects
     private val pf = Object()
@@ -100,14 +101,12 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
             dataArray.add(iterator.advance(0.05))
         }
 
-        // Find t where the distance between the provided waypoint and the actual point is shortest.
-        val t = dataArray.minBy { waypoint.distance(it.state.state.translation) }!!.state.t
-        println("[Trajectory Follower] Added Marker to \"$identifier\" at T = $t seconds.")
-        return Marker(this, t)
+        return Marker(identifier, (dataArray.minBy { waypoint.distance(it.state.state.translation) }!!.state.t)
+                .also { t -> println("[Trajectory Follower] Added Marker to \"$identifier\" at T = $t seconds.") })
     }
 
     fun hasCrossedMarker(marker: Marker): Boolean {
-        return marker.instance == this && trajectoryFollower.trajectoryPoint.state.t > marker.t
+        return marker.identifier == this.identifier && trajectoryFollower.trajectoryPoint.state.t > marker.t
     }
 
     private fun updateDashboard() {
@@ -132,7 +131,7 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
         }
     }
 
-    override fun isFinished() = trajectoryFollower.isFinished
+    override fun isFinished() = trajectoryFollower.isFinished || exit()
 
     companion object {
         var pathX = 0.0
@@ -148,5 +147,5 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
             private set
     }
 
-    class Marker(val instance: FollowTrajectoryCommand, val t: Double)
+    class Marker(val identifier: String, val t: Double)
 }

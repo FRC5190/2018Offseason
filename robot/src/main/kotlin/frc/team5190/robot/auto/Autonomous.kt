@@ -7,7 +7,7 @@ package frc.team5190.robot.auto
 
 import edu.wpi.first.wpilibj.DriverStation
 import frc.team5190.lib.extensions.S3ND
-import frc.team5190.lib.geometry.Pose2d
+import frc.team5190.lib.math.geometry.Pose2d
 import frc.team5190.robot.NetworkInterface
 import frc.team5190.robot.Robot
 import frc.team5190.robot.auto.routines.RoutineBaseline

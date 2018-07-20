@@ -6,11 +6,11 @@
 package frc.team5190.robot.auto
 
 
-import frc.team5190.lib.geometry.Pose2dWithCurvature
-import frc.team5190.lib.trajectory.Trajectory
-import frc.team5190.lib.trajectory.TrajectoryIterator
-import frc.team5190.lib.trajectory.timing.TimedState
-import frc.team5190.lib.trajectory.view.TimedView
+import frc.team5190.lib.math.geometry.Pose2dWithCurvature
+import frc.team5190.lib.math.trajectory.Trajectory
+import frc.team5190.lib.math.trajectory.TrajectoryIterator
+import frc.team5190.lib.math.trajectory.timing.TimedState
+import frc.team5190.lib.math.trajectory.view.TimedView
 import org.junit.Test
 import org.knowm.xchart.SwingWrapper
 import org.knowm.xchart.XYChartBuilder

@@ -9,8 +9,8 @@ import edu.wpi.first.wpilibj.command.CommandGroup
 import edu.wpi.first.wpilibj.command.PrintCommand
 import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.extensions.sequential
-import frc.team5190.lib.geometry.Translation2d
-import frc.team5190.lib.util.StateCommand
+import frc.team5190.lib.math.geometry.Translation2d
+import frc.team5190.lib.commands.StateCommand
 import frc.team5190.robot.auto.Autonomous
 import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 import openrio.powerup.MatchData

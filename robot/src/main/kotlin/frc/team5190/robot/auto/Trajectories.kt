@@ -6,28 +6,30 @@
 
 package frc.team5190.robot.auto
 
-import frc.team5190.lib.geometry.Pose2d
-import frc.team5190.lib.geometry.Pose2dWithCurvature
-import frc.team5190.lib.geometry.Rotation2d
-import frc.team5190.lib.geometry.Translation2d
-import frc.team5190.lib.trajectory.Trajectory
-import frc.team5190.lib.trajectory.TrajectoryGenerator
-import frc.team5190.lib.trajectory.timing.CentripetalAccelerationConstraint
-import frc.team5190.lib.trajectory.timing.TimedState
-import frc.team5190.lib.trajectory.timing.TimingConstraint
-import frc.team5190.robot.Constants
+import frc.team5190.lib.math.geometry.Pose2d
+import frc.team5190.lib.math.geometry.Pose2dWithCurvature
+import frc.team5190.lib.math.geometry.Rotation2d
+import frc.team5190.lib.math.geometry.Translation2d
+import frc.team5190.lib.math.trajectory.Trajectory
+import frc.team5190.lib.math.trajectory.TrajectoryGenerator
+import frc.team5190.lib.math.trajectory.timing.CentripetalAccelerationConstraint
+import frc.team5190.lib.math.trajectory.timing.TimedState
+import frc.team5190.lib.math.trajectory.timing.TimingConstraint
 import frc.team5190.robot.Constants.kCenterToFrontBumper
 import frc.team5190.robot.Constants.kCenterToIntake
 import frc.team5190.robot.Constants.kRobotCenterStartY
 import frc.team5190.robot.Constants.kRobotSideStartY
 import frc.team5190.robot.Constants.kRobotStartX
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.awaitAll
+import kotlinx.coroutines.experimental.runBlocking
 
 object Trajectories {
 
     // Constants in Feet Per Second
-    private const val kMaxVelocity                = 6.0
-    private const val kMaxAcceleration            = 6.0
+    private const val kMaxVelocity                = 12.0
+    private const val kMaxAcceleration            = 8.0
     private const val kMaxCentripetalAcceleration = 6.0
 
 
@@ -59,7 +61,7 @@ object Trajectories {
     private val kSwitchRightAdjusted      = kSwitchRight.transformBy(kCenterToFrontBumper)
 
     private val kFrontPyramidCube         = Pose2d(Translation2d(9.0, 13.5), Rotation2d())
-    private val kFrontPyramidCubeAdjusted = kFrontPyramidCube.transformBy(Constants.kCenterToIntake)
+    private val kFrontPyramidCubeAdjusted = kFrontPyramidCube.transformBy(kCenterToIntake)
 
 
     // Hash Map
@@ -176,7 +178,7 @@ object Trajectories {
         ).also { generateTrajectory("Baseline", true, it) }
 
 
-        launch {
+        runBlocking {
             trajectories.values.awaitAll()
         }
     }
