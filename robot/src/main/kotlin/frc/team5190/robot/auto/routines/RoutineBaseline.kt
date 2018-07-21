@@ -14,9 +14,9 @@ class RoutineBaseline(private val startingPosition: Autonomous.StartingPositions
     override val routine: CommandGroup
         get() {
             return sequential {
-                add(FollowTrajectoryCommand(
+                +FollowTrajectoryCommand(
                         identifier = "Baseline",
-                        pathMirrored = startingPosition == Autonomous.StartingPositions.RIGHT))
+                        pathMirrored = startingPosition == Autonomous.StartingPositions.RIGHT)
             }
         }
 }

@@ -19,38 +19,38 @@ class SubsystemPresetCommand(preset: Preset,
     init {
         when (preset) {
             Preset.INTAKE -> parallel {
-                add(AutoArmCommand(ArmSubsystem.Position.DOWN))
+                +AutoArmCommand(ArmSubsystem.Position.DOWN)
                 sequential {
-                    add(AutoElevatorCommand(ElevatorSubsystem.Position.FSTAGE) {
+                    +AutoElevatorCommand(ElevatorSubsystem.Position.FSTAGE) {
                         ArmSubsystem.currentPosition < ArmSubsystem.Position.UP.distance + NativeUnits(100)
-                    })
-                    add(AutoElevatorCommand(ElevatorSubsystem.Position.INTAKE))
+                    }
+                    +AutoElevatorCommand(ElevatorSubsystem.Position.INTAKE)
                 }
             }
 
             Preset.SWITCH -> parallel {
-                add(AutoArmCommand(ArmSubsystem.Position.MIDDLE))
+                +AutoArmCommand(ArmSubsystem.Position.MIDDLE)
                 sequential {
-                    add(AutoElevatorCommand(ElevatorSubsystem.Position.FSTAGE) {
+                    +AutoElevatorCommand(ElevatorSubsystem.Position.FSTAGE) {
                         ElevatorSubsystem.currentPosition < ElevatorSubsystem.Position.SWITCH.distance
                                 || ArmSubsystem.currentPosition < ArmSubsystem.Position.UP.distance + NativeUnits(100)
-                    })
-                    add(AutoElevatorCommand(ElevatorSubsystem.Position.SWITCH))
+                    }
+                    +AutoElevatorCommand(ElevatorSubsystem.Position.SWITCH)
                 }
             }
 
             Preset.SCALE -> parallel {
-                add(AutoArmCommand(ArmSubsystem.Position.MIDDLE))
-                add(AutoElevatorCommand(ElevatorSubsystem.Position.HIGHSCALE))
+                +AutoArmCommand(ArmSubsystem.Position.MIDDLE)
+                +AutoElevatorCommand(ElevatorSubsystem.Position.HIGHSCALE)
             }
 
             Preset.BEHIND -> parallel {
-                add(LidarElevatorCommand())
+                +LidarElevatorCommand()
                 sequential {
-                    add(AutoArmCommand(ArmSubsystem.Position.UP.distance + NativeUnits(75)) {
+                    +AutoArmCommand(ArmSubsystem.Position.UP.distance + NativeUnits(75)) {
                         ElevatorSubsystem.currentPosition > ElevatorSubsystem.Position.FSTAGE.distance
-                    })
-                    add(AutoArmCommand(ArmSubsystem.Position.BEHIND))
+                    }
+                    +AutoArmCommand(ArmSubsystem.Position.BEHIND)
                 }
             }
         }

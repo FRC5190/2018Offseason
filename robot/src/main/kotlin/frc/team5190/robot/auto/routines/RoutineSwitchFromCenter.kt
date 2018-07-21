@@ -22,11 +22,11 @@ class RoutineSwitchFromCenter(startingPosition: Autonomous.StartingPositions,
 
             return parallel {
                 sequential {
-                    add(FollowTrajectoryCommand("Center Start to $switch Switch"))
-                    add(FollowTrajectoryCommand("Switch to Center", pathMirrored = mirrored))
-                    add(FollowTrajectoryCommand("Center to Pyramid"))
-                    add(FollowTrajectoryCommand("Pyramid to Center"))
-                    add(FollowTrajectoryCommand("Center to Switch", pathMirrored = mirrored))
+                    +FollowTrajectoryCommand("Center Start to $switch Switch")
+                    +FollowTrajectoryCommand("Switch to Center", pathMirrored = mirrored)
+                    +FollowTrajectoryCommand("Center to Pyramid")
+                    +FollowTrajectoryCommand("Pyramid to Center")
+                    +FollowTrajectoryCommand("Center to Switch", pathMirrored = mirrored)
                 }
                 sequential {
                     // TODO

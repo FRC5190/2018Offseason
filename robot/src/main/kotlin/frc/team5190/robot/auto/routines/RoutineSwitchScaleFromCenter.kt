@@ -6,8 +6,6 @@
 package frc.team5190.robot.auto.routines
 
 import edu.wpi.first.wpilibj.command.CommandGroup
-import edu.wpi.first.wpilibj.command.PrintCommand
-import frc.team5190.lib.commands.StateCommand
 import frc.team5190.lib.extensions.sequential
 import frc.team5190.lib.math.geometry.Translation2d
 import frc.team5190.robot.auto.Autonomous
@@ -23,42 +21,16 @@ class RoutineSwitchScaleFromCenter(startingPosition: Autonomous.StartingPosition
                 "Left"
             } else "Right"
             val switchMirrored = switchSide == MatchData.OwnedSide.RIGHT
-            val scaleMirorred = scaleSide == MatchData.OwnedSide.RIGHT
+            val scaleMirorred  = scaleSide == MatchData.OwnedSide.RIGHT
 
             val drop2ndCube  = FollowTrajectoryCommand(identifier = "Pyramid to Scale", pathMirrored = scaleMirorred)
             val shoot2ndCube = drop2ndCube.addMarkerAt(Translation2d(22.3, 20.6))
 
             return sequential {
-                // 1st Cube in Switch
-                parallel {
-                    add(FollowTrajectoryCommand(
-                            identifier = "Center Start to $switch Switch",
-                            pathMirrored = false))
-                }
-
-                // Come Back to Center
-                parallel {
-                    add(FollowTrajectoryCommand(
-                            identifier = "Switch to Center",
-                            pathMirrored = switchMirrored
-                    ))
-                }
-
-                // Pick Up 2nd Cube
-                parallel {
-                    add(FollowTrajectoryCommand(
-                            identifier = "Center to Pyramid"
-                    ))
-                }
-
-                // 2nd Cube in Scale
-                parallel {
-                    add(drop2ndCube)
-                    sequential {
-                        add(StateCommand { drop2ndCube.hasCrossedMarker(shoot2ndCube) })
-                        add(PrintCommand("Has Crossed Marker 1"))
-                    }
-                }
+                +FollowTrajectoryCommand(identifier = "Center Start to $switch Switch", pathMirrored = false)
+                +FollowTrajectoryCommand(identifier = "Switch to Center", pathMirrored = switchMirrored)
+                +FollowTrajectoryCommand(identifier = "Center to Pyramid")
+                +drop2ndCube
             }
         }
 

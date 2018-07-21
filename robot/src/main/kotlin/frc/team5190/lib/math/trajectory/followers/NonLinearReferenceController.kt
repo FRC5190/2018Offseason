@@ -3,7 +3,12 @@
  * Green Hope Falcons
  */
 
-package frc.team5190.lib.math.trajectory
+/*
+ * FRC Team 5190
+ * Green Hope Falcons
+ */
+
+package frc.team5190.lib.math.trajectory.followers
 
 import frc.team5190.lib.extensions.cos
 import frc.team5190.lib.extensions.epsilonEquals
@@ -11,6 +16,8 @@ import frc.team5190.lib.extensions.sin
 import frc.team5190.lib.math.geometry.Pose2d
 import frc.team5190.lib.math.geometry.Pose2dWithCurvature
 import frc.team5190.lib.math.geometry.Twist2d
+import frc.team5190.lib.math.trajectory.Trajectory
+import frc.team5190.lib.math.trajectory.TrajectoryIterator
 import frc.team5190.lib.math.trajectory.timing.TimedState
 import frc.team5190.lib.math.trajectory.view.TimedView
 import kotlin.math.PI
@@ -20,21 +27,21 @@ import kotlin.math.sqrt
 // https://www.dis.uniroma1.it/~labrob/pub/papers/Ramsete01.pdf
 // Equation 5.12
 
-class TrajectoryFollower(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>,
-                         val dt: Double = 0.02) {
+class NonLinearReferenceController(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>,
+                                   override val dt: Double = 0.02) : TrajectoryFollower {
 
     private val trajectoryIterator = TrajectoryIterator(TimedView(trajectory))
 
-    var trajectoryPoint = trajectoryIterator.preview(0.0)
+    override var trajectoryPoint = trajectoryIterator.preview(0.0)
 
-    val trajectoryPose
+    override val trajectoryPose
         get() = trajectoryPoint.state.state.pose
 
-    val isFinished
+    override val isFinished
         get() = trajectoryIterator.isDone
 
     // Returns desired linear and angular cruiseVelocity of the robot
-    fun getRobotVelocity(pose: Pose2d) = calculateTwist(
+    override fun getSteering(pose: Pose2d) = calculateTwist(
             xError = trajectoryPose.translation.x - pose.translation.x,
             yError = trajectoryPose.translation.y - pose.translation.y,
             thetaError = (trajectoryPose.rotation - pose.rotation).radians,

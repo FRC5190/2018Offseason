@@ -25,7 +25,7 @@ class TrajectoryIterator<S : State<S>>(private val view: TrajectoryView<S>) {
     val isDone: Boolean
         get() = remainingProgress == 0.0
 
-    private val remainingProgress: Double
+    val remainingProgress: Double
         get() = Math.max(0.0, view.lastInterpolant - progress)
 
     val state: S

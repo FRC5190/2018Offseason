@@ -9,6 +9,7 @@ import frc.team5190.lib.math.geometry.Pose2d
 import frc.team5190.lib.math.geometry.Pose2dWithCurvature
 import frc.team5190.lib.math.geometry.Translation2d
 import frc.team5190.lib.math.geometry.Twist2d
+import frc.team5190.lib.math.trajectory.followers.NonLinearReferenceController
 import frc.team5190.lib.math.trajectory.timing.TimedState
 import frc.team5190.lib.math.trajectory.view.TimedView
 import frc.team5190.robot.auto.Trajectories
@@ -20,16 +21,16 @@ import java.awt.Font
 import java.text.DecimalFormat
 import kotlin.math.sign
 
-class TrajectoryFollowerTest {
+class TimeVaryingNonLinearFollowerTest {
 
-    private lateinit var trajectoryFollower: TrajectoryFollower
+    private lateinit var trajectoryFollower: NonLinearReferenceController
 
     @Test
     fun testTrajectoryFollower() {
         val name      = "Left Start to Near Scale"
         val trajectory: Trajectory<TimedState<Pose2dWithCurvature>> = Trajectories[name]
         val iterator = TrajectoryIterator(TimedView(trajectory))
-        trajectoryFollower = TrajectoryFollower(trajectory)
+        trajectoryFollower = NonLinearReferenceController(trajectory)
 
         var crossed = false
 
@@ -45,7 +46,7 @@ class TrajectoryFollowerTest {
 
         while (!iterator.isDone) {
             val pose = iterator.advance(0.02).state.state.pose
-            val output = trajectoryFollower.getRobotVelocity(totalpose)
+            val output = trajectoryFollower.getSteering(totalpose)
 
 //            System.out.printf("Linear Velocity: %3.3f, Angular Velocity: %3.3f%n", output.dx, output.dtheta)
 

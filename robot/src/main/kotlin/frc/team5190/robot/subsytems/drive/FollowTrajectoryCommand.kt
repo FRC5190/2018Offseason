@@ -11,10 +11,11 @@ import edu.wpi.first.wpilibj.command.Command
 import frc.team5190.lib.math.control.VelocityPIDFController
 import frc.team5190.lib.math.geometry.Pose2dWithCurvature
 import frc.team5190.lib.math.geometry.Translation2d
-import frc.team5190.lib.math.trajectory.TrajectoryFollower
 import frc.team5190.lib.math.trajectory.TrajectoryIterator
 import frc.team5190.lib.math.trajectory.TrajectorySamplePoint
 import frc.team5190.lib.math.trajectory.TrajectoryUtil
+import frc.team5190.lib.math.trajectory.followers.NonLinearReferenceController
+import frc.team5190.lib.math.trajectory.followers.TrajectoryFollower
 import frc.team5190.lib.math.trajectory.timing.TimedState
 import frc.team5190.lib.math.trajectory.view.TimedView
 import frc.team5190.robot.Constants
@@ -48,7 +49,7 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
         }
 
         // Initialize path follower
-        trajectoryFollower = TrajectoryFollower(trajectory = trajectory, dt = 0.05)
+        trajectoryFollower = NonLinearReferenceController(trajectory = trajectory, dt = 0.05)
 
         lController = VelocityPIDFController(
                 kP = Constants.kPLeftDriveVelocity / 8.0,
@@ -74,7 +75,7 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
                     return@Notifier
                 }
 
-                val kinematics = trajectoryFollower.getRobotVelocity(Localization.robotPosition)
+                val kinematics = trajectoryFollower.getSteering(Localization.robotPosition)
                 val output = Kinematics.inverseKinematics(kinematics)
 
                 DriveSubsystem.set(ControlMode.PercentOutput,
