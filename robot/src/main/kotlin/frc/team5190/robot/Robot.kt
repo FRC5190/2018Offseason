@@ -33,9 +33,9 @@ class Robot : IterativeRobot() {
         Lidar
 
         DriveSubsystem
-//        ArmSubsystem
-//        ElevatorSubsystem
-//        IntakeSubsystem
+       ArmSubsystem
+       ElevatorSubsystem
+       IntakeSubsystem
     }
 
     // Run scheduler for command based processes.
