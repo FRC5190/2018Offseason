@@ -12,7 +12,6 @@ import frc.team5190.lib.math.units.Inches
 import frc.team5190.lib.math.units.InchesPerSecond
 import frc.team5190.lib.math.units.NativeUnits
 import frc.team5190.lib.math.units.NativeUnitsPer100Ms
-import frc.team5190.robot.subsytems.elevator.ElevatorSubsystem
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 object Constants {
@@ -107,7 +106,7 @@ object Constants {
     val kArmClosedLpTolerance      = Inches(0.0)
 
     // MOTION MAGIC
-    val kElevatorMotionMagicVelocity     = InchesPerSecond(72.0 , ElevatorSubsystem.settings)
+    val kElevatorMotionMagicVelocity     = InchesPerSecond(72.0/*, ElevatorSubsystem.settings*/)
     val kElevatorMotionMagicAcceleration = InchesPerSecond(90.0).STU / 10
 
     val kArmMotionMagicVelocity           = NativeUnitsPer100Ms(1000000)

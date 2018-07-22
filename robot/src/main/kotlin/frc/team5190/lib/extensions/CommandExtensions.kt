@@ -35,7 +35,7 @@ class CommandGroupBuilder(val commandGroup: CommandGroup) {
 
     operator fun Command.unaryPlus() = commands.add(this)
 
-    fun sequential(block: CommandGroupBuilder.() -> Unit) = add(object : CommandGroup() {
+    fun sequential(block: CommandGroupBuilder.() -> Unit) = +(object : CommandGroup() {
         init {
             val builder = CommandGroupBuilder(this)
             block(builder)
@@ -45,7 +45,7 @@ class CommandGroupBuilder(val commandGroup: CommandGroup) {
         }
     })
 
-    fun parallel(block: CommandGroupBuilder.() -> Unit) = add(object : CommandGroup() {
+    fun parallel(block: CommandGroupBuilder.() -> Unit) = +(object : CommandGroup() {
         init {
             val builder = CommandGroupBuilder(this)
             block(builder)

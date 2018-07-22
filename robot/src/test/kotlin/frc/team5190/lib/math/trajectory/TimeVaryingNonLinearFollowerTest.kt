@@ -19,7 +19,6 @@ import org.knowm.xchart.XYChartBuilder
 import java.awt.Color
 import java.awt.Font
 import java.text.DecimalFormat
-import kotlin.math.sign
 
 class TimeVaryingNonLinearFollowerTest {
 
@@ -27,7 +26,7 @@ class TimeVaryingNonLinearFollowerTest {
 
     @Test
     fun testTrajectoryFollower() {
-        val name      = "Left Start to Near Scale"
+        val name      = "Pyramid to Scale"
         val trajectory: Trajectory<TimedState<Pose2dWithCurvature>> = Trajectories[name]
         val iterator = TrajectoryIterator(TimedView(trajectory))
         trajectoryFollower = NonLinearReferenceController(trajectory)
@@ -55,7 +54,7 @@ class TimeVaryingNonLinearFollowerTest {
                 crossed = true
             }
 
-            val positiondelta = Twist2d(output.scaled(0.02).dx, output.scaled(0.02).dy, output.scaled(0.02).dtheta + sign(output.scaled(0.02).dtheta) * 0.3 * 0.02)
+            val positiondelta = Twist2d(output.scaled(0.02).dx, output.scaled(0.02).dy, output.scaled(0.1).dtheta)
             val transformed   = totalpose.transformBy(Pose2d.fromTwist(positiondelta))
 
             xList.add(totalpose.translation.x)

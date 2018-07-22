@@ -15,7 +15,7 @@ import frc.team5190.robot.subsytems.elevator.ElevatorSubsystem
 import frc.team5190.robot.subsytems.elevator.LidarElevatorCommand
 
 class SubsystemPresetCommand(preset: Preset,
-                             private val exit: () -> Boolean) : CommandGroup() {
+                             private val exit: () -> Boolean = { false }) : CommandGroup() {
     init {
         when (preset) {
             Preset.INTAKE -> parallel {

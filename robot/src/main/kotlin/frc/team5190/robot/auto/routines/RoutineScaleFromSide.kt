@@ -47,7 +47,9 @@ class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPosi
             return parallel {
                 sequential {
                     +drop1stCube
+//                    +StateCommand { ElevatorSubsystem.currentPosition <= ElevatorSubsystem.Position.FSTAGE.distance }
                     +pickup2ndCube
+//                    +StateCommand { ElevatorSubsystem.currentPosition >= ElevatorSubsystem.Position.SWITCH.distance }
                     +drop2ndCube
                     +pickup3rdCube
                     +drop3rdCube
