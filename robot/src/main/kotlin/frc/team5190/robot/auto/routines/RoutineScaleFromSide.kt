@@ -6,7 +6,7 @@
 package frc.team5190.robot.auto.routines
 
 import edu.wpi.first.wpilibj.command.CommandGroup
-import frc.team5190.lib.commands.StateCommand
+import frc.team5190.lib.commands.impl.StateCommand
 import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.math.geometry.Translation2d
 import frc.team5190.robot.auto.Autonomous

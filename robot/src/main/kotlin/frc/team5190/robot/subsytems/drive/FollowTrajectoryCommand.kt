@@ -6,8 +6,7 @@
 package frc.team5190.robot.subsytems.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
-import edu.wpi.first.wpilibj.Notifier
-import edu.wpi.first.wpilibj.command.Command
+import frc.team5190.lib.commands.Command
 import frc.team5190.lib.math.control.VelocityPIDFController
 import frc.team5190.lib.math.geometry.Pose2dWithCurvature
 import frc.team5190.lib.math.geometry.Translation2d
@@ -26,11 +25,6 @@ import frc.team5190.robot.auto.Trajectories
 class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = false,
                               private val exit: () -> Boolean = { false }) : Command() {
 
-    // Notifier objects
-    private val pf = Object()
-    private val notifier: Notifier
-    private var stopNotifier = false
-
     // Trajectory
     private var trajectory = Trajectories[identifier]
 
@@ -42,7 +36,7 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
     private val rController: VelocityPIDFController
 
     init {
-        requires(DriveSubsystem)
+        +DriveSubsystem
 
         if (pathMirrored) {
             trajectory = TrajectoryUtil.mirrorTimed(trajectory)
@@ -50,6 +44,8 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
 
         // Initialize path follower
         trajectoryFollower = NonLinearReferenceController(trajectory = trajectory, dt = 0.05)
+        // Update the frequency of the command to the follower
+        updateFrequency = (1.0 / trajectoryFollower.dt).toInt()
 
         lController = VelocityPIDFController(
                 kP = Constants.kPLeftDriveVelocity / 8.0,
@@ -66,31 +62,6 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
                 kS = Constants.kSRightDriveVelocity,
                 current = { DriveSubsystem.rightVelocity.FPS }
         )
-
-
-        // Initialize notifier
-        notifier = Notifier {
-            synchronized(pf) {
-                if (stopNotifier) {
-                    return@Notifier
-                }
-
-                val kinematics = trajectoryFollower.getSteering(Localization.robotPosition)
-                val output = Kinematics.inverseKinematics(kinematics)
-
-                DriveSubsystem.set(ControlMode.PercentOutput,
-                        lController.getPIDFOutput(output.first to 0.0),
-                        rController.getPIDFOutput(output.second to 0.0))
-
-                updateDashboard()
-                System.out.printf("[Trajectory Follower] X Error: %3.3f, Y Error: %3.3f, T Error: %3.3f, L: %3.3f, A: %3.3f, Actual: %3.3f%n",
-                        trajectoryFollower.trajectoryPose.translation.x - Localization.robotPosition.translation.x,
-                        trajectoryFollower.trajectoryPose.translation.y - Localization.robotPosition.translation.y,
-                        (trajectoryFollower.trajectoryPose.rotation - Localization.robotPosition.rotation).degrees,
-                        kinematics.dx, kinematics.dtheta,
-                        ((DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity) / 2.0).FPS)
-            }
-        }
     }
 
     fun addMarkerAt(waypoint: Translation2d): Marker {
@@ -119,20 +90,29 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
         lookaheadY = pathY
     }
 
-    override fun initialize() {
-        notifier.startPeriodic(trajectoryFollower.dt)
+    override suspend fun execute() {
+        val kinematics = trajectoryFollower.getSteering(Localization.robotPosition)
+        val output = Kinematics.inverseKinematics(kinematics)
+
+        DriveSubsystem.set(ControlMode.PercentOutput,
+                lController.getPIDFOutput(output.first to 0.0),
+                rController.getPIDFOutput(output.second to 0.0))
+
+        updateDashboard()
+        System.out.printf("[Trajectory Follower] X Error: %3.3f, Y Error: %3.3f, T Error: %3.3f, L: %3.3f, A: %3.3f, Actual: %3.3f%n",
+                trajectoryFollower.trajectoryPose.translation.x - Localization.robotPosition.translation.x,
+                trajectoryFollower.trajectoryPose.translation.y - Localization.robotPosition.translation.y,
+                (trajectoryFollower.trajectoryPose.rotation - Localization.robotPosition.rotation).degrees,
+                kinematics.dx, kinematics.dtheta,
+                ((DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity) / 2.0).FPS)
     }
 
-    override fun end() {
-        synchronized(pf) {
-            stopNotifier = true
-            notifier.stop()
-            println(DriveSubsystem.leftPosition.FT)
-            DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = 0.0, rightOutput = 0.0)
-        }
+    override suspend fun dispose() {
+        println(DriveSubsystem.leftPosition.FT)
+        DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = 0.0, rightOutput = 0.0)
     }
 
-    override fun isFinished() = trajectoryFollower.isFinished || exit()
+    override suspend fun isFinished() = trajectoryFollower.isFinished || exit()
 
     companion object {
         var pathX = 0.0

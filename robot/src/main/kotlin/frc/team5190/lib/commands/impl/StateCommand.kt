@@ -3,7 +3,7 @@
  * Green Hope Falcons
  */
 
-package frc.team5190.lib.commands
+package frc.team5190.lib.commands.impl
 
 import edu.wpi.first.wpilibj.command.Command
 

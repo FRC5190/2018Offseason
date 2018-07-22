@@ -8,7 +8,7 @@ package frc.team5190.robot.subsytems.drive
 import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.NeutralMode
-import edu.wpi.first.wpilibj.command.Subsystem
+import frc.team5190.lib.commands.Subsystem
 import frc.team5190.lib.math.units.*
 import frc.team5190.lib.wrappers.FalconSRX
 import frc.team5190.robot.Constants
@@ -97,8 +97,9 @@ object DriveSubsystem : Subsystem() {
             it.currentLimitingEnabled = true
         }
         resetEncoders()
-    }
 
+        defaultCommand = ManualDriveCommand()
+    }
 
     fun set(controlMode: ControlMode, leftOutput: Double, rightOutput: Double) {
         leftMaster.set(controlMode, leftOutput)
@@ -109,9 +110,5 @@ object DriveSubsystem : Subsystem() {
         allMasters.forEach {
             it.sensorPosition = NativeUnits(0)
         }
-    }
-
-    override fun initDefaultCommand() {
-        defaultCommand = ManualDriveCommand()
     }
 }
