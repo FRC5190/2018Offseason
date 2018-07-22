@@ -10,52 +10,42 @@ package frc.team5190.lib.extensions
 import edu.wpi.first.wpilibj.command.Command
 import edu.wpi.first.wpilibj.command.CommandGroup
 
-fun sequential(block: CommandGroupBuilder.() -> Unit) = object : CommandGroup() {
-    init {
-        val builder = CommandGroupBuilder(this)
-        block(builder)
-        for (command in builder.commands) {
-            addSequential(command)
-        }
-    }
+fun sequential(block: CommandGroupBuilder.() -> Unit) = sequential0(block)
+fun parallel(block: CommandGroupBuilder.() -> Unit) = parallel0(block)
+
+private fun sequential0(block: CommandGroupBuilder.() -> Unit) = commandGroup(CommandGroupBuilder.BuilderType.SEQUENTIAL, block)
+private fun parallel0(block: CommandGroupBuilder.() -> Unit) = commandGroup(CommandGroupBuilder.BuilderType.PARALLEL, block)
+
+fun commandGroup(type: CommandGroupBuilder.BuilderType, block: CommandGroupBuilder.() -> Unit): CommandGroup {
+    val builder = CommandGroupBuilder(type)
+    block(builder)
+    return builder.build()
 }
 
-fun parallel(block: CommandGroupBuilder.() -> Unit) = object : CommandGroup() {
-    init {
-        val builder = CommandGroupBuilder(this)
-        block(builder)
-        for (command in builder.commands) {
-            addParallel(command)
-        }
-    }
-}
+class CommandGroupBuilder(private val type: BuilderType) {
+    enum class BuilderType { SEQUENTIAL, PARALLEL }
 
-class CommandGroupBuilder(val commandGroup: CommandGroup) {
-    val commands = mutableListOf<Command>()
+    private val commands = mutableListOf<Command>()
+
+    fun sequential(block: CommandGroupBuilder.() -> Unit) = +sequential0(block)
+    fun parallel(block: CommandGroupBuilder.() -> Unit) = +parallel0(block)
 
     operator fun Command.unaryPlus() = commands.add(this)
 
-    fun sequential(block: CommandGroupBuilder.() -> Unit) = +(object : CommandGroup() {
+    fun build() = object : CommandGroup() {
         init {
-            val builder = CommandGroupBuilder(this)
-            block(builder)
-            for (command in builder.commands) {
-                addSequential(command)
+            for (command in commands) {
+                when (type) {
+                    BuilderType.SEQUENTIAL -> addSequential(command)
+                    BuilderType.PARALLEL -> addParallel(command)
+                }
             }
         }
-    })
-
-    fun parallel(block: CommandGroupBuilder.() -> Unit) = +(object : CommandGroup() {
-        init {
-            val builder = CommandGroupBuilder(this)
-            block(builder)
-            for (command in builder.commands) {
-                addParallel(command)
-            }
-        }
-    })
+    }
 }
 
 
 @Suppress("FunctionName", "UNUSED_PARAMETER")
-infix fun CommandGroup.S3ND(other: String) { this.start() }
+infix fun CommandGroup.S3ND(other: String) {
+    this.start()
+}
