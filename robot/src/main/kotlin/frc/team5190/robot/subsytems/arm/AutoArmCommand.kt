@@ -6,7 +6,7 @@
 package frc.team5190.robot.subsytems.arm
 
 import com.ctre.phoenix.motorcontrol.ControlMode
-import edu.wpi.first.wpilibj.command.Command
+import frc.team5190.lib.commands.Command
 import frc.team5190.lib.math.units.Distance
 import frc.team5190.lib.math.units.NativeUnits
 
@@ -18,7 +18,7 @@ class AutoArmCommand(private val pos: Distance,
     init {
         requires(ArmSubsystem)
     }
-    override fun initialize() = ArmSubsystem.set(ControlMode.MotionMagic, pos.STU.toDouble())
-    override fun isFinished() = (ArmSubsystem.currentPosition - pos).absoluteValue < NativeUnits(50) || exit()
+    override suspend fun initialize() = ArmSubsystem.set(ControlMode.MotionMagic, pos.STU.toDouble())
+    override suspend fun isFinished() = (ArmSubsystem.currentPosition - pos).absoluteValue < NativeUnits(50) || exit()
 
 }

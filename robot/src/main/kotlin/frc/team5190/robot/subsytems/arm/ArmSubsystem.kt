@@ -8,7 +8,7 @@ package frc.team5190.robot.subsytems.arm
 import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.NeutralMode
-import edu.wpi.first.wpilibj.command.Subsystem
+import frc.team5190.lib.commands.Subsystem
 import frc.team5190.lib.math.units.Amps
 import frc.team5190.lib.math.units.Distance
 import frc.team5190.lib.math.units.NativeUnits
@@ -22,6 +22,8 @@ object ArmSubsystem : Subsystem() {
         get() = armMaster.sensorPosition
 
     init {
+        defaultCommand = ManualArmCommand()
+
         armMaster.apply {
             inverted       = true
             encoderPhase   = false
@@ -41,10 +43,6 @@ object ArmSubsystem : Subsystem() {
     }
 
     fun set(controlMode: ControlMode, output: Double) = armMaster.set(controlMode, output)
-
-    override fun initDefaultCommand() {
-        defaultCommand = ManualArmCommand()
-    }
 
     enum class Position(val distance: Distance) {
         DOWN  (Constants.kArmDownPosition),

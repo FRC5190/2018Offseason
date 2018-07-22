@@ -5,14 +5,15 @@
 
 package frc.team5190.robot.subsytems.elevator
 
-import edu.wpi.first.wpilibj.command.Command
+import frc.team5190.lib.commands.Command
+
 
 class ManualElevatorCommand : Command() {
     init {
         requires(ElevatorSubsystem)
     }
 
-    override fun execute() {
+    override suspend fun execute() {
         if (ElevatorSubsystem.atBottom && !ElevatorSubsystem.reset) {
             ElevatorSubsystem.resetEncoders()
             ElevatorSubsystem.reset = true
@@ -22,5 +23,5 @@ class ManualElevatorCommand : Command() {
         }
     }
 
-    override fun isFinished(): Boolean = false
+    override suspend fun isFinished() = false
 }

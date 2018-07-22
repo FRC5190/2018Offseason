@@ -5,7 +5,7 @@
 
 package frc.team5190.robot.auto.routines
 
-import edu.wpi.first.wpilibj.command.CommandGroup
+import frc.team5190.lib.commands.CommandGroup
 import frc.team5190.lib.extensions.parallel
 import frc.team5190.robot.auto.Autonomous
 import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand

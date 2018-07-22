@@ -9,7 +9,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.NeutralMode
 import edu.wpi.first.wpilibj.AnalogInput
 import edu.wpi.first.wpilibj.Solenoid
-import edu.wpi.first.wpilibj.command.Subsystem
+import frc.team5190.lib.commands.Subsystem
 import frc.team5190.lib.math.units.Amps
 import frc.team5190.lib.math.units.Volts
 import frc.team5190.lib.wrappers.FalconSRX
@@ -28,6 +28,8 @@ object IntakeSubsystem : Subsystem() {
         get() = leftCubeSensor.voltage > Volts(0.9).volts && rightCubeSensor.voltage > Volts(0.9).volts
 
     init {
+        defaultCommand = IntakeHoldCommand()
+
         intakeMaster.apply {
             voltageCompensationSaturation = Volts(12.0)
             voltageCompensationEnabled = true
@@ -44,10 +46,6 @@ object IntakeSubsystem : Subsystem() {
     }
 
     fun set(controlMode: ControlMode, output: Double) = intakeMaster.set(controlMode, output)
-
-    override fun initDefaultCommand() {
-        defaultCommand = IntakeHoldCommand()
-    }
 
     enum class Direction { IN, OUT }
 }

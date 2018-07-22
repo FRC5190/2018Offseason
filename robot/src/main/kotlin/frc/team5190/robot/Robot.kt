@@ -6,11 +6,13 @@
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.IterativeRobot
-import edu.wpi.first.wpilibj.command.Scheduler
 import frc.team5190.robot.auto.Autonomous
 import frc.team5190.robot.sensors.Lidar
 import frc.team5190.robot.sensors.NavX
+import frc.team5190.robot.subsytems.arm.ArmSubsystem
 import frc.team5190.robot.subsytems.drive.DriveSubsystem
+import frc.team5190.robot.subsytems.elevator.ElevatorSubsystem
+import frc.team5190.robot.subsytems.intake.IntakeSubsystem
 
 class Robot : IterativeRobot() {
 
@@ -33,15 +35,12 @@ class Robot : IterativeRobot() {
         Lidar
 
         DriveSubsystem
-       ArmSubsystem
-       ElevatorSubsystem
-       IntakeSubsystem
+        ArmSubsystem
+        ElevatorSubsystem
+        IntakeSubsystem
     }
 
-    // Run scheduler for command based processes.
-    override fun robotPeriodic() {
-        Scheduler.getInstance().run()
-    }
+    override fun robotPeriodic() {}
 
     override fun disabledInit() {}
     override fun disabledPeriodic() {}

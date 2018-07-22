@@ -7,45 +7,72 @@
 
 package frc.team5190.lib.extensions
 
-import edu.wpi.first.wpilibj.command.Command
-import edu.wpi.first.wpilibj.command.CommandGroup
+import frc.team5190.lib.commands.Command
+import frc.team5190.lib.commands.CommandGroup
+import frc.team5190.lib.commands.ParallelCommandGroup
+import frc.team5190.lib.commands.SequentialCommandGroup
 
-fun sequential(block: CommandGroupBuilder.() -> Unit) = sequential0(block)
-fun parallel(block: CommandGroupBuilder.() -> Unit) = parallel0(block)
+// External Extension Helpers
 
-private fun sequential0(block: CommandGroupBuilder.() -> Unit) = commandGroup(CommandGroupBuilder.BuilderType.SEQUENTIAL, block)
-private fun parallel0(block: CommandGroupBuilder.() -> Unit) = commandGroup(CommandGroupBuilder.BuilderType.PARALLEL, block)
+fun sequential(
+        finishCondition: suspend () -> Boolean = { false },
+        block: CommandGroupBuilder.() -> Unit
+) = sequential0(finishCondition, block)
 
-fun commandGroup(type: CommandGroupBuilder.BuilderType, block: CommandGroupBuilder.() -> Unit): CommandGroup {
-    val builder = CommandGroupBuilder(type)
+fun parallel(
+        finishCondition: suspend () -> Boolean = { false },
+        block: CommandGroupBuilder.() -> Unit
+) = parallel0(finishCondition, block)
+
+// Internal Extension Helpers
+
+private fun sequential0(
+        finishCondition: suspend () -> Boolean,
+        block: CommandGroupBuilder.() -> Unit
+) = commandGroup(CommandGroupBuilder.BuilderType.SEQUENTIAL, finishCondition, block)
+
+private fun parallel0(
+        finishCondition: suspend () -> Boolean,
+        block: CommandGroupBuilder.() -> Unit
+) = commandGroup(CommandGroupBuilder.BuilderType.PARALLEL, finishCondition, block)
+
+private fun commandGroup(type: CommandGroupBuilder.BuilderType, finishCondition: suspend () -> Boolean, block: CommandGroupBuilder.() -> Unit): CommandGroup {
+    val builder = CommandGroupBuilder(finishCondition, type)
     block(builder)
     return builder.build()
 }
 
-class CommandGroupBuilder(private val type: BuilderType) {
+// Builders
+
+class CommandGroupBuilder(private val finishCondition: suspend () -> Boolean, private val type: BuilderType) {
     enum class BuilderType { SEQUENTIAL, PARALLEL }
 
     private val commands = mutableListOf<Command>()
 
-    fun sequential(block: CommandGroupBuilder.() -> Unit) = +sequential0(block)
-    fun parallel(block: CommandGroupBuilder.() -> Unit) = +parallel0(block)
+    fun sequential(
+            finishCondition: suspend () -> Boolean = { false },
+            block: CommandGroupBuilder.() -> Unit
+    ) = +sequential0(finishCondition, block)
+
+    fun parallel(
+            finishCondition: suspend () -> Boolean = { false },
+            block: CommandGroupBuilder.() -> Unit
+    ) = +parallel0(finishCondition, block)
 
     operator fun Command.unaryPlus() = commands.add(this)
 
-    fun build() = object : CommandGroup() {
-        init {
-            for (command in commands) {
-                when (type) {
-                    BuilderType.SEQUENTIAL -> addSequential(command)
-                    BuilderType.PARALLEL -> addParallel(command)
-                }
-            }
+    fun build() = when (type) {
+        BuilderType.SEQUENTIAL -> object : SequentialCommandGroup(commands) {
+            override suspend fun isFinished() = super.isFinished() || finishCondition()
+        }
+        BuilderType.PARALLEL -> object : ParallelCommandGroup(commands) {
+            override suspend fun isFinished() = super.isFinished() || finishCondition()
         }
     }
 }
 
 
 @Suppress("FunctionName", "UNUSED_PARAMETER")
-infix fun CommandGroup.S3ND(other: String) {
+suspend infix fun CommandGroup.S3ND(other: String) {
     this.start()
 }

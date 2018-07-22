@@ -5,11 +5,13 @@
 
 package frc.team5190.robot.subsytems.arm
 
-import edu.wpi.first.wpilibj.command.Command
+import frc.team5190.lib.commands.Command
+
 
 class ManualArmCommand : Command() {
     init {
-        requires(ArmSubsystem)
+        +ArmSubsystem
     }
-    override fun isFinished(): Boolean = false
+
+    override suspend fun isFinished() = false
 }

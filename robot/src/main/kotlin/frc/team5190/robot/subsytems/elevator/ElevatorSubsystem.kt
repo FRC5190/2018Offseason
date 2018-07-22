@@ -6,7 +6,7 @@
 package frc.team5190.robot.subsytems.elevator
 
 import com.ctre.phoenix.motorcontrol.*
-import edu.wpi.first.wpilibj.command.Subsystem
+import frc.team5190.lib.commands.Subsystem
 import frc.team5190.lib.math.units.*
 import frc.team5190.lib.wrappers.FalconSRX
 import frc.team5190.robot.Constants
@@ -27,6 +27,8 @@ object ElevatorSubsystem : Subsystem() {
     var reset = false
 
     init {
+        defaultCommand = ManualElevatorCommand()
+
         elevatorMaster.apply {
             inverted       = false
             encoderPhase   = false
@@ -62,10 +64,6 @@ object ElevatorSubsystem : Subsystem() {
 
     fun resetEncoders() {
         elevatorMaster.sensorPosition = NativeUnits(0)
-    }
-
-    override fun initDefaultCommand() {
-        defaultCommand = ManualElevatorCommand()
     }
 
     enum class Position(val distance: Distance) {

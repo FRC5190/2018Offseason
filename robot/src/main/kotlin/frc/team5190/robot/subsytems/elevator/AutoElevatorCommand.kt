@@ -6,7 +6,7 @@
 package frc.team5190.robot.subsytems.elevator
 
 import com.ctre.phoenix.motorcontrol.ControlMode
-import edu.wpi.first.wpilibj.command.Command
+import frc.team5190.lib.commands.Command
 import frc.team5190.lib.math.units.Distance
 import frc.team5190.robot.Constants
 
@@ -19,7 +19,7 @@ class AutoElevatorCommand(private val distance: Distance,
         requires(ElevatorSubsystem)
     }
 
-    override fun initialize() = ElevatorSubsystem.set(ControlMode.MotionMagic, distance.STU.toDouble())
-    override fun isFinished() = (ElevatorSubsystem.currentPosition - distance).absoluteValue <
+    override suspend fun initialize() = ElevatorSubsystem.set(ControlMode.MotionMagic, distance.STU.toDouble())
+    override suspend fun isFinished() = (ElevatorSubsystem.currentPosition - distance).absoluteValue <
             Constants.kElevatorClosedLpTolerance || exit()
 }

@@ -6,7 +6,7 @@
 package frc.team5190.robot.subsytems.elevator
 
 import com.ctre.phoenix.motorcontrol.ControlMode
-import edu.wpi.first.wpilibj.command.Command
+import frc.team5190.lib.commands.Command
 import frc.team5190.lib.math.units.Distance
 import frc.team5190.lib.math.units.Inches
 import frc.team5190.robot.sensors.Lidar
@@ -23,7 +23,7 @@ class LidarElevatorCommand(private val exit: () -> Boolean = { false }) : Comman
     private val heightBufferAverage
         get() = heightBuffer.sumByDouble { it.IN } / 3.0
 
-    override fun execute() {
+    override suspend fun execute() {
         if (Lidar.underScale) {
             heightBuffer.add(Inches(Lidar.scaleHeight - 15.0, ElevatorSubsystem.settings))
         }
@@ -36,7 +36,7 @@ class LidarElevatorCommand(private val exit: () -> Boolean = { false }) : Comman
         })
     }
 
-    override fun isFinished() = (!IntakeSubsystem.cubeIn &&
+    override suspend fun isFinished() = (!IntakeSubsystem.cubeIn &&
             ElevatorSubsystem.currentPosition >
             ElevatorSubsystem.Position.FSTAGE.distance - Inches(1.0, ElevatorSubsystem.settings)) ||
             exit()
