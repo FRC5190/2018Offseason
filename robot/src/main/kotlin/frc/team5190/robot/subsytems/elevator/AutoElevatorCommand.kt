@@ -20,7 +20,6 @@ class AutoElevatorCommand(private val distance: Distance,
 
     init {
         requires(ElevatorSubsystem)
-
         finishCondition += condition { (ElevatorSubsystem.currentPosition - distance).absoluteValue < Constants.kElevatorClosedLpTolerance } or exitCondition
     }
 
