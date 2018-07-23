@@ -54,6 +54,7 @@ class RoutineSwitchFromCenter(startingPosition: Autonomous.StartingPositions,
                     +SubsystemPresetCommand(SubsystemPreset.SWITCH, condition(drop1stCube))
                     +ConditionCommand(condition { drop1stCube.hasCrossedMarker(shoot1stCube) })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, timeout = 500L)
+                    +SubsystemPresetCommand(SubsystemPreset.INTAKE, condition(toCenter))
                     +ConditionCommand(condition(toCenter))
                     +IntakeCommand(IntakeSubsystem.Direction.IN, exitCondition = condition(toPyramid))
                     +SubsystemPresetCommand(SubsystemPreset.SWITCH, condition(drop2ndCube))
