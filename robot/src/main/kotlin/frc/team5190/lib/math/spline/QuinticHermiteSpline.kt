@@ -16,6 +16,7 @@ import frc.team5190.lib.extensions.times
 import frc.team5190.lib.math.geometry.Pose2d
 import frc.team5190.lib.math.geometry.Rotation2d
 import frc.team5190.lib.math.geometry.Translation2d
+import kotlin.math.pow
 
 
 class QuinticHermiteSpline(private val x0: Double,
@@ -107,33 +108,33 @@ class QuinticHermiteSpline(private val x0: Double,
     }
 
     override fun getPoint(t: Double): Translation2d {
-        val x = ax * t * t * t * t * t + bx * t * t * t * t + cx * t * t * t + dx * t * t + ex * t + fx
-        val y = ay * t * t * t * t * t + by * t * t * t * t + cy * t * t * t + dy * t * t + ey * t + fy
+        val x = ax * t.pow(5) + bx * t.pow(4) + cx * t.pow(3) + dx * t.pow(2) + ex * t + fx
+        val y = ay * t.pow(5) + by * t.pow(4) + cy * t.pow(3) + dy * t.pow(2) + ey * t + fy
         return Translation2d(x, y)
     }
 
     private fun dx(t: Double): Double {
-        return 5.0 * ax * t * t * t * t + 4.0 * bx * t * t * t + 3.0 * cx * t * t + 2.0 * dx * t + ex
+        return 5.0 * ax * t.pow(4) + 4.0 * bx * t.pow(3) + 3.0 * cx * t.pow(2) + 2.0 * dx * t + ex
     }
 
     private fun dy(t: Double): Double {
-        return 5.0 * ay * t * t * t * t + 4.0 * by * t * t * t + 3.0 * cy * t * t + 2.0 * dy * t + ey
+        return 5.0 * ay * t.pow(4) + 4.0 * by * t.pow(3) + 3.0 * cy * t.pow(2) + 2.0 * dy * t + ey
     }
 
     private fun ddx(t: Double): Double {
-        return 20.0 * ax * t * t * t + 12.0 * bx * t * t + 6.0 * cx * t + 2 * dx
+        return 20.0 * ax * t.pow(3) + 12.0 * bx * t.pow(2) + 6.0 * cx * t + 2 * dx
     }
 
     private fun ddy(t: Double): Double {
-        return 20.0 * ay * t * t * t + 12.0 * by * t * t + 6.0 * cy * t + 2 * dy
+        return 20.0 * ay * t.pow(3) + 12.0 * by * t.pow(2) + 6.0 * cy * t + 2 * dy
     }
 
     private fun dddx(t: Double): Double {
-        return 60.0 * ax * t * t + 24.0 * bx * t + 6 * cx
+        return 60.0 * ax * t.pow(2) + 24.0 * bx * t + 6 * cx
     }
 
     private fun dddy(t: Double): Double {
-        return 60.0 * ay * t * t + 24.0 * by * t + 6 * cy
+        return 60.0 * ay * t.pow(2) + 24.0 * by * t + 6 * cy
     }
 
     override fun getVelocity(t: Double): Double {
