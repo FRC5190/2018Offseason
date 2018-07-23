@@ -15,8 +15,8 @@
 package frc.team5190.lib.math.geometry
 
 import frc.team5190.lib.extensions.epsilonEquals
-import frc.team5190.lib.math.geometry.interfaces.ITranslation2d
 import frc.team5190.lib.kEpsilon
+import frc.team5190.lib.math.geometry.interfaces.ITranslation2d
 import java.text.DecimalFormat
 
 
@@ -87,6 +87,10 @@ class Translation2d : ITranslation2d<Translation2d> {
         return Translation2d(x * s, y * s)
     }
 
+    fun mirror(): Translation2d {
+        return Translation2d(x, 27 - y)
+    }
+
     operator fun plus(other: Translation2d) = this.translateBy(other)
     operator fun minus(other: Translation2d) = this.translateBy(other.inverse)
 
@@ -103,7 +107,6 @@ class Translation2d : ITranslation2d<Translation2d> {
         val fmt = DecimalFormat("#0.000")
         return fmt.format(x) + "," + fmt.format(y)
     }
-
 
     override fun distance(other: Translation2d): Double {
         return inverse.translateBy(other).norm

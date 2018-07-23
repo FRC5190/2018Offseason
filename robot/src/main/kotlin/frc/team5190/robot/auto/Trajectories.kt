@@ -57,7 +57,7 @@ object Trajectories {
     private val kSwitchLeft               = Pose2d(Translation2d(11.5, 18.8), Rotation2d())
     private val kSwitchRight              = Pose2d(Translation2d(11.5, 08.2), Rotation2d())
 
-    private val kSwitchLeftAdjusted       = kSwitchLeft .transformBy(kCenterToFrontBumper)
+    internal val kSwitchLeftAdjusted      = kSwitchLeft .transformBy(kCenterToFrontBumper)
     private val kSwitchRightAdjusted      = kSwitchRight.transformBy(kCenterToFrontBumper)
 
     private val kFrontPyramidCube         = Pose2d(Translation2d(9.0, 13.5), Rotation2d())

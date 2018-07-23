@@ -15,6 +15,7 @@ import frc.team5190.robot.subsytems.elevator.AutoElevatorCommand
 import frc.team5190.robot.subsytems.elevator.ElevatorSubsystem
 import frc.team5190.robot.subsytems.elevator.LidarElevatorCommand
 
+@Suppress("FunctionName")
 fun SubsystemPresetCommand(preset: SubsystemPreset,
                            exitCondition: Condition = condition { false }) = parallel(exitCondition) {
     when (preset) {

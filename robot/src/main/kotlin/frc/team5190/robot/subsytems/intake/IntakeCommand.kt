@@ -9,12 +9,13 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Condition
 import frc.team5190.lib.commands.TimeoutCommand
 import frc.team5190.lib.commands.or
+import java.util.concurrent.TimeUnit
 import kotlin.math.absoluteValue
 
 class IntakeCommand(private val direction: IntakeSubsystem.Direction,
                     timeout: Long = Long.MAX_VALUE,
                     private val speed: Double = 1.0,
-                    exitCondition: Condition = Condition.FALSE) : TimeoutCommand(timeout) {
+                    exitCondition: Condition = Condition.FALSE) : TimeoutCommand(timeout, TimeUnit.MILLISECONDS) {
     init {
         +IntakeSubsystem
 
