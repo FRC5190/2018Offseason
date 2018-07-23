@@ -7,6 +7,9 @@ package frc.team5190.robot.subsytems.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Command
+import frc.team5190.lib.commands.Condition
+import frc.team5190.lib.commands.condition
+import frc.team5190.lib.commands.or
 import frc.team5190.lib.math.control.VelocityPIDFController
 import frc.team5190.lib.math.geometry.Pose2dWithCurvature
 import frc.team5190.lib.math.geometry.Translation2d
@@ -23,7 +26,7 @@ import frc.team5190.robot.Localization
 import frc.team5190.robot.auto.Trajectories
 
 class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = false,
-                              private val exit: () -> Boolean = { false }) : Command() {
+                              exitCondition: Condition = Condition.FALSE) : Command() {
 
     // Trajectory
     private var trajectory = Trajectories[identifier]
@@ -44,8 +47,6 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
 
         // Initialize path follower
         trajectoryFollower = NonLinearReferenceController(trajectory = trajectory, dt = 0.05)
-        // Update the frequency of the command to the follower
-        updateFrequency = (1.0 / trajectoryFollower.dt).toInt()
 
         lController = VelocityPIDFController(
                 kP = Constants.kPLeftDriveVelocity / 8.0,
@@ -62,6 +63,11 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
                 kS = Constants.kSRightDriveVelocity,
                 current = { DriveSubsystem.rightVelocity.FPS }
         )
+
+        // Update the frequency of the command to the follower
+        updateFrequency = (1.0 / trajectoryFollower.dt).toInt()
+
+        finishCondition += condition { trajectoryFollower.isFinished } or exitCondition
     }
 
     fun addMarkerAt(waypoint: Translation2d): Marker {
@@ -111,8 +117,6 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
         println(DriveSubsystem.leftPosition.FT)
         DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = 0.0, rightOutput = 0.0)
     }
-
-    override suspend fun isFinished() = trajectoryFollower.isFinished || exit()
 
     companion object {
         var pathX = 0.0

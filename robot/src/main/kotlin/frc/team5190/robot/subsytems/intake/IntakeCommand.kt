@@ -6,15 +6,19 @@
 package frc.team5190.robot.subsytems.intake
 
 import com.ctre.phoenix.motorcontrol.ControlMode
+import frc.team5190.lib.commands.Condition
 import frc.team5190.lib.commands.TimeoutCommand
+import frc.team5190.lib.commands.or
 import kotlin.math.absoluteValue
 
 class IntakeCommand(private val direction: IntakeSubsystem.Direction,
                     timeout: Long = Long.MAX_VALUE,
                     private val speed: Double = 1.0,
-                    private val exit: () -> Boolean = { false }) : TimeoutCommand(timeout) {
+                    exitCondition: Condition = Condition.FALSE) : TimeoutCommand(timeout) {
     init {
-        requires(IntakeSubsystem)
+        +IntakeSubsystem
+
+        finishCondition += exitCondition or {direction == IntakeSubsystem.Direction.IN && IntakeSubsystem.cubeIn }
     }
 
     override suspend fun initialize() {
@@ -27,7 +31,4 @@ class IntakeCommand(private val direction: IntakeSubsystem.Direction,
     }
 
     override suspend fun dispose() = IntakeSubsystem.set(ControlMode.PercentOutput, 0.0)
-
-    override suspend fun isFinished() = super.isFinished() ||
-            (direction == IntakeSubsystem.Direction.IN && IntakeSubsystem.cubeIn) || exit()
 }

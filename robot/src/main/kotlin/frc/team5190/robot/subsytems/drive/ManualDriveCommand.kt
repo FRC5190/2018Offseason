@@ -90,6 +90,4 @@ class ManualDriveCommand : Command() {
 
         DriveSubsystem.set(ControlMode.PercentOutput, leftMotorOutput, rightMotorOutput)
     }
-
-    override suspend fun isFinished() = false
 }

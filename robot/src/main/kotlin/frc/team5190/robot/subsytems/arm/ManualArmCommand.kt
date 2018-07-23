@@ -12,6 +12,4 @@ class ManualArmCommand : Command() {
     init {
         +ArmSubsystem
     }
-
-    override suspend fun isFinished() = false
 }

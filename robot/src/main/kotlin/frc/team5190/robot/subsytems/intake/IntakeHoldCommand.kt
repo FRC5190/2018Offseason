@@ -17,6 +17,4 @@ class IntakeHoldCommand : Command() {
         IntakeSubsystem.solenoid.set(true)
         IntakeSubsystem.set(ControlMode.PercentOutput, 0.0)
     }
-
-    override suspend fun isFinished(): Boolean = false
 }

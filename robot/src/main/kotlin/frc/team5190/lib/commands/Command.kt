@@ -5,6 +5,7 @@ import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.actor
 import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
 
 object CommandHandler {
@@ -65,11 +66,15 @@ object CommandHandler {
 
     abstract class CommandTask(val command: Command) {
         private lateinit var updater: Job
+        private lateinit var finishHandle: DisposableHandle
         private var isFinished: Boolean? = null
 
         suspend fun initialize() {
             command.didComplete = false
             command.didFinish = false
+            finishHandle = command.exposedCondition.invokeOnCompletion {
+                stop() // Stop the command early
+            }
             command.initialize()
             updater = launch {
                 val frequency = command.updateFrequency
@@ -101,7 +106,11 @@ object CommandHandler {
             updater.cancelAndJoin()
             command.didComplete = true
             command.didFinish = isFinished
+            finishHandle.dispose()
             command.dispose()
+            for (completionListener in command.completionListeners.toList()) {
+                completionListener(command)
+            }
         }
 
         abstract suspend fun stop()
@@ -109,11 +118,20 @@ object CommandHandler {
 }
 
 
-abstract class Command(updateFrequency: Int = 50) {
+abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) {
+    companion object {
+        const val DEFAULT_FREQUENCY = 50
+    }
+
     var updateFrequency = updateFrequency
         protected set
 
     internal open val requiredSubsystems: List<Subsystem> = mutableListOf()
+    internal val completionListeners = CopyOnWriteArrayList<suspend (Command) -> Unit>()
+
+    protected val finishCondition = CommandCondition(Condition.FALSE)
+    internal val exposedCondition: Condition
+        get() = finishCondition
 
     /**
      * Is true when the command was running and has stopped
@@ -127,6 +145,36 @@ abstract class Command(updateFrequency: Int = 50) {
     var didFinish = false
         internal set
 
+    /**
+     * Is true when all the finish conditions are met
+     */
+    suspend fun isFinished() = finishCondition.isMet()
+
+    // Little cheat so you don't have to reassign finishCondition every time you modify it
+    protected class CommandCondition(currentCondition: Condition) : Condition() {
+        private val listener: suspend (Condition) -> Unit = {
+            for (completionListener in completionListeners.toList()) {
+                completionListener(it)
+            }
+        }
+        private var handle = currentCondition.invokeOnCompletion(listener)
+        private var currentCondition = currentCondition
+            set(value) {
+                // update handle to new condition
+                handle.dispose()
+                handle = value.invokeOnCompletion(listener)
+                field = value
+            }
+
+        override suspend fun isMet() = currentCondition.isMet()
+        /**
+         * Shortcut for the or operator
+         */
+        operator fun plusAssign(condition: Condition) {
+            currentCondition = currentCondition or condition
+        }
+    }
+
     protected operator fun Subsystem.unaryPlus() = requires(this)
     @Suppress("MemberVisibilityCanBePrivate")
     protected fun requires(subsystem: Subsystem) = (requiredSubsystems as MutableList).add(subsystem)
@@ -135,10 +183,17 @@ abstract class Command(updateFrequency: Int = 50) {
     open suspend fun execute() {}
     open suspend fun dispose() {}
 
-    open suspend fun isFinished() = false
-
     suspend fun start() = CommandHandler.start(this)
     suspend fun stop() = CommandHandler.stop(this)
+
+    fun invokeOnCompletion(block: suspend (Command) -> Unit): DisposableHandle {
+        completionListeners.add(block)
+        return object : DisposableHandle {
+            override fun dispose() {
+                completionListeners.remove(block)
+            }
+        }
+    }
 }
 
 abstract class CommandGroup(commands: List<Command>) : Command() {
@@ -183,6 +238,10 @@ abstract class CommandGroup(commands: List<Command>) : Command() {
         }
     }
 
+    init {
+        finishCondition += condition { started && activeCommands.isEmpty() }
+    }
+
     protected abstract suspend fun handleStartEvent()
     protected open suspend fun handleFinishEvent() {}
 
@@ -201,8 +260,6 @@ abstract class CommandGroup(commands: List<Command>) : Command() {
             activeCommands.clear()
         }
     }
-
-    override suspend fun isFinished() = started && activeCommands.isEmpty()
 
     protected inner class GroupCommandTask(command: Command) : CommandHandler.CommandTask(command) {
         override suspend fun stop() = groupActor.send(FinishEvent(this))

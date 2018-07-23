@@ -22,6 +22,4 @@ class ManualElevatorCommand : Command() {
             ElevatorSubsystem.reset = false
         }
     }
-
-    override suspend fun isFinished() = false
 }

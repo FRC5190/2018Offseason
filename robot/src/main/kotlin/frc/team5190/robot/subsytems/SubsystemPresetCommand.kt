@@ -5,6 +5,8 @@
 
 package frc.team5190.robot.subsytems
 
+import frc.team5190.lib.commands.Condition
+import frc.team5190.lib.commands.condition
 import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.math.units.NativeUnits
 import frc.team5190.robot.subsytems.arm.ArmSubsystem
@@ -14,14 +16,14 @@ import frc.team5190.robot.subsytems.elevator.ElevatorSubsystem
 import frc.team5190.robot.subsytems.elevator.LidarElevatorCommand
 
 fun SubsystemPresetCommand(preset: SubsystemPreset,
-                           exit: suspend () -> Boolean = { false }) = parallel(exit) {
+                           exitCondition: Condition = condition { false }) = parallel(exitCondition) {
     when (preset) {
         SubsystemPreset.INTAKE -> {
             +AutoArmCommand(ArmSubsystem.Position.DOWN)
             sequential {
-                +AutoElevatorCommand(ElevatorSubsystem.Position.FSTAGE) {
+                +AutoElevatorCommand(ElevatorSubsystem.Position.FSTAGE, condition {
                     ArmSubsystem.currentPosition < ArmSubsystem.Position.UP.distance + NativeUnits(100)
-                }
+                })
                 +AutoElevatorCommand(ElevatorSubsystem.Position.INTAKE)
             }
         }
@@ -29,10 +31,10 @@ fun SubsystemPresetCommand(preset: SubsystemPreset,
         SubsystemPreset.SWITCH -> {
             +AutoArmCommand(ArmSubsystem.Position.MIDDLE)
             sequential {
-                +AutoElevatorCommand(ElevatorSubsystem.Position.FSTAGE) {
+                +AutoElevatorCommand(ElevatorSubsystem.Position.FSTAGE, condition {
                     ElevatorSubsystem.currentPosition < ElevatorSubsystem.Position.SWITCH.distance
                             || ArmSubsystem.currentPosition < ArmSubsystem.Position.UP.distance + NativeUnits(100)
-                }
+                })
                 +AutoElevatorCommand(ElevatorSubsystem.Position.SWITCH)
             }
         }
@@ -45,9 +47,9 @@ fun SubsystemPresetCommand(preset: SubsystemPreset,
         SubsystemPreset.BEHIND -> {
             +LidarElevatorCommand()
             sequential {
-                +AutoArmCommand(ArmSubsystem.Position.UP.distance + NativeUnits(75)) {
+                +AutoArmCommand(ArmSubsystem.Position.UP.distance + NativeUnits(75), condition {
                     ElevatorSubsystem.currentPosition > ElevatorSubsystem.Position.FSTAGE.distance
-                }
+                })
                 +AutoArmCommand(ArmSubsystem.Position.BEHIND)
             }
         }
