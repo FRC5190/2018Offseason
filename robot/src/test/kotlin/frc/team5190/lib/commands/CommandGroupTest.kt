@@ -6,6 +6,7 @@
 package frc.team5190.lib.commands
 
 import frc.team5190.lib.extensions.parallel
+import frc.team5190.lib.extensions.sequential
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Test
@@ -15,62 +16,80 @@ class CommandGroupTest {
     fun testCommandGroup() {
         runBlocking {
             var startTime = System.currentTimeMillis()
-            val command = parallel {
-                +object : TimeoutCommand(4L) {
-                    init {
-                        updateFrequency = 100
-                    }
+            parallel { }
+            println(System.currentTimeMillis() - startTime)
+            startTime = System.currentTimeMillis()
+            parallel { }
+            println(System.currentTimeMillis() - startTime)
 
-                    override suspend fun initialize() {
-                        super.initialize()
-                        println("PARALLEL 1")
-                    }
-
-                    override suspend fun dispose() {
-                        println(System.currentTimeMillis() - startTime)
-                    }
-                }
-                sequential {
-                    +object : TimeoutCommand(6L) {
-                        init {
-                            updateFrequency = 100
-                        }
-
+            val command = sequential {
+                +InstantRunnableCommand { startTime = System.currentTimeMillis() }
+                parallel {
+                    +object : TimeoutCommand(4L) {
                         override suspend fun initialize() {
                             super.initialize()
-                            println("PARALLEL 2 SEQ 1")
+                            println("PARALLEL 1")
                         }
 
                         override suspend fun dispose() {
+                            super.dispose()
                             println(System.currentTimeMillis() - startTime)
                         }
                     }
-                    +object : TimeoutCommand(6L) {
-                        init {
-                            updateFrequency = 100
-                        }
+                    sequential {
+                        +object : TimeoutCommand(6L) {
+                            override suspend fun initialize() {
+                                super.initialize()
+                                println("PARALLEL 2 SEQ 1")
+                            }
 
-                        override suspend fun initialize() {
-                            super.initialize()
-                            println("PARALLEL 2 SEQ 2")
+                            override suspend fun dispose() {
+                                super.dispose()
+                                println(System.currentTimeMillis() - startTime)
+                            }
                         }
+                        sequential {
+                            +object : TimeoutCommand(6L) {
+                                override suspend fun initialize() {
+                                    super.initialize()
+                                    println("PARALLEL 2 SEQ 2 SEQ 1")
+                                }
 
-                        override suspend fun dispose() {
-                            println(System.currentTimeMillis() - startTime)
+                                override suspend fun dispose() {
+                                    super.dispose()
+                                    println(System.currentTimeMillis() - startTime)
+                                }
+                            }
+                            +object : TimeoutCommand(6L) {
+                                override suspend fun initialize() {
+                                    super.initialize()
+                                    println("PARALLEL 2 SEQ 2 SEQ 2")
+                                }
+
+                                override suspend fun dispose() {
+                                    super.dispose()
+                                    println(System.currentTimeMillis() - startTime)
+                                }
+                            }
+                        }
+                        +object : TimeoutCommand(6L) {
+                            override suspend fun initialize() {
+                                super.initialize()
+                                println("PARALLEL 2 SEQ 3")
+                            }
+
+                            override suspend fun dispose() {
+                                super.dispose()
+                                println(System.currentTimeMillis() - startTime)
+                            }
                         }
                     }
                 }
-
             }
-
 
             command.start()
 
-            val completableDeferred = CompletableDeferred<Any>()
-            command.invokeOnCompletion {
-                completableDeferred.complete(Any())
-            }
-            completableDeferred.await()
+            command.await() // Wait for command to finish
         }
 
 

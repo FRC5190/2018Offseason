@@ -10,14 +10,15 @@ import java.util.concurrent.TimeUnit
 
 object CommandHandler {
 
-    private val tasks = mutableMapOf<Subsystem, SubsystemCommandTask>()
+    private val subsystemTasks = mutableMapOf<Subsystem, CommandTaskImpl>()
+    private val tasks = mutableListOf<CommandTaskImpl>()
 
     private interface CommandEvent
     private class StartEvent(val command: Command) : CommandEvent
     private class StopCommandEvent(val command: Command) : CommandEvent
     private class StopEvent(val command: CommandTask, val startDefault: (Subsystem) -> Boolean) : CommandEvent
 
-    private val commandActor = actor<CommandEvent> {
+    private val commandActor = actor<CommandEvent>(context = CommonPool, capacity = Channel.UNLIMITED) {
         for (event in channel) {
             handleEvent(event)
         }
@@ -29,25 +30,27 @@ object CommandHandler {
                 val command = event.command
                 val subsystems = command.requiredSubsystems
                 // Free up required subsystems so we can start the command
-                val commandsToStop = tasks.filterKeys { subsystems.contains(it) }.values.toSet()
+                val commandsToStop = subsystemTasks.filterKeys { subsystems.contains(it) }.values.toSet()
                 commandsToStop.forEach { handleEvent(StopEvent(it) { !subsystems.contains(it) }) }
                 // Start the command
-                val task = SubsystemCommandTask(command)
+                val task = CommandTaskImpl(command)
                 for (subsystem in subsystems) {
-                    tasks[subsystem] = task
+                    subsystemTasks[subsystem] = task
                 }
+                tasks.add(task)
                 task.initialize()
             }
             is StopCommandEvent -> {
-                val task = tasks.values.find { it.command == event.command } ?: return
+                val task = tasks.find { it.command == event.command } ?: return
                 handleEvent(StopEvent(task) { true })
             }
             is StopEvent -> {
                 val command = event.command
                 command.dispose()
-                val subsystems = tasks.filterValues { it == command }.keys
+                tasks.removeIf { it == command }
+                val subsystems = subsystemTasks.filterValues { it == command }.keys
                 for (subsystem in subsystems) {
-                    tasks.remove(subsystem)
+                    subsystemTasks.remove(subsystem)
                     if (event.startDefault(subsystem)) {
                         val default = subsystem.defaultCommand
                         if (default != null) handleEvent(StartEvent(default))
@@ -60,24 +63,27 @@ object CommandHandler {
     suspend fun start(command: Command) = commandActor.send(StartEvent(command))
     suspend fun stop(command: Command) = commandActor.send(StopCommandEvent(command))
 
-    private class SubsystemCommandTask(command: Command) : CommandTask(command) {
+    private open class CommandTaskImpl(command: Command) : CommandTask(command) {
         override suspend fun stop() = stop(command)
     }
 
     abstract class CommandTask(val command: Command) {
+        private val commandMutex = Mutex()
         private lateinit var updater: Job
         private lateinit var finishHandle: DisposableHandle
         private var isFinished: Boolean? = null
 
-        suspend fun initialize() {
+        suspend fun initialize() = commandMutex.withLock {
             command.didComplete = false
             command.didFinish = false
             finishHandle = command.exposedCondition.invokeOnCompletion {
                 stop() // Stop the command early
             }
             command.initialize()
-            updater = launch {
+            updater = launch(context = CommonPool) {
                 val frequency = command.updateFrequency
+                if (frequency == 0) return@launch
+                if (frequency < 0) throw IllegalArgumentException("Command frequency cannot be negative!")
                 val timeBetweenUpdate = TimeUnit.SECONDS.toNanos(1) / frequency
 
                 // Stores when the next update should happen
@@ -90,7 +96,10 @@ object CommandHandler {
                             stop()
                             return@launch
                         }
-                        command.execute()
+                        commandMutex.withLock {
+                            if (!isActive) return@launch
+                            command.execute()
+                        }
                     } catch (e: Throwable) {
                         e.printStackTrace()
                     }
@@ -101,9 +110,9 @@ object CommandHandler {
             }
         }
 
-        suspend fun dispose() {
+        suspend fun dispose() = commandMutex.withLock {
             val isFinished = this.isFinished ?: command.isFinished()
-            updater.cancelAndJoin()
+            updater.cancel()
             command.didComplete = true
             command.didFinish = isFinished
             finishHandle.dispose()
@@ -194,6 +203,13 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) {
             }
         }
     }
+
+    suspend fun await() {
+        val completableDeferred = CompletableDeferred<Any>()
+        val handle = invokeOnCompletion { completableDeferred.complete(Any()) }
+        completableDeferred.invokeOnCompletion { handle.dispose() }
+        completableDeferred.await()
+    }
 }
 
 abstract class CommandGroup(commands: List<Command>) : Command() {
@@ -208,7 +224,7 @@ abstract class CommandGroup(commands: List<Command>) : Command() {
     private object StartEvent : GroupEvent
     private class FinishEvent(val task: GroupCommandTask) : GroupEvent
 
-    private val groupActor = actor<GroupEvent>(capacity = Channel.UNLIMITED, start = CoroutineStart.LAZY) {
+    private val groupActor = actor<GroupEvent>(context = CommonPool, capacity = Channel.UNLIMITED, start = CoroutineStart.LAZY) {
         actorMutex.withLock {
             for (event in channel) {
                 handleEvent(event)
@@ -219,8 +235,13 @@ abstract class CommandGroup(commands: List<Command>) : Command() {
     private suspend fun handleEvent(event: GroupEvent) {
         when (event) {
             is StartEvent -> {
-                handleStartEvent()
-                started = true
+                if (commands.isEmpty()) {
+                    started = true
+                    groupCondition.invoke() // End early since there is no commands in this group
+                } else {
+                    handleStartEvent()
+                    started = true
+                }
             }
             is FinishEvent -> {
                 val task = event.task
@@ -230,7 +251,7 @@ abstract class CommandGroup(commands: List<Command>) : Command() {
                 activeCommands.remove(task)
                 if (activeCommands.isEmpty()) {
                     // Stop early since the command is finished
-                    stop()
+                    groupCondition.invoke()
                     return
                 }
                 handleFinishEvent()
@@ -238,8 +259,15 @@ abstract class CommandGroup(commands: List<Command>) : Command() {
         }
     }
 
+    private inner class GroupCondition : Condition() {
+        suspend fun invoke() = invokeCompletionListeners()
+        override suspend fun isMet() = started && activeCommands.isEmpty()
+    }
+
+    private val groupCondition = GroupCondition()
+
     init {
-        finishCondition += condition { started && activeCommands.isEmpty() }
+        finishCondition += groupCondition
     }
 
     protected abstract suspend fun handleStartEvent()

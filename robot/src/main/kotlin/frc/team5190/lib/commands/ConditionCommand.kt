@@ -20,9 +20,7 @@ fun condition(command: Command) = object : Condition() {
     init {
         command.invokeOnCompletion {
             //Signal to parent that it has finished
-            for (completionListener in completionListeners.toList()) {
-                completionListener(this)
-            }
+            invokeCompletionListeners()
         }
     }
 
@@ -40,16 +38,12 @@ infix fun Condition.and(condition: Condition) = conditionGroup(this, condition) 
 
 private fun conditionGroup(firstCondition: Condition, secondCondition: Condition, condition: (Boolean, Boolean) -> Boolean) = object : Condition() {
     init {
-        val listener: suspend (Condition) -> Unit = {
-            if (isMet()) {
-                // Signal to parents condition is met
-                for (completionListener in completionListeners.toList()) {
-                    completionListener(this)
-                }
-            }
+        firstCondition.invokeOnCompletion {
+            if (condition(true, secondCondition.isMet())) invokeCompletionListeners()
         }
-        firstCondition.invokeOnCompletion(listener)
-        secondCondition.invokeOnCompletion(listener)
+        secondCondition.invokeOnCompletion {
+            if (condition(firstCondition.isMet(), true)) invokeCompletionListeners()
+        }
     }
 
     override suspend fun isMet() = condition(firstCondition.isMet(), secondCondition.isMet())
@@ -64,6 +58,12 @@ abstract class Condition {
     }
 
     internal val completionListeners = CopyOnWriteArrayList<suspend (Condition) -> Unit>()
+
+    protected suspend fun invokeCompletionListeners() {
+        for (completionListener in completionListeners.toList()) {
+            completionListener(this)
+        }
+    }
 
     abstract suspend fun isMet(): Boolean
 
