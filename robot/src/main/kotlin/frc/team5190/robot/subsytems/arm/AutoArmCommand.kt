@@ -20,7 +20,6 @@ class AutoArmCommand(private val pos: Distance,
 
     init {
         requires(ArmSubsystem)
-
         finishCondition += condition { (ArmSubsystem.currentPosition - pos).absoluteValue < NativeUnits(50) } or exitCondition
     }
 

@@ -14,7 +14,7 @@ import frc.team5190.lib.math.units.Distance
 import frc.team5190.robot.Constants
 
 class AutoElevatorCommand(private val distance: Distance,
-                          private val exitCondition: Condition = Condition.FALSE) : Command() {
+                          exitCondition: Condition = Condition.FALSE) : Command() {
 
     constructor(pos: ElevatorSubsystem.Position, exitCondition: Condition = Condition.FALSE) : this(pos.distance, exitCondition)
 

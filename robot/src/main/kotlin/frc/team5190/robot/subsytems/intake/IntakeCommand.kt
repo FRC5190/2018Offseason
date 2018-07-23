@@ -22,6 +22,7 @@ class IntakeCommand(private val direction: IntakeSubsystem.Direction,
     }
 
     override suspend fun initialize() {
+        super.initialize()
         IntakeSubsystem.solenoid.set(false)
 
         IntakeSubsystem.set(ControlMode.PercentOutput, when (direction) {
@@ -30,5 +31,8 @@ class IntakeCommand(private val direction: IntakeSubsystem.Direction,
         })
     }
 
-    override suspend fun dispose() = IntakeSubsystem.set(ControlMode.PercentOutput, 0.0)
+    override suspend fun dispose() {
+        super.dispose()
+        IntakeSubsystem.set(ControlMode.PercentOutput, 0.0)
+    }
 }
