@@ -22,11 +22,9 @@ object Constants {
     // MOTOR IDS
     const val kLeftMasterId = 1
     const val kLeftSlaveId1 = 2
-    const val kLeftSlaveId2 = 3
 
-    const val kRightMasterId = 4
-    const val kRightSlaveId1 = 5
-    const val kRightSlaveId2 = 6
+    const val kRightMasterId = 3
+    const val kRightSlaveId1 = 4
 
     const val kElevatorMasterId = 5
     const val kElevatorSlaveId  = 6
@@ -84,12 +82,12 @@ object Constants {
     // DRIVE PID
     const val kPLeftDriveVelocity = 0.08
     const val kILeftDriveVelocity = 0.0
-    const val kVLeftDriveVelocity = 0.05
+    const val kVLeftDriveVelocity = 1 / 17.3
     const val kSLeftDriveVelocity = 0.10
 
     const val kPRightDriveVelocity = 0.08
     const val kIRightDriveVelocity = 0.0
-    const val kVRightDriveVelocity = 0.05
+    const val kVRightDriveVelocity = 1 / 17.3
     const val kSRightDriveVelocity = 0.10
 
     // ELEVATOR PID

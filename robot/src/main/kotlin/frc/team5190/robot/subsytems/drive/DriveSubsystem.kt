@@ -19,16 +19,13 @@ object DriveSubsystem : Subsystem() {
     private val leftMaster = FalconSRX(Constants.kLeftMasterId)
     private val rightMaster = FalconSRX(Constants.kRightMasterId)
 
-    private val leftSlave1 = FalconSRX(Constants.kLeftSlaveId1)
-    private val rightSlave1 = FalconSRX(Constants.kRightSlaveId1)
-
-    private val leftSlave2 = FalconSRX(Constants.kLeftSlaveId2)
-    private val rightSlave2 = FalconSRX(Constants.kRightSlaveId2)
+    private val leftSlave = FalconSRX(Constants.kLeftSlaveId1)
+    private val rightSlave = FalconSRX(Constants.kRightSlaveId1)
 
     private val allMasters = arrayOf(leftMaster, rightMaster)
 
-    private val leftMotors = arrayOf(leftMaster, leftSlave1, leftSlave2)
-    private val rightMotors = arrayOf(rightMaster, rightSlave1, rightSlave2)
+    private val leftMotors = arrayOf(leftMaster, leftSlave)
+    private val rightMotors = arrayOf(rightMaster, rightSlave)
 
     private val allMotors = arrayOf(*leftMotors, *rightMotors)
 
@@ -58,25 +55,20 @@ object DriveSubsystem : Subsystem() {
 
 
     init {
-        arrayListOf(leftSlave1, leftSlave2).forEach {
-            it.follow(leftMaster)
+
+        leftMotors.forEach {
             it.inverted = false
         }
-        arrayListOf(rightSlave1, rightSlave2).forEach {
-            it.follow(rightMaster)
+        rightMotors.forEach {
             it.inverted = true
         }
 
-        leftMaster.apply {
-            inverted = true
-        }
-        rightMaster.apply {
-            inverted = false
-        }
+        leftSlave.follow(leftMaster)
+        rightSlave.follow(rightMaster)
 
         allMasters.forEach {
             it.feedbackSensor = FeedbackDevice.QuadEncoder
-            it.encoderPhase = true
+            it.encoderPhase = false
         }
 
         allMotors.forEach {
