@@ -66,9 +66,10 @@ class Pose2dWithCurvature : IPose2d<Pose2dWithCurvature>, ICurvature<Pose2dWithC
         return Pose2dWithCurvature(pose.transformBy(transform), curvature, dkds)
     }
 
-    override fun mirror(): Pose2dWithCurvature {
-        return Pose2dWithCurvature(pose.mirror().pose, -curvature, -dkds)
-    }
+    override val mirror: Pose2dWithCurvature
+        get() {
+            return Pose2dWithCurvature(pose.mirror.pose, -curvature, -dkds)
+        }
 
     override fun interpolate(upperVal: Pose2dWithCurvature, interpolatePoint: Double): Pose2dWithCurvature {
         return Pose2dWithCurvature(pose.interpolate(upperVal.pose, interpolatePoint),

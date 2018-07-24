@@ -14,6 +14,8 @@ package frc.team5190.lib.math.geometry.interfaces
 
 import frc.team5190.lib.math.geometry.Translation2d
 
+// Interface for Translation
 interface ITranslation2d<S> : State<S> {
+    // Translation
     val translation: Translation2d
 }

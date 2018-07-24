@@ -116,7 +116,7 @@ class TimeVaryingNonLinearFollowerTest {
     }
 
     private fun hasCrossedMarker(marker: Marker): Boolean {
-        return trajectoryFollower.trajectoryPoint.state.t > marker.t
+        return trajectoryFollower.point.state.t > marker.t
     }
 
     private class Marker(val t: Double)

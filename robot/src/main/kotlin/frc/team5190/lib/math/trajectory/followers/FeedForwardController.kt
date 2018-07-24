@@ -18,18 +18,18 @@ class FeedForwardController(trajectory: Trajectory<TimedState<Pose2dWithCurvatur
 
     private val trajectoryIterator = TrajectoryIterator(TimedView(trajectory))
 
-    override var trajectoryPoint = trajectoryIterator.preview(0.0)
+    override var point = trajectoryIterator.preview(0.0)
 
-    override val trajectoryPose
-        get() = trajectoryPoint.state.state.pose
+    override val pose
+        get() = point.state.state.pose
 
     override val isFinished
         get() = trajectoryIterator.isDone
 
     // Returns desired linear and angular cruiseVelocity of the robot
     override fun getSteering(pose: Pose2d) = Twist2d(
-            dx = trajectoryPoint.state.velocity,
+            dx = point.state.velocity,
             dy = 0.0,
-            dtheta = (trajectoryIterator.preview(dt).state.state.rotation - trajectoryPose.rotation).radians / dt
-    ).also { trajectoryPoint = trajectoryIterator.advance(dt) }
+            dtheta = (trajectoryIterator.preview(dt).state.state.rotation - this.pose.rotation).radians / dt
+    ).also { point = trajectoryIterator.advance(dt) }
 }

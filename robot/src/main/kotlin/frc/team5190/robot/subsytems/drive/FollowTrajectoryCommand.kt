@@ -46,8 +46,9 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
         }
 
         // Initialize path follower
-        trajectoryFollower = NonLinearReferenceController(trajectory = trajectory, dt = 0.05)
+        trajectoryFollower = NonLinearReferenceController(trajectory)
 
+        // Initialize PIDF Controllers
         lController = VelocityPIDFController(
                 kP = Constants.kPLeftDriveVelocity / 8.0,
                 kI = Constants.kILeftDriveVelocity,
@@ -65,8 +66,7 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
         )
 
         // Update the frequency of the command to the follower
-        updateFrequency = (1.0 / trajectoryFollower.dt).toInt()
-
+        updateFrequency = 250 // Hz
         finishCondition += condition { trajectoryFollower.isFinished } or exitCondition
     }
 
@@ -84,13 +84,13 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
     }
 
     fun hasCrossedMarker(marker: Marker): Boolean {
-        return marker.identifier == this.identifier && trajectoryFollower.trajectoryPoint.state.t > marker.t
+        return marker.identifier == this.identifier && trajectoryFollower.point.state.t > marker.t
     }
 
     private fun updateDashboard() {
-        pathX = trajectoryFollower.trajectoryPose.translation.x
-        pathY = trajectoryFollower.trajectoryPose.translation.y
-        pathHdg = trajectoryFollower.trajectoryPose.rotation.radians
+        pathX = trajectoryFollower.pose.translation.x
+        pathY = trajectoryFollower.pose.translation.y
+        pathHdg = trajectoryFollower.pose.rotation.radians
 
         lookaheadX = pathX
         lookaheadY = pathY
@@ -106,9 +106,9 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
 
         updateDashboard()
         System.out.printf("[Trajectory Follower] X Error: %3.3f, Y Error: %3.3f, T Error: %3.3f, L: %3.3f, A: %3.3f, Actual: %3.3f%n",
-                trajectoryFollower.trajectoryPose.translation.x - Localization.robotPosition.translation.x,
-                trajectoryFollower.trajectoryPose.translation.y - Localization.robotPosition.translation.y,
-                (trajectoryFollower.trajectoryPose.rotation - Localization.robotPosition.rotation).degrees,
+                trajectoryFollower.pose.translation.x - Localization.robotPosition.translation.x,
+                trajectoryFollower.pose.translation.y - Localization.robotPosition.translation.y,
+                (trajectoryFollower.pose.rotation - Localization.robotPosition.rotation).degrees,
                 kinematics.dx, kinematics.dtheta,
                 ((DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity) / 2.0).FPS)
     }
