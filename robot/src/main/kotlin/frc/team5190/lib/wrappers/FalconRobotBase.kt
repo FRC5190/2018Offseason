@@ -108,6 +108,9 @@ abstract class FalconRobotBase : RobotBase() {
 
     private suspend fun handleTransition(fromMode: Mode, toMode: Mode) {
         handleLeave(fromMode)
+        listenerMutex.withLock {
+            transitionListeners.filter { it.first.first == fromMode && it.first.second == toMode }.forEach { it.second() }
+        }
         handleEnter(toMode)
     }
 
