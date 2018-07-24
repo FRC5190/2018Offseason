@@ -36,11 +36,9 @@ object Controls : XboxController(0) {
                 // ARM
                 if (yButtonPressed) {
                     OpenLoopArmCommand(0.5).start()
-                }
-                else if (bButtonPressed) {
+                } else if (bButtonPressed) {
                     OpenLoopArmCommand(-0.5).start()
-                }
-                else if (yButtonReleased || bButtonReleased) {
+                } else if (yButtonReleased || bButtonReleased) {
                     ArmSubsystem.defaultCommand?.start()
                 }
 
@@ -48,20 +46,18 @@ object Controls : XboxController(0) {
                 // ELEVATOR
                 if (getTriggerAxis(Hand.kRight) > 0.2) {
                     OpenLoopElevatorCommand(0.4).start().also { elevatorTriggerState = true }
-                }
-                else if (rightBumperPressed) {
+                } else if (rightBumperPressed) {
                     OpenLoopElevatorCommand(-0.4).start()
-                }
-                else if (rightBumperReleased || elevatorTriggerState) {
+                } else if (rightBumperReleased || elevatorTriggerState) {
                     ElevatorSubsystem.defaultCommand?.start().also { elevatorTriggerState = false }
                 }
 
                 if (pov != lastElevatorPOV) {
                     when (pov) {
-                        0    -> SubsystemPresetCommand(SubsystemPreset.SCALE)
-                        90   -> SubsystemPresetCommand(SubsystemPreset.SWITCH)
-                        180  -> SubsystemPresetCommand(SubsystemPreset.INTAKE)
-                        270  -> SubsystemPresetCommand(SubsystemPreset.BEHIND)
+                        0 -> SubsystemPresetCommand(SubsystemPreset.SCALE)
+                        90 -> SubsystemPresetCommand(SubsystemPreset.SWITCH)
+                        180 -> SubsystemPresetCommand(SubsystemPreset.INTAKE)
+                        270 -> SubsystemPresetCommand(SubsystemPreset.BEHIND)
                         else -> null
                     }?.also {
                         lastElevatorPOV = pov
@@ -74,11 +70,9 @@ object Controls : XboxController(0) {
                 if (getTriggerAxis(Hand.kLeft) > 0.1) {
                     IntakeCommand(IntakeSubsystem.Direction.OUT, getTriggerAxis(Hand.kLeft).pow(2) * 0.65).start()
                     intakeTriggerState = true
-                }
-                else if (leftBumperPressed) {
+                } else if (leftBumperPressed) {
                     IntakeCommand(IntakeSubsystem.Direction.IN, 1.0).start()
-                }
-                else if (leftBumperReleased || intakeTriggerState) {
+                } else if (leftBumperReleased || intakeTriggerState) {
                     IntakeSubsystem.defaultCommand?.start().also { intakeTriggerState = false }
                 }
 
