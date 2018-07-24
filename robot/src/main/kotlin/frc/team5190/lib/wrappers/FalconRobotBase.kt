@@ -138,7 +138,7 @@ abstract class FalconRobotBase : RobotBase() {
         }
     }
 
-    private suspend fun handleLeave(mode: Mode) {
+    private suspend fun handleLeave(mode: Mode) = listenerMutex.withLock {
         // Handle events and end while threads
         leaveListeners.filter { it.first == mode }.forEach { it.second() }
         // Stop and join while listeners
