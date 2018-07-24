@@ -37,10 +37,10 @@ object Controls : XboxController(0) {
                 if (yButtonPressed) {
                     OpenLoopArmCommand(0.5).start()
                 }
-                if (bButtonPressed) {
+                else if (bButtonPressed) {
                     OpenLoopArmCommand(-0.5).start()
                 }
-                if (yButtonReleased || bButtonReleased) {
+                else if (yButtonReleased || bButtonReleased) {
                     ArmSubsystem.defaultCommand?.start()
                 }
 
@@ -49,10 +49,10 @@ object Controls : XboxController(0) {
                 if (getTriggerAxis(Hand.kRight) > 0.2) {
                     OpenLoopElevatorCommand(0.4).start().also { elevatorTriggerState = true }
                 }
-                if (rightBumperPressed) {
+                else if (rightBumperPressed) {
                     OpenLoopElevatorCommand(-0.4).start()
                 }
-                if (rightBumperReleased || elevatorTriggerState) {
+                else if (rightBumperReleased || elevatorTriggerState) {
                     ElevatorSubsystem.defaultCommand?.start().also { elevatorTriggerState = false }
                 }
 
@@ -75,10 +75,10 @@ object Controls : XboxController(0) {
                     IntakeCommand(IntakeSubsystem.Direction.OUT, getTriggerAxis(Hand.kLeft).pow(2) * 0.65).start()
                     intakeTriggerState = true
                 }
-                if (leftBumperPressed) {
+                else if (leftBumperPressed) {
                     IntakeCommand(IntakeSubsystem.Direction.IN, 1.0).start()
                 }
-                if (leftBumperReleased || intakeTriggerState) {
+                else if (leftBumperReleased || intakeTriggerState) {
                     IntakeSubsystem.defaultCommand?.start().also { intakeTriggerState = false }
                 }
 
