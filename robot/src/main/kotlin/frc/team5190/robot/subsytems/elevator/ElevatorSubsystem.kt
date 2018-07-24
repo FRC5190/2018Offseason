@@ -27,7 +27,7 @@ object ElevatorSubsystem : Subsystem() {
     var reset = false
 
     init {
-        defaultCommand = ManualElevatorCommand()
+        defaultCommand = ClosedLoopElevatorCommand(currentPosition)
 
         elevatorMaster.apply {
             inverted       = false

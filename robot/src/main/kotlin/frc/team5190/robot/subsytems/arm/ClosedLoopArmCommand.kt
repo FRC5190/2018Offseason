@@ -13,8 +13,8 @@ import frc.team5190.lib.commands.or
 import frc.team5190.lib.math.units.Distance
 import frc.team5190.lib.math.units.NativeUnits
 
-class AutoArmCommand(private val pos: Distance,
-                     exitCondition: Condition = Condition.FALSE) : Command() {
+class ClosedLoopArmCommand(private val pos: Distance,
+                           exitCondition: Condition = Condition.FALSE) : Command() {
 
     constructor(position: ArmSubsystem.Position, exitCondition: Condition = Condition.FALSE) : this(position.distance, exitCondition)
 

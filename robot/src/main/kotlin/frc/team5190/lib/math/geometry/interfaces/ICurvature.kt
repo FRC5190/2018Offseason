@@ -11,7 +11,11 @@
 
 package frc.team5190.lib.math.geometry.interfaces
 
+// Interface for curvature
 interface ICurvature<S> : State<S> {
+    // Curvature
     val curvature: Double
+
+    // Derivative of Curvature
     val dkds: Double
 }

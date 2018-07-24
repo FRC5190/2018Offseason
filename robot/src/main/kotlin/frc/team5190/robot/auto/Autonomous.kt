@@ -119,7 +119,7 @@ object Autonomous {
     enum class StartingPositions(val pose: Pose2d) {
         LEFT(Trajectories.kSideStart),
         CENTER(Trajectories.kCenterStart),
-        RIGHT(Trajectories.kSideStart.mirror())
+        RIGHT(Trajectories.kSideStart.mirror)
     }
 
     enum class SwitchAutoMode {
