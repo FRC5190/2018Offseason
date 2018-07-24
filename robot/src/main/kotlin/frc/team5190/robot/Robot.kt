@@ -5,7 +5,7 @@
 
 package frc.team5190.robot
 
-import edu.wpi.first.wpilibj.IterativeRobot
+import edu.wpi.first.wpilibj.TimedRobot
 import frc.team5190.robot.auto.Autonomous
 import frc.team5190.robot.sensors.Lidar
 import frc.team5190.robot.sensors.NavX
@@ -14,7 +14,7 @@ import frc.team5190.robot.subsytems.drive.DriveSubsystem
 import frc.team5190.robot.subsytems.elevator.ElevatorSubsystem
 import frc.team5190.robot.subsytems.intake.IntakeSubsystem
 
-class Robot : IterativeRobot() {
+class Robot : TimedRobot() {
 
     // Can't make entire class an object, so INSTANCE is initialized in a companion object.
     companion object {
