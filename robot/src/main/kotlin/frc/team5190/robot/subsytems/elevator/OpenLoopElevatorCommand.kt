@@ -22,6 +22,6 @@ class OpenLoopElevatorCommand(private val percentOutput: Double) : Command() {
         if (ElevatorSubsystem.reset && !ElevatorSubsystem.atBottom) {
             ElevatorSubsystem.reset = false
         }
-        ElevatorSubsystem.set(ControlMode.PercentOutput, 0.0)
+        ElevatorSubsystem.set(ControlMode.PercentOutput, percentOutput)
     }
 }
