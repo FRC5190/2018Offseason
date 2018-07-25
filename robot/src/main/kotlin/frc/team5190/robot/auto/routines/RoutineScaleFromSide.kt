@@ -42,7 +42,7 @@ class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPosi
             val drop4thCube   = FollowTrajectoryCommand(identifier = "Cube 3 to Scale", pathMirrored = mirrored)
 
             val elevatorUp   = drop1stCube.addMarkerAt(Translation2d(11.5, 23.1))
-            val shoot1stCube = drop1stCube.addMarkerAt((Translation2d(22.3, 20.6)).let { if (mirrored) it.mirror() else it})
+            val shoot1stCube = drop1stCube.addMarkerAt((Translation2d(22.3, 20.6)).let { if (mirrored) it.mirror else it})
             val shoot2ndCube = drop2ndCube.addMarkerAt(Translation2d(22.5, 19.9))
             val shoot3rdCube = drop3rdCube.addMarkerAt(Translation2d(22.5, 19.9))
             val shoot4thCube = drop4thCube.addMarkerAt(Translation2d(22.5, 19.9))

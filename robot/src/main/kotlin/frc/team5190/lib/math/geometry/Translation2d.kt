@@ -87,9 +87,10 @@ class Translation2d : ITranslation2d<Translation2d> {
         return Translation2d(x * s, y * s)
     }
 
-    fun mirror(): Translation2d {
-        return Translation2d(x, 27 - y)
-    }
+    val mirror: Translation2d
+        get() {
+            return Translation2d(x, 27 - y)
+        }
 
     operator fun plus(other: Translation2d) = this.translateBy(other)
     operator fun minus(other: Translation2d) = this.translateBy(other.inverse)

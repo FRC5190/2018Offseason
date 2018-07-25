@@ -14,7 +14,7 @@ import frc.team5190.lib.math.trajectory.timing.TimedState
 import frc.team5190.lib.math.trajectory.view.TimedView
 
 class FeedForwardController(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>,
-                            override val dt: Double = 0.02) : TrajectoryFollower {
+                            val dt: Double = 0.02) : TrajectoryFollower {
 
     private val trajectoryIterator = TrajectoryIterator(TimedView(trajectory))
 

@@ -36,11 +36,11 @@ class RoutineSwitchFromCenter(startingPosition: Autonomous.StartingPositions,
 
             val shoot1stCube = drop1stCube.addMarkerAt(
                     Trajectories.kSwitchLeftAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-0.2, 0.0)))
-                            .translation.let { if (mirrored) it.mirror() else it })
+                            .translation.let { if (mirrored) it.mirror else it })
 
             val shoot2ndCube = drop2ndCube.addMarkerAt(
                     Trajectories.kSwitchLeftAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-0.2, 0.0)))
-                            .translation.let { if (mirrored) it.mirror() else it })
+                            .translation.let { if (mirrored) it.mirror else it })
 
             return parallel {
                 sequential {

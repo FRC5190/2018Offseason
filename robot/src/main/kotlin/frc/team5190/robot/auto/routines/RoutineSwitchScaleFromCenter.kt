@@ -39,9 +39,9 @@ class RoutineSwitchScaleFromCenter(startingPosition: Autonomous.StartingPosition
             val elevatorUp   = drop2ndCube.addMarkerAt(Translation2d(11.5, 23.1))
             val shoot1stCube = drop1stCube.addMarkerAt(
                     Trajectories.kSwitchLeftAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-0.2, 0.0)))
-                            .translation.let { if (switchMirrored) it.mirror() else it })
+                            .translation.let { if (switchMirrored) it.mirror else it })
 
-            val shoot2ndCube = drop2ndCube.addMarkerAt((Translation2d(22.3, 20.6)).let { if (scaleMirorred) it.mirror() else it})
+            val shoot2ndCube = drop2ndCube.addMarkerAt((Translation2d(22.3, 20.6)).let { if (scaleMirorred) it.mirror else it})
 
             return parallel {
                 sequential {
