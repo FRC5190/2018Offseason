@@ -3,13 +3,14 @@
  * Green Hope Falcons
  */
 
-package frc.team5190.lib.math.trajectory
+package frc.team5190.lib.math.trajectory.followers
 
 import frc.team5190.lib.math.geometry.Pose2d
 import frc.team5190.lib.math.geometry.Pose2dWithCurvature
 import frc.team5190.lib.math.geometry.Translation2d
-import frc.team5190.lib.math.geometry.Twist2d
-import frc.team5190.lib.math.trajectory.followers.NonLinearReferenceController
+import frc.team5190.lib.math.trajectory.Trajectory
+import frc.team5190.lib.math.trajectory.TrajectoryIterator
+import frc.team5190.lib.math.trajectory.TrajectorySamplePoint
 import frc.team5190.lib.math.trajectory.timing.TimedState
 import frc.team5190.lib.math.trajectory.view.TimedView
 import frc.team5190.robot.auto.Trajectories
@@ -20,7 +21,7 @@ import java.awt.Color
 import java.awt.Font
 import java.text.DecimalFormat
 
-class TimeVaryingNonLinearFollowerTest {
+class NonLinearReferenceControllerTest {
 
     private lateinit var trajectoryFollower: NonLinearReferenceController
 
@@ -58,7 +59,7 @@ class TimeVaryingNonLinearFollowerTest {
                 crossed = true
             }
 
-            val positiondelta = Twist2d(output.scaled(0.02).dx, output.scaled(0.02).dy, output.scaled(0.1).dtheta)
+            val positiondelta = output.scaled(dt)
             val transformed = totalpose.transformBy(Pose2d.fromTwist(positiondelta))
 
             xList.add(totalpose.translation.x)

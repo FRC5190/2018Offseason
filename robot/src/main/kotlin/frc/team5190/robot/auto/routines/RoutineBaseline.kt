@@ -15,7 +15,7 @@ class RoutineBaseline(private val startingPosition: Autonomous.StartingPositions
         get() {
             return sequential {
                 +FollowTrajectoryCommand(
-                        identifier = "Left Start to Near Scale",
+                        identifier = "Baseline",
                         pathMirrored = startingPosition == Autonomous.StartingPositions.RIGHT)
             }
         }

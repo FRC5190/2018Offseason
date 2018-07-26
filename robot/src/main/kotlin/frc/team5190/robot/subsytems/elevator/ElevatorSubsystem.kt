@@ -33,8 +33,8 @@ object ElevatorSubsystem : Subsystem() {
             inverted       = false
             encoderPhase   = false
             feedbackSensor = FeedbackDevice.QuadEncoder
-            peakFwdOutput = 0.0
-            peakRevOutput = 0.0
+            peakFwdOutput = 0.3
+            peakRevOutput = -0.3
 
             configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen,
                     Constants.kCTRETimeout)
