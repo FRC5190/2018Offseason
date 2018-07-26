@@ -1,5 +1,6 @@
 package frc.team5190.lib.commands
 
+import kotlinx.coroutines.experimental.runBlocking
 import java.util.concurrent.atomic.AtomicLong
 
 abstract class Subsystem(@Suppress("unused") val name: String) {
@@ -10,5 +11,11 @@ abstract class Subsystem(@Suppress("unused") val name: String) {
     constructor() : this("Subsystem ${subsystemId.incrementAndGet()}")
 
     var defaultCommand: Command? = null
-        protected set
+        protected set(value) {
+            runBlocking {
+                field?.stop()
+                value?.start()
+            }
+            field = value
+        }
 }

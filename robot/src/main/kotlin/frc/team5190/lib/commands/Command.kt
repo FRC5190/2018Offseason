@@ -1,5 +1,6 @@
 package frc.team5190.lib.commands
 
+import edu.wpi.first.wpilibj.DriverStation
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.actor
@@ -204,11 +205,10 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) {
         }
     }
 
-    suspend fun await() {
-        val completableDeferred = CompletableDeferred<Any>()
-        val handle = invokeOnCompletion { completableDeferred.complete(Any()) }
-        completableDeferred.invokeOnCompletion { handle.dispose() }
-        completableDeferred.await()
+    suspend fun await() = suspendCancellableCoroutine<Unit> { cont ->
+        cont.disposeOnCancellation(invokeOnCompletion {
+            cont.resume(Unit)
+        })
     }
 }
 

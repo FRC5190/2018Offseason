@@ -16,12 +16,6 @@ class CommandGroupTest {
     fun testCommandGroup() {
         runBlocking {
             var startTime = System.currentTimeMillis()
-            parallel { }
-            println(System.currentTimeMillis() - startTime)
-            startTime = System.currentTimeMillis()
-            parallel { }
-            println(System.currentTimeMillis() - startTime)
-
             val command = sequential {
                 +InstantRunnableCommand { startTime = System.currentTimeMillis() }
                 parallel {

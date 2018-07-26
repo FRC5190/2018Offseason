@@ -49,17 +49,19 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
         trajectoryFollower = NonLinearReferenceController(trajectory = trajectory, dt = 0.05)
 
         lController = VelocityPIDFController(
-                kP = Constants.kPLeftDriveVelocity / 8.0,
+                kP = Constants.kPLeftDriveVelocity,
                 kI = Constants.kILeftDriveVelocity,
                 kV = Constants.kVLeftDriveVelocity,
+                kA = 0.025,
                 kS = Constants.kSLeftDriveVelocity,
                 current = { DriveSubsystem.leftVelocity.FPS }
         )
 
         rController = VelocityPIDFController(
-                kP = Constants.kPRightDriveVelocity / 8.0,
+                kP = Constants.kPRightDriveVelocity,
                 kI = Constants.kIRightDriveVelocity,
                 kV = Constants.kVRightDriveVelocity,
+                kA = 0.025,
                 kS = Constants.kSRightDriveVelocity,
                 current = { DriveSubsystem.rightVelocity.FPS }
         )

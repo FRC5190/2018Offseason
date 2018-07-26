@@ -52,8 +52,8 @@ class NonLinearReferenceController(trajectory: Trajectory<TimedState<Pose2dWithC
 
     companion object {
         // Constants
-        private const val kB = 1.0
-        private const val kZeta = 0.7
+        private const val kB = 0.5
+        private const val kZeta = 0.6
         private const val kMaxSafeLinearVelocity = 12.0
         private const val kMaxSafeAngularVelocity = PI
 
