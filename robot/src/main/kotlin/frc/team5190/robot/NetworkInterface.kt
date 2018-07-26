@@ -53,7 +53,7 @@ object NetworkInterface  {
             robotX.setDouble(Localization.robotPosition.translation.x)
             robotY.setDouble(Localization.robotPosition.translation.y)
 
-            robotHdg.setDouble(Localization.robotPosition.rotation.degrees)
+            robotHdg.setDouble(Localization.robotPosition.rotation.radians)
 
             pathX.setDouble(FollowTrajectoryCommand.pathX)
             pathY.setDouble(FollowTrajectoryCommand.pathY)

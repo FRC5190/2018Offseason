@@ -16,15 +16,17 @@ package frc.team5190.lib.math.geometry
 import frc.team5190.lib.extensions.epsilonEquals
 import frc.team5190.lib.math.geometry.interfaces.IPose2d
 
-
+// Stores a position on the field. Contains a translation and a rotation
 class Pose2d : IPose2d<Pose2d> {
-
+    // Translation and Rotation elements
     override val translation: Translation2d
     override val rotation: Rotation2d
 
+    // Pose
     override val pose: Pose2d
         get() = this
 
+    // Constructors
     constructor() {
         translation = Translation2d()
         rotation = Rotation2d()
@@ -52,14 +54,16 @@ class Pose2d : IPose2d<Pose2d> {
     }
 
 
-    private fun inverse(): Pose2d {
-        val rotationInverted = rotation.inverse
-        return Pose2d(translation.inverse.rotateBy(rotationInverted), rotationInverted)
-    }
+    private val inverse: Pose2d
+        get() {
+            val rotationInverted = rotation.inverse
+            return Pose2d(translation.inverse.rotateBy(rotationInverted), rotationInverted)
+        }
 
-    fun normal(): Pose2d {
-        return Pose2d(translation, rotation.normal)
-    }
+    val normal: Pose2d
+        get() {
+            return Pose2d(translation, rotation.normal)
+        }
 
 
     fun intersection(other: Pose2d): Translation2d {
@@ -78,7 +82,7 @@ class Pose2d : IPose2d<Pose2d> {
     fun isCollinear(other: Pose2d): Boolean {
         if (!rotation.isParallel(other.rotation))
             return false
-        val twist = toTwist(inverse().transformBy(other))
+        val twist = toTwist(inverse.transformBy(other))
         return twist.dy epsilonEquals 0.00 && twist.dtheta epsilonEquals 0.0
     }
 
@@ -93,7 +97,7 @@ class Pose2d : IPose2d<Pose2d> {
         } else if (interpolatePoint >= 1) {
             return Pose2d(upperVal)
         }
-        val twist = Pose2d.toTwist(inverse().transformBy(upperVal))
+        val twist = Pose2d.toTwist(inverse.transformBy(upperVal))
         return transformBy(Pose2d.fromTwist(twist.scaled(interpolatePoint)))
     }
 
@@ -106,16 +110,17 @@ class Pose2d : IPose2d<Pose2d> {
     }
 
     override fun distance(other: Pose2d): Double {
-        return Pose2d.toTwist(inverse().transformBy(other)).norm()
+        return Pose2d.toTwist(inverse.transformBy(other)).norm()
     }
 
     override fun equals(other: Any?): Boolean {
         return if (other == null || other !is Pose2d) false else epsilonEquals(other)
     }
 
-    override fun mirror(): Pose2d {
-        return Pose2d(Translation2d(translation.x, 27 - translation.y), rotation.inverse)
-    }
+    override val mirror: Pose2d
+        get() {
+            return Pose2d(Translation2d(translation.x, 27 - translation.y), rotation.inverse)
+        }
 
     companion object {
         private val kIdentity = Pose2d()

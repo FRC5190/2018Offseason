@@ -6,16 +6,24 @@
 package frc.team5190.robot.subsytems.elevator
 
 import com.ctre.phoenix.motorcontrol.ControlMode
-import edu.wpi.first.wpilibj.command.Command
+import frc.team5190.lib.commands.Command
+import frc.team5190.lib.commands.Condition
+import frc.team5190.lib.commands.condition
+import frc.team5190.lib.commands.or
 import frc.team5190.lib.math.units.Distance
 import frc.team5190.lib.math.units.Inches
 import frc.team5190.robot.sensors.Lidar
 import frc.team5190.robot.subsytems.intake.IntakeSubsystem
 import java.util.*
 
-class LidarElevatorCommand(private val exit: () -> Boolean = { false }) : Command() {
+class LidarElevatorCommand(exitCondition: Condition = Condition.FALSE) : Command() {
     init {
         requires(ElevatorSubsystem)
+
+        finishCondition += condition {
+            !IntakeSubsystem.cubeIn &&
+                    ElevatorSubsystem.currentPosition > ElevatorSubsystem.Position.FSTAGE.distance - Inches(1.0, ElevatorSubsystem.settings)
+        } or exitCondition
     }
 
     private val heightBuffer = ArrayDeque<Distance>(3)
@@ -23,7 +31,7 @@ class LidarElevatorCommand(private val exit: () -> Boolean = { false }) : Comman
     private val heightBufferAverage
         get() = heightBuffer.sumByDouble { it.IN } / 3.0
 
-    override fun execute() {
+    override suspend fun execute() {
         if (Lidar.underScale) {
             heightBuffer.add(Inches(Lidar.scaleHeight - 15.0, ElevatorSubsystem.settings))
         }
@@ -35,9 +43,4 @@ class LidarElevatorCommand(private val exit: () -> Boolean = { false }) : Comman
             ElevatorSubsystem.Position.SCALE.distance.STU.toDouble()
         })
     }
-
-    override fun isFinished() = (!IntakeSubsystem.cubeIn &&
-            ElevatorSubsystem.currentPosition >
-            ElevatorSubsystem.Position.FSTAGE.distance - Inches(1.0, ElevatorSubsystem.settings)) ||
-            exit()
 }

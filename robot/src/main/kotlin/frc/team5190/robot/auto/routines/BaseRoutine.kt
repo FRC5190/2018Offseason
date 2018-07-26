@@ -5,7 +5,7 @@
 
 package frc.team5190.robot.auto.routines
 
-import edu.wpi.first.wpilibj.command.CommandGroup
+import frc.team5190.lib.commands.CommandGroup
 import frc.team5190.robot.Localization
 import frc.team5190.robot.NetworkInterface
 import frc.team5190.robot.auto.Autonomous

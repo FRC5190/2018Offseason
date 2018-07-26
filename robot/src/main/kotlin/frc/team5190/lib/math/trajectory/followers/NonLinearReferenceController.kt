@@ -27,33 +27,46 @@ import kotlin.math.sqrt
 // https://www.dis.uniroma1.it/~labrob/pub/papers/Ramsete01.pdf
 // Equation 5.12
 
-class NonLinearReferenceController(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>,
-                                   override val dt: Double = 0.02) : TrajectoryFollower {
+class NonLinearReferenceController(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>) : TrajectoryFollower {
 
-    private val trajectoryIterator = TrajectoryIterator(TimedView(trajectory))
 
-    override var trajectoryPoint = trajectoryIterator.preview(0.0)
+    // Trajectory S
+    private val iterator = TrajectoryIterator(TimedView(trajectory))
 
-    override val trajectoryPose
-        get() = trajectoryPoint.state.state.pose
+    override var point = iterator.preview(0.0)
+
+    override val pose
+        get() = point.state.state.pose
 
     override val isFinished
-        get() = trajectoryIterator.isDone
+        get() = iterator.isDone
+
+
+    // Loops
+    private var lastCallTime = -1.0
+    private var dt = -1.0
 
     // Returns desired linear and angular cruiseVelocity of the robot
-    override fun getSteering(pose: Pose2d) = calculateTwist(
-            xError = trajectoryPose.translation.x - pose.translation.x,
-            yError = trajectoryPose.translation.y - pose.translation.y,
-            thetaError = (trajectoryPose.rotation - pose.rotation).radians,
-            pathV = trajectoryPoint.state.velocity,
-            pathW = (trajectoryIterator.preview(dt).state.state.rotation - trajectoryPose.rotation).radians / dt,
-            theta = pose.rotation.radians
-    ).also { trajectoryPoint = trajectoryIterator.advance(dt) }
+    override fun getSteering(pose: Pose2d, time: Long): Twist2d {
+        val timeSeconds = time / 1.0e+9
+        dt = if (lastCallTime < 0) 0.0 else timeSeconds - lastCallTime
+
+        lastCallTime = timeSeconds
+
+        return calculateTwist(
+                xError = this.pose.translation.x - pose.translation.x,
+                yError = this.pose.translation.y - pose.translation.y,
+                thetaError = (this.pose.rotation - pose.rotation).radians,
+                pathV = this.point.state.velocity,
+                pathW = if(dt == 0.0) 0.0 else (iterator.preview(dt).state.state.rotation - this.pose.rotation).radians / dt,
+                theta = pose.rotation.radians
+        ).also { this.point = iterator.advance(dt) }
+    }
 
     companion object {
         // Constants
-        private const val kB = 1.0
-        private const val kZeta = 0.7
+        private const val kB = 0.5
+        private const val kZeta = 0.6
         private const val kMaxSafeLinearVelocity = 12.0
         private const val kMaxSafeAngularVelocity = PI
 

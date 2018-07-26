@@ -14,6 +14,7 @@ import frc.team5190.robot.auto.routines.RoutineBaseline
 import frc.team5190.robot.auto.routines.RoutineScaleFromSide
 import frc.team5190.robot.auto.routines.RoutineSwitchFromCenter
 import frc.team5190.robot.auto.routines.RoutineSwitchScaleFromCenter
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import openrio.powerup.MatchData
 import openrio.powerup.MatchData.GameFeature.SCALE
@@ -111,6 +112,7 @@ object Autonomous {
                             "Far Scale Auto Mode:  $farScaleAutoMode\n" +
                             "Switch Auto Mode:     $switchAutoMode")
                 }
+                delay(20)
             }
             JUST S3ND IT
         }
@@ -119,7 +121,7 @@ object Autonomous {
     enum class StartingPositions(val pose: Pose2d) {
         LEFT(Trajectories.kSideStart),
         CENTER(Trajectories.kCenterStart),
-        RIGHT(Trajectories.kSideStart.mirror())
+        RIGHT(Trajectories.kSideStart.mirror)
     }
 
     enum class SwitchAutoMode {

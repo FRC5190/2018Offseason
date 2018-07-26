@@ -6,7 +6,7 @@
 package frc.team5190.robot.subsytems.elevator
 
 import com.ctre.phoenix.motorcontrol.*
-import edu.wpi.first.wpilibj.command.Subsystem
+import frc.team5190.lib.commands.Subsystem
 import frc.team5190.lib.math.units.*
 import frc.team5190.lib.wrappers.FalconSRX
 import frc.team5190.robot.Constants
@@ -27,10 +27,14 @@ object ElevatorSubsystem : Subsystem() {
     var reset = false
 
     init {
+        defaultCommand = ClosedLoopElevatorCommand(currentPosition)
+
         elevatorMaster.apply {
             inverted       = false
             encoderPhase   = false
             feedbackSensor = FeedbackDevice.QuadEncoder
+            peakFwdOutput = 0.0
+            peakRevOutput = 0.0
 
             configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen,
                     Constants.kCTRETimeout)
@@ -62,10 +66,6 @@ object ElevatorSubsystem : Subsystem() {
 
     fun resetEncoders() {
         elevatorMaster.sensorPosition = NativeUnits(0)
-    }
-
-    override fun initDefaultCommand() {
-        defaultCommand = ManualElevatorCommand()
     }
 
     enum class Position(val distance: Distance) {

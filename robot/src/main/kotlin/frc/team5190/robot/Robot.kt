@@ -5,18 +5,21 @@
 
 package frc.team5190.robot
 
-import edu.wpi.first.wpilibj.IterativeRobot
-import edu.wpi.first.wpilibj.command.Scheduler
+import frc.team5190.lib.wrappers.FalconRobotBase
 import frc.team5190.robot.auto.Autonomous
 import frc.team5190.robot.sensors.Lidar
 import frc.team5190.robot.sensors.NavX
+import frc.team5190.robot.subsytems.arm.ArmSubsystem
 import frc.team5190.robot.subsytems.drive.DriveSubsystem
+import frc.team5190.robot.subsytems.elevator.ElevatorSubsystem
+import frc.team5190.robot.subsytems.intake.IntakeSubsystem
 
-class Robot : IterativeRobot() {
+class Robot : FalconRobotBase() {
 
     // Can't make entire class an object, so INSTANCE is initialized in a companion object.
     companion object {
         lateinit var INSTANCE: Robot
+            private set
     }
 
     // Initialize instance.
@@ -25,7 +28,7 @@ class Robot : IterativeRobot() {
     }
 
     // Initialize all systems.
-    override fun robotInit() {
+    override suspend fun initialize() {
         Localization
         NetworkInterface
         Autonomous
@@ -33,22 +36,9 @@ class Robot : IterativeRobot() {
         Lidar
 
         DriveSubsystem
-       ArmSubsystem
-       ElevatorSubsystem
-       IntakeSubsystem
+        ArmSubsystem
+        ElevatorSubsystem
+        IntakeSubsystem
     }
 
-    // Run scheduler for command based processes.
-    override fun robotPeriodic() {
-        Scheduler.getInstance().run()
-    }
-
-    override fun disabledInit() {}
-    override fun disabledPeriodic() {}
-
-    override fun autonomousInit() {}
-    override fun autonomousPeriodic() {}
-
-    override fun teleopInit() {}
-    override fun teleopPeriodic() {}
 }

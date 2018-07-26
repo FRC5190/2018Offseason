@@ -5,14 +5,16 @@
 
 package frc.team5190.robot.subsytems.elevator
 
-import edu.wpi.first.wpilibj.command.Command
+import com.ctre.phoenix.motorcontrol.ControlMode
+import frc.team5190.lib.commands.Command
 
-class ManualElevatorCommand : Command() {
+
+class OpenLoopElevatorCommand(private val percentOutput: Double) : Command() {
     init {
         requires(ElevatorSubsystem)
     }
 
-    override fun execute() {
+    override suspend fun execute() {
         if (ElevatorSubsystem.atBottom && !ElevatorSubsystem.reset) {
             ElevatorSubsystem.resetEncoders()
             ElevatorSubsystem.reset = true
@@ -20,7 +22,6 @@ class ManualElevatorCommand : Command() {
         if (ElevatorSubsystem.reset && !ElevatorSubsystem.atBottom) {
             ElevatorSubsystem.reset = false
         }
+        ElevatorSubsystem.set(ControlMode.PercentOutput, percentOutput)
     }
-
-    override fun isFinished(): Boolean = false
 }

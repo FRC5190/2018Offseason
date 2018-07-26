@@ -8,7 +8,7 @@ package frc.team5190.robot.subsytems.drive
 import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.NeutralMode
-import edu.wpi.first.wpilibj.command.Subsystem
+import frc.team5190.lib.commands.Subsystem
 import frc.team5190.lib.math.units.*
 import frc.team5190.lib.wrappers.FalconSRX
 import frc.team5190.robot.Constants
@@ -22,13 +22,10 @@ object DriveSubsystem : Subsystem() {
     private val leftSlave1 = FalconSRX(Constants.kLeftSlaveId1)
     private val rightSlave1 = FalconSRX(Constants.kRightSlaveId1)
 
-    private val leftSlave2 = FalconSRX(Constants.kLeftSlaveId2)
-    private val rightSlave2 = FalconSRX(Constants.kRightSlaveId2)
-
     private val allMasters = arrayOf(leftMaster, rightMaster)
 
-    private val leftMotors = arrayOf(leftMaster, leftSlave1, leftSlave2)
-    private val rightMotors = arrayOf(rightMaster, rightSlave1, rightSlave2)
+    private val leftMotors = arrayOf(leftMaster, leftSlave1)
+    private val rightMotors = arrayOf(rightMaster, rightSlave1)
 
     private val allMotors = arrayOf(*leftMotors, *rightMotors)
 
@@ -58,25 +55,21 @@ object DriveSubsystem : Subsystem() {
 
 
     init {
-        arrayListOf(leftSlave1, leftSlave2).forEach {
+        arrayListOf(leftSlave1).forEach {
             it.follow(leftMaster)
             it.inverted = false
         }
-        arrayListOf(rightSlave1, rightSlave2).forEach {
+        arrayListOf(rightSlave1).forEach {
             it.follow(rightMaster)
             it.inverted = true
         }
 
-        leftMaster.apply {
-            inverted = true
-        }
-        rightMaster.apply {
-            inverted = false
-        }
+        leftMotors.forEach { it.apply { it.inverted = false }  }
+        rightMotors.forEach { it.apply { it.inverted = true } }
 
         allMasters.forEach {
             it.feedbackSensor = FeedbackDevice.QuadEncoder
-            it.encoderPhase = true
+            it.encoderPhase = false
         }
 
         allMotors.forEach {
@@ -97,8 +90,9 @@ object DriveSubsystem : Subsystem() {
             it.currentLimitingEnabled = true
         }
         resetEncoders()
-    }
 
+        defaultCommand = ManualDriveCommand()
+    }
 
     fun set(controlMode: ControlMode, leftOutput: Double, rightOutput: Double) {
         leftMaster.set(controlMode, leftOutput)
@@ -109,9 +103,5 @@ object DriveSubsystem : Subsystem() {
         allMasters.forEach {
             it.sensorPosition = NativeUnits(0)
         }
-    }
-
-    override fun initDefaultCommand() {
-        defaultCommand = ManualDriveCommand()
     }
 }

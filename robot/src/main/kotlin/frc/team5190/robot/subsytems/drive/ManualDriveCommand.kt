@@ -7,8 +7,8 @@ package frc.team5190.robot.subsytems.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.GenericHID
-import edu.wpi.first.wpilibj.command.Command
 import edu.wpi.first.wpilibj.drive.DifferentialDrive
+import frc.team5190.lib.commands.Command
 import frc.team5190.robot.Controls
 
 class ManualDriveCommand : Command() {
@@ -20,10 +20,10 @@ class ManualDriveCommand : Command() {
     private var stopAccumulator = 0.0
 
     init {
-        requires(DriveSubsystem)
+        +DriveSubsystem
     }
 
-    override fun execute() {
+    override suspend fun execute() {
         fun applyDeadband(value: Double, deadband: Double) = if (Math.abs(value) > deadband) {
             if (value > 0.0) {
                 (value - deadband) / (1.0 - deadband)
@@ -90,6 +90,4 @@ class ManualDriveCommand : Command() {
 
         DriveSubsystem.set(ControlMode.PercentOutput, leftMotorOutput, rightMotorOutput)
     }
-
-    override fun isFinished() = false
 }
