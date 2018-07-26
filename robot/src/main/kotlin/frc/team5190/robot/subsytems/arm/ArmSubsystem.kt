@@ -22,7 +22,7 @@ object ArmSubsystem : Subsystem() {
         get() = armMaster.sensorPosition
 
     init {
-        defaultCommand = ManualArmCommand()
+        defaultCommand = ClosedLoopArmCommand(currentPosition)
 
         armMaster.apply {
             inverted       = true

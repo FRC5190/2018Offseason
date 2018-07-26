@@ -31,7 +31,7 @@ object TrajectoryUtil {
     fun <S : IPose2d<S>> mirror(trajectory: Trajectory<S>): Trajectory<S> {
         val waypoints = ArrayList<S>(trajectory.length)
         for (i in 0 until trajectory.length) {
-            waypoints.add(trajectory.getState(i).mirror())
+            waypoints.add(trajectory.getState(i).mirror)
         }
         return Trajectory(waypoints)
     }
@@ -40,7 +40,7 @@ object TrajectoryUtil {
         val waypoints = ArrayList<TimedState<S>>(trajectory.length)
         for (i in 0 until trajectory.length) {
             val timedState = trajectory.getState(i)
-            waypoints.add(TimedState(timedState.state.mirror(), timedState.t, timedState.velocity, timedState.acceleration))
+            waypoints.add(TimedState(timedState.state.mirror, timedState.t, timedState.velocity, timedState.acceleration))
         }
         return Trajectory(waypoints)
     }

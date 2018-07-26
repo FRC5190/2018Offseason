@@ -26,7 +26,7 @@ class TimeVaryingNonLinearFollowerTest {
 
     @Test
     fun testTrajectoryFollower() {
-        val name      = "Pyramid to Scale"
+        val name = "Pyramid to Scale"
         val trajectory: Trajectory<TimedState<Pose2dWithCurvature>> = Trajectories[name]
         val iterator = TrajectoryIterator(TimedView(trajectory))
         trajectoryFollower = NonLinearReferenceController(trajectory)
@@ -43,11 +43,15 @@ class TimeVaryingNonLinearFollowerTest {
         val x2List = arrayListOf<Double>()
         val y2List = arrayListOf<Double>()
 
-        while (!iterator.isDone) {
-            val pose = iterator.advance(0.02).state.state.pose
-            val output = trajectoryFollower.getSteering(totalpose)
+        var time = 0.0
+        val dt = 0.02
 
-//            System.out.printf("Linear Velocity: %3.3f, Angular Velocity: %3.3f%n", output.dx, output.dtheta)
+        while (!iterator.isDone) {
+            val pose = iterator.advance(dt).state.state.pose
+            val output = trajectoryFollower.getSteering(totalpose, time.toLong())
+            time += dt * 1.0e+9
+
+            System.out.printf("Linear Velocity: %3.3f, Angular Velocity: %3.3f%n", output.dx, output.dtheta)
 
             if (hasCrossedMarker(marker) && !crossed) {
                 println("Crossed Marker at ${pose.translation}")
@@ -55,7 +59,7 @@ class TimeVaryingNonLinearFollowerTest {
             }
 
             val positiondelta = Twist2d(output.scaled(0.02).dx, output.scaled(0.02).dy, output.scaled(0.1).dtheta)
-            val transformed   = totalpose.transformBy(Pose2d.fromTwist(positiondelta))
+            val transformed = totalpose.transformBy(Pose2d.fromTwist(positiondelta))
 
             xList.add(totalpose.translation.x)
             yList.add(totalpose.translation.y)
@@ -116,7 +120,7 @@ class TimeVaryingNonLinearFollowerTest {
     }
 
     private fun hasCrossedMarker(marker: Marker): Boolean {
-        return trajectoryFollower.trajectoryPoint.state.t > marker.t
+        return trajectoryFollower.point.state.t > marker.t
     }
 
     private class Marker(val t: Double)

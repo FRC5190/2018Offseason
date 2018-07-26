@@ -12,9 +12,8 @@ import frc.team5190.lib.math.trajectory.TrajectorySamplePoint
 import frc.team5190.lib.math.trajectory.timing.TimedState
 
 interface TrajectoryFollower {
-    fun getSteering(pose: Pose2d): Twist2d
-    val trajectoryPoint: TrajectorySamplePoint<TimedState<Pose2dWithCurvature>>
-    val trajectoryPose: Pose2d
+    fun getSteering(pose: Pose2d, time: Long = System.nanoTime()): Twist2d
+    val point: TrajectorySamplePoint<TimedState<Pose2dWithCurvature>>
+    val pose: Pose2d
     val isFinished: Boolean
-    val dt: Double
 }
