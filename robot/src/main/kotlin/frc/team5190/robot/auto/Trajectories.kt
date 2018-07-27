@@ -41,14 +41,12 @@ object Trajectories {
     internal val kSideStart               = Pose2d(Translation2d(kRobotStartX, kRobotSideStartY),   Rotation2d(-1.0, 0.0))
     internal val kCenterStart             = Pose2d(Translation2d(kRobotStartX, kRobotCenterStartY), Rotation2d())
 
-    private val kNearScaleEmpty           = Pose2d(Translation2d(22.7, 20.5), Rotation2d.fromDegrees(170.0))
-    internal val kNearScaleFull           = Pose2d(Translation2d(22.7, 20.0), Rotation2d.fromDegrees(165.0))
-
-    private val kFarScaleEmpty            = Pose2d(Translation2d(22.7, 06.5), Rotation2d.fromDegrees(190.0))
+    private val kNearScaleEmpty           = Pose2d(Translation2d(23.7, 20.2), Rotation2d.fromDegrees(170.0))
+    internal val kNearScaleFull           = Pose2d(Translation2d(23.7, 20.2), Rotation2d.fromDegrees(165.0))
 
     private val kNearCube1                = Pose2d(Translation2d(16.5, 19.5), Rotation2d.fromDegrees(190.0))
-    private val kNearCube2                = Pose2d(Translation2d(16.5, 17.0), Rotation2d.fromDegrees(245.0))
-    private val kNearCube3                = Pose2d(Translation2d(16.5, 14.5), Rotation2d.fromDegrees(240.0))
+    private val kNearCube2                = Pose2d(Translation2d(17.0, 17.0), Rotation2d.fromDegrees(245.0))
+    private val kNearCube3                = Pose2d(Translation2d(16.8, 14.5), Rotation2d.fromDegrees(245.0))
 
     private val kNearCube1Adjusted        = kNearCube1.transformBy(kCenterToIntake)
     private val kNearCube2Adjusted        = kNearCube2.transformBy(kCenterToIntake)
@@ -87,8 +85,8 @@ object Trajectories {
                 kSideStart,
                 kSideStart.transformBy(Pose2d(Translation2d(-13.0, 00.0), Rotation2d())),
                 kSideStart.transformBy(Pose2d(Translation2d(-18.3, 05.0), Rotation2d.fromDegrees(-90.0))),
-                kSideStart.transformBy(Pose2d(Translation2d(-18.3, 15.0), Rotation2d.fromDegrees(-90.0))),
-                kFarScaleEmpty
+                kSideStart.transformBy(Pose2d(Translation2d(-18.3, 14.0), Rotation2d.fromDegrees(-90.0))),
+                kNearScaleEmpty.mirror
         ).also { generateTrajectory("Left Start to Far Scale", true, it) }
 
         // Scale to Cube 1
