@@ -30,15 +30,15 @@ object TrajectoryGenerator {
     // Generate trajectory with custom start and end velocity.
     fun generateTrajectory(
             reversed: Boolean,
-            waypoints: MutableList<Pose2d>,
-            constraints: List<TimingConstraint<Pose2dWithCurvature>>,
+            waypoints: ArrayList<Pose2d>,
+            constraints: ArrayList<TimingConstraint<Pose2dWithCurvature>>,
             startVel: Double,
             endVel: Double,
             maxVelocity: Double,
             maxAcceleration: Double
     ): Trajectory<TimedState<Pose2dWithCurvature>>? {
 
-        // Make theta normal for trajectory generation if path is reversed.
+        // Make theta normal for trajectory generation if path is trajectoryReversed.
         if (reversed) {
             for (i in 0 until waypoints.size) {
                 waypoints[i] = Pose2d(waypoints[i].translation, waypoints[i].rotation.rotateBy(Rotation2d.fromDegrees(180.0)))

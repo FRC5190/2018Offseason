@@ -34,7 +34,7 @@ object Trajectories {
 
 
     // Constraints
-    private val kConstraints = mutableListOf(CentripetalAccelerationConstraint(kMaxCentripetalAcceleration))
+    private val kConstraints = arrayListOf<TimingConstraint<Pose2dWithCurvature>>(CentripetalAccelerationConstraint(kMaxCentripetalAcceleration))
 
 
     // Field Relative Constants
@@ -73,7 +73,7 @@ object Trajectories {
          */
 
         // Left Start to Near Scale
-        mutableListOf(
+        arrayListOf(
                 kSideStart,
                 kSideStart.transformBy(Pose2d.fromTranslation(Translation2d(-10.0, 0.0))),
                 kNearScaleEmpty
@@ -81,7 +81,7 @@ object Trajectories {
 
 
         // Left Start to Far Scale
-        mutableListOf(
+        arrayListOf(
                 kSideStart,
                 kSideStart.transformBy(Pose2d(Translation2d(-13.0, 00.0), Rotation2d())),
                 kSideStart.transformBy(Pose2d(Translation2d(-18.3, 05.0), Rotation2d.fromDegrees(-90.0))),
@@ -90,79 +90,79 @@ object Trajectories {
         ).also { generateTrajectory("Left Start to Far Scale", true, it) }
 
         // Scale to Cube 1
-        mutableListOf(
+        arrayListOf(
                 kNearScaleEmpty,
                 kNearCube1Adjusted
         ).also { generateTrajectory("Scale to Cube 1", false, it) }
 
         // Cube 1 to Scale
-        mutableListOf(
+        arrayListOf(
                 kNearCube1Adjusted,
                 kNearScaleFull
         ).also { generateTrajectory("Cube 1 to Scale", true, it) }
 
         // Scale to Cube 2
-        mutableListOf(
+        arrayListOf(
                 kNearScaleFull,
                 kNearCube2Adjusted
         ).also { generateTrajectory("Scale to Cube 2", false, it) }
 
         // Cube 2 to Scale
-        mutableListOf(
+        arrayListOf(
                 kNearCube2Adjusted,
                 kNearScaleFull
         ).also { generateTrajectory("Cube 2 to Scale", true, it) }
 
         // Scale to Cube 3
-        mutableListOf(
+        arrayListOf(
                 kNearScaleFull,
                 kNearCube3Adjusted
         ).also { generateTrajectory("Scale to Cube 3", false, it) }
 
         // Cube 3 to Scale
-        mutableListOf(
+        arrayListOf(
                 kNearCube3Adjusted,
                 kNearScaleFull
         ).also { generateTrajectory("Cube 3 to Scale", true, it) }
 
         // Center Start to Left Switch
-        mutableListOf(
+        arrayListOf(
                 kCenterStart,
                 kSwitchLeftAdjusted
         ).also { generateTrajectory("Center Start to Left Switch", false, it) }
 
         // Center Start to Right Switch
-        mutableListOf(
+        arrayListOf(
                 kCenterStart,
                 kSwitchRightAdjusted
         ).also { generateTrajectory("Center Start to Right Switch", false, it) }
 
         // Switch to Center
-        mutableListOf(
+        arrayListOf(
                 kSwitchLeftAdjusted,
                 kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-4.0, 0.0)))
         ).also { generateTrajectory("Switch to Center", true, it) }
 
         // Center to Pyramid
-        mutableListOf(
+        arrayListOf(
                 kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-4.0, 0.0))),
                 kFrontPyramidCubeAdjusted
         ).also { generateTrajectory("Center to Pyramid", false, it) }
 
         // Pyramid to Center
-        mutableListOf(
+        arrayListOf(
                 kFrontPyramidCubeAdjusted,
                 kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-4.0, 0.0)))
         ).also { generateTrajectory("Pyramid to Center", true, it) }
 
         // Center to Switch
-        mutableListOf(
+        arrayListOf(
                 kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-4.0, 0.0))),
                 kSwitchLeftAdjusted
         ).also { generateTrajectory("Center to Switch", false, it) }
 
         // Pyramid to Scale
-        mutableListOf(
+        arrayListOf(
                 kFrontPyramidCubeAdjusted,
                 kFrontPyramidCubeAdjusted.transformBy(Pose2d(Translation2d(0.0, 9.0), Rotation2d.fromDegrees(180.0))),
                 kFrontPyramidCubeAdjusted.transformBy(Pose2d(Translation2d(7.0, 9.0), Rotation2d.fromDegrees(180.0))),
@@ -170,7 +170,7 @@ object Trajectories {
         ).also { generateTrajectory("Pyramid to Scale", true, it) }
 
         // Baseline
-        mutableListOf(
+        arrayListOf(
                 kSideStart,
                 kSideStart.transformBy(Pose2d(Translation2d(-10.0, 0.0), Rotation2d()))
         ).also { generateTrajectory("Baseline", true, it) }
@@ -187,10 +187,10 @@ object Trajectories {
 
     private fun generateTrajectory(name: String,
                                    reversed: Boolean,
-                                   waypoints: MutableList<Pose2d>,
+                                   waypoints: ArrayList<Pose2d>,
                                    maxVelocity: Double = kMaxVelocity,
                                    maxAcceleration: Double = kMaxAcceleration,
-                                   constraints: List<TimingConstraint<Pose2dWithCurvature>> = kConstraints
+                                   constraints: ArrayList<TimingConstraint<Pose2dWithCurvature>> = kConstraints
     ) {
         trajectories[name] = async {
             val start = System.nanoTime()

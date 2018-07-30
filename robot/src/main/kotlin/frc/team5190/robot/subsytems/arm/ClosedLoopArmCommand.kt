@@ -13,16 +13,16 @@ import frc.team5190.lib.commands.or
 import frc.team5190.lib.math.units.Distance
 import frc.team5190.lib.math.units.NativeUnits
 
-class ClosedLoopArmCommand(private val pos: Distance,
+class ClosedLoopArmCommand(private val pos: Distance? = null,
                            exitCondition: Condition = Condition.FALSE) : Command() {
 
     constructor(position: ArmSubsystem.Position, exitCondition: Condition = Condition.FALSE) : this(position.distance, exitCondition)
 
     init {
         requires(ArmSubsystem)
-        finishCondition += condition { (ArmSubsystem.currentPosition - pos).absoluteValue < NativeUnits(50) } or exitCondition
+        val fixedPos = pos ?: ArmSubsystem.currentPosition
+        finishCondition += condition { (ArmSubsystem.currentPosition - fixedPos).absoluteValue < NativeUnits(50) } or exitCondition
     }
 
-    override suspend fun initialize() = ArmSubsystem.set(ControlMode.MotionMagic, pos.STU.toDouble())
-
+    override suspend fun initialize() = ArmSubsystem.set(ControlMode.MotionMagic, (pos ?: ArmSubsystem.currentPosition).STU.toDouble())
 }

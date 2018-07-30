@@ -162,7 +162,7 @@ class Dashboard(tk.Frame):
             starting_pos_display.set_text('Starting Position: ' + sp)
 
             if sp == 'Center':
-                same_side_auto_display.set_text('Auto: 1.5 Switch')
+                same_side_auto_display.set_text('Switch Auto: 1.5 Switch')
                 cross_auto_display.set_text('')
             else:
                 same_side_auto_display.set_text('Same Side Auto: ' + ssa)

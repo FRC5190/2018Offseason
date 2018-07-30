@@ -27,8 +27,6 @@ object ElevatorSubsystem : Subsystem() {
     var reset = false
 
     init {
-        defaultCommand = ClosedLoopElevatorCommand(currentPosition)
-
         elevatorMaster.apply {
             inverted       = false
             encoderPhase   = false
@@ -60,6 +58,7 @@ object ElevatorSubsystem : Subsystem() {
             follow(elevatorSlave)
             inverted = true
         }
+        defaultCommand = ClosedLoopElevatorCommand()
     }
 
     fun set(controlMode: ControlMode, output: Double) = elevatorMaster.set(controlMode, output)

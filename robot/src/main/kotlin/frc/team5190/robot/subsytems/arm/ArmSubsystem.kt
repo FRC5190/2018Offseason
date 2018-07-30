@@ -22,8 +22,6 @@ object ArmSubsystem : Subsystem() {
         get() = armMaster.sensorPosition
 
     init {
-        defaultCommand = ClosedLoopArmCommand(currentPosition)
-
         armMaster.apply {
             inverted       = true
             encoderPhase   = false
@@ -42,6 +40,8 @@ object ArmSubsystem : Subsystem() {
 
             brakeMode = NeutralMode.Brake
         }
+
+        defaultCommand = ClosedLoopArmCommand()
     }
 
     fun set(controlMode: ControlMode, output: Double) = armMaster.set(controlMode, output)
