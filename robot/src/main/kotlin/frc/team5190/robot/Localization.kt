@@ -27,7 +27,7 @@ object Localization {
 
     init {
         reset()
-        Notifier(::run).startPeriodic(0.05)
+        Notifier(::run).startPeriodic(0.01)
     }
 
     fun reset(pose: Pose2d = Pose2d(Translation2d(), Rotation2d())) {
