@@ -9,7 +9,6 @@ import com.ctre.phoenix.ErrorCode
 import com.ctre.phoenix.sensors.PigeonIMU
 import frc.team5190.lib.math.geometry.Rotation2d
 import frc.team5190.robot.Constants
-import jaci.pathfinder.Pathfinder
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import java.util.concurrent.TimeUnit

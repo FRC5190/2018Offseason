@@ -27,7 +27,7 @@ class FeedForwardController(trajectory: Trajectory<TimedState<Pose2dWithCurvatur
         get() = trajectoryIterator.isDone
 
     // Returns desired linear and angular cruiseVelocity of the robot
-    override fun getSteering(pose: Pose2d, time: Long) = Twist2d(
+    override fun getSteering(robot: Pose2d, nanotime: Long) = Twist2d(
             dx = point.state.velocity,
             dy = 0.0,
             dtheta = (trajectoryIterator.preview(dt).state.state.rotation - this.pose.rotation).radians / dt

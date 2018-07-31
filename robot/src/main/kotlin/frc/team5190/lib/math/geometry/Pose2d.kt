@@ -54,6 +54,11 @@ class Pose2d : IPose2d<Pose2d> {
     }
 
 
+    infix fun inFrameOfReferenceOf(fieldRelativeOrigin: Pose2d): Pose2d {
+        return fieldRelativeOrigin.inverse.transformBy(this)
+    }
+
+
     private val inverse: Pose2d
         get() {
             val rotationInverted = rotation.inverse

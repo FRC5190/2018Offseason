@@ -3,16 +3,10 @@
  * Green Hope Falcons
  */
 
-/*
- * FRC Team 5190
- * Green Hope Falcons
- */
-
 package frc.team5190.lib.math.trajectory.followers
 
 import frc.team5190.lib.extensions.cos
 import frc.team5190.lib.extensions.epsilonEquals
-import frc.team5190.lib.extensions.sin
 import frc.team5190.lib.math.geometry.Pose2d
 import frc.team5190.lib.math.geometry.Pose2dWithCurvature
 import frc.team5190.lib.math.geometry.Twist2d
@@ -46,64 +40,49 @@ class NonLinearReferenceController(trajectory: Trajectory<TimedState<Pose2dWithC
     private var lastCallTime = -1.0
     private var dt = -1.0
 
-    // Returns desired linear and angular cruiseVelocity of the robot
-    override fun getSteering(pose: Pose2d, time: Long): Twist2d {
-        val timeSeconds = time / 1.0e+9
-        dt = if (lastCallTime < 0) 0.0 else timeSeconds - lastCallTime
+    // Returns desired linear and angular velocity of the robot
+    override fun getSteering(robot: Pose2d, nanotime: Long): Twist2d {
 
-        lastCallTime = timeSeconds
+        dt = if (lastCallTime < 0) 0.0 else nanotime / 1E9 - lastCallTime
+        lastCallTime = nanotime / 1E9
 
         return calculateTwist(
-                xError = this.pose.translation.x - pose.translation.x,
-                yError = this.pose.translation.y - pose.translation.y,
-                thetaError = (this.pose.rotation - pose.rotation).radians,
+                error = pose inFrameOfReferenceOf robot,
                 pathV = this.point.state.velocity,
-                pathW = if(dt == 0.0) 0.0 else (iterator.preview(dt).state.state.rotation - this.pose.rotation).radians / dt,
-                theta = pose.rotation.radians
+                pathW = if (dt == 0.0) 0.0 else (iterator.preview(dt).state.state.rotation - pose.rotation).radians / dt
         ).also { this.point = iterator.advance(dt) }
+
     }
 
     companion object {
         // Constants
         private const val kB = 0.5
         private const val kZeta = 0.6
-        private const val kMaxSafeLinearVelocity = 12.0
-        private const val kMaxSafeAngularVelocity = PI
+        private const val kMaxSafeV = 12.0
+        private const val kMaxSafeW = PI
 
-        fun calculateTwist(xError: Double,
-                           yError: Double,
-                           thetaError: Double,
+        fun calculateTwist(error: Pose2d,
                            pathV: Double,
-                           pathW: Double,
-                           theta: Double): Twist2d {
-            return Twist2d(
-                    dx = calculateLinearVelocity(xError, yError, thetaError, pathV, pathW, theta)
-                            .coerceIn(-kMaxSafeLinearVelocity, kMaxSafeLinearVelocity),
-                    dy = 0.0,
-                    dtheta = calculateAngularVelocity(xError, yError, thetaError, pathV, pathW, theta)
-                            .coerceIn(-kMaxSafeAngularVelocity, kMaxSafeAngularVelocity))
+                           pathW: Double) = Twist2d(
+                dx = calculateLinearVelocity(error, pathV, pathW).coerceIn(-kMaxSafeV, kMaxSafeV),
+                dy = 0.0,
+                dtheta = calculateAngularVelocity(error, pathV, pathW).coerceIn(-kMaxSafeW, kMaxSafeW))
+
+
+        private fun calculateLinearVelocity(error: Pose2d, pathV: Double, pathW: Double): Double {
+            return (pathV cos error.rotation.radians) +
+                    gainFunc(pathV, pathW) * error.translation.x
         }
 
-        private fun calculateLinearVelocity(xError: Double,
-                                            yError: Double,
-                                            thetaError: Double,
-                                            pathV: Double,
-                                            pathW: Double,
-                                            theta: Double): Double {
-            return (pathV cos thetaError) + (gainFunc(pathV, pathW) * ((xError cos theta) + (yError sin theta)))
-        }
 
-        private fun calculateAngularVelocity(xError: Double,
-                                             yError: Double,
-                                             thetaError: Double,
-                                             pathV: Double,
-                                             pathW: Double,
-                                             theta: Double): Double {
-            return pathW + (kB * pathV * safeFunc(thetaError) * ((yError cos theta) - (xError sin theta))) +
-                    (gainFunc(pathV, pathW) * thetaError)
+        private fun calculateAngularVelocity(error: Pose2d, pathV: Double, pathW: Double): Double {
+            return pathW +
+                    kB * pathV * safeFunc(error.rotation.radians) * error.translation.y +
+                    gainFunc(pathV, pathW) * error.rotation.radians
         }
 
         private fun gainFunc(v: Double, w: Double) = 2 * kZeta * sqrt((w * w) + ((kB) * (v * v)))
+
         private fun safeFunc(theta: Double): Double {
             return if (theta epsilonEquals 0.0) 1.0 - 1.0 / 6.0 * theta * theta
             else sin(theta) / theta
