@@ -23,8 +23,6 @@ import kotlin.math.sqrt
 
 class NonLinearReferenceController(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>) : TrajectoryFollower {
 
-
-    // Trajectory S
     private val iterator = TrajectoryIterator(TimedView(trajectory))
 
     override var point = iterator.preview(0.0)
@@ -55,7 +53,6 @@ class NonLinearReferenceController(trajectory: Trajectory<TimedState<Pose2dWithC
     }
 
     companion object {
-        // Constants
         private const val kB = 0.5
         private const val kZeta = 0.6
         private const val kMaxSafeV = 12.0

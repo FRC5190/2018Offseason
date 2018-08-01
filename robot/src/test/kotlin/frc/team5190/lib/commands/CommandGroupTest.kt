@@ -5,9 +5,7 @@
 
 package frc.team5190.lib.commands
 
-import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.extensions.sequential
-import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Test
 
@@ -19,7 +17,7 @@ class CommandGroupTest {
             val command = sequential {
                 +InstantRunnableCommand { startTime = System.currentTimeMillis() }
                 parallel {
-                    +object : TimeoutCommand(4L) {
+                    +object : TimeoutCommand(1L) {
                         override suspend fun initialize() {
                             super.initialize()
                             println("PARALLEL 1")
@@ -31,7 +29,7 @@ class CommandGroupTest {
                         }
                     }
                     sequential {
-                        +object : TimeoutCommand(6L) {
+                        +object : TimeoutCommand(1L) {
                             override suspend fun initialize() {
                                 super.initialize()
                                 println("PARALLEL 2 SEQ 1")
@@ -43,7 +41,7 @@ class CommandGroupTest {
                             }
                         }
                         sequential {
-                            +object : TimeoutCommand(6L) {
+                            +object : TimeoutCommand(1L) {
                                 override suspend fun initialize() {
                                     super.initialize()
                                     println("PARALLEL 2 SEQ 2 SEQ 1")
@@ -54,7 +52,7 @@ class CommandGroupTest {
                                     println(System.currentTimeMillis() - startTime)
                                 }
                             }
-                            +object : TimeoutCommand(6L) {
+                            +object : TimeoutCommand(1L) {
                                 override suspend fun initialize() {
                                     super.initialize()
                                     println("PARALLEL 2 SEQ 2 SEQ 2")
@@ -66,7 +64,7 @@ class CommandGroupTest {
                                 }
                             }
                         }
-                        +object : TimeoutCommand(6L) {
+                        +object : TimeoutCommand(1L) {
                             override suspend fun initialize() {
                                 super.initialize()
                                 println("PARALLEL 2 SEQ 3")
@@ -82,8 +80,8 @@ class CommandGroupTest {
             }
 
             command.start()
-
-            command.await() // Wait for command to finish
+            command.await()
+            assert(true)
         }
 
 

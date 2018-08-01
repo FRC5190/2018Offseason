@@ -49,7 +49,7 @@ class Translation2d : ITranslation2d<Translation2d> {
     }
 
 
-    private val norm: Double
+    val norm: Double
         get() {
             return Math.hypot(x, y)
         }
