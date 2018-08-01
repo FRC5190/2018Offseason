@@ -60,7 +60,7 @@ object Lidar {
 
         var angle = Localization.robotPosition.let {
             val scalePosition = Trajectories.kNearScaleFull.let { if (Autonomous.scaleSide == MatchData.OwnedSide.RIGHT) it.mirror else it }
-            return@let Rotation2d((scalePosition.translation - it.translation), true).degrees + 180 + NavX.correctedAngle.degrees
+            return@let Rotation2d((scalePosition.translation - it.translation), true).degrees + 180 + AHRS.correctedAngle.degrees
         }
 
         angle = ((angle + 90) % 360) - 90.0

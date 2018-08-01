@@ -11,7 +11,7 @@ import frc.team5190.lib.math.geometry.Rotation2d
 import frc.team5190.lib.math.geometry.Translation2d
 import frc.team5190.lib.math.units.Distance
 import frc.team5190.lib.math.units.NativeUnits
-import frc.team5190.robot.sensors.NavX
+import frc.team5190.robot.sensors.AHRS
 import frc.team5190.robot.subsytems.drive.DriveSubsystem
 
 object Localization {
@@ -35,7 +35,7 @@ object Localization {
             robotPosition = pose
             prevL = DriveSubsystem.leftPosition
             prevR = DriveSubsystem.rightPosition
-            prevA = NavX.correctedAngle
+            prevA = AHRS.correctedAngle
         }
     }
 
@@ -44,7 +44,7 @@ object Localization {
             val posL = DriveSubsystem.leftPosition
             val posR = DriveSubsystem.rightPosition
 
-            val angA = NavX.correctedAngle
+            val angA = AHRS.correctedAngle
 
             val deltaL = posL - prevL
             val deltaR = posR - prevR

@@ -7,8 +7,10 @@ package frc.team5190.robot
 
 import frc.team5190.lib.wrappers.FalconRobotBase
 import frc.team5190.robot.auto.Autonomous
+import frc.team5190.robot.sensors.AHRS
+import frc.team5190.robot.sensors.AHRSSensorType
 import frc.team5190.robot.sensors.Lidar
-import frc.team5190.robot.sensors.NavX
+import frc.team5190.robot.sensors.ahrsSensorType
 import frc.team5190.robot.subsytems.arm.ArmSubsystem
 import frc.team5190.robot.subsytems.drive.DriveSubsystem
 import frc.team5190.robot.subsytems.elevator.ElevatorSubsystem
@@ -24,6 +26,8 @@ class Robot : FalconRobotBase() {
 
     // Initialize instance.
     init {
+        ahrsSensorType = AHRSSensorType.Pigeon
+
         INSTANCE = this
     }
 
@@ -32,7 +36,7 @@ class Robot : FalconRobotBase() {
         Localization
         NetworkInterface
         Autonomous
-        NavX
+        AHRS
         Lidar
 
         +DriveSubsystem
