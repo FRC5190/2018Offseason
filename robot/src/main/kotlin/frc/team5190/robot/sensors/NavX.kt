@@ -23,8 +23,8 @@ enum class AHRSSensorType {
 object AHRS : AHRSSensor by create(ahrsSensorType)
 
 private fun create(ahrsSensorType: AHRSSensorType): AHRSSensor = when (ahrsSensorType) {
-    AHRSSensorType.NavX -> NavX
-    AHRSSensorType.Pigeon -> Pigeon
+    AHRSSensorType.NavX -> NavX()
+    AHRSSensorType.Pigeon -> Pigeon()
 }
 
 interface AHRSSensor {
@@ -41,10 +41,10 @@ private abstract class AHRSSensorImpl : AHRSSensor {
     protected abstract val sensorYaw: Double
     override var angleOffset = 0.0
     override val correctedAngle: Rotation2d
-        get() = Rotation2d.fromDegrees(sensorYaw + NavX.angleOffset)
+        get() = Rotation2d.fromDegrees(sensorYaw + angleOffset)
 }
 
-private object Pigeon : AHRSSensorImpl() {
+private class Pigeon : AHRSSensorImpl() {
     private val pigeon = PigeonIMU(17)
     private val ypr = DoubleArray(3)
 
@@ -65,7 +65,7 @@ private object Pigeon : AHRSSensorImpl() {
     }
 }
 
-private object NavX : AHRSSensorImpl() {
+private class NavX : AHRSSensorImpl() {
     private val navX = AHRS(I2C.Port.kMXP)
 
     override val sensorYaw: Double
