@@ -1,6 +1,5 @@
 package frc.team5190.lib.commands
 
-import edu.wpi.first.wpilibj.DriverStation
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.actor
@@ -11,6 +10,8 @@ import java.util.concurrent.TimeUnit
 
 object CommandHandler {
 
+    private val commandContet = newFixedThreadPoolContext(4, "Command Context")
+
     private val subsystemTasks = mutableMapOf<Subsystem, CommandTaskImpl>()
     private val tasks = mutableListOf<CommandTaskImpl>()
 
@@ -19,7 +20,7 @@ object CommandHandler {
     private class StopCommandEvent(val command: Command) : CommandEvent
     private class StopEvent(val command: CommandTask, val startDefault: (Subsystem) -> Boolean) : CommandEvent
 
-    private val commandActor = actor<CommandEvent>(context = CommonPool, capacity = Channel.UNLIMITED) {
+    private val commandActor = actor<CommandEvent>(context = commandContet, capacity = Channel.UNLIMITED) {
         for (event in channel) {
             handleEvent(event)
         }
@@ -61,7 +62,14 @@ object CommandHandler {
         }
     }
 
-    suspend fun start(command: Command) = commandActor.send(StartEvent(command))
+    suspend fun start(command: Command) {
+        // Check if all subsystems are registered
+        for (subsystem in command.requiredSubsystems) {
+            if (!SubsystemHandler.isRegistered(subsystem)) throw IllegalArgumentException("A command required a subsystem that hasnt been registered! Subsystem: ${subsystem.name} ${subsystem::class.java.simpleName} Command: ${command::class.java.simpleName}")
+        }
+        commandActor.send(StartEvent(command))
+    }
+
     suspend fun stop(command: Command) = commandActor.send(StopCommandEvent(command))
 
     private open class CommandTaskImpl(command: Command) : CommandTask(command) {
@@ -81,7 +89,7 @@ object CommandHandler {
                 stop() // Stop the command early
             }
             command.initialize()
-            updater = launch(context = CommonPool) {
+            updater = launch(context = commandContet) {
                 val frequency = command.updateFrequency
                 if (frequency == 0) return@launch
                 if (frequency < 0) throw IllegalArgumentException("Command frequency cannot be negative!")
@@ -213,6 +221,11 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) {
 }
 
 abstract class CommandGroup(commands: List<Command>) : Command() {
+
+    companion object {
+        private val commandGroupContext = newFixedThreadPoolContext(2, "Command Group")
+    }
+
     protected val commands = commands.map { GroupCommandTask(it) }
     override val requiredSubsystems = commands.map { it.requiredSubsystems }.flatten()
 
@@ -224,7 +237,7 @@ abstract class CommandGroup(commands: List<Command>) : Command() {
     private object StartEvent : GroupEvent
     private class FinishEvent(val task: GroupCommandTask) : GroupEvent
 
-    private val groupActor = actor<GroupEvent>(context = CommonPool, capacity = Channel.UNLIMITED, start = CoroutineStart.LAZY) {
+    private val groupActor = actor<GroupEvent>(context = commandGroupContext, capacity = Channel.UNLIMITED, start = CoroutineStart.LAZY) {
         actorMutex.withLock {
             for (event in channel) {
                 handleEvent(event)
@@ -267,6 +280,7 @@ abstract class CommandGroup(commands: List<Command>) : Command() {
     private val groupCondition = GroupCondition()
 
     init {
+        updateFrequency = 0
         finishCondition += groupCondition
     }
 

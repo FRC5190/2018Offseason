@@ -1,7 +1,34 @@
 package frc.team5190.lib.commands
 
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.sync.Mutex
+import kotlinx.coroutines.experimental.sync.withLock
 import java.util.concurrent.atomic.AtomicLong
+
+object SubsystemHandler {
+
+    private val subsystemMutex = Mutex()
+    private val subsystems = mutableListOf<Subsystem>()
+
+    private var alreadyStarted = false
+
+    suspend fun isRegistered(subsystem: Subsystem) = subsystemMutex.withLock { subsystems.contains(subsystem) }
+
+    suspend fun addSubsystem(subsystem: Subsystem) = subsystemMutex.withLock {
+        if (alreadyStarted) throw IllegalStateException("You cannot add a subsystem after the initialize stage")
+        subsystems.add(subsystem)
+        println("[Subsystem Handler] Added $subsystem")
+    }
+
+    suspend fun startDefaultCommands() = subsystemMutex.withLock {
+        if (alreadyStarted) throw IllegalStateException("Attempted to start default commands twice")
+        alreadyStarted = true
+        // Start default commands
+        for (subsystem in subsystems) {
+            subsystem.defaultCommand?.start()
+        }
+    }
+
+}
 
 abstract class Subsystem(@Suppress("unused") val name: String) {
     companion object {
@@ -11,11 +38,5 @@ abstract class Subsystem(@Suppress("unused") val name: String) {
     constructor() : this("Subsystem ${subsystemId.incrementAndGet()}")
 
     var defaultCommand: Command? = null
-        protected set(value) {
-            runBlocking {
-                field?.stop()
-                value?.start()
-            }
-            field = value
-        }
+        protected set
 }

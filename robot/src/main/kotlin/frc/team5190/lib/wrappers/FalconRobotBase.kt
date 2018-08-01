@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.hal.HAL
 import edu.wpi.first.wpilibj.livewindow.LiveWindow
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
+import frc.team5190.lib.commands.Subsystem
+import frc.team5190.lib.commands.SubsystemHandler
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
@@ -81,6 +83,8 @@ abstract class FalconRobotBase : RobotBase() {
         }
 
         initialize()
+        // Start up the default commands
+        SubsystemHandler.startDefaultCommands()
 
         handleEnter(Mode.ANY)
 
@@ -149,5 +153,9 @@ abstract class FalconRobotBase : RobotBase() {
         whilesToStop.forEach { it.job.cancel() }
         whilesToStop.forEach { it.job.join() }
     }
+
+    // Helpers
+
+    protected suspend operator fun Subsystem.unaryPlus() = SubsystemHandler.addSubsystem(this)
 
 }

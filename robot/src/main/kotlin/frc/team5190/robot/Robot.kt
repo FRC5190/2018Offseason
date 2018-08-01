@@ -35,10 +35,10 @@ class Robot : FalconRobotBase() {
         NavX
         Lidar
 
-        DriveSubsystem
-        ArmSubsystem
-        ElevatorSubsystem
-        IntakeSubsystem
+        +DriveSubsystem
+        +ArmSubsystem
+        +ElevatorSubsystem
+        +IntakeSubsystem
     }
 
 }
