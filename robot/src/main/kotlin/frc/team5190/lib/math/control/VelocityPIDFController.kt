@@ -42,7 +42,10 @@ class VelocityPIDFController(private val kP: Double = 0.0,
 
         // Get current time
         val timeSeconds = System.nanoTime() / 1.0e+9
-        dt = if (lastCallTime < 0) 0.0 else timeSeconds - lastCallTime
+        dt = if (lastCallTime < 0) {
+            lastCallTime = timeSeconds
+            return 0.0
+        } else timeSeconds - lastCallTime
 
 
         // Calculate error

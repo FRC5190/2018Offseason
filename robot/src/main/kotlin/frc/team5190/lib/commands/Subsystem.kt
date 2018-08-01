@@ -2,16 +2,17 @@ package frc.team5190.lib.commands
 
 import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicLong
 
 object SubsystemHandler {
 
     private val subsystemMutex = Mutex()
-    private val subsystems = mutableListOf<Subsystem>()
+    private val subsystems = CopyOnWriteArrayList<Subsystem>()
 
     private var alreadyStarted = false
 
-    suspend fun isRegistered(subsystem: Subsystem) = subsystemMutex.withLock { subsystems.contains(subsystem) }
+    fun isRegistered(subsystem: Subsystem) = subsystems.contains(subsystem)
 
     suspend fun addSubsystem(subsystem: Subsystem) = subsystemMutex.withLock {
         if (alreadyStarted) throw IllegalStateException("You cannot add a subsystem after the initialize stage")

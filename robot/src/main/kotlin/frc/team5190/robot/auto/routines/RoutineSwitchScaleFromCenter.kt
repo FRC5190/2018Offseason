@@ -7,6 +7,7 @@ package frc.team5190.robot.auto.routines
 
 import frc.team5190.lib.commands.CommandGroup
 import frc.team5190.lib.commands.ConditionCommand
+import frc.team5190.lib.commands.TimeoutCommand
 import frc.team5190.lib.commands.condition
 import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.math.geometry.Pose2d
@@ -19,6 +20,7 @@ import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 import frc.team5190.robot.subsytems.intake.IntakeCommand
 import frc.team5190.robot.subsytems.intake.IntakeSubsystem
 import openrio.powerup.MatchData
+import java.util.concurrent.TimeUnit
 
 class RoutineSwitchScaleFromCenter(startingPosition: Autonomous.StartingPositions,
                                    private val switchSide: MatchData.OwnedSide,
@@ -51,6 +53,7 @@ class RoutineSwitchScaleFromCenter(startingPosition: Autonomous.StartingPosition
                     +drop2ndCube
                 }
                 sequential {
+                    +TimeoutCommand(250L, TimeUnit.MILLISECONDS)
                     +SubsystemPresetCommand(SubsystemPreset.SWITCH, condition(drop1stCube))
                     +ConditionCommand(condition { drop1stCube.hasCrossedMarker(shoot1stCube) })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, timeout = 500L)

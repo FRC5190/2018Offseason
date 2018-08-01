@@ -38,7 +38,7 @@ class LidarElevatorCommand(exitCondition: Condition = Condition.FALSE) : Command
 
         ElevatorSubsystem.set(ControlMode.MotionMagic, if (Lidar.underScale) {
             heightBufferAverage.coerceIn(ElevatorSubsystem.Position.FSTAGE.distance.STU.toDouble(),
-                    ElevatorSubsystem.Position.HIGHSCALE.distance.STU.toDouble())
+                    ElevatorSubsystem.Position.SCALE.distance.STU.toDouble())
         } else {
             ElevatorSubsystem.Position.SCALE.distance.STU.toDouble()
         })

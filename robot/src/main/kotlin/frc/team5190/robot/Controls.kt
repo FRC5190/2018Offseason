@@ -32,6 +32,9 @@ object Controls : XboxController(0) {
             var elevatorTriggerState = false
             var intakeTriggerState = false
 
+            val downElevatorCommand = OpenLoopElevatorCommand(-0.4)
+            val upElevatorCommand = OpenLoopElevatorCommand(0.4)
+
             while (true) {
                 // ARM
                 if (yButtonPressed) {
@@ -42,14 +45,17 @@ object Controls : XboxController(0) {
                     ArmSubsystem.defaultCommand?.start()
                 }
 
-
                 // ELEVATOR
                 if (getTriggerAxis(Hand.kRight) > 0.2) {
-                    OpenLoopElevatorCommand(0.4).start().also { elevatorTriggerState = true }
+                    if (!upElevatorCommand.queuedStart) upElevatorCommand.start().also { elevatorTriggerState = true }
+                    lastElevatorPOV = -1
                 } else if (rightBumperPressed) {
-                    OpenLoopElevatorCommand(-0.4).start()
+                    if (!downElevatorCommand.queuedStart) downElevatorCommand.start()
+                    lastElevatorPOV = -1
                 } else if (rightBumperReleased || elevatorTriggerState) {
-                    ElevatorSubsystem.defaultCommand?.start().also { elevatorTriggerState = false }
+                    val command = ElevatorSubsystem.defaultCommand
+                    if (command != null) if (!command.queuedStart) command.start().also { elevatorTriggerState = false }
+                    lastElevatorPOV = -1
                 }
 
                 if (pov != lastElevatorPOV) {

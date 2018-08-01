@@ -28,9 +28,9 @@ import kotlinx.coroutines.experimental.runBlocking
 object Trajectories {
 
     // Constants in Feet Per Second
-    private const val kMaxVelocity                = 8.0
+    private const val kMaxVelocity                = 6.0
     private const val kMaxAcceleration            = 4.0
-    private const val kMaxCentripetalAcceleration = 4.0
+    private const val kMaxCentripetalAcceleration = 2.0
 
 
     // Constraints
@@ -45,7 +45,7 @@ object Trajectories {
     internal val kNearScaleFull           = Pose2d(Translation2d(23.7, 20.2), Rotation2d.fromDegrees(165.0))
 
     private val kNearCube1                = Pose2d(Translation2d(16.5, 19.5), Rotation2d.fromDegrees(190.0))
-    private val kNearCube2                = Pose2d(Translation2d(17.0, 17.0), Rotation2d.fromDegrees(245.0))
+    private val kNearCube2                = Pose2d(Translation2d(17.0, 17.0), Rotation2d.fromDegrees(220.0))
     private val kNearCube3                = Pose2d(Translation2d(16.8, 14.5), Rotation2d.fromDegrees(245.0))
 
     private val kNearCube1Adjusted        = kNearCube1.transformBy(kCenterToIntake)

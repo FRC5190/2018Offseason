@@ -186,16 +186,16 @@ class FalconSRX(id: Int, private val timeoutMs: Int = 10) : TalonSRX(id) {
         get() = NativeUnitsPer100Ms(getSelectedSensorVelocity(0))
 
     init {
-        kP = 0.0; kI = 0.0; kD = 0.0; kF = 0.0
-        encoderPhase = false; overrideLimitSwitchesEnable = false
-        softLimitFwd = NativeUnits(0); softLimitFwdEnabled = false
-        softLimitRev = NativeUnits(0); softLimitRevEnabled = false
-        openLoopRamp = Seconds(0.0); closedLoopRamp = Seconds(0.0)
-        motionCruiseVelocity = NativeUnitsPer100Ms(0); motionAcceleration = 0
-        feedbackSensor = FeedbackDevice.None
-        peakCurrentLimit = Amps(0); continousCurrentLimit = Amps(0)
-        peakCurrentLimitDuration = Seconds(0.0); currentLimitingEnabled = false
-        voltageCompensationSaturation = Volts(12.0); voltageCompensationEnabled = false
+//        kP = 0.0; kI = 0.0; kD = 0.0; kF = 0.0
+//        encoderPhase = false; overrideLimitSwitchesEnable = false
+//        softLimitFwd = NativeUnits(0); softLimitFwdEnabled = false
+//        softLimitRev = NativeUnits(0); softLimitRevEnabled = false
+//        openLoopRamp = Seconds(0.0); closedLoopRamp = Seconds(0.0)
+//        motionCruiseVelocity = NativeUnitsPer100Ms(0); motionAcceleration = 0
+//        feedbackSensor = FeedbackDevice.None
+//        peakCurrentLimit = Amps(0); continousCurrentLimit = Amps(0)
+//        peakCurrentLimitDuration = Seconds(0.0); currentLimitingEnabled = false
+//        voltageCompensationSaturation = Volts(12.0); voltageCompensationEnabled = false
     }
 
 }

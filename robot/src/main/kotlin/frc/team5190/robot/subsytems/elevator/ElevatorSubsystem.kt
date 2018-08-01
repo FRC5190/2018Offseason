@@ -31,14 +31,15 @@ object ElevatorSubsystem : Subsystem() {
             inverted       = false
             encoderPhase   = false
             feedbackSensor = FeedbackDevice.QuadEncoder
-            peakFwdOutput = 0.3
-            peakRevOutput = -0.3
 
             configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen,
                     Constants.kCTRETimeout)
             configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen,
                     Constants.kCTRETimeout)
             overrideLimitSwitchesEnable = true
+
+            peakFwdOutput = 1.0
+            peakRevOutput = -1.0
 
             softLimitFwd        = Constants.kElevatorSoftLimitFwd
             softLimitFwdEnabled = true
@@ -55,7 +56,7 @@ object ElevatorSubsystem : Subsystem() {
             brakeMode = NeutralMode.Brake
         }
         elevatorSlave.apply {
-            follow(elevatorSlave)
+            follow(elevatorMaster)
             inverted = true
         }
         defaultCommand = ClosedLoopElevatorCommand()

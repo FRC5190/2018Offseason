@@ -33,16 +33,19 @@ class Robot : FalconRobotBase() {
 
     // Initialize all systems.
     override suspend fun initialize() {
+
+
+        +DriveSubsystem
+        +ArmSubsystem
+        +ElevatorSubsystem
+        +IntakeSubsystem
+
         Localization
         NetworkInterface
         Autonomous
         AHRS
         Lidar
 
-        +DriveSubsystem
-        +ArmSubsystem
-        +ElevatorSubsystem
-        +IntakeSubsystem
     }
 
 }

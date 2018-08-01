@@ -98,6 +98,10 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
         lookaheadY = pathY
     }
 
+    override suspend fun initialize() {
+        println("Initialized")
+    }
+
     override suspend fun execute() {
         val kinematics = trajectoryFollower.getSteering(Localization.robotPosition)
         val output = Kinematics.inverseKinematics(kinematics)
@@ -107,14 +111,14 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
                 rController.getPIDFOutput(output.second to 0.0))
 
         updateDashboard()
-//        System.out.printf("[Trajectory Follower] X Error: %3.3f, Y Error: %3.3f, T Error: %3.3f, " +
-//                "L: %3.3f, A: %3.3f, Actual: %3.3f%n",
-//
-//                trajectoryFollower.pose.translation.x - Localization.robotPosition.translation.x,
-//                trajectoryFollower.pose.translation.y - Localization.robotPosition.translation.y,
-//                (trajectoryFollower.pose.rotation - Localization.robotPosition.rotation).degrees,
-//                kinematics.dx, kinematics.dtheta,
-//                ((DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity) / 2.0).FPS)
+        System.out.printf("[Trajectory Follower] X Error: %3.3f, Y Error: %3.3f, T Error: %3.3f, " +
+                "L: %3.3f, A: %3.3f, Actual: %3.3f%n",
+
+                trajectoryFollower.pose.translation.x - Localization.robotPosition.translation.x,
+                trajectoryFollower.pose.translation.y - Localization.robotPosition.translation.y,
+                (trajectoryFollower.pose.rotation - Localization.robotPosition.rotation).degrees,
+                kinematics.dx, kinematics.dtheta,
+                ((DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity) / 2.0).FPS)
     }
 
     override suspend fun dispose() {

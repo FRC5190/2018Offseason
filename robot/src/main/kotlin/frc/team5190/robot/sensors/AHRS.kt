@@ -34,10 +34,6 @@ interface AHRSSensor {
 }
 
 private abstract class AHRSSensorImpl : AHRSSensor {
-    init {
-        this.reset()
-    }
-
     protected abstract val sensorYaw: Double
     override var angleOffset = 0.0
     override val correctedAngle: Rotation2d
@@ -49,6 +45,7 @@ private class Pigeon : AHRSSensorImpl() {
     private val ypr = DoubleArray(3)
 
     init {
+        reset()
         launch {
             while (isActive) {
                 pigeon.getYawPitchRoll(ypr)
@@ -67,6 +64,10 @@ private class Pigeon : AHRSSensorImpl() {
 
 private class NavX : AHRSSensorImpl() {
     private val navX = AHRS(I2C.Port.kMXP)
+
+    init {
+        reset()
+    }
 
     override val sensorYaw: Double
         get() = -navX.angle

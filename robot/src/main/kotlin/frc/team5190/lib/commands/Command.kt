@@ -82,9 +82,13 @@ object CommandHandler {
         private lateinit var finishHandle: DisposableHandle
         private var isFinished: Boolean? = null
 
+        private var started = false
+
         suspend fun initialize() = commandMutex.withLock {
+            started = true
             command.didComplete = false
             command.didFinish = false
+            command.isActive = true
             finishHandle = command.exposedCondition.invokeOnCompletion {
                 stop() // Stop the command early
             }
@@ -120,10 +124,13 @@ object CommandHandler {
         }
 
         suspend fun dispose() = commandMutex.withLock {
+            if(!started) return
             val isFinished = this.isFinished ?: command.isFinished()
             updater.cancel()
             command.didComplete = true
             command.didFinish = isFinished
+            command.isActive = false
+            command.queuedStart = false
             finishHandle.dispose()
             command.dispose()
             for (completionListener in command.completionListeners.toList()) {
@@ -164,6 +171,15 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) {
         internal set
 
     /**
+     * Is true when the command is running
+     */
+    var isActive = false
+        internal set
+
+    var queuedStart = false
+        internal set
+
+    /**
      * Is true when all the finish conditions are met
      */
     suspend fun isFinished() = finishCondition.isMet()
@@ -197,7 +213,10 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) {
     open suspend fun execute() {}
     open suspend fun dispose() {}
 
-    suspend fun start() = CommandHandler.start(this)
+    suspend fun start() {
+        queuedStart = true
+        CommandHandler.start(this)
+    }
     suspend fun stop() = CommandHandler.stop(this)
 
     fun invokeOnCompletion(block: suspend (Command) -> Unit): DisposableHandle {

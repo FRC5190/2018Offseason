@@ -5,10 +5,7 @@
 
 package frc.team5190.robot.auto.routines
 
-import frc.team5190.lib.commands.CommandGroup
-import frc.team5190.lib.commands.ConditionCommand
-import frc.team5190.lib.commands.condition
-import frc.team5190.lib.commands.or
+import frc.team5190.lib.commands.*
 import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.math.geometry.Translation2d
 import frc.team5190.robot.auto.Autonomous
@@ -18,6 +15,7 @@ import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 import frc.team5190.robot.subsytems.intake.IntakeCommand
 import frc.team5190.robot.subsytems.intake.IntakeSubsystem
 import openrio.powerup.MatchData
+import java.util.concurrent.TimeUnit
 
 class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPositions,
                            private val scaleSide: MatchData.OwnedSide) : BaseRoutine(startingPosition) {
@@ -50,9 +48,7 @@ class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPosi
             return parallel {
                 sequential {
                     +drop1stCube
-//                    +ConditionCommand { ElevatorSubsystem.currentPosition <= ElevatorSubsystem.Position.FSTAGE.distance }
                     +pickup2ndCube
-//                    +ConditionCommand { ElevatorSubsystem.currentPosition >= ElevatorSubsystem.Position.SWITCH.distance }
                     +drop2ndCube
                     +pickup3rdCube
                     +drop3rdCube
@@ -60,6 +56,7 @@ class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPosi
                     +drop4thCube
                 }
                 sequential {
+                    +TimeoutCommand(250, TimeUnit.MILLISECONDS)
                     +ConditionCommand(condition { drop1stCube.hasCrossedMarker(elevatorUp) } or drop1stCube)
                     +SubsystemPresetCommand(SubsystemPreset.BEHIND, condition(drop1stCube))
                     +ConditionCommand(condition { drop1stCube.hasCrossedMarker(shoot1stCube) } or drop1stCube)
@@ -80,7 +77,7 @@ class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPosi
                     }
 
                     +SubsystemPresetCommand(SubsystemPreset.BEHIND, condition(drop3rdCube))
-                    +ConditionCommand(condition { drop2ndCube.hasCrossedMarker(shoot3rdCube) })
+                    +ConditionCommand(condition { drop3rdCube.hasCrossedMarker(shoot3rdCube) })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, exitCondition = condition(drop3rdCube))
 
                     parallel {

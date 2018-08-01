@@ -43,10 +43,10 @@ object Autonomous {
         get() = StartingPositions.valueOf(NetworkInterface.startingPosition.getString("Left").toUpperCase())
 
     private val networkSwitchAutoMode
-        get() = SwitchAutoMode.valueOf(NetworkInterface.switchAutoMode.getString("Basic").toUpperCase())
+        get() = SwitchAutoMode.valueOf(NetworkInterface.switchAutoMode.getString("Robonauts").toUpperCase())
 
     private val networkNearScaleAutoMode
-        get() = ScaleAutoMode.valueOf(NetworkInterface.nearScaleAutoMode.getString("Baseline").toUpperCase())
+        get() = ScaleAutoMode.valueOf(NetworkInterface.nearScaleAutoMode.getString("ThreeCube").toUpperCase())
 
     private val networkFarScaleAutoMode
         get() = ScaleAutoMode.valueOf(NetworkInterface.farScaleAutoMode.getString("Baseline").toUpperCase())
