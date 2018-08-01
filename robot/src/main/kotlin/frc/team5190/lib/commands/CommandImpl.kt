@@ -1,12 +1,14 @@
 package frc.team5190.lib.commands
 
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.*
 import java.util.concurrent.TimeUnit
 
 open class TimeoutCommand(private val timeout: Long, private val unit: TimeUnit = TimeUnit.SECONDS) : Command() {
+
+    companion object {
+        private val timeoutContext = newFixedThreadPoolContext(1, "Timeout Command")
+    }
+
     private val timeoutCondition = TimeoutCondition()
 
     private inner class TimeoutCondition : Condition() {
@@ -15,7 +17,7 @@ open class TimeoutCommand(private val timeout: Long, private val unit: TimeUnit 
 
         fun start() {
             startTime = System.nanoTime()
-            job = launch(context = CommonPool) {
+            job = launch(context = timeoutContext) {
                 delay(timeout, unit)
                 invokeCompletionListeners()
             }
@@ -44,7 +46,7 @@ open class TimeoutCommand(private val timeout: Long, private val unit: TimeUnit 
     }
 }
 
-open class InstantCommand : Command() {
+abstract class InstantCommand : Command() {
     init {
         finishCondition += Condition.TRUE
     }

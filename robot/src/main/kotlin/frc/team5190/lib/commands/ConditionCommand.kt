@@ -1,6 +1,8 @@
 package frc.team5190.lib.commands
 
 import kotlinx.coroutines.experimental.DisposableHandle
+import kotlinx.coroutines.experimental.sync.Mutex
+import kotlinx.coroutines.experimental.sync.withLock
 import java.util.concurrent.CopyOnWriteArrayList
 
 open class ConditionCommand(condition: Condition) : Command() {
@@ -57,7 +59,7 @@ abstract class Condition {
             get() = condition { true }
     }
 
-    internal val completionListeners = CopyOnWriteArrayList<suspend (Condition) -> Unit>()
+    private val completionListeners = CopyOnWriteArrayList<suspend (Condition) -> Unit>()
 
     protected suspend fun invokeCompletionListeners() {
         for (completionListener in completionListeners.toList()) {

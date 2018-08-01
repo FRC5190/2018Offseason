@@ -170,11 +170,7 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) {
 
     // Little cheat so you don't have to reassign finishCondition every time you modify it
     protected class CommandCondition(currentCondition: Condition) : Condition() {
-        private val listener: suspend (Condition) -> Unit = {
-            for (completionListener in completionListeners.toList()) {
-                completionListener(it)
-            }
-        }
+        private val listener: suspend (Condition) -> Unit = { invokeCompletionListeners() }
         private var handle = currentCondition.invokeOnCompletion(listener)
         private var currentCondition = currentCondition
             set(value) {
