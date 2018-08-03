@@ -26,8 +26,8 @@ object ArmSubsystem : Subsystem() {
             inverted       = true
             encoderPhase   = false
             feedbackSensor = FeedbackDevice.Analog
-            peakFwdOutput = 0.7
-            peakRevOutput = -0.7
+            peakFwdOutput = 1.0
+            peakRevOutput = -1.0
 
             kP                  = Constants.kPArm
             closedLoopTolerance = Constants.kArmClosedLpTolerance

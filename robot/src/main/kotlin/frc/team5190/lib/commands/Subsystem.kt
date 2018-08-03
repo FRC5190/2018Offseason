@@ -17,7 +17,7 @@ object SubsystemHandler {
     suspend fun addSubsystem(subsystem: Subsystem) = subsystemMutex.withLock {
         if (alreadyStarted) throw IllegalStateException("You cannot add a subsystem after the initialize stage")
         subsystems.add(subsystem)
-        println("[Subsystem Handler] Added $subsystem")
+        println("[Subsystem Handler] Added ${subsystem.javaClass.simpleName}")
     }
 
     suspend fun startDefaultCommands() = subsystemMutex.withLock {

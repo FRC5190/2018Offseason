@@ -28,13 +28,14 @@ import kotlinx.coroutines.experimental.runBlocking
 object Trajectories {
 
     // Constants in Feet Per Second
-    private const val kMaxVelocity                = 6.0
-    private const val kMaxAcceleration            = 4.0
-    private const val kMaxCentripetalAcceleration = 2.0
+    private const val kMaxVelocity                = 9.0
+    private const val kMaxAcceleration            = 6.0
+    private const val kMaxCentripetalAcceleration = 5.0
 
 
     // Constraints
-    private val kConstraints = arrayListOf<TimingConstraint<Pose2dWithCurvature>>(CentripetalAccelerationConstraint(kMaxCentripetalAcceleration))
+    private val kConstraints = arrayListOf<TimingConstraint<Pose2dWithCurvature>>(
+            CentripetalAccelerationConstraint(kMaxCentripetalAcceleration))
 
 
     // Field Relative Constants
@@ -199,4 +200,10 @@ object Trajectories {
             }
         }
     }
+}
+
+fun main(args: Array<String>) {
+    println("3 Cube Near Scale Auto: ${Trajectories["Left Start to Near Scale"].lastState.t +
+            Trajectories["Scale to Cube 1"].lastState.t + Trajectories["Cube 1 to Scale"].lastState.t +
+            Trajectories["Scale to Cube 2"].lastState.t + Trajectories["Cube 2 to Scale"].lastState.t} seconds.")
 }

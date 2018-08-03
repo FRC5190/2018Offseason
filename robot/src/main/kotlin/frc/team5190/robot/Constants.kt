@@ -20,11 +20,9 @@ object Constants {
     // MOTOR IDS
     const val kLeftMasterId = 1
     const val kLeftSlaveId1 = 2
-    const val kLeftSlaveId2 = 3
 
     const val kRightMasterId = 3
     const val kRightSlaveId1 = 4
-    const val kRightSlaveId2 = 6
 
     const val kElevatorMasterId = 5
     const val kElevatorSlaveId  = 6
@@ -81,12 +79,12 @@ object Constants {
 
     // DRIVE PID
     const val kPLeftDriveVelocity = 0.4
-    const val kILeftDriveVelocity = 0.05
+    const val kILeftDriveVelocity = 0.01
     const val kVLeftDriveVelocity = 1 / 17.0
     const val kSLeftDriveVelocity = 0.05
 
     const val kPRightDriveVelocity = 0.4
-    const val kIRightDriveVelocity = 0.05
+    const val kIRightDriveVelocity = 0.01
     const val kVRightDriveVelocity = 1 / 17.0
     const val kSRightDriveVelocity = 0.05
 
@@ -108,5 +106,5 @@ object Constants {
     val kElevatorMotionMagicAcceleration = InchesPerSecond(90.0, preferences { radius = 1.25 / 2.0 }).STU
 
     val kArmMotionMagicVelocity           = NativeUnitsPer100Ms(1000000)
-    const val kArmMotionMagicAcceleration = 350
+    const val kArmMotionMagicAcceleration = 500
 }
