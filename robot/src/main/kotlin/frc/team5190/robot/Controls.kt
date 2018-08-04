@@ -6,6 +6,7 @@
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.XboxController
+import frc.team5190.lib.wrappers.FalconRobotBase
 import frc.team5190.robot.subsytems.SubsystemPreset
 import frc.team5190.robot.subsytems.SubsystemPresetCommand
 import frc.team5190.robot.subsytems.arm.ArmSubsystem
@@ -16,6 +17,7 @@ import frc.team5190.robot.subsytems.intake.IntakeCommand
 import frc.team5190.robot.subsytems.intake.IntakeSubsystem
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
+import java.util.concurrent.TimeUnit
 import kotlin.math.pow
 
 object Controls : XboxController(0) {
@@ -36,6 +38,10 @@ object Controls : XboxController(0) {
             val upElevatorCommand = OpenLoopElevatorCommand(0.4)
 
             while (true) {
+                if(Robot.INSTANCE.currentMode != FalconRobotBase.Mode.TELEOP) {
+                    delay(50, TimeUnit.MILLISECONDS)
+                    continue
+                }
                 // ARM
                 if (yButtonPressed) {
                     OpenLoopArmCommand(0.5).start()

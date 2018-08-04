@@ -21,7 +21,8 @@ class ClosedLoopElevatorCommand(private val distance: Distance? = null,
     init {
         requires(ElevatorSubsystem)
         val fixedPos = distance ?: ElevatorSubsystem.currentPosition
-        finishCondition += condition { (ElevatorSubsystem.currentPosition - fixedPos).absoluteValue < Constants.kElevatorClosedLpTolerance } or exitCondition
+        finishCondition += exitCondition
+        if (distance != null) finishCondition += condition { (ElevatorSubsystem.currentPosition - fixedPos).absoluteValue < Constants.kElevatorClosedLpTolerance }
     }
 
     override suspend fun initialize() = ElevatorSubsystem.set(ControlMode.MotionMagic, (distance ?: ElevatorSubsystem.currentPosition).STU.toDouble())

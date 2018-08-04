@@ -29,7 +29,7 @@ object Trajectories {
 
     // Constants in Feet Per Second
     private const val kMaxVelocity                = 9.0
-    private const val kMaxAcceleration            = 6.0
+    private const val kMaxAcceleration            = 5.0
     private const val kMaxCentripetalAcceleration = 5.0
 
 
@@ -53,13 +53,13 @@ object Trajectories {
     private val kNearCube2Adjusted        = kNearCube2.transformBy(kCenterToIntake)
     private val kNearCube3Adjusted        = kNearCube3.transformBy(kCenterToIntake)
 
-    private val kSwitchLeft               = Pose2d(Translation2d(11.5, 18.8), Rotation2d())
-    private val kSwitchRight              = Pose2d(Translation2d(11.5, 08.2), Rotation2d())
+    private val kSwitchLeft               = Pose2d(Translation2d(11.5, 18.2), Rotation2d())
+    private val kSwitchRight              = Pose2d(Translation2d(11.5, 08.8), Rotation2d())
 
     internal val kSwitchLeftAdjusted      = kSwitchLeft .transformBy(kCenterToFrontBumper)
     private val kSwitchRightAdjusted      = kSwitchRight.transformBy(kCenterToFrontBumper)
 
-    private val kFrontPyramidCube         = Pose2d(Translation2d(9.0, 13.5), Rotation2d())
+    private val kFrontPyramidCube         = Pose2d(Translation2d(10.25, 13.5), Rotation2d())
     private val kFrontPyramidCubeAdjusted = kFrontPyramidCube.transformBy(kCenterToIntake)
 
 

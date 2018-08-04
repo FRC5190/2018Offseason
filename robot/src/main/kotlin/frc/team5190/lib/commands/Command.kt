@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 
 object CommandHandler {
 
-    private val commandContet = newFixedThreadPoolContext(4, "Command Context")
+    private val commandContet = newFixedThreadPoolContext(2, "Command Context")
 
     private val subsystemTasks = mutableMapOf<Subsystem, CommandTaskImpl>()
     private val tasks = mutableListOf<CommandTaskImpl>()

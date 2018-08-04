@@ -53,7 +53,7 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
                 kP = Constants.kPLeftDriveVelocity,
                 kI = Constants.kILeftDriveVelocity,
                 kV = Constants.kVLeftDriveVelocity,
-                kA = 0.025,
+                kA = Constants.kALeftDriveVelocity,
                 kS = Constants.kSLeftDriveVelocity,
                 current = { DriveSubsystem.leftVelocity.FPS }
         )
@@ -62,7 +62,7 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
                 kP = Constants.kPRightDriveVelocity,
                 kI = Constants.kIRightDriveVelocity,
                 kV = Constants.kVRightDriveVelocity,
-                kA = 0.025,
+                kA = Constants.kALeftDriveVelocity,
                 kS = Constants.kSRightDriveVelocity,
                 current = { DriveSubsystem.rightVelocity.FPS }
         )
@@ -107,16 +107,6 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
                 rController.getPIDFOutput(output.second to 0.0))
 
         updateDashboard()
-        /*
-        System.out.printf("[Trajectory Follower] X Error: %3.3f, Y Error: %3.3f, T Error: %3.3f, " +
-                "L: %3.3f, A: %3.3f, Actual: %3.3f%n",
-
-                trajectoryFollower.pose.translation.x - Localization.robotPosition.translation.x,
-                trajectoryFollower.pose.translation.y - Localization.robotPosition.translation.y,
-                (trajectoryFollower.pose.rotation - Localization.robotPosition.rotation).degrees,
-                kinematics.dx, kinematics.dtheta,
-                ((DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity) / 2.0).FPS)
-                */
     }
 
     override suspend fun dispose() {

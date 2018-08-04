@@ -11,7 +11,11 @@ import frc.team5190.lib.math.geometry.Translation2d
 import frc.team5190.robot.auto.Autonomous
 import frc.team5190.robot.subsytems.SubsystemPreset
 import frc.team5190.robot.subsytems.SubsystemPresetCommand
+import frc.team5190.robot.subsytems.arm.ArmSubsystem
+import frc.team5190.robot.subsytems.arm.ClosedLoopArmCommand
 import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
+import frc.team5190.robot.subsytems.elevator.ClosedLoopElevatorCommand
+import frc.team5190.robot.subsytems.elevator.ElevatorSubsystem
 import frc.team5190.robot.subsytems.intake.IntakeCommand
 import frc.team5190.robot.subsytems.intake.IntakeSubsystem
 import openrio.powerup.MatchData
@@ -37,26 +41,33 @@ class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPosi
             val pickup3rdCube = FollowTrajectoryCommand(identifier = "Scale to Cube 2", pathMirrored = mirrored)
             val drop3rdCube   = FollowTrajectoryCommand(identifier = "Cube 2 to Scale", pathMirrored = mirrored)
             val pickup4thCube = FollowTrajectoryCommand(identifier = "Scale to Cube 3", pathMirrored = mirrored)
-            val drop4thCube   = FollowTrajectoryCommand(identifier = "Cube 3 to Scale", pathMirrored = mirrored)
 
-            val elevatorUp   = drop1stCube.addMarkerAt(Translation2d(11.5, 23.1))
+            val after2ndCube  = TimeoutCommand(250, TimeUnit.MILLISECONDS)
+
+            val elevatorUp   = drop1stCube.addMarkerAt(Translation2d(14.0, 23.1))
             val shoot1stCube = drop1stCube.addMarkerAt(if (mirrored) Translation2d(22.3, 20.6) else Translation2d(19.0, 8.0))
             val shoot2ndCube = drop2ndCube.addMarkerAt(Translation2d(22.5, 19.9))
             val shoot3rdCube = drop3rdCube.addMarkerAt(Translation2d(22.5, 19.9))
-            val shoot4thCube = drop4thCube.addMarkerAt(Translation2d(22.5, 19.9))
 
             return parallel {
                 sequential {
                     +drop1stCube
+                    +ConditionCommand(condition { ElevatorSubsystem.currentPosition < ElevatorSubsystem.Position.FSTAGE.distance})
                     +pickup2ndCube
+                    +after2ndCube
                     +drop2ndCube
                     +pickup3rdCube
                     +drop3rdCube
                     +pickup4thCube
-                    +drop4thCube
                 }
                 sequential {
                     +TimeoutCommand(250, TimeUnit.MILLISECONDS)
+
+                    parallel {
+                        +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.SWITCH)
+                        +ClosedLoopArmCommand(ArmSubsystem.Position.UP)
+                    }
+
                     +ConditionCommand(condition { drop1stCube.hasCrossedMarker(elevatorUp) } or drop1stCube)
                     +SubsystemPresetCommand(SubsystemPreset.BEHIND, condition(drop1stCube))
                     +ConditionCommand(condition { drop1stCube.hasCrossedMarker(shoot1stCube) } or drop1stCube)
@@ -78,16 +89,12 @@ class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPosi
 
                     +SubsystemPresetCommand(SubsystemPreset.BEHIND, condition(drop3rdCube))
                     +ConditionCommand(condition { drop3rdCube.hasCrossedMarker(shoot3rdCube) })
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT, exitCondition = condition(drop3rdCube))
+                    +IntakeCommand(IntakeSubsystem.Direction.OUT, timeout = 500L)
 
                     parallel {
                         +SubsystemPresetCommand(SubsystemPreset.INTAKE, condition(pickup4thCube))
                         +IntakeCommand(IntakeSubsystem.Direction.IN, exitCondition = condition(pickup4thCube))
                     }
-
-                    +SubsystemPresetCommand(SubsystemPreset.BEHIND, condition(drop4thCube))
-                    +ConditionCommand(condition { drop4thCube.hasCrossedMarker(shoot4thCube) })
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT, exitCondition = condition(drop4thCube))
                 }
             }
         }

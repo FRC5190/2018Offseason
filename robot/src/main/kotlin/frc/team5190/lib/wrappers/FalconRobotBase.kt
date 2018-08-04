@@ -60,7 +60,8 @@ abstract class FalconRobotBase : RobotBase() {
 
     // Main Robot Code
 
-    private var currentMode = Mode.NONE
+    var currentMode = Mode.NONE
+        private set
 
     abstract suspend fun initialize()
 

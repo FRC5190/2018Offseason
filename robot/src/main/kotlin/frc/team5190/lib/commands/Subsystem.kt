@@ -24,9 +24,7 @@ object SubsystemHandler {
         if (alreadyStarted) throw IllegalStateException("Attempted to start default commands twice")
         alreadyStarted = true
         // Start default commands
-        for (subsystem in subsystems) {
-            subsystem.defaultCommand?.start()
-        }
+        subsystems.forEach { it.defaultCommand?.start() }
     }
 
 }

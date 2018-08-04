@@ -78,21 +78,23 @@ object Constants {
     val kArmDownPosition = NativeUnits(-795)
 
     // DRIVE PID
-    const val kPLeftDriveVelocity = 0.4
-    const val kILeftDriveVelocity = 0.01
+    const val kPLeftDriveVelocity = 0.35
+    const val kILeftDriveVelocity = 0.0
     const val kVLeftDriveVelocity = 1 / 17.0
-    const val kSLeftDriveVelocity = 0.05
+    const val kALeftDriveVelocity = 0.04
+    const val kSLeftDriveVelocity = 0.07
 
-    const val kPRightDriveVelocity = 0.4
-    const val kIRightDriveVelocity = 0.01
+    const val kPRightDriveVelocity = 0.35
+    const val kIRightDriveVelocity = 0.0
     const val kVRightDriveVelocity = 1 / 17.0
-    const val kSRightDriveVelocity = 0.05
+    const val kARightDriveVelocity = 0.04
+    const val kSRightDriveVelocity = 0.07
 
     // ELEVATOR PID
     const val kPElevator = 0.3
 
     // ARM PID
-    const val kPArm = 4.0
+    const val kPArm = 4.5
 
     // LIMITS
     val kElevatorSoftLimitFwd = NativeUnits(22500)
@@ -106,5 +108,5 @@ object Constants {
     val kElevatorMotionMagicAcceleration = InchesPerSecond(90.0, preferences { radius = 1.25 / 2.0 }).STU
 
     val kArmMotionMagicVelocity           = NativeUnitsPer100Ms(1000000)
-    const val kArmMotionMagicAcceleration = 500
+    const val kArmMotionMagicAcceleration = 400
 }

@@ -21,7 +21,8 @@ class ClosedLoopArmCommand(private val pos: Distance? = null,
     init {
         requires(ArmSubsystem)
         val fixedPos = pos ?: ArmSubsystem.currentPosition
-        finishCondition += condition { (ArmSubsystem.currentPosition - fixedPos).absoluteValue < NativeUnits(50) } or exitCondition
+        finishCondition += exitCondition
+        if (pos != null) finishCondition += condition { (ArmSubsystem.currentPosition - fixedPos).absoluteValue < NativeUnits(50) }
     }
 
     override suspend fun initialize() = ArmSubsystem.set(ControlMode.MotionMagic, (pos ?: ArmSubsystem.currentPosition).STU.toDouble())

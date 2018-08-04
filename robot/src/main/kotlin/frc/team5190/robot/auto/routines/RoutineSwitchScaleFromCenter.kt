@@ -38,7 +38,7 @@ class RoutineSwitchScaleFromCenter(startingPosition: Autonomous.StartingPosition
             val toPyramid   = FollowTrajectoryCommand("Center to Pyramid")
             val drop2ndCube = FollowTrajectoryCommand("Pyramid to Scale", scaleMirorred)
 
-            val elevatorUp   = drop2ndCube.addMarkerAt(Translation2d(11.5, 23.1))
+            val elevatorUp   = drop2ndCube.addMarkerAt(Translation2d(11.5, 23.1).let { if(scaleMirorred) it.mirror else it })
             val shoot1stCube = drop1stCube.addMarkerAt(
                     Trajectories.kSwitchLeftAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-0.2, 0.0)))
                             .translation.let { if (switchMirrored) it.mirror else it })
@@ -57,7 +57,7 @@ class RoutineSwitchScaleFromCenter(startingPosition: Autonomous.StartingPosition
                     +SubsystemPresetCommand(SubsystemPreset.SWITCH, condition(drop1stCube))
                     +ConditionCommand(condition { drop1stCube.hasCrossedMarker(shoot1stCube) })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, timeout = 500L)
-                     +SubsystemPresetCommand(SubsystemPreset.INTAKE, condition(toCenter))
+                    +SubsystemPresetCommand(SubsystemPreset.INTAKE, condition(toCenter))
                     +ConditionCommand(condition(toCenter))
                     +IntakeCommand(IntakeSubsystem.Direction.IN, exitCondition = condition(toPyramid))
                     +ConditionCommand(condition { drop2ndCube.hasCrossedMarker(elevatorUp) })

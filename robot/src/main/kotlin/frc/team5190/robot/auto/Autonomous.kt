@@ -49,7 +49,7 @@ object Autonomous {
         get() = ScaleAutoMode.valueOf(NetworkInterface.nearScaleAutoMode.getString("ThreeCube").toUpperCase())
 
     private val networkFarScaleAutoMode
-        get() = ScaleAutoMode.valueOf(NetworkInterface.farScaleAutoMode.getString("Baseline").toUpperCase())
+        get() = ScaleAutoMode.valueOf(NetworkInterface.farScaleAutoMode.getString("ThreeCube").toUpperCase())
 
 
     private val continuePolling

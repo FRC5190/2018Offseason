@@ -34,6 +34,7 @@ class RoutineSwitchFromCenter(startingPosition: Autonomous.StartingPositions,
             val drop1stCube = FollowTrajectoryCommand("Center Start to $switch Switch")
             val toCenter    = FollowTrajectoryCommand("Switch to Center", mirrored)
             val toPyramid   = FollowTrajectoryCommand("Center to Pyramid")
+            val toCenter2   = FollowTrajectoryCommand("Pyramid to Center")
             val drop2ndCube = FollowTrajectoryCommand("Center to Switch", mirrored)
 
             val shoot1stCube = drop1stCube.addMarkerAt(
@@ -49,7 +50,7 @@ class RoutineSwitchFromCenter(startingPosition: Autonomous.StartingPositions,
                     +drop1stCube
                     +toCenter
                     +toPyramid
-                    +FollowTrajectoryCommand("Pyramid to Center")
+                    +toCenter2
                     +drop2ndCube
                 }
                 sequential {
@@ -59,7 +60,7 @@ class RoutineSwitchFromCenter(startingPosition: Autonomous.StartingPositions,
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, timeout = 500L)
                     +SubsystemPresetCommand(SubsystemPreset.INTAKE, condition(toCenter))
                     +ConditionCommand(condition(toCenter))
-                    +IntakeCommand(IntakeSubsystem.Direction.IN, exitCondition = condition(toPyramid))
+                    +IntakeCommand(IntakeSubsystem.Direction.IN, exitCondition = condition(toCenter2))
                     +SubsystemPresetCommand(SubsystemPreset.SWITCH, condition(drop2ndCube))
                     +ConditionCommand(condition { drop2ndCube.hasCrossedMarker(shoot2ndCube) })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT)
