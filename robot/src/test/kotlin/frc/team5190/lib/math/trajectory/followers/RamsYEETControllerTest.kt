@@ -14,7 +14,7 @@ import frc.team5190.lib.math.trajectory.view.TimedView
 import frc.team5190.robot.auto.Trajectories
 import org.junit.Test
 
-class NonLinearReferenceControllerTest {
+class RamsYEETControllerTest {
 
     private lateinit var trajectoryFollower: TrajectoryFollower
 
@@ -23,7 +23,7 @@ class NonLinearReferenceControllerTest {
         val name = "Left Start to Far Scale"
         val trajectory: Trajectory<TimedState<Pose2dWithCurvature>> = Trajectories[name]
         val iterator = TrajectoryIterator(TimedView(trajectory))
-        trajectoryFollower = NonLinearReferenceController(trajectory)
+        trajectoryFollower = RamsYEETController(trajectory)
 
         var totalpose = trajectory.firstState.state.pose
 

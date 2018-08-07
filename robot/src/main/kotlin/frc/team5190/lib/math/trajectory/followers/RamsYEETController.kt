@@ -21,7 +21,7 @@ import kotlin.math.sqrt
 // https://www.dis.uniroma1.it/~labrob/pub/papers/Ramsete01.pdf
 // Equation 5.12
 
-class NonLinearReferenceController(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>) : TrajectoryFollower {
+class RamsYEETController(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>) : TrajectoryFollower {
 
     private val iterator = TrajectoryIterator(TimedView(trajectory))
 
