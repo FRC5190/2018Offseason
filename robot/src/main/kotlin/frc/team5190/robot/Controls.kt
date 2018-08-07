@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.pow
 
 object Controls {
-    val mainFalconXbox = xboxController(0) {
+    private val mainFalconXbox = xboxController(0) {
         // Arm Controls
         val armUpCommand = OpenLoopArmCommand(0.5)
         val armDownCommand = OpenLoopArmCommand(-0.5)
