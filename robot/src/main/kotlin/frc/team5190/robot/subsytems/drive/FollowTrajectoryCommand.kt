@@ -16,7 +16,7 @@ import frc.team5190.lib.math.geometry.Translation2d
 import frc.team5190.lib.math.trajectory.TrajectoryIterator
 import frc.team5190.lib.math.trajectory.TrajectorySamplePoint
 import frc.team5190.lib.math.trajectory.TrajectoryUtil
-import frc.team5190.lib.math.trajectory.followers.RamsYEETController
+import frc.team5190.lib.math.trajectory.followers.NonLinearController
 import frc.team5190.lib.math.trajectory.followers.TrajectoryFollower
 import frc.team5190.lib.math.trajectory.timing.TimedState
 import frc.team5190.lib.math.trajectory.view.TimedView
@@ -46,7 +46,7 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
         }
 
         // Initialize path follower
-        trajectoryFollower = RamsYEETController(trajectory)
+        trajectoryFollower = NonLinearController(trajectory)
 
         // Initialize PIDF Controllers
         lController = VelocityPIDFController(
