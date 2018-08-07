@@ -34,10 +34,10 @@ object Controls {
         button(kBumperRight).change(elevatorDownCommand)
 
         // Presets
-        pov(0).changeOn { SubsystemPresetCommand(SubsystemPreset.SCALE).start() }
-        pov(90).changeOn { SubsystemPresetCommand(SubsystemPreset.SWITCH).start() }
-        pov(180).changeOn { SubsystemPresetCommand(SubsystemPreset.INTAKE).start() }
-        pov(270).changeOn { SubsystemPresetCommand(SubsystemPreset.BEHIND).start() }
+        pov(0).changeOn(SubsystemPresetCommand(SubsystemPreset.SCALE))
+        pov(90).changeOn(SubsystemPresetCommand(SubsystemPreset.SWITCH))
+        pov(180).changeOn(SubsystemPresetCommand(SubsystemPreset.INTAKE))
+        pov(270).changeOn(SubsystemPresetCommand(SubsystemPreset.BEHIND))
 
         // Intake Controls
         triggerAxisButton(GenericHID.Hand.kLeft, 0.1) {

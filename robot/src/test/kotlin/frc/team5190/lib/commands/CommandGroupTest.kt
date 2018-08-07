@@ -8,6 +8,7 @@ package frc.team5190.lib.commands
 import frc.team5190.lib.extensions.sequential
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Test
+import kotlin.system.measureTimeMillis
 
 class CommandGroupTest {
     @Test
@@ -83,9 +84,16 @@ class CommandGroupTest {
                     }
                 }
             }
-
-            command.start()
-            command.await()
+            val time1 = measureTimeMillis {
+                command.start()
+                command.await()
+            }
+            println("Took $time1 ms")
+            val time2 = measureTimeMillis {
+                command.start()
+                command.await()
+            }
+            println("Took $time2 ms")
             assert(true)
         }
 

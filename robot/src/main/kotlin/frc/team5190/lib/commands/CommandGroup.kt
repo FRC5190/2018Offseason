@@ -1,23 +1,26 @@
 package frc.team5190.lib.commands
 
-import kotlinx.coroutines.experimental.CoroutineStart
+import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.actor
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
 
-abstract class CommandGroup(commands: List<Command>) : Command() {
+abstract class CommandGroup(private val commands: List<Command>) : Command() {
 
     companion object {
         private val commandGroupContext = newFixedThreadPoolContext(2, "Command Group")
     }
 
-    protected val commands = commands.map { GroupCommandTask(it) }
+    protected lateinit var commandTasks: List<GroupCommandTask>
+        private set
     override val requiredSubsystems = commands.map { it.requiredSubsystems }.flatten()
 
     private val actorMutex = Mutex()
     private var started = false
+    private lateinit var startDeferred: CompletableDeferred<Unit>
     protected val activeCommands = mutableListOf<GroupCommandTask>()
 
     private sealed class GroupEvent {
@@ -25,13 +28,7 @@ abstract class CommandGroup(commands: List<Command>) : Command() {
         class FinishEvent(val task: GroupCommandTask) : GroupEvent()
     }
 
-    private val groupActor = actor<GroupEvent>(context = commandGroupContext, capacity = Channel.UNLIMITED, start = CoroutineStart.LAZY) {
-        actorMutex.withLock {
-            for (event in channel) {
-                handleEvent(event)
-            }
-        }
-    }
+    private lateinit var groupActor: SendChannel<GroupEvent>
 
     private suspend fun handleEvent(event: GroupEvent) {
         when (event) {
@@ -76,12 +73,24 @@ abstract class CommandGroup(commands: List<Command>) : Command() {
     protected open suspend fun handleFinishEvent() {}
 
     override suspend fun initialize() {
-        // Send the first event to the actor (this starts the thread and commands)
+        started = false
+        startDeferred = CompletableDeferred()
+        commandTasks = commands.map { GroupCommandTask(it) }
+        groupActor = actor(context = commandGroupContext, capacity = Channel.UNLIMITED) {
+            actorMutex.withLock {
+                startDeferred.complete(Unit)
+                for (event in channel) {
+                    handleEvent(event)
+                }
+            }
+        }
         groupActor.send(GroupEvent.StartEvent)
     }
 
     override suspend fun dispose() {
         groupActor.close()
+        // Wait for the actor to start and gain priority (Because we don't want to stop actor before it starts)
+        startDeferred.await()
         // Wait for the actor is release lock (cheat for detecting when actor finishes)
         actorMutex.withLock {
             for (activeCommand in activeCommands) {
@@ -98,7 +107,7 @@ abstract class CommandGroup(commands: List<Command>) : Command() {
 
 open class ParallelCommandGroup(commands: List<Command>) : CommandGroup(commands) {
     override suspend fun handleStartEvent() {
-        activeCommands += commands
+        activeCommands += commandTasks
         // Start all commands so they run in parallel
         for (activeCommand in activeCommands) {
             activeCommand.initialize()
@@ -108,7 +117,7 @@ open class ParallelCommandGroup(commands: List<Command>) : CommandGroup(commands
 
 open class SequentialCommandGroup(commands: List<Command>) : CommandGroup(commands) {
     override suspend fun handleStartEvent() {
-        activeCommands += commands
+        activeCommands += commandTasks
         startNextCommand() // Start only the first command
     }
 
