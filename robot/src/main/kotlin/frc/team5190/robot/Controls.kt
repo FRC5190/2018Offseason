@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.pow
 
 object Controls {
-    private val mainFalconXbox = xboxController(0) {
+    val mainFalconXbox = xboxController(0) {
         // Arm Controls
         val armUpCommand = OpenLoopArmCommand(0.5)
         val armDownCommand = OpenLoopArmCommand(-0.5)
@@ -48,17 +48,4 @@ object Controls {
 
     // Some shortcuts
     val mainXbox = mainFalconXbox.genericHID
-
-    init {
-        launch {
-            while (isActive) {
-                if (Robot.INSTANCE.currentMode != FalconRobotBase.Mode.TELEOP) {
-                    delay(100, TimeUnit.MILLISECONDS)
-                    continue
-                }
-                mainFalconXbox.update()
-                delay(20)
-            }
-        }
-    }
 }

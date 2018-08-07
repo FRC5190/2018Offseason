@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.team5190.lib.commands.Subsystem
 import frc.team5190.lib.commands.SubsystemHandler
+import frc.team5190.lib.wrappers.hid.FalconHID
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
@@ -158,5 +159,8 @@ abstract class FalconRobotBase : RobotBase() {
     // Helpers
 
     protected suspend operator fun Subsystem.unaryPlus() = SubsystemHandler.addSubsystem(this)
+    protected suspend operator fun FalconHID<*>.unaryPlus() {
+        onWhile(Mode.TELEOP) { update() }
+    }
 
 }

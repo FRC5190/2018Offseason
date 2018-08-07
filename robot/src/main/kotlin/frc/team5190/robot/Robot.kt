@@ -33,7 +33,7 @@ class Robot : FalconRobotBase() {
 
     // Initialize all systems.
     override suspend fun initialize() {
-
+        +Controls.mainFalconXbox
 
         +DriveSubsystem
         +ArmSubsystem
