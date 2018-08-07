@@ -47,13 +47,13 @@ class NonLinearReferenceController(trajectory: Trajectory<TimedState<Pose2dWithC
         return calculateTwist(
                 error = pose inFrameOfReferenceOf robot,
                 pathV = this.point.state.velocity,
-                pathW = if (dt == 0.0) 0.0 else (iterator.preview(dt).state.state.rotation - pose.rotation).radians / dt
+                pathW = this.point.state.velocity * this.point.state.state.curvature
         ).also { this.point = iterator.advance(dt) }
 
     }
 
     companion object {
-        private const val kB = 0.5
+        private const val kB = 2.0
         private const val kZeta = 0.7
         private const val kMaxSafeV = 12.0
         private const val kMaxSafeW = PI
@@ -74,13 +74,13 @@ class NonLinearReferenceController(trajectory: Trajectory<TimedState<Pose2dWithC
 
         private fun calculateAngularVelocity(error: Pose2d, pathV: Double, pathW: Double): Double {
             return pathW +
-                    kB * pathV * safeFunc(error.rotation.radians) * error.translation.y +
+                    kB * pathV * sinc(error.rotation.radians) * error.translation.y +
                     gainFunc(pathV, pathW) * error.rotation.radians
         }
 
         private fun gainFunc(v: Double, w: Double) = 2 * kZeta * sqrt((w * w) + ((kB) * (v * v)))
 
-        private fun safeFunc(theta: Double): Double {
+        private fun sinc(theta: Double): Double {
             return if (theta epsilonEquals 0.0) 1.0 - 1.0 / 6.0 * theta * theta
             else sin(theta) / theta
         }

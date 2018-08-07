@@ -38,14 +38,25 @@ object TrajectoryGenerator {
             maxAcceleration: Double
     ): Trajectory<TimedState<Pose2dWithCurvature>>? {
 
+        val flippedPose2d = Pose2d.fromRotation(Rotation2d.fromDegrees(180.0))
+
         // Make theta normal for trajectory generation if path is trajectoryReversed.
-        val newWaypoints = waypoints.map { if (reversed) Pose2d(it.translation, it.rotation.rotateBy(Rotation2d.fromDegrees(180.0))) else it }
+        val newWaypoints = waypoints.map { if (reversed) it.transformBy(flippedPose2d) else it }
 
         var trajectory = TrajectoryUtil.trajectoryFromSplineWaypoints(newWaypoints, kMaxDx, kMaxDy, kMaxDTheta)
 
         // After trajectory generation, flip theta back so it's relative to the field.
+        // Also fix curvature and its derivative
         if (reversed) {
-            trajectory = TrajectoryUtil.transform(trajectory, Pose2d.fromRotation(Rotation2d(-1.0, 0.0, true)))
+            val points = ArrayList<Pose2dWithCurvature>(trajectory.length)
+            for (i in 0 until trajectory.length) {
+                points.add(Pose2dWithCurvature(
+                        pose = trajectory.getState(i).pose.transformBy(flippedPose2d),
+                        curvature = -trajectory.getState(i).curvature,
+                        dcurvature_ds = -trajectory.getState(i).dkds
+                ))
+            }
+            trajectory = Trajectory(points)
         }
 
         // Parameterize by time and return.

@@ -30,6 +30,6 @@ class FeedForwardController(trajectory: Trajectory<TimedState<Pose2dWithCurvatur
     override fun getSteering(robot: Pose2d, nanotime: Long) = Twist2d(
             dx = point.state.velocity,
             dy = 0.0,
-            dtheta = (trajectoryIterator.preview(dt).state.state.rotation - this.pose.rotation).radians / dt
+            dtheta = this.point.state.velocity * this.point.state.state.curvature
     ).also { point = trajectoryIterator.advance(dt) }
 }

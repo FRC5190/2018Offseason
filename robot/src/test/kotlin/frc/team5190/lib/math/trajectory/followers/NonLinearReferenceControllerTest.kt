@@ -16,7 +16,7 @@ import org.junit.Test
 
 class NonLinearReferenceControllerTest {
 
-    private lateinit var trajectoryFollower: NonLinearReferenceController
+    private lateinit var trajectoryFollower: TrajectoryFollower
 
     @Test
     fun testTrajectoryFollower() {
@@ -31,9 +31,11 @@ class NonLinearReferenceControllerTest {
         val dt = 0.02
 
         while (!iterator.isDone) {
-            iterator.advance(dt)
+            val pt = iterator.advance(dt)
             val output = trajectoryFollower.getSteering(totalpose, time.toLong())
             time += dt * 1.0e+9
+
+//            println (pt.state.state.curvature)
 
             assert(if (trajectory.firstState.acceleration > 0) output.dx >= 0 else output.dx <= 0)
 
