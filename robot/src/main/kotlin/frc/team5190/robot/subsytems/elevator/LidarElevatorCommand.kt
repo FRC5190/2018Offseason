@@ -18,7 +18,7 @@ import java.util.*
 
 class LidarElevatorCommand(exitCondition: Condition = Condition.FALSE) : Command() {
     init {
-        requires(ElevatorSubsystem)
+        +ElevatorSubsystem
 
         finishCondition += condition {
             !IntakeSubsystem.cubeIn &&

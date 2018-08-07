@@ -34,8 +34,8 @@ class ManualDriveCommand : Command() {
             0.0
         }
 
-        var speed = -Controls.getY(GenericHID.Hand.kLeft)
-        var rotation = Controls.getX(GenericHID.Hand.kLeft)
+        var speed = -Controls.mainXbox.getY(GenericHID.Hand.kLeft)
+        var rotation = Controls.mainXbox.getX(GenericHID.Hand.kLeft)
 
         speed = speed.coerceIn(-1.0, 1.0)
         speed = applyDeadband(speed, defaultDeadband)
@@ -46,7 +46,7 @@ class ManualDriveCommand : Command() {
         val angularPower: Double
         val overPower: Boolean
 
-        if (Controls.xButton) {
+        if (Controls.mainXbox.xButton) {
             if (Math.abs(speed) < stopThreshold) {
                 stopAccumulator = (1 - stopAlpha) * stopAccumulator + stopAlpha * rotation.coerceIn(-1.0, 1.0) * 2.0
             }

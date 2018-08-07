@@ -11,7 +11,7 @@ import frc.team5190.lib.commands.Command
 
 class OpenLoopElevatorCommand(private val percentOutput: Double) : Command() {
     init {
-        requires(ElevatorSubsystem)
+        +ElevatorSubsystem
     }
 
     override suspend fun execute() {

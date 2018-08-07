@@ -9,13 +9,31 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Condition
 import frc.team5190.lib.commands.TimeoutCommand
 import frc.team5190.lib.commands.or
+import frc.team5190.lib.wrappers.hid.HIDSource
 import java.util.concurrent.TimeUnit
 import kotlin.math.absoluteValue
 
 class IntakeCommand(private val direction: IntakeSubsystem.Direction,
-                    private val speed: Double = 1.0,
+                    private val speed: IntakeSpeedSource,
                     timeout: Long = Long.MAX_VALUE,
                     exitCondition: Condition = Condition.FALSE) : TimeoutCommand(timeout, TimeUnit.MILLISECONDS) {
+
+    constructor(direction: IntakeSubsystem.Direction,
+                speed: Double = 1.0,
+                timeout: Long = Long.MAX_VALUE,
+                exitCondition: Condition = Condition.FALSE) : this(direction, ConstIntakeSpeedSource(speed), timeout, exitCondition)
+
+    class ConstIntakeSpeedSource(override val value: Double) : IntakeSpeedSource
+
+    class HIDIntakeSpeedSource(private val hid: HIDSource, private val process: (Double) -> Double = { it }) : IntakeSpeedSource {
+        override val value: Double
+            get() = process(hid.value)
+    }
+
+    interface IntakeSpeedSource {
+        val value: Double
+    }
+
     init {
         +IntakeSubsystem
 
@@ -25,10 +43,18 @@ class IntakeCommand(private val direction: IntakeSubsystem.Direction,
     override suspend fun initialize() {
         super.initialize()
         IntakeSubsystem.solenoid.set(false)
+        updateSpeed()
+    }
 
+    override suspend fun execute() {
+        super.execute()
+        updateSpeed()
+    }
+
+    private fun updateSpeed() {
         IntakeSubsystem.set(ControlMode.PercentOutput, when (direction) {
-            IntakeSubsystem.Direction.IN -> speed.absoluteValue * -1.0
-            IntakeSubsystem.Direction.OUT -> speed.absoluteValue
+            IntakeSubsystem.Direction.IN -> speed.value.absoluteValue * -1.0
+            IntakeSubsystem.Direction.OUT -> speed.value.absoluteValue
         })
     }
 

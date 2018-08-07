@@ -19,7 +19,7 @@ class ClosedLoopElevatorCommand(private val distance: Distance? = null,
     constructor(pos: ElevatorSubsystem.Position, exitCondition: Condition = Condition.FALSE) : this(pos.distance, exitCondition)
 
     init {
-        requires(ElevatorSubsystem)
+        +ElevatorSubsystem
         val fixedPos = distance ?: ElevatorSubsystem.currentPosition
         finishCondition += exitCondition
         if (distance != null) finishCondition += condition { (ElevatorSubsystem.currentPosition - fixedPos).absoluteValue < Constants.kElevatorClosedLpTolerance }

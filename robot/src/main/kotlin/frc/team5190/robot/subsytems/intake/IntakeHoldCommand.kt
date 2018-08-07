@@ -10,7 +10,7 @@ import frc.team5190.lib.commands.Command
 
 class IntakeHoldCommand : Command() {
     init {
-        requires(IntakeSubsystem)
+        +IntakeSubsystem
     }
 
     override suspend fun initialize() {

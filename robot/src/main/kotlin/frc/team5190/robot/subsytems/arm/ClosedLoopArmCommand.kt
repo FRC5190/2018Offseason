@@ -19,7 +19,7 @@ class ClosedLoopArmCommand(private val pos: Distance? = null,
     constructor(position: ArmSubsystem.Position, exitCondition: Condition = Condition.FALSE) : this(position.distance, exitCondition)
 
     init {
-        requires(ArmSubsystem)
+        +ArmSubsystem
         val fixedPos = pos ?: ArmSubsystem.currentPosition
         finishCondition += exitCondition
         if (pos != null) finishCondition += condition { (ArmSubsystem.currentPosition - fixedPos).absoluteValue < NativeUnits(50) }

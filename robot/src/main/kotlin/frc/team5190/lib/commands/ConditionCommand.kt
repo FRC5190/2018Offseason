@@ -26,7 +26,7 @@ fun condition(command: Command) = object : Condition() {
         }
     }
 
-    override suspend fun isMet() = command.didComplete
+    override suspend fun isMet() = command.commandState.finished
 }
 
 infix fun Condition.or(block: suspend () -> Boolean) = this or condition(block)
