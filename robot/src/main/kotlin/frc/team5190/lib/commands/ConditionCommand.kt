@@ -1,21 +1,18 @@
 package frc.team5190.lib.commands
 
+import frc.team5190.lib.utils.CompletionCallback
+import frc.team5190.lib.utils.CompletionHandler
+import frc.team5190.lib.utils.CompletionHandlerImpl
 import kotlinx.coroutines.experimental.DisposableHandle
-import kotlinx.coroutines.experimental.sync.Mutex
-import kotlinx.coroutines.experimental.sync.withLock
-import java.util.concurrent.CopyOnWriteArrayList
 
 open class ConditionCommand(condition: Condition) : Command() {
-    @Deprecated("Manually create the condition instead", replaceWith = ReplaceWith("condition(block)"))
-    constructor(block: suspend () -> Boolean) : this(condition(block))
-
     init {
         finishCondition += condition
     }
 }
 
-fun condition(block: suspend () -> Boolean) = object : Condition() {
-    override suspend fun isMet() = block()
+fun condition(block: () -> Boolean) = object : Condition() {
+    override fun isMet() = block()
 }
 
 fun condition(command: Command) = object : Condition() {
@@ -26,11 +23,11 @@ fun condition(command: Command) = object : Condition() {
         }
     }
 
-    override suspend fun isMet() = command.commandState.finished
+    override fun isMet() = command.commandState.finished
 }
 
-infix fun Condition.or(block: suspend () -> Boolean) = this or condition(block)
-infix fun Condition.and(block: suspend () -> Boolean) = this and condition(block)
+infix fun Condition.or(block: () -> Boolean) = this or condition(block)
+infix fun Condition.and(block: () -> Boolean) = this and condition(block)
 
 infix fun Condition.or(command: Command) = this or condition(command)
 infix fun Condition.and(command: Command) = this and condition(command)
@@ -39,19 +36,28 @@ infix fun Condition.or(condition: Condition) = conditionGroup(this, condition) {
 infix fun Condition.and(condition: Condition) = conditionGroup(this, condition) { one, two -> one && two }
 
 private fun conditionGroup(firstCondition: Condition, secondCondition: Condition, condition: (Boolean, Boolean) -> Boolean) = object : Condition() {
-    init {
-        firstCondition.invokeOnCompletion {
-            if (condition(true, secondCondition.isMet())) invokeCompletionListeners()
+    private val groupMutex = Any()
+    private var hasRegisteredListeners = false
+
+    override fun invokeOnCompletion(block: CompletionCallback.() -> Unit): DisposableHandle {
+        synchronized(groupMutex) {
+            if (!hasRegisteredListeners) {
+                hasRegisteredListeners = true
+                firstCondition.invokeOnCompletion {
+                    if (condition(true, secondCondition.isMet())) invokeCompletionListeners()
+                }
+                secondCondition.invokeOnCompletion {
+                    if (condition(firstCondition.isMet(), true)) invokeCompletionListeners()
+                }
+            }
         }
-        secondCondition.invokeOnCompletion {
-            if (condition(firstCondition.isMet(), true)) invokeCompletionListeners()
-        }
+        return super.invokeOnCompletion(block)
     }
 
-    override suspend fun isMet() = condition(firstCondition.isMet(), secondCondition.isMet())
+    override fun isMet() = condition(firstCondition.isMet(), secondCondition.isMet())
 }
 
-abstract class Condition {
+abstract class Condition : CompletionHandler {
     companion object {
         val FALSE
             get() = condition { false }
@@ -59,22 +65,12 @@ abstract class Condition {
             get() = condition { true }
     }
 
-    private val completionListeners = CopyOnWriteArrayList<suspend (Condition) -> Unit>()
-
-    protected suspend fun invokeCompletionListeners() {
-        for (completionListener in completionListeners.toList()) {
-            completionListener(this)
-        }
+    private val completeHandler = CompletionHandlerImpl {
+        if (isMet()) it()
     }
 
-    abstract suspend fun isMet(): Boolean
+    protected fun invokeCompletionListeners() = completeHandler.invokeCompletionListeners()
+    override fun invokeOnCompletion(block: CompletionCallback.() -> Unit) = completeHandler.invokeOnCompletion(block)
 
-    fun invokeOnCompletion(block: suspend (Condition) -> Unit): DisposableHandle {
-        completionListeners.add(block)
-        return object : DisposableHandle {
-            override fun dispose() {
-                completionListeners.remove(block)
-            }
-        }
-    }
+    abstract fun isMet(): Boolean
 }

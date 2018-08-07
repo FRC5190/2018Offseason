@@ -1,8 +1,11 @@
 package frc.team5190.lib.commands
 
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.actor
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
 import java.util.concurrent.TimeUnit
@@ -77,8 +80,7 @@ object CommandHandler {
 
     abstract class CommandTask(val command: Command) {
         private val commandMutex = Mutex()
-        private lateinit var updater: Job
-        private lateinit var finishHandle: DisposableHandle
+        private var updater: Job? = null
         private var finishedNormally = false
 
         private var started = false
@@ -86,17 +88,17 @@ object CommandHandler {
         suspend fun initialize() = commandMutex.withLock {
             started = true
             command.commandState = Command.CommandState.BAKING
-            finishHandle = command.exposedCondition.invokeOnCompletion {
-                finishedNormally = true
-                stop() // Stop the command early
-            }
             command.initialize()
-            updater = launch(context = commandContext) {
-                val frequency = command.updateFrequency
-                if (frequency == 0) return@launch
-                if (frequency < 0) throw IllegalArgumentException("Command frequency cannot be negative!")
-                val timeBetweenUpdate = TimeUnit.SECONDS.toNanos(1) / frequency
+            command.exposedCondition.invokeOnceOnCompletion {
+                finishedNormally = true
+                launch(commandContext) { stop() } // Stop the command early
+            }
+            val frequency = command.updateFrequency
+            if (frequency == 0) return@withLock
+            if (frequency < 0) throw IllegalArgumentException("Command frequency cannot be negative!")
 
+            val timeBetweenUpdate = TimeUnit.SECONDS.toNanos(1) / frequency
+            updater = launch(context = commandContext) {
                 // Stores when the next update should happen
                 var nextNS = System.nanoTime() + timeBetweenUpdate
                 while (isActive) {
@@ -123,13 +125,11 @@ object CommandHandler {
 
         suspend fun dispose() = commandMutex.withLock {
             if (!started) return
-            command.commandState = if(finishedNormally) Command.CommandState.BAKED else Command.CommandState.BURNT
-            updater.cancel()
-            finishHandle.dispose()
+            command.commandState = if (finishedNormally) Command.CommandState.BAKED else Command.CommandState.BURNT
+            updater?.cancel()
+            updater = null
             command.dispose()
-            for (completionListener in command.completionListeners.toList()) {
-                completionListener(command)
-            }
+            command.completionHandler.invokeCompletionListeners()
         }
 
         abstract suspend fun stop()

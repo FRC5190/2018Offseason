@@ -27,7 +27,7 @@ open class TimeoutCommand(private val timeout: Long, private val unit: TimeUnit 
             job.cancel()
         }
 
-        override suspend fun isMet() = System.nanoTime() - startTime >= unit.toNanos(timeout)
+        override fun isMet() = System.nanoTime() - startTime >= unit.toNanos(timeout)
     }
 
     init {
@@ -48,6 +48,7 @@ open class TimeoutCommand(private val timeout: Long, private val unit: TimeUnit 
 
 abstract class InstantCommand : Command() {
     init {
+        updateFrequency = 0
         finishCondition += Condition.TRUE
     }
 }

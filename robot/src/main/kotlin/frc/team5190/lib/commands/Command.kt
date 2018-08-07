@@ -1,11 +1,15 @@
 package frc.team5190.lib.commands
 
+import frc.team5190.lib.utils.CompletionCallback
+import frc.team5190.lib.utils.CompletionHandler
+import frc.team5190.lib.utils.CompletionHandlerImpl
 import kotlinx.coroutines.experimental.DisposableHandle
 import kotlinx.coroutines.experimental.disposeOnCancellation
+import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 import java.util.concurrent.CopyOnWriteArrayList
 
-abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) {
+abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) : CompletionHandler {
     companion object {
         const val DEFAULT_FREQUENCY = 50
     }
@@ -14,7 +18,7 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) {
         protected set
 
     internal open val requiredSubsystems: List<Subsystem> = mutableListOf()
-    internal val completionListeners = CopyOnWriteArrayList<suspend (Command) -> Unit>()
+    internal val completionHandler = CompletionHandlerImpl {}
 
     protected val finishCondition = CommandCondition(Condition.FALSE)
     internal val exposedCondition: Condition
@@ -45,26 +49,37 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) {
     /**
      * Is true when all the finish conditions are met
      */
-    suspend fun isFinished() = finishCondition.isMet()
+    fun isFinished() = finishCondition.isMet()
 
     // Little cheat so you don't have to reassign finishCondition every time you modify it
-    protected class CommandCondition(currentCondition: Condition) : Condition() {
-        private val listener: suspend (Condition) -> Unit = { invokeCompletionListeners() }
-        private var handle = currentCondition.invokeOnCompletion(listener)
-        private var currentCondition = currentCondition
-            set(value) {
-                // update handle to new condition
-                handle.dispose()
-                handle = value.invokeOnCompletion(listener)
-                field = value
-            }
+    protected class CommandCondition(private var currentCondition: Condition) : Condition() {
+        private val listener: CompletionCallback.() -> Unit = { invokeCompletionListeners() }
+        private var handle: DisposableHandle? = null
 
-        override suspend fun isMet() = currentCondition.isMet()
+        override fun invokeOnCompletion(block: CompletionCallback.() -> Unit): DisposableHandle {
+            synchronized(listener) {
+                if(handle == null) {
+                    handle = currentCondition.invokeOnCompletion(listener)
+                }
+            }
+            return super.invokeOnCompletion(block)
+        }
+
+        override fun isMet() = currentCondition.isMet()
         /**
          * Shortcut for the or operator
          */
-        operator fun plusAssign(condition: Condition) {
-            currentCondition = currentCondition or condition
+        operator fun plusAssign(condition: Condition)  {
+            synchronized(listener){
+                val newCondition =  currentCondition or condition
+                if(handle != null){
+                    // update handle to new condition
+                    throw IllegalStateException("Cannot add condition once a listener has been added")
+                    // handle?.dispose()
+                    // handle = newCondition.invokeOnCompletion(listener)
+                }
+                currentCondition = newCondition
+            }
         }
     }
 
@@ -78,17 +93,10 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) {
 
     suspend fun stop() = CommandHandler.stop(this)
 
-    fun invokeOnCompletion(block: suspend (Command) -> Unit): DisposableHandle {
-        completionListeners.add(block)
-        return object : DisposableHandle {
-            override fun dispose() {
-                completionListeners.remove(block)
-            }
-        }
-    }
+    override fun invokeOnCompletion(block: CompletionCallback.() -> Unit) = completionHandler.invokeOnCompletion(block)
 
     suspend fun await() = suspendCancellableCoroutine<Unit> { cont ->
-        cont.disposeOnCancellation(invokeOnCompletion {
+        cont.disposeOnCancellation(invokeOnceOnCompletion {
             cont.resume(Unit)
         })
     }

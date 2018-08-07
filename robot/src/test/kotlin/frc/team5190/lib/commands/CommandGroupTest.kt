@@ -13,6 +13,11 @@ class CommandGroupTest {
     @Test
     fun testCommandGroup() {
         runBlocking {
+            val start = object  : InstantCommand() {
+            }
+            start.start()
+            start.await()
+
             var startTime = System.currentTimeMillis()
             val command = sequential {
                 +InstantRunnableCommand { startTime = System.currentTimeMillis() }

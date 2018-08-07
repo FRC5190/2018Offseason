@@ -61,8 +61,8 @@ abstract class CommandGroup(commands: List<Command>) : Command() {
     }
 
     private inner class GroupCondition : Condition() {
-        suspend fun invoke() = invokeCompletionListeners()
-        override suspend fun isMet() = started && activeCommands.isEmpty()
+        fun invoke() = invokeCompletionListeners()
+        override fun isMet() = started && activeCommands.isEmpty()
     }
 
     private val groupCondition = GroupCondition()
