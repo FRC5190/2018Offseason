@@ -72,7 +72,7 @@ abstract class FalconRobotBase : RobotBase() {
         // Autonomous
         onWhile(Mode.AUTONOMOUS) { HAL.observeUserProgramAutonomous() }
         // TeleOp
-        onWhile(Mode.AUTONOMOUS) { HAL.observeUserProgramTeleop() }
+        onWhile(Mode.TELEOP) { HAL.observeUserProgramTeleop() }
         // Test
         onEnter(Mode.TEST) { LiveWindow.setEnabled(true) }
         onWhile(Mode.TEST) { HAL.observeUserProgramTest() }
