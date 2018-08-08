@@ -8,17 +8,13 @@ package frc.team5190.robot
 import edu.wpi.first.wpilibj.GenericHID
 import frc.team5190.lib.utils.constSource
 import frc.team5190.lib.utils.withProcessing
-import frc.team5190.lib.wrappers.FalconRobotBase
 import frc.team5190.lib.wrappers.hid.*
 import frc.team5190.robot.subsytems.SubsystemPreset
-import frc.team5190.robot.subsytems.SubsystemPresetCommand
 import frc.team5190.robot.subsytems.arm.OpenLoopArmCommand
+import frc.team5190.robot.subsytems.changeOn
 import frc.team5190.robot.subsytems.elevator.OpenLoopElevatorCommand
 import frc.team5190.robot.subsytems.intake.IntakeCommand
 import frc.team5190.robot.subsytems.intake.IntakeSubsystem
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
-import java.util.concurrent.TimeUnit
 import kotlin.math.pow
 
 object Controls {
@@ -36,10 +32,10 @@ object Controls {
         button(kBumperRight).change(elevatorDownCommand)
 
         // Presets
-        pov(0).changeOn(SubsystemPresetCommand(SubsystemPreset.SCALE))
-        pov(90).changeOn(SubsystemPresetCommand(SubsystemPreset.SWITCH))
-        pov(180).changeOn(SubsystemPresetCommand(SubsystemPreset.INTAKE))
-        pov(270).changeOn(SubsystemPresetCommand(SubsystemPreset.BEHIND))
+        pov(0).changeOn(SubsystemPreset.SCALE)
+        pov(90).changeOn(SubsystemPreset.SWITCH)
+        pov(180).changeOn(SubsystemPreset.INTAKE)
+        pov(270).changeOn(SubsystemPreset.BEHIND)
 
         // Intake Controls
         triggerAxisButton(GenericHID.Hand.kLeft, 0.1) {

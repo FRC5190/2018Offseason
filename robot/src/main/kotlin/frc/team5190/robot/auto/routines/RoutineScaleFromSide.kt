@@ -10,7 +10,6 @@ import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.math.geometry.Translation2d
 import frc.team5190.robot.auto.Autonomous
 import frc.team5190.robot.subsytems.SubsystemPreset
-import frc.team5190.robot.subsytems.SubsystemPresetCommand
 import frc.team5190.robot.subsytems.arm.ArmSubsystem
 import frc.team5190.robot.subsytems.arm.ClosedLoopArmCommand
 import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
@@ -69,30 +68,30 @@ class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPosi
                     }
 
                     +ConditionCommand(condition { drop1stCube.hasCrossedMarker(elevatorUp) } or drop1stCube)
-                    +SubsystemPresetCommand(SubsystemPreset.BEHIND, condition(drop1stCube))
+                    +SubsystemPreset.BEHIND.command(condition(drop1stCube))
                     +ConditionCommand(condition { drop1stCube.hasCrossedMarker(shoot1stCube) } or drop1stCube)
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, exitCondition = condition(drop1stCube))
 
                     parallel {
-                        +SubsystemPresetCommand(SubsystemPreset.INTAKE, condition(pickup2ndCube))
+                        +SubsystemPreset.INTAKE.command(condition(pickup2ndCube))
                         +IntakeCommand(IntakeSubsystem.Direction.IN, exitCondition = condition(pickup2ndCube))
                     }
 
-                    +SubsystemPresetCommand(SubsystemPreset.BEHIND, condition(drop2ndCube))
+                    +SubsystemPreset.BEHIND.command(condition(drop2ndCube))
                     +ConditionCommand(condition { drop2ndCube.hasCrossedMarker(shoot2ndCube) })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, exitCondition = condition(drop2ndCube))
 
                     parallel {
-                        +SubsystemPresetCommand(SubsystemPreset.INTAKE, condition(pickup3rdCube))
+                        +SubsystemPreset.INTAKE.command(condition(pickup3rdCube))
                         +IntakeCommand(IntakeSubsystem.Direction.IN, exitCondition = condition(pickup3rdCube))
                     }
 
-                    +SubsystemPresetCommand(SubsystemPreset.BEHIND, condition(drop3rdCube))
+                    +SubsystemPreset.BEHIND.command(condition(drop3rdCube))
                     +ConditionCommand(condition { drop3rdCube.hasCrossedMarker(shoot3rdCube) })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, timeout = 500L)
 
                     parallel {
-                        +SubsystemPresetCommand(SubsystemPreset.INTAKE, condition(pickup4thCube))
+                        +SubsystemPreset.INTAKE.command(condition(pickup4thCube))
                         +IntakeCommand(IntakeSubsystem.Direction.IN, exitCondition = condition(pickup4thCube))
                     }
                 }

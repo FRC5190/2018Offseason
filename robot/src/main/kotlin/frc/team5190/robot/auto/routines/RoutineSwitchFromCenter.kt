@@ -15,7 +15,6 @@ import frc.team5190.lib.math.geometry.Translation2d
 import frc.team5190.robot.auto.Autonomous
 import frc.team5190.robot.auto.Trajectories
 import frc.team5190.robot.subsytems.SubsystemPreset
-import frc.team5190.robot.subsytems.SubsystemPresetCommand
 import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 import frc.team5190.robot.subsytems.intake.IntakeCommand
 import frc.team5190.robot.subsytems.intake.IntakeSubsystem
@@ -32,9 +31,9 @@ class RoutineSwitchFromCenter(startingPosition: Autonomous.StartingPositions,
             val mirrored = switchSide == MatchData.OwnedSide.RIGHT
 
             val drop1stCube = FollowTrajectoryCommand("Center Start to $switch Switch")
-            val toCenter    = FollowTrajectoryCommand("Switch to Center", mirrored)
-            val toPyramid   = FollowTrajectoryCommand("Center to Pyramid")
-            val toCenter2   = FollowTrajectoryCommand("Pyramid to Center")
+            val toCenter = FollowTrajectoryCommand("Switch to Center", mirrored)
+            val toPyramid = FollowTrajectoryCommand("Center to Pyramid")
+            val toCenter2 = FollowTrajectoryCommand("Pyramid to Center")
             val drop2ndCube = FollowTrajectoryCommand("Center to Switch", mirrored)
 
             val shoot1stCube = drop1stCube.addMarkerAt(
@@ -55,13 +54,13 @@ class RoutineSwitchFromCenter(startingPosition: Autonomous.StartingPositions,
                 }
                 sequential {
                     +TimeoutCommand(250L, TimeUnit.MILLISECONDS)
-                    +SubsystemPresetCommand(SubsystemPreset.SWITCH, condition(drop1stCube))
+                    +SubsystemPreset.SWITCH.command(condition(drop1stCube))
                     +ConditionCommand(condition { drop1stCube.hasCrossedMarker(shoot1stCube) })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, timeout = 500L)
-                    +SubsystemPresetCommand(SubsystemPreset.INTAKE, condition(toCenter))
+                    +SubsystemPreset.INTAKE.command(condition(toCenter))
                     +ConditionCommand(condition(toCenter))
                     +IntakeCommand(IntakeSubsystem.Direction.IN, exitCondition = condition(toCenter2))
-                    +SubsystemPresetCommand(SubsystemPreset.SWITCH, condition(drop2ndCube))
+                    +SubsystemPreset.SWITCH.command(condition(drop2ndCube))
                     +ConditionCommand(condition { drop2ndCube.hasCrossedMarker(shoot2ndCube) })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT)
                 }
