@@ -9,11 +9,22 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.drive.DifferentialDrive
 import frc.team5190.lib.commands.Command
+import frc.team5190.lib.utils.withDeadband
+import frc.team5190.lib.wrappers.hid.getRawButton
+import frc.team5190.lib.wrappers.hid.getX
+import frc.team5190.lib.wrappers.hid.getY
+import frc.team5190.lib.wrappers.hid.kX
 import frc.team5190.robot.Controls
 
 class ManualDriveCommand : Command() {
 
-    private var defaultDeadband = 0.02
+    companion object {
+        private var deadband = 0.02
+        private val speedSource = Controls.mainXbox.getY(GenericHID.Hand.kLeft).withDeadband(deadband)
+        private val rotationSource = Controls.mainXbox.getX(GenericHID.Hand.kLeft).withDeadband(deadband)
+        private val quickTurnSource = Controls.mainXbox.getRawButton(kX)
+    }
+
 
     private var stopThreshold = DifferentialDrive.kDefaultQuickStopThreshold
     private var stopAlpha = DifferentialDrive.kDefaultQuickStopAlpha
@@ -24,29 +35,13 @@ class ManualDriveCommand : Command() {
     }
 
     override suspend fun execute() {
-        fun applyDeadband(value: Double, deadband: Double) = if (Math.abs(value) > deadband) {
-            if (value > 0.0) {
-                (value - deadband) / (1.0 - deadband)
-            } else {
-                (value + deadband) / (1.0 - deadband)
-            }
-        } else {
-            0.0
-        }
-
-        var speed = -Controls.mainXbox.getY(GenericHID.Hand.kLeft)
-        var rotation = Controls.mainXbox.getX(GenericHID.Hand.kLeft)
-
-        speed = speed.coerceIn(-1.0, 1.0)
-        speed = applyDeadband(speed, defaultDeadband)
-
-        rotation = rotation.coerceIn(-1.0, 1.0)
-        rotation = applyDeadband(rotation, defaultDeadband)
+        val speed = -speedSource.value
+        val rotation = rotationSource.value
 
         val angularPower: Double
         val overPower: Boolean
 
-        if (Controls.mainXbox.xButton) {
+        if (quickTurnSource.value) {
             if (Math.abs(speed) < stopThreshold) {
                 stopAccumulator = (1 - stopAlpha) * stopAccumulator + stopAlpha * rotation.coerceIn(-1.0, 1.0) * 2.0
             }

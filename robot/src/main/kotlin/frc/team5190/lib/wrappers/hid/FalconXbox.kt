@@ -3,42 +3,31 @@ package frc.team5190.lib.wrappers.hid
 import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.XboxController
 
+// Builder Helpers
 fun xboxController(port: Int, block: FalconHIDBuilder<XboxController>.() -> Unit) = controller(XboxController(port), block)
 
 fun FalconHIDBuilder<XboxController>.button(button: XboxButton, block: FalconHIDButtonBuilder.() -> Unit = {}) = button(button.value, block)
 fun FalconHIDBuilder<XboxController>.triggerAxisButton(hand: GenericHID.Hand, threshold: Double = HIDButton.DEFAULT_THRESHOLD, block: FalconHIDButtonBuilder.() -> Unit = {})
-        = axisButton(if (hand == GenericHID.Hand.kLeft) 2 else 3, threshold, block)
+        = axisButton(yTriggerAxisToRawAxis(hand), threshold, block)
 
-val FalconHIDBuilder<XboxController>.kBumperLeft
-    get() = XboxButton.kBumperLeft
-val FalconHIDBuilder<XboxController>.kBumperRight
-    get() = XboxButton.kBumperRight
-val FalconHIDBuilder<XboxController>.kStickLeft
-    get() = XboxButton.kStickLeft
-val FalconHIDBuilder<XboxController>.kStickRight
-    get() = XboxButton.kStickRight
-val FalconHIDBuilder<XboxController>.kA
-    get() = XboxButton.kA
-val FalconHIDBuilder<XboxController>.kB
-    get() = XboxButton.kB
-val FalconHIDBuilder<XboxController>.kX
-    get() = XboxButton.kX
-val FalconHIDBuilder<XboxController>.kY
-    get() = XboxButton.kY
-val FalconHIDBuilder<XboxController>.kBack
-    get() = XboxButton.kBack
-val FalconHIDBuilder<XboxController>.kStart
-    get() = XboxButton.kStart
+// Source Helpers
+fun FalconHID<XboxController>.getY(hand: GenericHID.Hand) = getRawAxis(yAxisToRawAxis(hand))
+fun FalconHID<XboxController>.getX(hand: GenericHID.Hand) = getRawAxis(xAxisToRawAxis(hand))
+fun FalconHID<XboxController>.getRawButton(button: XboxButton) = getRawButton(button.value)
 
-enum class XboxButton(val value: Int) {
-    kBumperLeft(5),
-    kBumperRight(6),
-    kStickLeft(9),
-    kStickRight(10),
-    kA(1),
-    kB(2),
-    kX(3),
-    kY(4),
-    kBack(7),
-    kStart(8)
-}
+private fun yAxisToRawAxis(hand: GenericHID.Hand) = if(hand == GenericHID.Hand.kLeft) 1 else 5
+private fun xAxisToRawAxis(hand: GenericHID.Hand) = if(hand == GenericHID.Hand.kLeft) 0 else 4
+private fun yTriggerAxisToRawAxis(hand: GenericHID.Hand) = if(hand == GenericHID.Hand.kLeft) 2 else 3
+
+val kBumperLeft = XboxButton(5)
+val kBumperRight = XboxButton(6)
+val kStickLeft = XboxButton(9)
+val kStickRight = XboxButton(10)
+val kA = XboxButton(1)
+val kB = XboxButton(2)
+val kX = XboxButton(3)
+val kY = XboxButton(4)
+val kBack = XboxButton(7)
+val kStart = XboxButton(8)
+
+class XboxButton internal constructor(val value: Int)

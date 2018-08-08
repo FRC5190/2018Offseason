@@ -7,14 +7,15 @@ package frc.team5190.robot.subsytems.arm
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Command
+import frc.team5190.lib.utils.DoubleSource
 
 
-class OpenLoopArmCommand(private val percentOutput: Double) : Command() {
+class OpenLoopArmCommand(private val percentOutput: DoubleSource) : Command() {
     init {
         +ArmSubsystem
     }
 
     override suspend fun execute() {
-        ArmSubsystem.set(ControlMode.PercentOutput, percentOutput)
+        ArmSubsystem.set(ControlMode.PercentOutput, percentOutput.value)
     }
 }

@@ -6,6 +6,8 @@
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.GenericHID
+import frc.team5190.lib.utils.constSource
+import frc.team5190.lib.utils.withProcessing
 import frc.team5190.lib.wrappers.FalconRobotBase
 import frc.team5190.lib.wrappers.hid.*
 import frc.team5190.robot.subsytems.SubsystemPreset
@@ -20,16 +22,16 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.pow
 
 object Controls {
-    val mainFalconXbox = xboxController(0) {
+    val mainXbox = xboxController(0) {
         // Arm Controls
-        val armUpCommand = OpenLoopArmCommand(0.5)
-        val armDownCommand = OpenLoopArmCommand(-0.5)
+        val armUpCommand = OpenLoopArmCommand(constSource(0.5))
+        val armDownCommand = OpenLoopArmCommand(constSource(-0.5))
         button(kY).change(armUpCommand)
         button(kB).change(armDownCommand)
 
         // Elevator Controls
-        val elevatorUpCommand = OpenLoopElevatorCommand(0.4)
-        val elevatorDownCommand = OpenLoopElevatorCommand(-0.4)
+        val elevatorUpCommand = OpenLoopElevatorCommand(constSource(0.4))
+        val elevatorDownCommand = OpenLoopElevatorCommand(constSource(-0.4))
         triggerAxisButton(GenericHID.Hand.kRight, 0.2).change(elevatorUpCommand)
         button(kBumperRight).change(elevatorDownCommand)
 
@@ -41,11 +43,8 @@ object Controls {
 
         // Intake Controls
         triggerAxisButton(GenericHID.Hand.kLeft, 0.1) {
-            change(IntakeCommand(IntakeSubsystem.Direction.OUT, IntakeCommand.HIDIntakeSpeedSource(source) { it.pow(2) * 0.65 }))
+            change(IntakeCommand(IntakeSubsystem.Direction.OUT, source.withProcessing { it.pow(2) * 0.65 }))
         }
         button(kBumperLeft).change(IntakeCommand(IntakeSubsystem.Direction.IN, 1.0))
     }
-
-    // Some shortcuts
-    val mainXbox = mainFalconXbox.genericHID
 }

@@ -7,9 +7,10 @@ package frc.team5190.robot.subsytems.elevator
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Command
+import frc.team5190.lib.utils.DoubleSource
 
 
-class OpenLoopElevatorCommand(private val percentOutput: Double) : Command() {
+class OpenLoopElevatorCommand(private val percentOutput: DoubleSource) : Command() {
     init {
         +ElevatorSubsystem
     }
@@ -22,6 +23,6 @@ class OpenLoopElevatorCommand(private val percentOutput: Double) : Command() {
         if (ElevatorSubsystem.reset && !ElevatorSubsystem.atBottom) {
             ElevatorSubsystem.reset = false
         }
-        ElevatorSubsystem.set(ControlMode.PercentOutput, percentOutput)
+        ElevatorSubsystem.set(ControlMode.PercentOutput, percentOutput.value)
     }
 }

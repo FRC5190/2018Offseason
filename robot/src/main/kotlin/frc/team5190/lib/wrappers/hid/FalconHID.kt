@@ -2,6 +2,9 @@ package frc.team5190.lib.wrappers.hid
 
 import edu.wpi.first.wpilibj.GenericHID
 import frc.team5190.lib.commands.Command
+import frc.team5190.lib.utils.BooleanSource
+import frc.team5190.lib.utils.DoubleSource
+import frc.team5190.lib.utils.withThreshold
 
 fun <T : GenericHID> controller(genericHID: T, block: FalconHIDBuilder<T>.() -> Unit): FalconHID<T> {
     val builder = FalconHIDBuilder(genericHID)
@@ -56,11 +59,12 @@ class FalconHIDButtonBuilder(source: HIDSource, private val threshold: Double) :
     override fun build() = HIDButton(source, threshold, whileOff, whileOn, changeOn, changeOff)
 }
 
-class FalconHID<T : GenericHID>(val genericHID: T,
+class FalconHID<T : GenericHID>(private val genericHID: T,
                                 private val controls: List<HIDControl>) {
 
-    suspend fun update() {
-        controls.forEach { it.update() }
-    }
+    fun getRawAxis(axisId: Int): DoubleSource = HIDAxisSource(genericHID, axisId)
+    fun getRawButton(buttonId: Int): BooleanSource = HIDButtonSource(genericHID, buttonId).booleanSource
+
+    suspend fun update() = controls.forEach { it.update() }
 
 }
