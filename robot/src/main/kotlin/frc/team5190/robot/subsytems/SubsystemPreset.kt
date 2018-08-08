@@ -5,9 +5,9 @@
 
 package frc.team5190.robot.subsytems
 
+import frc.team5190.lib.commands.Command
 import frc.team5190.lib.commands.condition
-import frc.team5190.lib.extensions.CommandGroupBuilder
-import frc.team5190.lib.extensions.parallelBuilder
+import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.math.units.NativeUnits
 import frc.team5190.lib.wrappers.hid.FalconHIDButtonBuilder
 import frc.team5190.robot.subsytems.arm.ArmSubsystem
@@ -16,42 +16,50 @@ import frc.team5190.robot.subsytems.elevator.ClosedLoopElevatorCommand
 import frc.team5190.robot.subsytems.elevator.ElevatorSubsystem
 import frc.team5190.robot.subsytems.elevator.LidarElevatorCommand
 
-enum class SubsystemPreset(private val builder: CommandGroupBuilder) {
-    INTAKE(parallelBuilder {
-        +ClosedLoopArmCommand(ArmSubsystem.Position.DOWN)
-        sequential {
-            +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.FSTAGE).withExit(condition {
-                ArmSubsystem.currentPosition < ArmSubsystem.Position.UP.distance + NativeUnits(100)
-            })
-            +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.INTAKE)
+enum class SubsystemPreset(private val builder: () -> Command) {
+    INTAKE({
+        parallel {
+            +ClosedLoopArmCommand(ArmSubsystem.Position.DOWN)
+            sequential {
+                +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.FSTAGE).withExit(condition {
+                    ArmSubsystem.currentPosition < ArmSubsystem.Position.UP.distance + NativeUnits(100)
+                })
+                +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.INTAKE)
+            }
         }
     }),
-    SWITCH(parallelBuilder {
-        +ClosedLoopArmCommand(ArmSubsystem.Position.MIDDLE)
-        sequential {
-            +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.FSTAGE).withExit(condition {
-                ElevatorSubsystem.currentPosition < ElevatorSubsystem.Position.SWITCH.distance
-                        || ArmSubsystem.currentPosition < ArmSubsystem.Position.UP.distance + NativeUnits(100)
-            })
-            +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.SWITCH)
+    SWITCH({
+        parallel {
+            +ClosedLoopArmCommand(ArmSubsystem.Position.MIDDLE)
+            sequential {
+                +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.FSTAGE).withExit(condition {
+                    ElevatorSubsystem.currentPosition < ElevatorSubsystem.Position.SWITCH.distance
+                            || ArmSubsystem.currentPosition < ArmSubsystem.Position.UP.distance + NativeUnits(100)
+                })
+                +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.SWITCH)
+            }
         }
     }),
-    SCALE(parallelBuilder {
-        +ClosedLoopArmCommand(ArmSubsystem.Position.MIDDLE)
-        +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.HIGHSCALE)
+    SCALE({
+        parallel {
+            +ClosedLoopArmCommand(ArmSubsystem.Position.MIDDLE)
+            +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.HIGHSCALE)
+        }
     }),
-    BEHIND(parallelBuilder {
-        +LidarElevatorCommand()
-        sequential {
-            +ClosedLoopArmCommand(ArmSubsystem.Position.UP.distance + NativeUnits(75)).withExit(condition {
-                ElevatorSubsystem.currentPosition > ElevatorSubsystem.Position.FSTAGE.distance
-            })
-            +ClosedLoopArmCommand(ArmSubsystem.Position.BEHIND)
+    BEHIND({
+        parallel {
+            +LidarElevatorCommand()
+            sequential {
+                +ClosedLoopArmCommand(ArmSubsystem.Position.UP.distance + NativeUnits(75)).withExit(condition {
+                    ElevatorSubsystem.currentPosition > ElevatorSubsystem.Position.FSTAGE.distance
+                })
+                +ClosedLoopArmCommand(ArmSubsystem.Position.BEHIND)
+            }
         }
     });
 
     val command
-        get() = builder.build()
+        get() = builder()
 }
 
 // Smh

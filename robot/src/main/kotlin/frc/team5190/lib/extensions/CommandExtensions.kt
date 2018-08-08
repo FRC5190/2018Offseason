@@ -17,15 +17,12 @@ import frc.team5190.lib.commands.SequentialCommandGroup
 fun sequential(block: CommandGroupBuilder.() -> Unit) = sequential0(block)
 fun parallel(block: CommandGroupBuilder.() -> Unit) = parallel0(block)
 
-fun sequentialBuilder(block: CommandGroupBuilder.() -> Unit) = commandGroup(CommandGroupBuilder.BuilderType.SEQUENTIAL,block)
-fun parallelBuilder(block: CommandGroupBuilder.() -> Unit) = commandGroup(CommandGroupBuilder.BuilderType.PARALLEL,block)
-
 // Internal Extension Helpers
 
-private fun sequential0(block: CommandGroupBuilder.() -> Unit) = sequentialBuilder(block).build()
-private fun parallel0(block: CommandGroupBuilder.() -> Unit) = parallelBuilder(block).build()
+private fun sequential0(block: CommandGroupBuilder.() -> Unit) = commandGroup(CommandGroupBuilder.BuilderType.SEQUENTIAL,block)
+private fun parallel0(block: CommandGroupBuilder.() -> Unit) = commandGroup(CommandGroupBuilder.BuilderType.PARALLEL,block)
 
-private fun commandGroup(type: CommandGroupBuilder.BuilderType, block: CommandGroupBuilder.() -> Unit) = CommandGroupBuilder(type).also { block(it) }
+private fun commandGroup(type: CommandGroupBuilder.BuilderType, block: CommandGroupBuilder.() -> Unit) = CommandGroupBuilder(type).also { block(it) }.build()
 
 // Builders
 
