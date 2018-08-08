@@ -5,11 +5,9 @@
 
 package frc.team5190.robot.subsytems
 
-import frc.team5190.lib.commands.CommandGroup
-import frc.team5190.lib.commands.Condition
 import frc.team5190.lib.commands.condition
-import frc.team5190.lib.extensions.parallel
-import frc.team5190.lib.extensions.sequential
+import frc.team5190.lib.extensions.CommandGroupBuilder
+import frc.team5190.lib.extensions.parallelBuilder
 import frc.team5190.lib.math.units.NativeUnits
 import frc.team5190.lib.wrappers.hid.FalconHIDButtonBuilder
 import frc.team5190.robot.subsytems.arm.ArmSubsystem
@@ -18,41 +16,42 @@ import frc.team5190.robot.subsytems.elevator.ClosedLoopElevatorCommand
 import frc.team5190.robot.subsytems.elevator.ElevatorSubsystem
 import frc.team5190.robot.subsytems.elevator.LidarElevatorCommand
 
-enum class SubsystemPreset(val command: CommandGroup) {
-    INTAKE(parallel {
+enum class SubsystemPreset(private val builder: CommandGroupBuilder) {
+    INTAKE(parallelBuilder {
         +ClosedLoopArmCommand(ArmSubsystem.Position.DOWN)
         sequential {
-            +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.FSTAGE, condition {
+            +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.FSTAGE).withExit(condition {
                 ArmSubsystem.currentPosition < ArmSubsystem.Position.UP.distance + NativeUnits(100)
             })
             +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.INTAKE)
         }
     }),
-    SWITCH(parallel {
+    SWITCH(parallelBuilder {
         +ClosedLoopArmCommand(ArmSubsystem.Position.MIDDLE)
         sequential {
-            +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.FSTAGE, condition {
+            +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.FSTAGE).withExit(condition {
                 ElevatorSubsystem.currentPosition < ElevatorSubsystem.Position.SWITCH.distance
                         || ArmSubsystem.currentPosition < ArmSubsystem.Position.UP.distance + NativeUnits(100)
             })
             +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.SWITCH)
         }
     }),
-    SCALE(parallel {
+    SCALE(parallelBuilder {
         +ClosedLoopArmCommand(ArmSubsystem.Position.MIDDLE)
         +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.HIGHSCALE)
     }),
-    BEHIND(parallel {
+    BEHIND(parallelBuilder {
         +LidarElevatorCommand()
         sequential {
-            +ClosedLoopArmCommand(ArmSubsystem.Position.UP.distance + NativeUnits(75), condition {
+            +ClosedLoopArmCommand(ArmSubsystem.Position.UP.distance + NativeUnits(75)).withExit(condition {
                 ElevatorSubsystem.currentPosition > ElevatorSubsystem.Position.FSTAGE.distance
             })
             +ClosedLoopArmCommand(ArmSubsystem.Position.BEHIND)
         }
     });
 
-    fun command(exitCondition: Condition) = sequential(exitCondition) { +command }
+    val command
+        get() = builder.build()
 }
 
 // Smh

@@ -13,15 +13,13 @@ import frc.team5190.lib.commands.or
 import frc.team5190.lib.math.units.Distance
 import frc.team5190.robot.Constants
 
-class ClosedLoopElevatorCommand(private val distance: Distance? = null,
-                                exitCondition: Condition = Condition.FALSE) : Command() {
+class ClosedLoopElevatorCommand(private val distance: Distance? = null) : Command() {
 
-    constructor(pos: ElevatorSubsystem.Position, exitCondition: Condition = Condition.FALSE) : this(pos.distance, exitCondition)
+    constructor(pos: ElevatorSubsystem.Position) : this(pos.distance)
 
     init {
         +ElevatorSubsystem
         val fixedPos = distance ?: ElevatorSubsystem.currentPosition
-        finishCondition += exitCondition
         if (distance != null) finishCondition += condition { (ElevatorSubsystem.currentPosition - fixedPos).absoluteValue < Constants.kElevatorClosedLpTolerance }
     }
 

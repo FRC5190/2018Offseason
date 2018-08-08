@@ -7,9 +7,7 @@ package frc.team5190.robot.subsytems.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Command
-import frc.team5190.lib.commands.Condition
 import frc.team5190.lib.commands.condition
-import frc.team5190.lib.commands.or
 import frc.team5190.lib.math.control.VelocityPIDFController
 import frc.team5190.lib.math.geometry.Pose2dWithCurvature
 import frc.team5190.lib.math.geometry.Translation2d
@@ -25,8 +23,7 @@ import frc.team5190.robot.Kinematics
 import frc.team5190.robot.Localization
 import frc.team5190.robot.auto.Trajectories
 
-class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = false,
-                              exitCondition: Condition = Condition.FALSE) : Command() {
+class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = false) : Command() {
 
     // Trajectory
     private var trajectory = Trajectories[identifier]
@@ -69,7 +66,7 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
 
         // Update the frequency of the command to the follower
         updateFrequency = 250 // Hz
-        finishCondition += condition { trajectoryFollower.isFinished } or exitCondition
+        finishCondition += condition { trajectoryFollower.isFinished }
     }
 
     fun addMarkerAt(waypoint: Translation2d): Marker {

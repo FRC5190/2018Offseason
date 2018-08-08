@@ -13,15 +13,13 @@ import frc.team5190.lib.commands.or
 import frc.team5190.lib.math.units.Distance
 import frc.team5190.lib.math.units.NativeUnits
 
-class ClosedLoopArmCommand(private val pos: Distance? = null,
-                           exitCondition: Condition = Condition.FALSE) : Command() {
+class ClosedLoopArmCommand(private val pos: Distance? = null) : Command() {
 
-    constructor(position: ArmSubsystem.Position, exitCondition: Condition = Condition.FALSE) : this(position.distance, exitCondition)
+    constructor(position: ArmSubsystem.Position) : this(position.distance)
 
     init {
         +ArmSubsystem
         val fixedPos = pos ?: ArmSubsystem.currentPosition
-        finishCondition += exitCondition
         if (pos != null) finishCondition += condition { (ArmSubsystem.currentPosition - fixedPos).absoluteValue < NativeUnits(50) }
     }
 

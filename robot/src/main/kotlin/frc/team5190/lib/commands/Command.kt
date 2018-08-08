@@ -95,6 +95,8 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) : CompletionHan
 
     override fun invokeOnCompletion(block: CompletionCallback.() -> Unit) = completionHandler.invokeOnCompletion(block)
 
+    fun withExit(condition: Condition) = also { finishCondition += condition }
+
     suspend fun await() = suspendCancellableCoroutine<Unit> { cont ->
         cont.disposeOnCancellation(invokeOnceOnCompletion {
             cont.resume(Unit)

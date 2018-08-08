@@ -68,31 +68,31 @@ class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPosi
                     }
 
                     +ConditionCommand(condition { drop1stCube.hasCrossedMarker(elevatorUp) } or drop1stCube)
-                    +SubsystemPreset.BEHIND.command(condition(drop1stCube))
+                    +SubsystemPreset.BEHIND.command.withExit(condition(drop1stCube))
                     +ConditionCommand(condition { drop1stCube.hasCrossedMarker(shoot1stCube) } or drop1stCube)
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT, exitCondition = condition(drop1stCube))
+                    +IntakeCommand(IntakeSubsystem.Direction.OUT).withExit(condition(drop1stCube))
 
                     parallel {
-                        +SubsystemPreset.INTAKE.command(condition(pickup2ndCube))
-                        +IntakeCommand(IntakeSubsystem.Direction.IN, exitCondition = condition(pickup2ndCube))
+                        +SubsystemPreset.INTAKE.command.withExit(condition(pickup2ndCube))
+                        +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(condition(pickup2ndCube))
                     }
 
-                    +SubsystemPreset.BEHIND.command(condition(drop2ndCube))
+                    +SubsystemPreset.BEHIND.command.withExit(condition(drop2ndCube))
                     +ConditionCommand(condition { drop2ndCube.hasCrossedMarker(shoot2ndCube) })
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT, exitCondition = condition(drop2ndCube))
+                    +IntakeCommand(IntakeSubsystem.Direction.OUT).withExit(condition(drop2ndCube))
 
                     parallel {
-                        +SubsystemPreset.INTAKE.command(condition(pickup3rdCube))
-                        +IntakeCommand(IntakeSubsystem.Direction.IN, exitCondition = condition(pickup3rdCube))
+                        +SubsystemPreset.INTAKE.command.withExit(condition(pickup3rdCube))
+                        +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(condition(pickup3rdCube))
                     }
 
-                    +SubsystemPreset.BEHIND.command(condition(drop3rdCube))
+                    +SubsystemPreset.BEHIND.command.withExit(condition(drop3rdCube))
                     +ConditionCommand(condition { drop3rdCube.hasCrossedMarker(shoot3rdCube) })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, timeout = 500L)
 
                     parallel {
-                        +SubsystemPreset.INTAKE.command(condition(pickup4thCube))
-                        +IntakeCommand(IntakeSubsystem.Direction.IN, exitCondition = condition(pickup4thCube))
+                        +SubsystemPreset.INTAKE.command.withExit(condition(pickup4thCube))
+                        +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(condition(pickup4thCube))
                     }
                 }
             }

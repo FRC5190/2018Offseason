@@ -16,14 +16,14 @@ import frc.team5190.robot.sensors.Lidar
 import frc.team5190.robot.subsytems.intake.IntakeSubsystem
 import java.util.*
 
-class LidarElevatorCommand(exitCondition: Condition = Condition.FALSE) : Command() {
+class LidarElevatorCommand : Command() {
     init {
         +ElevatorSubsystem
 
         finishCondition += condition {
             !IntakeSubsystem.cubeIn &&
                     ElevatorSubsystem.currentPosition > ElevatorSubsystem.Position.FSTAGE.distance - Inches(1.0, ElevatorSubsystem.settings)
-        } or exitCondition
+        }
     }
 
     private val heightBuffer = ArrayDeque<Distance>(3)

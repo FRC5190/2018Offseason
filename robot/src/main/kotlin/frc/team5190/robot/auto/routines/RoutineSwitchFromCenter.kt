@@ -54,13 +54,13 @@ class RoutineSwitchFromCenter(startingPosition: Autonomous.StartingPositions,
                 }
                 sequential {
                     +TimeoutCommand(250L, TimeUnit.MILLISECONDS)
-                    +SubsystemPreset.SWITCH.command(condition(drop1stCube))
+                    +SubsystemPreset.SWITCH.command.withExit(condition(drop1stCube))
                     +ConditionCommand(condition { drop1stCube.hasCrossedMarker(shoot1stCube) })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, timeout = 500L)
-                    +SubsystemPreset.INTAKE.command(condition(toCenter))
+                    +SubsystemPreset.INTAKE.command.withExit(condition(toCenter))
                     +ConditionCommand(condition(toCenter))
-                    +IntakeCommand(IntakeSubsystem.Direction.IN, exitCondition = condition(toCenter2))
-                    +SubsystemPreset.SWITCH.command(condition(drop2ndCube))
+                    +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(condition(toCenter2))
+                    +SubsystemPreset.SWITCH.command.withExit(condition(drop2ndCube))
                     +ConditionCommand(condition { drop2ndCube.hasCrossedMarker(shoot2ndCube) })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT)
                 }

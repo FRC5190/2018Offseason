@@ -6,9 +6,8 @@
 package frc.team5190.robot.subsytems.intake
 
 import com.ctre.phoenix.motorcontrol.ControlMode
-import frc.team5190.lib.commands.Condition
 import frc.team5190.lib.commands.TimeoutCommand
-import frc.team5190.lib.commands.or
+import frc.team5190.lib.commands.condition
 import frc.team5190.lib.utils.DoubleSource
 import frc.team5190.lib.utils.constSource
 import java.util.concurrent.TimeUnit
@@ -16,13 +15,12 @@ import kotlin.math.absoluteValue
 
 class IntakeCommand(private val direction: IntakeSubsystem.Direction,
                     private val speed: DoubleSource = constSource(1.0),
-                    timeout: Long = Long.MAX_VALUE,
-                    exitCondition: Condition = Condition.FALSE) : TimeoutCommand(timeout, TimeUnit.MILLISECONDS) {
+                    timeout: Long = Long.MAX_VALUE) : TimeoutCommand(timeout, TimeUnit.MILLISECONDS) {
 
     init {
         +IntakeSubsystem
 
-        finishCondition += exitCondition or { direction == IntakeSubsystem.Direction.IN && IntakeSubsystem.cubeIn }
+        finishCondition += condition { direction == IntakeSubsystem.Direction.IN && IntakeSubsystem.cubeIn }
     }
 
     override suspend fun initialize() {
@@ -37,9 +35,10 @@ class IntakeCommand(private val direction: IntakeSubsystem.Direction,
     }
 
     private fun updateSpeed() {
+        val newSpeed = speed.value.absoluteValue
         IntakeSubsystem.set(ControlMode.PercentOutput, when (direction) {
-            IntakeSubsystem.Direction.IN -> speed.value.absoluteValue * -1.0
-            IntakeSubsystem.Direction.OUT -> speed.value.absoluteValue
+            IntakeSubsystem.Direction.IN -> -newSpeed
+            IntakeSubsystem.Direction.OUT -> newSpeed
         })
     }
 
