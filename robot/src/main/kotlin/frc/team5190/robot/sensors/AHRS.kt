@@ -42,20 +42,13 @@ private abstract class AHRSSensorImpl : AHRSSensor {
 
 private class Pigeon : AHRSSensorImpl() {
     private val pigeon = PigeonIMU(17)
-    private val ypr = DoubleArray(3)
 
     init {
         reset()
-        launch {
-            while (isActive) {
-                pigeon.getYawPitchRoll(ypr)
-                delay(20, TimeUnit.MILLISECONDS)
-            }
-        }
     }
 
     override val sensorYaw: Double
-        get() = ypr[0]
+        get() = pigeon.fusedHeading
 
     override fun reset() {
         pigeon.setYaw(0.0, Constants.kCTRETimeout)
@@ -70,7 +63,7 @@ private class NavX : AHRSSensorImpl() {
     }
 
     override val sensorYaw: Double
-        get() = -navX.angle
+        get() = -navX.fusedHeading.toDouble()
 
     override fun reset() {
         navX.reset()
