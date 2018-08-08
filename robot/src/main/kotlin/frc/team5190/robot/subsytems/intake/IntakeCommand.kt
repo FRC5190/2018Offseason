@@ -15,14 +15,9 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.absoluteValue
 
 class IntakeCommand(private val direction: IntakeSubsystem.Direction,
-                    private val speed: DoubleSource,
+                    private val speed: DoubleSource = constSource(1.0),
                     timeout: Long = Long.MAX_VALUE,
                     exitCondition: Condition = Condition.FALSE) : TimeoutCommand(timeout, TimeUnit.MILLISECONDS) {
-
-    constructor(direction: IntakeSubsystem.Direction,
-                speed: Double = 1.0,
-                timeout: Long = Long.MAX_VALUE,
-                exitCondition: Condition = Condition.FALSE) : this(direction, constSource(speed), timeout, exitCondition)
 
     init {
         +IntakeSubsystem

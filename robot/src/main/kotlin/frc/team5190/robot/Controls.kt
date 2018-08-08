@@ -45,6 +45,6 @@ object Controls {
         triggerAxisButton(GenericHID.Hand.kLeft, 0.1) {
             change(IntakeCommand(IntakeSubsystem.Direction.OUT, source.withProcessing { it.pow(2) * 0.65 }))
         }
-        button(kBumperLeft).change(IntakeCommand(IntakeSubsystem.Direction.IN, 1.0))
+        button(kBumperLeft).change(IntakeCommand(IntakeSubsystem.Direction.IN, constSource(1.0)))
     }
 }
