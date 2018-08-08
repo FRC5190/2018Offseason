@@ -1,8 +1,6 @@
 package frc.team5190.lib.commands
 
-import frc.team5190.lib.utils.CompletionCallback
 import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.DisposableHandle
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.actor
@@ -159,6 +157,9 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
                 activeCommand.dispose()
             }
             activeCommands.clear()
+            reservedSubsystemQueue.clear()
+            reservedSubsystems.clear()
+            parentCommandGroup = null
         }
     }
 
