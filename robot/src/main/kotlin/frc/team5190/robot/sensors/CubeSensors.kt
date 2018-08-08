@@ -3,11 +3,8 @@ package frc.team5190.robot.sensors
 import edu.wpi.first.wpilibj.AnalogInput
 import frc.team5190.lib.commands.Condition
 import frc.team5190.robot.Constants
-import frc.team5190.robot.subsytems.led.BlinkingLEDCommand
-import frc.team5190.robot.subsytems.led.SolidLEDCommand
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
-import java.awt.Color
 
 object CubeSensors {
 
