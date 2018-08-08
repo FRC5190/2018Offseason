@@ -36,7 +36,7 @@ object Autonomous {
     private val farScale
         get() = startingPosition.name.first().toUpperCase() != scaleSide.name.first().toUpperCase()
 
-    private val fmsDataValid
+    val fmsDataValid
         get() = switchSide != MatchData.OwnedSide.UNKNOWN && scaleSide != MatchData.OwnedSide.UNKNOWN
 
     private val networkStartingPosition

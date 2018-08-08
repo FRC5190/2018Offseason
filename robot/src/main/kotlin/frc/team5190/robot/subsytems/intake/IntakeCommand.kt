@@ -21,7 +21,6 @@ class IntakeCommand(private val direction: IntakeSubsystem.Direction,
 
     init {
         +IntakeSubsystem
-
         if(direction == IntakeSubsystem.Direction.IN) finishCondition += CubeSensors.cubeIn
     }
 

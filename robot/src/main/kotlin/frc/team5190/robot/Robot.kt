@@ -15,6 +15,7 @@ import frc.team5190.robot.subsytems.arm.ArmSubsystem
 import frc.team5190.robot.subsytems.drive.DriveSubsystem
 import frc.team5190.robot.subsytems.elevator.ElevatorSubsystem
 import frc.team5190.robot.subsytems.intake.IntakeSubsystem
+import frc.team5190.robot.subsytems.led.LEDSubsystem
 
 class Robot : FalconRobotBase() {
 
@@ -39,6 +40,7 @@ class Robot : FalconRobotBase() {
         +ArmSubsystem
         +ElevatorSubsystem
         +IntakeSubsystem
+        +LEDSubsystem
 
         Localization
         NetworkInterface
