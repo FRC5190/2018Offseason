@@ -14,9 +14,13 @@ fun <T> constSource(value: T) = object : Source<T> {
     override val value = value
 }
 
-fun <F, T> Source<F>.withProcessing(processor: (F) -> T) = object : Source<T> {
+inline fun <T> variableSource(crossinline value: () -> T) = object  : Source<T> {
     override val value: T
-        get() = processor(this@withProcessing.value)
+        get() = value()
+}
+
+inline fun <F, T> Source<F>.withProcessing(crossinline processor: (F) -> T) = variableSource {
+    processor(this@withProcessing.value)
 }
 
 fun DoubleSource.withThreshold(threshold: Double = 0.5): BooleanSource = withProcessing {

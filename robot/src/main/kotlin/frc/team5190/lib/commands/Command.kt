@@ -3,15 +3,21 @@ package frc.team5190.lib.commands
 import frc.team5190.lib.utils.CompletionCallback
 import frc.team5190.lib.utils.CompletionHandler
 import frc.team5190.lib.utils.CompletionHandlerImpl
+import frc.team5190.lib.wrappers.FalconRobotBase
+import frc.team5190.robot.Robot
 import kotlinx.coroutines.experimental.DisposableHandle
 import kotlinx.coroutines.experimental.disposeOnCancellation
-import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
-import java.util.concurrent.CopyOnWriteArrayList
 
 abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) : CompletionHandler {
     companion object {
         const val DEFAULT_FREQUENCY = 50
+    }
+
+    init {
+        if(FalconRobotBase.INSTANCE.initialized){
+            println("[Command} [WARNING] It is not recommended to create commands after the robot has initialized!")
+        }
     }
 
     var updateFrequency = updateFrequency
@@ -58,21 +64,23 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) : CompletionHan
 
         override fun invokeOnCompletion(block: CompletionCallback.() -> Unit): DisposableHandle {
             synchronized(listener) {
-                if(handle == null) {
+                if (handle == null) {
                     handle = currentCondition.invokeOnCompletion(listener)
                 }
             }
             return super.invokeOnCompletion(block)
         }
 
+        override fun not() = TODO("Um what, this is never needed")
+
         override fun isMet() = currentCondition.isMet()
         /**
          * Shortcut for the or operator
          */
-        operator fun plusAssign(condition: Condition)  {
-            synchronized(listener){
-                val newCondition =  currentCondition or condition
-                if(handle != null){
+        operator fun plusAssign(condition: Condition) {
+            synchronized(listener) {
+                val newCondition = currentCondition or condition
+                if (handle != null) {
                     // update handle to new condition
                     throw IllegalStateException("Cannot add condition once a listener has been added")
                     // handle?.dispose()

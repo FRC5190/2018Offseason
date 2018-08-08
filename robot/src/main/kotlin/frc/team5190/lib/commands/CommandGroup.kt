@@ -111,6 +111,7 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
 
     private inner class GroupCondition : Condition() {
         fun invoke() = invokeCompletionListeners()
+        override fun not() = TODO("This is never needed")
         override fun isMet() = started && activeCommands.isEmpty()
     }
 

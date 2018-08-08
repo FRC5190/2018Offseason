@@ -57,6 +57,8 @@ interface Distance {
     operator fun compareTo(other: Distance): Int {
         return this.STU - other.STU
     }
+
+    fun withSettings(settings: UnitPreferences): Distance
 }
 
 class NativeUnits(private val value: Int, override val settings: UnitPreferences = UnitPreferences()) : Distance {
@@ -66,6 +68,8 @@ class NativeUnits(private val value: Int, override val settings: UnitPreferences
         get() = value.toDouble() / settings.sensorUnitsPerRotation.toDouble() * (2.0 * Math.PI * settings.radius) / 12.0
     override val IN
         get() = FT * 12.0
+
+    override fun withSettings(settings: UnitPreferences) = NativeUnits(value, settings)
 }
 
 class Inches(private val value: Double, override val settings: UnitPreferences = UnitPreferences()) : Distance {
@@ -75,6 +79,8 @@ class Inches(private val value: Double, override val settings: UnitPreferences =
         get() = value / 12.0
     override val STU
         get() = Feet(FT, settings).STU
+
+    override fun withSettings(settings: UnitPreferences) = Inches(value, settings)
 }
 
 class Feet(private val value: Double, override val settings: UnitPreferences = UnitPreferences()) : Distance {
@@ -84,4 +90,6 @@ class Feet(private val value: Double, override val settings: UnitPreferences = U
         get() = value * 12.0
     override val STU
         get() = (value * 12.0 / (2.0 * Math.PI * settings.radius) * settings.sensorUnitsPerRotation.toDouble()).roundToInt()
+
+    override fun withSettings(settings: UnitPreferences) = Feet(value, settings)
 }

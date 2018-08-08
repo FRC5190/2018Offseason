@@ -9,6 +9,8 @@ import com.ctre.phoenix.sensors.PigeonIMU
 import com.kauailabs.navx.frc.AHRS
 import edu.wpi.first.wpilibj.I2C
 import frc.team5190.lib.math.geometry.Rotation2d
+import frc.team5190.lib.utils.DoubleSource
+import frc.team5190.lib.utils.Source
 import frc.team5190.robot.Constants
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
@@ -27,10 +29,13 @@ private fun create(ahrsSensorType: AHRSSensorType): AHRSSensor = when (ahrsSenso
     AHRSSensorType.Pigeon -> Pigeon()
 }
 
-interface AHRSSensor {
+interface AHRSSensor : Source<Rotation2d> {
     var angleOffset: Double
     val correctedAngle: Rotation2d
     fun reset()
+    // Source Implementation
+    override val value
+        get() = correctedAngle
 }
 
 private abstract class AHRSSensorImpl : AHRSSensor {

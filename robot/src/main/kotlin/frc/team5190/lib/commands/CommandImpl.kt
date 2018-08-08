@@ -27,6 +27,8 @@ open class TimeoutCommand(private val timeout: Long, private val unit: TimeUnit 
             job.cancel()
         }
 
+        override fun not() = TODO("This is never needed")
+
         override fun isMet() = System.nanoTime() - startTime >= unit.toNanos(timeout)
     }
 

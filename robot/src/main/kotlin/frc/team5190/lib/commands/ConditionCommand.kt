@@ -11,11 +11,16 @@ open class ConditionCommand(condition: Condition) : Command() {
     }
 }
 
-fun condition(block: () -> Boolean) = object : Condition() {
+fun condition(value: Boolean): Condition = condition { value }
+fun condition(block: () -> Boolean): Condition = VariableCondition(block)
+fun condition(command: Command): Condition = CommandCondition(command)
+
+private class VariableCondition(private val block: () -> Boolean) : Condition() {
+    override fun not() = VariableCondition { !block() }
     override fun isMet() = block()
 }
 
-fun condition(command: Command) = object : Condition() {
+private class CommandCondition(private val command: Command) : Condition() {
     init {
         command.invokeOnCompletion {
             //Signal to parent that it has finished
@@ -23,6 +28,7 @@ fun condition(command: Command) = object : Condition() {
         }
     }
 
+    override fun not() = condition { !command.isFinished() }
     override fun isMet() = command.commandState.finished
 }
 
@@ -35,7 +41,12 @@ infix fun Condition.and(command: Command) = this and condition(command)
 infix fun Condition.or(condition: Condition) = conditionGroup(this, condition) { one, two -> one || two }
 infix fun Condition.and(condition: Condition) = conditionGroup(this, condition) { one, two -> one && two }
 
-private fun conditionGroup(firstCondition: Condition, secondCondition: Condition, condition: (Boolean, Boolean) -> Boolean) = object : Condition() {
+private fun conditionGroup(firstCondition: Condition, secondCondition: Condition, condition: (Boolean, Boolean) -> Boolean): Condition =
+        GroupCondition(firstCondition, secondCondition, condition)
+
+private class GroupCondition(private val firstCondition: Condition,
+                             private val secondCondition: Condition,
+                             private val condition: (Boolean, Boolean) -> Boolean) : Condition() {
     private val groupMutex = Any()
     private var hasRegisteredListeners = false
 
@@ -54,15 +65,17 @@ private fun conditionGroup(firstCondition: Condition, secondCondition: Condition
         return super.invokeOnCompletion(block)
     }
 
+    override fun not() = GroupCondition(firstCondition, secondCondition) { one, two -> !condition(one, two) }
+
     override fun isMet() = condition(firstCondition.isMet(), secondCondition.isMet())
 }
 
 abstract class Condition : CompletionHandler {
     companion object {
         val FALSE
-            get() = condition { false }
+            get() = condition(false)
         val TRUE
-            get() = condition { true }
+            get() = condition(true)
     }
 
     private val completeHandler = CompletionHandlerImpl {
@@ -73,4 +86,6 @@ abstract class Condition : CompletionHandler {
     override fun invokeOnCompletion(block: CompletionCallback.() -> Unit) = completeHandler.invokeOnCompletion(block)
 
     abstract fun isMet(): Boolean
+
+    abstract operator fun not(): Condition
 }

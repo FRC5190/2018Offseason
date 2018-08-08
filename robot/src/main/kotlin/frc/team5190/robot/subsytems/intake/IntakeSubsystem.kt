@@ -19,13 +19,7 @@ object IntakeSubsystem : Subsystem() {
     private val intakeMaster = FalconSRX(Constants.kIntakeMasterId)
     private val intakeSlave = FalconSRX(Constants.kIntakeSlaveId)
 
-    private val leftCubeSensor = AnalogInput(Constants.kLeftCubeSensorId)
-    private val rightCubeSensor = AnalogInput(Constants.kRightCubeSensorId)
-
     val solenoid = Solenoid(Constants.kPCMId, Constants.kIntakeSolenoidId)
-
-    val cubeIn
-        get() = leftCubeSensor.voltage > Volts(0.9).volts && rightCubeSensor.voltage > Volts(0.9).volts
 
     init {
         defaultCommand = IntakeHoldCommand()

@@ -17,6 +17,16 @@ import java.util.concurrent.TimeUnit
 
 abstract class FalconRobotBase : RobotBase() {
 
+    companion object {
+        lateinit var INSTANCE: FalconRobotBase
+            private set
+    }
+
+    init {
+        @Suppress("LeakingThis")
+        INSTANCE = this
+    }
+
     enum class Mode {
         NONE,
         ANY,
@@ -64,6 +74,9 @@ abstract class FalconRobotBase : RobotBase() {
     var currentMode = Mode.NONE
         private set
 
+    var initialized = false
+        private set
+
     abstract suspend fun initialize()
 
     override fun startCompetition() = runBlocking {
@@ -85,6 +98,7 @@ abstract class FalconRobotBase : RobotBase() {
         }
 
         initialize()
+        initialized = true
         // Start up the default commands
         SubsystemHandler.startDefaultCommands()
 
