@@ -27,7 +27,7 @@ class NonLinearControllerTest {
 
     @Test
     fun testTrajectoryFollower() {
-        val name = "Left Start to Far Scale"
+        val name = "Left Start to Near Scale"
         val trajectory: Trajectory<TimedState<Pose2dWithCurvature>> = Trajectories[name]
         val iterator = TrajectoryIterator(TimedView(trajectory))
         trajectoryFollower = NonLinearController(trajectory)
@@ -51,9 +51,9 @@ class NonLinearControllerTest {
             time += dt * 1.0e+9
 
             totalpose = totalpose.transformBy(Pose2d.fromTwist(Twist2d(
-                    0.5 * output.dx + 0.5 * prevdx,
+                    output.dx + 0.3 * prevdx,
                     output.dy,
-                    0.5 * output.dtheta + 0.5 * prevdtheta)))
+                    output.dtheta + 0.3 * prevdtheta)))
 
 
             prevdx = output.dx
