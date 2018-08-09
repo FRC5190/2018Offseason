@@ -8,79 +8,39 @@ package frc.team5190.lib.commands
 import frc.team5190.lib.extensions.sequential
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Test
+import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
 class CommandGroupTest {
+
+    private fun delayHelper(delay: Long, name: String) = object : Command() {
+        init {
+            withTimeout(delay, TimeUnit.SECONDS)
+        }
+        override suspend fun initialize() = println("$name > START")
+        override suspend fun dispose() {
+            println("$name > ${TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime)}")
+        }
+    }
+
     @Test
     fun testCommandGroup() {
         runBlocking {
-            val start = object  : InstantCommand() {
+            val start = object : InstantCommand() {
             }
             start.start()
             start.await()
 
-            var startTime = System.currentTimeMillis()
             val command = sequential {
-                +InstantRunnableCommand { startTime = System.currentTimeMillis() }
                 parallel {
-                    +object : TimeoutCommand(1L) {
-                        override suspend fun initialize() {
-                            super.initialize()
-                            println("PARALLEL 1")
-                        }
-
-                        override suspend fun dispose() {
-                            super.dispose()
-                            println(System.currentTimeMillis() - startTime)
-                        }
-                    }
+                    +delayHelper(1, "S1 -> P1 -> 1")
                     sequential {
-                        +object : TimeoutCommand(1L) {
-                            override suspend fun initialize() {
-                                super.initialize()
-                                println("PARALLEL 2 SEQ 1")
-                            }
-
-                            override suspend fun dispose() {
-                                super.dispose()
-                                println(System.currentTimeMillis() - startTime)
-                            }
-                        }
+                        +delayHelper(1, "S1 -> P1 -> 2")
                         sequential {
-                            +object : TimeoutCommand(1L) {
-                                override suspend fun initialize() {
-                                    super.initialize()
-                                    println("PARALLEL 2 SEQ 2 SEQ 1")
-                                }
-
-                                override suspend fun dispose() {
-                                    super.dispose()
-                                    println(System.currentTimeMillis() - startTime)
-                                }
-                            }
-                            +object : TimeoutCommand(1L) {
-                                override suspend fun initialize() {
-                                    super.initialize()
-                                    println("PARALLEL 2 SEQ 2 SEQ 2")
-                                }
-
-                                override suspend fun dispose() {
-                                    super.dispose()
-                                    println(System.currentTimeMillis() - startTime)
-                                }
-                            }
+                            +delayHelper(1, "S1 -> P1 -> S1 -> 3")
+                            +delayHelper(1, "S1 -> P1 -> S1 -> 4")
                         }
-                        +object : TimeoutCommand(1L) {
-                            override suspend fun initialize() {
-                                super.initialize()
-                                println("PARALLEL 2 SEQ 3")
-                            }
-
-                            override suspend fun dispose() {
-                                super.dispose()
-                                println(System.currentTimeMillis() - startTime)
-                            }
-                        }
+                        +delayHelper(1, "S1 -> P1 -> 5")
                     }
                 }
             }

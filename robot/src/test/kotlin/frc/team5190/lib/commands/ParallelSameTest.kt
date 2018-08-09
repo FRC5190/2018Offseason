@@ -9,16 +9,12 @@ class ParallelSameTest {
 
     private object FakeSubsystem : Subsystem()
 
-    private class TestCommand(val id: Int) : TimeoutCommand(5, TimeUnit.SECONDS) {
-        init {
-            +FakeSubsystem
-        }
-
+    private fun testCommand(id: Int) = object : Command() {
         override suspend fun initialize() {
             super.initialize()
             println("Start #$id")
         }
-    }
+    }.withTimeout(5, TimeUnit.SECONDS)
 
     @Test
     fun testSameSubsystem() = runBlocking {
@@ -28,11 +24,11 @@ class ParallelSameTest {
         val group = parallel {
             +InstantRunnableCommand { realStartTime = System.currentTimeMillis() }
             sequential {
-                +TimeoutCommand(1, TimeUnit.SECONDS)
-                +TestCommand(1)
-                +TestCommand(3)
+                +DelayCommand(1, TimeUnit.SECONDS)
+                +testCommand(1)
+                +testCommand(3)
             }
-            +TestCommand(2)
+            +testCommand(2)
         }
 
         group.start()

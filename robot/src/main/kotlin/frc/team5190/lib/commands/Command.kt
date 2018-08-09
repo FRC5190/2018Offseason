@@ -7,6 +7,7 @@ import frc.team5190.lib.wrappers.FalconRobotBase
 import kotlinx.coroutines.experimental.DisposableHandle
 import kotlinx.coroutines.experimental.disposeOnCancellation
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
+import java.util.concurrent.TimeUnit
 
 abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) : CompletionHandler {
     companion object {
@@ -14,7 +15,7 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) : CompletionHan
     }
 
     init {
-        if (!FalconRobotBase.DEBUG  && FalconRobotBase.INSTANCE.initialized) {
+        if (!FalconRobotBase.DEBUG && FalconRobotBase.INSTANCE.initialized) {
             println("[Command} [WARNING] It is not recommended to create commands after the robot has initialized!")
         }
     }
@@ -29,7 +30,13 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) : CompletionHan
     internal val exposedCondition: Condition
         get() = finishCondition
 
+    private var timeoutCondition: DelayCondition? = null
+    var timeout = 0L to TimeUnit.SECONDS
+        private set
+
     var commandState = CommandState.PREPARED
+        internal set
+    var startTime = 0L
         internal set
 
     enum class CommandState(val finished: Boolean) {
@@ -92,17 +99,38 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) : CompletionHan
 
     protected operator fun Subsystem.unaryPlus() = (requiredSubsystems as MutableList).add(this)
 
-    open suspend fun initialize() {}
-    open suspend fun execute() {}
-    open suspend fun dispose() {}
+    open suspend fun initialize0() {
+        initialize()
+        timeoutCondition?.start(startTime)
+    }
 
-    fun start() = CommandHandler.start(this)
+    open suspend fun execute0() = execute()
+    open suspend fun dispose0() {
+        timeoutCondition?.stop()
+        dispose()
+    }
 
-    fun stop() = CommandHandler.stop(this)
+    protected open suspend fun initialize() {}
+    protected open suspend fun execute() {}
+    protected open suspend fun dispose() {}
+
+    fun start() = CommandHandler.start(this, System.nanoTime())
+
+    fun stop() = CommandHandler.stop(this, System.nanoTime())
 
     override fun invokeOnCompletion(block: CompletionCallback.() -> Unit) = completionHandler.invokeOnCompletion(block)
 
     fun withExit(condition: Condition) = also { finishCondition += condition }
+    fun withTimeout(delay: Long, unit: TimeUnit = TimeUnit.MILLISECONDS) = also {
+        timeout = delay to unit
+        if (timeoutCondition == null) {
+            timeoutCondition = DelayCondition(delay, unit)
+            finishCondition += timeoutCondition!!
+        } else {
+            timeoutCondition!!.delay = delay
+            timeoutCondition!!.unit = unit
+        }
+    }
 
     suspend fun await() = suspendCancellableCoroutine<Unit> { cont ->
         cont.disposeOnCancellation(invokeOnceOnCompletion {

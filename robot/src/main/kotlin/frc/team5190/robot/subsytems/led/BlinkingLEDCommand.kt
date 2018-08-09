@@ -1,22 +1,16 @@
 package frc.team5190.robot.subsytems.led
 
-import frc.team5190.lib.commands.TimeoutCommand
+import frc.team5190.lib.commands.Command
+import frc.team5190.lib.commands.DelayCommand
 import frc.team5190.lib.extensions.setLEDOutput
 import frc.team5190.robot.sensors.Canifier
 import java.awt.Color
 import java.util.concurrent.TimeUnit
 
 class BlinkingLEDCommand(private val color: Color,
-                         private val blinkIntervalMs: Long,
-                         timeout: Long = Long.MAX_VALUE) : TimeoutCommand(timeout, TimeUnit.MILLISECONDS) {
+                         private val blinkIntervalMs: Long) : Command() {
     init {
         +LEDSubsystem
-        updateFrequency = DEFAULT_FREQUENCY
-    }
-
-    override suspend fun initialize() {
-        super.initialize()
-        println(updateFrequency)
     }
 
     override suspend fun execute() {

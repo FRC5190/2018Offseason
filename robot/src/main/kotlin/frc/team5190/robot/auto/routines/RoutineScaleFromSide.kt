@@ -41,7 +41,7 @@ class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPosi
             val drop3rdCube   = FollowTrajectoryCommand(identifier = "Cube 2 to Scale", pathMirrored = mirrored)
             val pickup4thCube = FollowTrajectoryCommand(identifier = "Scale to Cube 3", pathMirrored = mirrored)
 
-            val after2ndCube = TimeoutCommand(250, TimeUnit.MILLISECONDS)
+            val after2ndCube = DelayCommand(250, TimeUnit.MILLISECONDS)
 
             val elevatorUp   = drop1stCube.addMarkerAt(Translation2d(11.0, 23.1))
             val shoot1stCube = drop1stCube.addMarkerAt(if (mirrored) Translation2d(22.3, 20.6) else Translation2d(19.0, 8.0))
@@ -61,14 +61,12 @@ class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPosi
 
                 }
                 sequential {
-                    +TimeoutCommand(250, TimeUnit.MILLISECONDS)
+                    +DelayCommand(250, TimeUnit.MILLISECONDS)
 
-                    val timeOut = TimeoutCommand(1, TimeUnit.SECONDS)
                     parallel {
-                        +timeOut
                         +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.SWITCH)
                         +ClosedLoopArmCommand(ArmSubsystem.Position.UP)
-                    }.withExit(timeOut.timeoutCondition)
+                    }.withTimeout(1, TimeUnit.SECONDS)
 
                     +ConditionCommand(condition { drop1stCube.hasCrossedMarker(elevatorUp) } or drop1stCube)
                     +SubsystemPreset.BEHIND.command.withExit(condition(drop1stCube))
@@ -91,7 +89,7 @@ class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPosi
 
                     +SubsystemPreset.BEHIND.command.withExit(condition(drop3rdCube))
                     +ConditionCommand(condition { drop3rdCube.hasCrossedMarker(shoot3rdCube) })
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT, timeout = 500L)
+                    +IntakeCommand(IntakeSubsystem.Direction.OUT).withTimeout(500L)
 
                     parallel {
                         +SubsystemPreset.INTAKE.command.withExit(condition(pickup4thCube))

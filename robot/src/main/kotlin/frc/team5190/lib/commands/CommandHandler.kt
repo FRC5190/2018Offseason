@@ -21,9 +21,9 @@ object CommandHandler {
     private val tasks = mutableListOf<CommandTaskImpl>()
 
     private sealed class CommandEvent {
-        class StartEvent(val command: Command) : CommandEvent()
-        class StopCommandEvent(val command: Command) : CommandEvent()
-        class StopEvent(val command: CommandTaskImpl, val startDefault: (Subsystem) -> Boolean) : CommandEvent()
+        class StartEvent(val command: Command, val startTime: Long) : CommandEvent()
+        class StopCommandEvent(val command: Command, val stopTime: Long) : CommandEvent()
+        class StopEvent(val command: CommandTaskImpl, val stopTime: Long, val startDefault: (Subsystem) -> Boolean) : CommandEvent()
     }
 
     private val commandActor = actor<CommandEvent>(context = commandContext, capacity = Channel.UNLIMITED) {
@@ -40,15 +40,15 @@ object CommandHandler {
                 // Free up required subsystems so we can start the command
                 val commandsToStop = tasks.filter { task -> task.subsystems.any { subsystem -> subsystems.contains(subsystem) } }.toSet()
                 // Stop the tasks that require the subsystems we need and start default commands for subsystems we don't need
-                commandsToStop.forEach { task -> handleEvent(CommandEvent.StopEvent(task) { subsystem -> !subsystems.contains(subsystem) }) }
+                commandsToStop.forEach { task -> handleEvent(CommandEvent.StopEvent(task, event.startTime) { subsystem -> !subsystems.contains(subsystem) }) }
                 // Start the command
                 val task = CommandTaskImpl(command, subsystems.toList())
                 tasks.add(task)
-                task.initialize()
+                task.initialize(event.startTime)
             }
             is CommandEvent.StopCommandEvent -> {
                 val task = tasks.find { it.command == event.command } ?: return
-                handleEvent(CommandEvent.StopEvent(task) { true })
+                handleEvent(CommandEvent.StopEvent(task, event.stopTime) { true })
             }
             is CommandEvent.StopEvent -> {
                 val command = event.command
@@ -59,24 +59,24 @@ object CommandHandler {
                 val subsystems = command.subsystems.filter { event.startDefault(it) }
                 for (subsystem in subsystems) {
                     val default = subsystem.defaultCommand
-                    if (default != null) handleEvent(CommandEvent.StartEvent(default))
+                    if (default != null) handleEvent(CommandEvent.StartEvent(default, event.stopTime))
                 }
             }
         }
     }
 
-    fun start(command: Command) {
+    fun start(command: Command, startTime: Long) {
         // Check if all subsystems are registered
         for (subsystem in command.requiredSubsystems) {
             if (!SubsystemHandler.isRegistered(subsystem)) throw IllegalArgumentException("A command required a subsystem that hasnt been registered! Subsystem: ${subsystem.name} ${subsystem::class.java.simpleName} Command: ${command::class.java.simpleName}")
         }
-        commandActor.sendBlocking(CommandEvent.StartEvent(command))
+        commandActor.sendBlocking(CommandEvent.StartEvent(command, startTime))
     }
 
-    fun stop(command: Command) = commandActor.sendBlocking(CommandEvent.StopCommandEvent(command))
+    fun stop(command: Command, stopTime: Long) = commandActor.sendBlocking(CommandEvent.StopCommandEvent(command, stopTime))
 
     private open class CommandTaskImpl(command: Command, val subsystems: List<Subsystem>) : CommandTask(command) {
-        override suspend fun stop() = stop(command)
+        override suspend fun stop(stopTime: Long) = stop(command, stopTime)
     }
 
     abstract class CommandTask(val command: Command) {
@@ -86,13 +86,19 @@ object CommandHandler {
 
         private var started = false
 
-        suspend fun initialize() = commandMutex.withLock {
+        suspend fun initialize(startTime: Long) = commandMutex.withLock {
             started = true
             command.commandState = Command.CommandState.BAKING
-            command.initialize()
+            command.startTime = startTime
+            command.initialize0()
             command.exposedCondition.invokeOnceOnCompletion {
                 finishedNormally = true
-                launch(commandContext) { stop() } // Stop the command early
+                val timeout = command.timeout
+                val stopTime = if (timeout.first > 0) {
+                    Math.min(startTime + timeout.second.toNanos(timeout.first), System.nanoTime())
+                } else System.nanoTime()
+
+                launch(commandContext) { stop(stopTime) } // Stop the command early
             }
             val frequency = command.updateFrequency
             if (frequency == 0) return@withLock
@@ -107,12 +113,12 @@ object CommandHandler {
                         if (command.isFinished()) {
                             finishedNormally = true
                             // stop command if finished
-                            stop()
+                            stop(System.nanoTime())
                             return@launch
                         }
                         commandMutex.withLock {
                             if (!isActive) return@launch
-                            command.execute()
+                            command.execute0()
                         }
                     } catch (e: Throwable) {
                         e.printStackTrace()
@@ -129,10 +135,10 @@ object CommandHandler {
             command.commandState = if (finishedNormally) Command.CommandState.BAKED else Command.CommandState.BURNT
             updater?.cancel()
             updater = null
-            command.dispose()
+            command.dispose0()
             command.completionHandler.invokeCompletionListeners()
         }
 
-        abstract suspend fun stop()
+        abstract suspend fun stop(stopTime: Long)
     }
 }

@@ -5,10 +5,7 @@
 
 package frc.team5190.robot.auto.routines
 
-import frc.team5190.lib.commands.CommandGroup
-import frc.team5190.lib.commands.ConditionCommand
-import frc.team5190.lib.commands.TimeoutCommand
-import frc.team5190.lib.commands.condition
+import frc.team5190.lib.commands.*
 import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.math.geometry.Pose2d
 import frc.team5190.lib.math.geometry.Translation2d
@@ -52,10 +49,10 @@ class RoutineSwitchScaleFromCenter(startingPosition: Autonomous.StartingPosition
                     +drop2ndCube
                 }
                 sequential {
-                    +TimeoutCommand(250L, TimeUnit.MILLISECONDS)
+                    +DelayCommand(250L, TimeUnit.MILLISECONDS)
                     +SubsystemPreset.SWITCH.command.withExit(condition(drop1stCube))
                     +ConditionCommand(condition { drop1stCube.hasCrossedMarker(shoot1stCube) })
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT, timeout = 500L)
+                    +IntakeCommand(IntakeSubsystem.Direction.OUT).withTimeout(500L)
                     +SubsystemPreset.INTAKE.command.withExit(condition(toCenter))
                     +ConditionCommand(condition(toCenter))
                     +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(condition(toPyramid))

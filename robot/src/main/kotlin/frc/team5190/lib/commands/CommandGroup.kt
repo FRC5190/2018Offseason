@@ -34,7 +34,7 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
     }
 
     protected abstract suspend fun handleStartEvent()
-    protected open suspend fun handleFinishEvent() {}
+    protected open suspend fun handleFinishEvent(stopTime: Long) {}
 
     override suspend fun initialize() {
         commandGroupHandler = if (parentCommandGroup != null) NestedCommandGroupHandler() else BaseCommandGroupHandler()
@@ -47,17 +47,17 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
 
     override suspend fun dispose() = commandGroupHandler.dispose()
 
-    protected suspend fun start(task: GroupCommandTask) = commandGroupHandler.startCommand(task)
+    protected suspend fun start(task: GroupCommandTask, startTime: Long) = commandGroupHandler.startCommand(task, startTime)
 
     protected inner class GroupCommandTask(val group: CommandGroup, command: Command) : CommandHandler.CommandTask(command) {
-        override suspend fun stop() = commandGroupHandler.commandFinishCallback(this)
+        override suspend fun stop(stopTime: Long) = commandGroupHandler.commandFinishCallback(this, stopTime)
     }
 
     private interface CommandGroupHandler {
         suspend fun start()
         suspend fun dispose()
-        suspend fun commandFinishCallback(task: GroupCommandTask)
-        suspend fun startCommand(task: GroupCommandTask)
+        suspend fun commandFinishCallback(task: GroupCommandTask, stopTime: Long)
+        suspend fun startCommand(task: GroupCommandTask, startTime: Long)
     }
 
     private inner class NestedCommandGroupHandler : CommandGroupHandler {
@@ -65,13 +65,13 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
 
         override suspend fun start() = Unit
         override suspend fun dispose() = Unit
-        override suspend fun commandFinishCallback(task: GroupCommandTask) = parentHandler.commandFinishCallback(task)
-        override suspend fun startCommand(task: GroupCommandTask) = parentHandler.startCommand(task)
+        override suspend fun commandFinishCallback(task: GroupCommandTask, stopTime: Long) = parentHandler.commandFinishCallback(task, stopTime)
+        override suspend fun startCommand(task: GroupCommandTask, startTime: Long) = parentHandler.startCommand(task, startTime)
     }
 
     private sealed class GroupEvent {
-        class StartTask(val task: GroupCommandTask) : GroupEvent()
-        class FinishTask(val task: GroupCommandTask) : GroupEvent()
+        class StartTask(val task: GroupCommandTask, val startTime: Long) : GroupEvent()
+        class FinishTask(val task: GroupCommandTask, val stopTime: Long) : GroupEvent()
         object DestroyTask : GroupEvent()
     }
 
@@ -101,14 +101,14 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
             when (event) {
                 is GroupEvent.StartTask -> {
                     val task = event.task
-                    if(runningCommands.contains(task)) {
+                    if (runningCommands.contains(task)) {
                         println("[Command Group] Command ${task.command::class.java.simpleName} is already running, discarding...")
                         return
                     }
                     if (task.command is CommandGroup) {
-                        runningCommands+= task
+                        runningCommands += task
                         task.command.parentCommandGroup = this@CommandGroup
-                        task.initialize()
+                        task.initialize(event.startTime)
                         return
                     }
                     val canStart = canStart(task)
@@ -117,15 +117,18 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
                         println("[Command Group] Command ${task.command::class.java.simpleName} was delayed since it requires a subsystem that already being used in the command group tree")
                         return
                     }
+                    runningCommands += task
                     activeCommands += task
-                    task.initialize()
+                    task.initialize(event.startTime)
                 }
                 is GroupEvent.FinishTask -> {
                     val task = event.task
+                    if(!runningCommands.contains(task)) return // discard extra requests
                     runningCommands -= task
                     task.dispose()
                     task.group.commandTasks -= task
                     activeCommands -= task
+                    task.group.parentCommandGroup = null
                     if (destroyed) {
                         closeIfFinished()
                         return // ignore
@@ -136,26 +139,26 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
                         nextTask = queuedCommands.find { canStart(it) }
                         if (nextTask != null) {
                             queuedCommands -= nextTask
-                            handleEvent(GroupEvent.StartTask(nextTask))
+                            handleEvent(GroupEvent.StartTask(nextTask, event.stopTime))
                         }
                     } while (nextTask != null)
                     if (task.group.commandTasks.isEmpty()) {
                         task.group.groupCondition.invoke()
                         return // command group finished
                     }
-                    task.group.handleFinishEvent()
+                    task.group.handleFinishEvent(event.stopTime)
                 }
                 is GroupEvent.DestroyTask -> {
                     destroyed = true
                     // signal current tasks to dispose
-                    activeCommands.forEach { it.stop() }
+                    activeCommands.forEach { it.stop(System.nanoTime()) }
                     closeIfFinished()
                 }
             }
         }
 
         private fun closeIfFinished() {
-            if(activeCommands.isEmpty()) groupActor.close() // close up
+            if (activeCommands.isEmpty()) groupActor.close() // close up
         }
 
         private fun canStart(task: GroupCommandTask): Boolean {
@@ -172,8 +175,8 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
             groupActor.close()
         }
 
-        override suspend fun commandFinishCallback(task: GroupCommandTask) = groupActor.send(GroupEvent.FinishTask(task))
-        override suspend fun startCommand(task: GroupCommandTask) = groupActor.send(GroupEvent.StartTask(task))
+        override suspend fun commandFinishCallback(task: GroupCommandTask, stopTime: Long) = groupActor.send(GroupEvent.FinishTask(task, stopTime))
+        override suspend fun startCommand(task: GroupCommandTask, startTime: Long) = groupActor.send(GroupEvent.StartTask(task, startTime))
     }
 }
 
@@ -181,7 +184,7 @@ open class ParallelCommandGroup(commands: List<Command>) : CommandGroup(commands
     override suspend fun handleStartEvent() {
         // Start all commands so they run in parallel
         val tasksToStart = commandTasks.toList()
-        tasksToStart.forEach { start(it) }
+        tasksToStart.forEach { start(it, startTime) }
     }
 }
 
@@ -189,12 +192,12 @@ open class SequentialCommandGroup(commands: List<Command>) : CommandGroup(comman
     private lateinit var taskIterator: Iterator<GroupCommandTask>
     override suspend fun handleStartEvent() {
         taskIterator = commandTasks.iterator()
-        startNextCommand() // Start only the first command
+        startNextCommand(startTime) // Start only the first command
     }
 
-    override suspend fun handleFinishEvent() = startNextCommand() // Start next command
+    override suspend fun handleFinishEvent(stopTime: Long) = startNextCommand(stopTime) // Start next command
 
-    private suspend fun startNextCommand() {
-        if(taskIterator.hasNext()) start(taskIterator.next())
+    private suspend fun startNextCommand(startTime: Long) {
+        if (taskIterator.hasNext()) start(taskIterator.next(), startTime)
     }
 }

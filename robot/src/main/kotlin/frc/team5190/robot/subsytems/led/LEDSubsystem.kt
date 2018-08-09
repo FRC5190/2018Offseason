@@ -4,6 +4,7 @@ import frc.team5190.lib.commands.Subsystem
 import frc.team5190.lib.extensions.sequential
 import frc.team5190.robot.sensors.CubeSensors
 import java.awt.Color
+import java.util.concurrent.TimeUnit
 
 object LEDSubsystem : Subsystem() {
 
@@ -11,7 +12,7 @@ object LEDSubsystem : Subsystem() {
         defaultCommand = SolidLEDCommand(Color.BLACK)
 
         val blinkCommandGroup = sequential {
-            +BlinkingLEDCommand(Color.MAGENTA, 400, 2000)
+            +BlinkingLEDCommand(Color.MAGENTA, 400).withTimeout(2, TimeUnit.SECONDS)
             +SolidLEDCommand(Color.MAGENTA)
         }
 

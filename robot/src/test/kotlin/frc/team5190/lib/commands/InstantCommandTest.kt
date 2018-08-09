@@ -14,11 +14,6 @@ class InstantCommandTest {
         start.await()
 
         val instantCommand = object : InstantCommand() {
-            private var startTime = 0L
-            override suspend fun initialize() {
-                startTime = System.nanoTime()
-            }
-
             override suspend fun dispose() {
                 val endTime = System.nanoTime()
                 println("Init -> Dispose ${(endTime - startTime) / 1.0e+6}")
