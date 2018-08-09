@@ -11,10 +11,15 @@ class BlinkingLEDCommand(private val color: Color,
                          timeout: Long = Long.MAX_VALUE) : TimeoutCommand(timeout, TimeUnit.MILLISECONDS) {
     init {
         +LEDSubsystem
+        updateFrequency = DEFAULT_FREQUENCY
+    }
+
+    override suspend fun initialize() {
+        super.initialize()
+        println(updateFrequency)
     }
 
     override suspend fun execute() {
-        super.execute()
         if (System.currentTimeMillis() % blinkIntervalMs > (blinkIntervalMs / 2)) {
             Canifier.setLEDOutput(Color.BLACK)
         } else {

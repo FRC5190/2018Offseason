@@ -109,10 +109,10 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
     override suspend fun dispose() {
         DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = 0.0, rightOutput = 0.0)
         println("[Trajectory Follower] " +
-                "Norm of Translational Error: " +
+                "Norm of Translational Error for $identifier: " +
                 "${(Localization.robotPosition.translation - trajectory.lastState.state.translation).norm}")
         println("[Trajectory Follower]" +
-                "Rotation Error: " +
+                "Rotation Error for $identifier: " +
                 "${(Localization.robotPosition.rotation - trajectory.lastState.state.rotation).degrees} degrees.")
 
     }

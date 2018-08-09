@@ -4,7 +4,6 @@ import frc.team5190.lib.utils.CompletionCallback
 import frc.team5190.lib.utils.CompletionHandler
 import frc.team5190.lib.utils.CompletionHandlerImpl
 import frc.team5190.lib.wrappers.FalconRobotBase
-import frc.team5190.robot.Robot
 import kotlinx.coroutines.experimental.DisposableHandle
 import kotlinx.coroutines.experimental.disposeOnCancellation
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
@@ -15,7 +14,7 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) : CompletionHan
     }
 
     init {
-        if(FalconRobotBase.INSTANCE.initialized){
+        if (FalconRobotBase.INSTANCE.initialized) {
             println("[Command} [WARNING] It is not recommended to create commands after the robot has initialized!")
         }
     }
@@ -97,9 +96,9 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) : CompletionHan
     open suspend fun execute() {}
     open suspend fun dispose() {}
 
-    suspend fun start() = CommandHandler.start(this)
+    fun start() = CommandHandler.start(this)
 
-    suspend fun stop() = CommandHandler.stop(this)
+    fun stop() = CommandHandler.stop(this)
 
     override fun invokeOnCompletion(block: CompletionCallback.() -> Unit) = completionHandler.invokeOnCompletion(block)
 

@@ -53,7 +53,7 @@ class NonLinearController(trajectory: Trajectory<TimedState<Pose2dWithCurvature>
     }
 
     companion object {
-        private const val kB = 2.0
+        private const val kB = 0.7
         private const val kZeta = 0.7
         private const val kMaxSafeV = 12.0
         private const val kMaxSafeW = PI

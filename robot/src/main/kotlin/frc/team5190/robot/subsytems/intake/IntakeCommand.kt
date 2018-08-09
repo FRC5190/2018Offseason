@@ -21,6 +21,7 @@ class IntakeCommand(private val direction: IntakeSubsystem.Direction,
 
     init {
         +IntakeSubsystem
+        updateFrequency = DEFAULT_FREQUENCY
         if(direction == IntakeSubsystem.Direction.IN) finishCondition += CubeSensors.cubeIn
     }
 

@@ -3,6 +3,7 @@ package frc.team5190.lib.commands
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.actor
+import kotlinx.coroutines.experimental.channels.sendBlocking
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
@@ -64,15 +65,15 @@ object CommandHandler {
         }
     }
 
-    suspend fun start(command: Command) {
+    fun start(command: Command) {
         // Check if all subsystems are registered
         for (subsystem in command.requiredSubsystems) {
             if (!SubsystemHandler.isRegistered(subsystem)) throw IllegalArgumentException("A command required a subsystem that hasnt been registered! Subsystem: ${subsystem.name} ${subsystem::class.java.simpleName} Command: ${command::class.java.simpleName}")
         }
-        commandActor.send(CommandEvent.StartEvent(command))
+        commandActor.sendBlocking(CommandEvent.StartEvent(command))
     }
 
-    suspend fun stop(command: Command) = commandActor.send(CommandEvent.StopCommandEvent(command))
+    fun stop(command: Command) = commandActor.sendBlocking(CommandEvent.StopCommandEvent(command))
 
     private open class CommandTaskImpl(command: Command, val subsystems: List<Subsystem>) : CommandTask(command) {
         override suspend fun stop() = stop(command)

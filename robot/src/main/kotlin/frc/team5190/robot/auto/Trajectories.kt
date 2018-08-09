@@ -30,8 +30,7 @@ object Trajectories {
     // Constants in Feet Per Second
     private const val kMaxVelocity                = 9.0
     private const val kMaxAcceleration            = 5.0
-    private const val kMaxCentripetalAcceleration = 5.0
-
+    private const val kMaxCentripetalAcceleration = 4.5
 
     // Constraints
     private val kConstraints = arrayListOf<TimingConstraint<Pose2dWithCurvature>>(
@@ -175,11 +174,6 @@ object Trajectories {
                 kSideStart,
                 kSideStart.transformBy(Pose2d(Translation2d(-10.0, 0.0), Rotation2d()))
         ).also { generateTrajectory("Baseline", true, it) }
-
-
-        runBlocking {
-            trajectories.values.awaitAll()
-        }
     }
 
     operator fun get(identifier: String): Trajectory<TimedState<Pose2dWithCurvature>> = runBlocking {
@@ -200,10 +194,4 @@ object Trajectories {
             }
         }
     }
-}
-
-fun main(args: Array<String>) {
-    println("3 Cube Near Scale Auto: ${Trajectories["Left Start to Near Scale"].lastState.t +
-            Trajectories["Scale to Cube 1"].lastState.t + Trajectories["Cube 1 to Scale"].lastState.t +
-            Trajectories["Scale to Cube 2"].lastState.t + Trajectories["Cube 2 to Scale"].lastState.t} seconds.")
 }

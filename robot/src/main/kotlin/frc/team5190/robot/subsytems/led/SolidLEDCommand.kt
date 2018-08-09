@@ -10,7 +10,7 @@ class SolidLEDCommand(private val color: Color) : Command() {
         +LEDSubsystem
     }
 
-    override suspend fun initialize() {
+    override suspend fun execute() {
         Canifier.setLEDOutput(color)
     }
 }

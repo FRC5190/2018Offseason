@@ -9,9 +9,9 @@ open class TimeoutCommand(private val timeout: Long, private val unit: TimeUnit 
         private val timeoutContext = newFixedThreadPoolContext(1, "Timeout Command")
     }
 
-    private val timeoutCondition = TimeoutCondition()
+    val timeoutCondition = TimeoutCondition()
 
-    private inner class TimeoutCondition : Condition() {
+    inner class TimeoutCondition : Condition() {
         private lateinit var job: Job
         private var startTime = 0L
 

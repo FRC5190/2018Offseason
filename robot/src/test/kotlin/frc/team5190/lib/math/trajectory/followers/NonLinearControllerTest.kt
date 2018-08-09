@@ -27,12 +27,12 @@ class NonLinearControllerTest {
 
     @Test
     fun testTrajectoryFollower() {
-        val name = "Left Start to Near Scale"
+        val name = "Pyramid to Scale"
         val trajectory: Trajectory<TimedState<Pose2dWithCurvature>> = Trajectories[name]
         val iterator = TrajectoryIterator(TimedView(trajectory))
         trajectoryFollower = NonLinearController(trajectory)
 
-        var totalpose = trajectory.firstState.state.pose.transformBy(Pose2d(Translation2d(-1.0, 5.0), Rotation2d.fromDegrees(40.0)))
+        var totalpose = trajectory.firstState.state.pose
 
         var time = 0.0
         val dt = 0.02

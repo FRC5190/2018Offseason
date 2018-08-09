@@ -16,6 +16,7 @@ import frc.team5190.robot.auto.routines.RoutineSwitchFromCenter
 import frc.team5190.robot.auto.routines.RoutineSwitchScaleFromCenter
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.newSingleThreadContext
 import openrio.powerup.MatchData
 import openrio.powerup.MatchData.GameFeature.SCALE
 import openrio.powerup.MatchData.GameFeature.SWITCH_NEAR
@@ -32,7 +33,6 @@ object Autonomous {
     private var nearScaleAutoMode = ScaleAutoMode.THREECUBE
     private var farScaleAutoMode = ScaleAutoMode.THREECUBE
 
-
     private val farScale
         get() = startingPosition.name.first().toUpperCase() != scaleSide.name.first().toUpperCase()
 
@@ -43,13 +43,13 @@ object Autonomous {
         get() = StartingPositions.valueOf(NetworkInterface.startingPosition.getString("Left").toUpperCase())
 
     private val networkSwitchAutoMode
-        get() = SwitchAutoMode.valueOf(NetworkInterface.switchAutoMode.getString("Robonauts").toUpperCase())
+        get() = SwitchAutoMode.valueOf(NetworkInterface.switchAutoMode.getString("Basic").toUpperCase())
 
     private val networkNearScaleAutoMode
-        get() = ScaleAutoMode.valueOf(NetworkInterface.nearScaleAutoMode.getString("ThreeCube").toUpperCase())
+        get() = ScaleAutoMode.valueOf(NetworkInterface.nearScaleAutoMode.getString("Baseline").toUpperCase())
 
     private val networkFarScaleAutoMode
-        get() = ScaleAutoMode.valueOf(NetworkInterface.farScaleAutoMode.getString("ThreeCube").toUpperCase())
+        get() = ScaleAutoMode.valueOf(NetworkInterface.farScaleAutoMode.getString("Baseline").toUpperCase())
 
 
     private val continuePolling
@@ -63,10 +63,11 @@ object Autonomous {
                 networkNearScaleAutoMode != nearScaleAutoMode ||
                 networkFarScaleAutoMode != farScaleAutoMode
 
+    private val autoContext = newSingleThreadContext("Auto")
 
     init {
         // Poll for FMS Data
-        launch {
+        launch(autoContext) {
             var JUST = RoutineBaseline(startingPosition).routine
             val IT = ""
 

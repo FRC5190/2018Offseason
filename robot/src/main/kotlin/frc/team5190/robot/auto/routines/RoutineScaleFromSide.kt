@@ -41,9 +41,9 @@ class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPosi
             val drop3rdCube   = FollowTrajectoryCommand(identifier = "Cube 2 to Scale", pathMirrored = mirrored)
             val pickup4thCube = FollowTrajectoryCommand(identifier = "Scale to Cube 3", pathMirrored = mirrored)
 
-            val after2ndCube  = TimeoutCommand(250, TimeUnit.MILLISECONDS)
+            val after2ndCube = TimeoutCommand(250, TimeUnit.MILLISECONDS)
 
-            val elevatorUp   = drop1stCube.addMarkerAt(Translation2d(14.0, 23.1))
+            val elevatorUp   = drop1stCube.addMarkerAt(Translation2d(11.0, 23.1))
             val shoot1stCube = drop1stCube.addMarkerAt(if (mirrored) Translation2d(22.3, 20.6) else Translation2d(19.0, 8.0))
             val shoot2ndCube = drop2ndCube.addMarkerAt(Translation2d(22.5, 19.9))
             val shoot3rdCube = drop3rdCube.addMarkerAt(Translation2d(22.5, 19.9))
@@ -58,14 +58,17 @@ class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPosi
                     +pickup3rdCube
                     +drop3rdCube
                     +pickup4thCube
+
                 }
                 sequential {
                     +TimeoutCommand(250, TimeUnit.MILLISECONDS)
 
+                    val timeOut = TimeoutCommand(1, TimeUnit.SECONDS)
                     parallel {
+                        +timeOut
                         +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.SWITCH)
                         +ClosedLoopArmCommand(ArmSubsystem.Position.UP)
-                    }
+                    }.withExit(timeOut.timeoutCondition)
 
                     +ConditionCommand(condition { drop1stCube.hasCrossedMarker(elevatorUp) } or drop1stCube)
                     +SubsystemPreset.BEHIND.command.withExit(condition(drop1stCube))

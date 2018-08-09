@@ -44,6 +44,6 @@ class CommandGroupBuilder(private val type: BuilderType) {
 
 
 @Suppress("FunctionName", "UNUSED_PARAMETER")
-suspend infix fun CommandGroup.S3ND(other: String) {
+infix fun CommandGroup.S3ND(other: String) {
     this.start()
 }

@@ -100,7 +100,9 @@ abstract class FalconRobotBase : RobotBase() {
         initialize()
         initialized = true
         // Start up the default commands
+        println("[Robot] Initialized and starting default commands")
         SubsystemHandler.startDefaultCommands()
+        println("[Robot] Default commands started")
 
         handleEnter(Mode.ANY)
 

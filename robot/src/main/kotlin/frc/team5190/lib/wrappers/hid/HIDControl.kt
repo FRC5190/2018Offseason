@@ -30,6 +30,7 @@ class HIDButton(private val source: HIDSource,
                 whileOff.forEach { it() }
             }
         }
+        lastValue = newValue
     }
 }
 
