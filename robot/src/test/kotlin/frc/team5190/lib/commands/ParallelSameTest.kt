@@ -9,14 +9,14 @@ class ParallelSameTest {
 
     private object FakeSubsystem : Subsystem()
 
-    private class TestCommand : TimeoutCommand(5, TimeUnit.SECONDS) {
+    private class TestCommand(val id: Int) : TimeoutCommand(5, TimeUnit.SECONDS) {
         init {
             +FakeSubsystem
         }
 
         override suspend fun initialize() {
             super.initialize()
-            println("Start")
+            println("Start #$id")
         }
     }
 
@@ -29,9 +29,10 @@ class ParallelSameTest {
             +InstantRunnableCommand { realStartTime = System.currentTimeMillis() }
             sequential {
                 +TimeoutCommand(1, TimeUnit.SECONDS)
-                +TestCommand()
+                +TestCommand(1)
+                +TestCommand(3)
             }
-            +TestCommand()
+            +TestCommand(2)
         }
 
         group.start()

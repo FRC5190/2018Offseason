@@ -1,6 +1,5 @@
 package frc.team5190.lib.commands
 
-import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.actor
@@ -18,111 +17,13 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
         private set
     override val requiredSubsystems = commands.map { it.requiredSubsystems }.flatten()
 
-    /**
-     * Subsystems that are currently being used somewhere
-     */
-    private val reservedSubsystems = mutableMapOf<Subsystem, GroupCommandTask>()
-    private val reservedSubsystemQueue = mutableListOf<GroupCommandTask>()
     private var parentCommandGroup: CommandGroup? = null
-
-    private val actorMutex = Mutex()
-    private var started = false
-    private lateinit var startDeferred: CompletableDeferred<Unit>
-    protected val activeCommands = mutableListOf<GroupCommandTask>()
-
-    private sealed class GroupEvent {
-        object StartEvent : GroupEvent()
-        class ReserveEvent(val command: GroupCommandTask) : GroupEvent()
-        class ReserveFinishEvent(val command: GroupCommandTask) : GroupEvent()
-        class FinishEvent(val task: GroupCommandTask) : GroupEvent()
-    }
-
-    private lateinit var groupActor: SendChannel<GroupEvent>
-
-    private suspend fun handleEvent(event: GroupEvent) {
-        when (event) {
-            is GroupEvent.StartEvent -> {
-                if (commands.isEmpty()) {
-                    started = true
-                    groupCondition.invoke() // End early since there is no commands in this group
-                } else {
-                    handleStartEvent()
-                    started = true
-                }
-            }
-            is GroupEvent.FinishEvent -> {
-                val task = event.task
-                // Discard if the command somehow gets removed twice
-                if (!activeCommands.contains(task)) return
-                task.dispose()
-                activeCommands.remove(task)
-                if (activeCommands.isEmpty()) {
-                    // Stop early since the command is finished
-                    groupCondition.invoke()
-                    return
-                }
-                task.reserveCallback()
-                handleFinishEvent()
-            }
-            is GroupEvent.ReserveEvent -> {
-                assert(parentCommandGroup == null)
-                val task = event.command
-                val command = task.command
-                if (command is CommandGroup) {
-                    // Command Groups dont need this
-                    command.parentCommandGroup = this
-                    task.reserveCallback = {}
-                    task.initialize()
-                    return
-                }
-                val subsystemsNeeded = command.requiredSubsystems
-                if (reservedSubsystems.keys.any { subsystemsNeeded.contains(it) }) {
-                    // Subsystem is currently in use, delay the start
-                    reservedSubsystemQueue += task
-                    println("[Command Group] Command ${command::class.java.simpleName} was delayed since it requires a subsystem that already being used in the command group tree")
-                    return
-                }
-                // Subsystems are free, start the task
-                startReserved(task)
-            }
-            is GroupEvent.ReserveFinishEvent -> {
-                assert(parentCommandGroup == null)
-                val task = event.command
-                // remove reserved subsystems from map
-                reservedSubsystems.filterValues { it == task }.forEach { reservedSubsystems.remove(it.key) }
-                println("Removed Reserve ${task.command::class.java.simpleName} CURRENT: ${reservedSubsystems.keys.joinToString { it::class.java.simpleName }}")
-                // find commands that can run
-                while (true) {
-                    val nextCommand = reservedSubsystemQueue.find { nextTask ->
-                        reservedSubsystems.keys.none { nextTask.command.requiredSubsystems.contains(it) }
-                    } ?: return
-                    // Next command found, remove from queue and run it
-                    reservedSubsystemQueue.remove(nextCommand)
-                    startReserved(nextCommand)
-                }
-            }
-        }
-    }
-
-    private suspend fun startReserved(task: GroupCommandTask) {
-        val subsystemsNeeded = task.command.requiredSubsystems
-        subsystemsNeeded.forEach { reservedSubsystems[it] = task }
-        println("Added Reserve ${task.command::class.java.simpleName} CURRENT: ${reservedSubsystems.keys.joinToString { it::class.java.simpleName }}")
-        task.reserveCallback = {
-            groupActor.send(GroupEvent.ReserveFinishEvent(task))
-        }
-        task.initialize()
-    }
-
-    private suspend fun cleanUp(task: GroupCommandTask) {
-        if(parentCommandGroup == null) groupActor.send(GroupEvent.ReserveFinishEvent(task))
-        else parentCommandGroup!!.cleanUp(task)
-    }
+    private lateinit var commandGroupHandler: CommandGroupHandler
 
     private inner class GroupCondition : Condition() {
         fun invoke() = invokeCompletionListeners()
         override fun not() = TODO("This is never needed")
-        override fun isMet() = started && activeCommands.isEmpty()
+        override fun isMet() = commandState != CommandState.PREPARED && commandTasks.isEmpty()
     }
 
     private val groupCondition = GroupCondition()
@@ -135,71 +36,158 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
     protected abstract suspend fun handleStartEvent()
     protected open suspend fun handleFinishEvent() {}
 
-    protected suspend fun reserve(command: GroupCommandTask) {
-        // Send reserve request to base command group
-        val parent = parentCommandGroup
-        if (parent != null) parent.reserve(command)
-        else groupActor.send(GroupEvent.ReserveEvent(command))
+    override suspend fun initialize() {
+        commandGroupHandler = if (parentCommandGroup != null) NestedCommandGroupHandler() else BaseCommandGroupHandler()
+
+        // Start this group
+        commandTasks = commands.map { GroupCommandTask(this, it) }
+        commandGroupHandler.start()
+        handleStartEvent()
     }
 
-    override suspend fun initialize() {
-        // Start this group
-        started = false
-        startDeferred = CompletableDeferred()
-        commandTasks = commands.map { GroupCommandTask(this, it) }
-        groupActor = actor(context = commandGroupContext, capacity = Channel.UNLIMITED) {
-            actorMutex.withLock {
-                startDeferred.complete(Unit)
-                for (event in channel) {
-                    handleEvent(event)
+    override suspend fun dispose() = commandGroupHandler.dispose()
+
+    protected suspend fun start(task: GroupCommandTask) = commandGroupHandler.startCommand(task)
+
+    protected inner class GroupCommandTask(val group: CommandGroup, command: Command) : CommandHandler.CommandTask(command) {
+        override suspend fun stop() = commandGroupHandler.commandFinishCallback(this)
+    }
+
+    private interface CommandGroupHandler {
+        suspend fun start()
+        suspend fun dispose()
+        suspend fun commandFinishCallback(task: GroupCommandTask)
+        suspend fun startCommand(task: GroupCommandTask)
+    }
+
+    private inner class NestedCommandGroupHandler : CommandGroupHandler {
+        private val parentHandler = parentCommandGroup!!.commandGroupHandler
+
+        override suspend fun start() = handleStartEvent()
+        override suspend fun dispose() = Unit
+        override suspend fun commandFinishCallback(task: GroupCommandTask) = parentHandler.commandFinishCallback(task)
+        override suspend fun startCommand(task: GroupCommandTask) = parentHandler.startCommand(task)
+    }
+
+    private sealed class GroupEvent {
+        class StartTask(val task: GroupCommandTask) : GroupEvent()
+        class FinishTask(val task: GroupCommandTask) : GroupEvent()
+        object DestroyTask : GroupEvent()
+    }
+
+    private inner class BaseCommandGroupHandler : CommandGroupHandler {
+        private lateinit var groupActor: SendChannel<GroupEvent>
+        private val actorMutex = Mutex()
+
+        private val activeCommands = mutableListOf<GroupCommandTask>()
+        private val queuedCommands = mutableListOf<GroupCommandTask>()
+
+        private var destroyed = false
+
+        override suspend fun start() {
+            groupActor = actor(context = commandGroupContext, capacity = Channel.UNLIMITED) {
+                actorMutex.withLock {
+                    for (event in channel) {
+                        if (destroyed && activeCommands.isEmpty()) return@withLock // exit since its done cleaning up
+                        handleEvent(event)
+                    }
                 }
             }
         }
-        groupActor.send(GroupEvent.StartEvent)
-    }
 
-    override suspend fun dispose() {
-        // Wait for the actor to start and gain priority (Because we don't want to stop actor before it starts)
-        startDeferred.await()
-        groupActor.close()
-        // Wait for the actor is release lock (cheat for detecting when actor finishes)
-        actorMutex.withLock {
-            for (activeCommand in activeCommands) {
-                activeCommand.dispose()
-                cleanUp(activeCommand)
+        private suspend fun handleEvent(event: GroupEvent) {
+            //println("EVENT: ${event::class.java.simpleName}")
+            when (event) {
+                is GroupEvent.StartTask -> {
+                    val task = event.task
+                    if (task.command is CommandGroup) {
+                        task.command.parentCommandGroup = this@CommandGroup
+                        task.initialize()
+                        return
+                    }
+                    val canStart = canStart(task)
+                    if (!canStart) {
+                        queuedCommands += task
+                        println("[Command Group] Command ${task.command::class.java.simpleName} was delayed since it requires a subsystem that already being used in the command group tree")
+                        return
+                    }
+                    activeCommands += task
+                    task.initialize()
+                }
+                is GroupEvent.FinishTask -> {
+                    val task = event.task
+                    task.dispose()
+                    task.group.commandTasks -= task
+                    activeCommands -= task
+                    if (destroyed) {
+                        closeIfFinished()
+                        return // ignore
+                    }
+                    // Find queued commands that can run
+                    var nextTask: GroupCommandTask?
+                    do {
+                        nextTask = queuedCommands.find { canStart(it) }
+                        if (nextTask != null) {
+                            queuedCommands -= nextTask
+                            handleEvent(GroupEvent.StartTask(nextTask))
+                        }
+                    } while (nextTask != null)
+                    if (task.group.commandTasks.isEmpty()) {
+                        task.group.groupCondition.invoke()
+                        return // command group finished
+                    }
+                    task.group.handleFinishEvent()
+                }
+                is GroupEvent.DestroyTask -> {
+                    destroyed = true
+                    // signal current tasks to dispose
+                    activeCommands.forEach { it.stop() }
+                    closeIfFinished()
+                }
             }
-            activeCommands.clear()
-            reservedSubsystemQueue.clear()
-            reservedSubsystems.clear()
-            parentCommandGroup = null
         }
-    }
 
-    protected inner class GroupCommandTask(val group: CommandGroup, command: Command) : CommandHandler.CommandTask(command) {
-        lateinit var reserveCallback: suspend () -> Unit
-        override suspend fun stop() = groupActor.send(GroupEvent.FinishEvent(this))
+        private fun closeIfFinished() {
+            if(activeCommands.isEmpty()) groupActor.close() // close up
+        }
+
+        private fun canStart(task: GroupCommandTask): Boolean {
+            val usedSubsystems = activeCommands.map { it.command.requiredSubsystems }.flatten()
+            val neededSubsystems = task.command.requiredSubsystems
+            return usedSubsystems.none { neededSubsystems.contains(it) }
+        }
+
+        override suspend fun dispose() {
+            groupActor.send(GroupEvent.DestroyTask)
+            actorMutex.withLock {
+                assert(activeCommands.isEmpty()) { "Command Group failed to clean up" }
+            }
+            groupActor.close()
+        }
+
+        override suspend fun commandFinishCallback(task: GroupCommandTask) = groupActor.send(GroupEvent.FinishTask(task))
+        override suspend fun startCommand(task: GroupCommandTask) = groupActor.send(GroupEvent.StartTask(task))
     }
 }
 
 open class ParallelCommandGroup(commands: List<Command>) : CommandGroup(commands) {
     override suspend fun handleStartEvent() {
-        activeCommands += commandTasks
         // Start all commands so they run in parallel
-        for (activeCommand in activeCommands) {
-            reserve(activeCommand)
-        }
+        val tasksToStart = commandTasks.toList()
+        tasksToStart.forEach { start(it) }
     }
 }
 
 open class SequentialCommandGroup(commands: List<Command>) : CommandGroup(commands) {
+    private lateinit var taskIterator: Iterator<GroupCommandTask>
     override suspend fun handleStartEvent() {
-        activeCommands += commandTasks
+        taskIterator = commandTasks.iterator()
         startNextCommand() // Start only the first command
     }
 
     override suspend fun handleFinishEvent() = startNextCommand() // Start next command
-    /**
-     * Starts only the top command (each time a command finishes it gets auto removed from this list)
-     */
-    private suspend fun startNextCommand() = reserve(activeCommands.first())
+
+    private suspend fun startNextCommand() {
+        if(taskIterator.hasNext()) start(taskIterator.next())
+    }
 }

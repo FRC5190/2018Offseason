@@ -14,7 +14,7 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) : CompletionHan
     }
 
     init {
-        if (FalconRobotBase.INSTANCE.initialized) {
+        if (!FalconRobotBase.DEBUG  && FalconRobotBase.INSTANCE.initialized) {
             println("[Command} [WARNING] It is not recommended to create commands after the robot has initialized!")
         }
     }

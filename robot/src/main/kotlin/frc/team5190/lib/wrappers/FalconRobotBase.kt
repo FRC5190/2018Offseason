@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit
 abstract class FalconRobotBase : RobotBase() {
 
     companion object {
+        var DEBUG = true
+            private set
         lateinit var INSTANCE: FalconRobotBase
             private set
     }
@@ -25,6 +27,7 @@ abstract class FalconRobotBase : RobotBase() {
     init {
         @Suppress("LeakingThis")
         INSTANCE = this
+        DEBUG = false
     }
 
     enum class Mode {
