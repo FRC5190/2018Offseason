@@ -63,7 +63,7 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
     private inner class NestedCommandGroupHandler : CommandGroupHandler {
         private val parentHandler = parentCommandGroup!!.commandGroupHandler
 
-        override suspend fun start() = handleStartEvent()
+        override suspend fun start() = Unit
         override suspend fun dispose() = Unit
         override suspend fun commandFinishCallback(task: GroupCommandTask) = parentHandler.commandFinishCallback(task)
         override suspend fun startCommand(task: GroupCommandTask) = parentHandler.startCommand(task)
@@ -80,6 +80,7 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
         private val actorMutex = Mutex()
 
         private val activeCommands = mutableListOf<GroupCommandTask>()
+        private val runningCommands = mutableListOf<GroupCommandTask>()
         private val queuedCommands = mutableListOf<GroupCommandTask>()
 
         private var destroyed = false
@@ -100,7 +101,12 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
             when (event) {
                 is GroupEvent.StartTask -> {
                     val task = event.task
+                    if(runningCommands.contains(task)) {
+                        println("[Command Group] Command ${task.command::class.java.simpleName} is already running, discarding...")
+                        return
+                    }
                     if (task.command is CommandGroup) {
+                        runningCommands+= task
                         task.command.parentCommandGroup = this@CommandGroup
                         task.initialize()
                         return
@@ -116,6 +122,7 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
                 }
                 is GroupEvent.FinishTask -> {
                     val task = event.task
+                    runningCommands -= task
                     task.dispose()
                     task.group.commandTasks -= task
                     activeCommands -= task
