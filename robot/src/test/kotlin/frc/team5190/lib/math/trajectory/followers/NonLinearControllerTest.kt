@@ -27,12 +27,14 @@ class NonLinearControllerTest {
 
     @Test
     fun testTrajectoryFollower() {
-        val name = "Pyramid to Scale"
+        val name = "Left Start to Near Scale"
         val trajectory: Trajectory<TimedState<Pose2dWithCurvature>> = Trajectories[name]
         val iterator = TrajectoryIterator(TimedView(trajectory))
         trajectoryFollower = NonLinearController(trajectory)
 
         var totalpose = trajectory.firstState.state.pose
+        var prevdx = 0.0
+        var prevdtheta = 0.0
 
         var time = 0.0
         val dt = 0.02
@@ -48,9 +50,14 @@ class NonLinearControllerTest {
             val output = trajectoryFollower.getSteering(totalpose, time.toLong()).scaled(0.02)
             time += dt * 1.0e+9
 
-            assert(if (trajectory.firstState.acceleration > 0) output.dx >= 0 else output.dx <= 0)
+            totalpose = totalpose.transformBy(Pose2d.fromTwist(Twist2d(
+                    output.dx + 0.3 * prevdx,
+                    output.dy,
+                    output.dtheta + 0.3 * prevdtheta)))
 
-            totalpose = totalpose.transformBy(Pose2d.fromTwist(Twist2d(output.dx, output.dy, output.dtheta)))
+
+            prevdx = output.dx
+            prevdtheta = output.dtheta
 
             xList.add(totalpose.translation.x)
             yList.add(totalpose.translation.y)
@@ -90,11 +97,16 @@ class NonLinearControllerTest {
         chart.addSeries("Trajectory", refXList.toDoubleArray(), refYList.toDoubleArray())
         chart.addSeries("Robot", xList.toDoubleArray(), yList.toDoubleArray())
 
-        assert((trajectory.lastState.state.translation - totalpose.translation).norm.also {
-            println("Norm of Translational Error: $it")
+        val terror = trajectory.lastState.state.translation - totalpose.translation
+        val rerror = trajectory.lastState.state.rotation - totalpose.rotation
+
+        System.out.printf("%n[Test] X Error: %3.3f, Y Error: %3.3f%n", terror.x, terror.y)
+
+        assert(terror.norm.also {
+            println("[Test] Norm of Translational Error: $it")
         } < 0.50)
-        assert((trajectory.lastState.state.rotation - totalpose.rotation).degrees.also {
-            println("Rotational Error: $it degrees")
+        assert(rerror.degrees.also {
+            println("[Test] Rotational Error: $it degrees")
         } < 5.0)
 
         SwingWrapper(chart).displayChart()

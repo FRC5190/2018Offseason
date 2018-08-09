@@ -22,9 +22,9 @@ import frc.team5190.lib.math.trajectory.view.DistanceView
 
 object TrajectoryGenerator {
 
-    private const val kMaxDx = 2.0
-    private const val kMaxDy = 0.25
-    private const val kMaxDTheta = 0.1
+    private const val kMaxDx = 2.0 / 12.0
+    private const val kMaxDy = 0.25 / 12.0
+    private val kMaxDTheta = Math.toDegrees(5.0)
 
 
     // Generate trajectory with custom start and end velocity.
