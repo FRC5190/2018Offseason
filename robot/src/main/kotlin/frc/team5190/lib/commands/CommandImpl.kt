@@ -14,8 +14,10 @@ open class TimeoutCommand(private val timeout: Long, private val unit: TimeUnit 
     inner class TimeoutCondition : Condition() {
         private lateinit var job: Job
         private var startTime = 0L
+        private var running = false
 
         fun start() {
+            running = true
             startTime = System.nanoTime()
             job = launch(context = timeoutContext) {
                 delay(timeout, unit)
@@ -24,12 +26,13 @@ open class TimeoutCommand(private val timeout: Long, private val unit: TimeUnit 
         }
 
         fun stop() {
+            running = false
             job.cancel()
         }
 
         override fun not() = TODO("This is never needed")
 
-        override fun isMet() = System.nanoTime() - startTime >= unit.toNanos(timeout)
+        override fun isMet() = running && System.nanoTime() - startTime >= unit.toNanos(timeout)
     }
 
     init {
