@@ -28,9 +28,9 @@ import kotlinx.coroutines.experimental.runBlocking
 object Trajectories {
 
     // Constants in Feet Per Second
-    private const val kMaxVelocity                = 9.0
-    private const val kMaxAcceleration            = 5.0
-    private const val kMaxCentripetalAcceleration = 4.5
+    private const val kMaxVelocity                = 10.0
+    private const val kMaxAcceleration            = 6.0
+    private const val kMaxCentripetalAcceleration = 6.0
 
     // Constraints
     private val kConstraints = arrayListOf<TimingConstraint<Pose2dWithCurvature>>(

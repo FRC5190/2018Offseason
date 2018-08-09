@@ -61,7 +61,7 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
                 kP = Constants.kPRightDriveVelocity,
                 kI = Constants.kIRightDriveVelocity,
                 kV = Constants.kVRightDriveVelocity,
-                kA = Constants.kALeftDriveVelocity,
+                kA = Constants.kARightDriveVelocity,
                 kS = Constants.kSRightDriveVelocity,
                 current = { DriveSubsystem.rightVelocity.FPS }
         )
@@ -114,7 +114,7 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
                         "AX: %3.3f, AY: %3.3f, AA: %2f, ALV: %2.3f, ARV: %2.3f",
                 pathX, pathY, Math.toDegrees(pathHdg), output.first, output.second,
                 position.translation.x, position.translation.y, position.rotation.degrees,
-                DriveSubsystem.leftVelocity, DriveSubsystem.rightVelocity
+                DriveSubsystem.leftVelocity.FPS, DriveSubsystem.rightVelocity.FPS
         )
 
         lastVelocity = output
