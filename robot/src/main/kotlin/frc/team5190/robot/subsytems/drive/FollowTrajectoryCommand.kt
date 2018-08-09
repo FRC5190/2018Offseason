@@ -35,6 +35,8 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
     private val lController: VelocityPIDFController
     private val rController: VelocityPIDFController
 
+    var lastVelocity = 0.0 to 0.0
+
     init {
         +DriveSubsystem
 
@@ -65,7 +67,7 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
         )
 
         // Update the frequency of the command to the follower
-        updateFrequency = 250 // Hz
+        updateFrequency = 100 // Hz
         finishCondition += condition { trajectoryFollower.isFinished }
     }
 
@@ -96,14 +98,26 @@ class FollowTrajectoryCommand(val identifier: String, pathMirrored: Boolean = fa
     }
 
     override suspend fun execute() {
-        val kinematics = trajectoryFollower.getSteering(Localization.robotPosition)
+        val position = Localization.robotPosition
+        val kinematics = trajectoryFollower.getSteering(position)
         val output = Kinematics.inverseKinematics(kinematics)
 
         DriveSubsystem.set(ControlMode.PercentOutput,
-                lController.getPIDFOutput(output.first to 0.0),
-                rController.getPIDFOutput(output.second to 0.0))
+                lController.getPIDFOutput(output.first to (output.first - lastVelocity.first) * updateFrequency),
+                rController.getPIDFOutput(output.second to (output.second - lastVelocity.second) * updateFrequency))
+
 
         updateDashboard()
+
+        System.out.printf(
+                "RX: %3.3f, RY: %3.3f, RA: %2f, RLV: %2.3f, RRV: %2.3f, " +
+                        "AX: %3.3f, AY: %3.3f, AA: %2f, ALV: %2.3f, ARV: %2.3f",
+                pathX, pathY, Math.toDegrees(pathHdg), output.first, output.second,
+                position.translation.x, position.translation.y, position.rotation.degrees,
+                DriveSubsystem.leftVelocity, DriveSubsystem.rightVelocity
+        )
+
+        lastVelocity = output
     }
 
     override suspend fun dispose() {
