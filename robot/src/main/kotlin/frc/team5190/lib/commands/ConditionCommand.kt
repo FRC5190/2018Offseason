@@ -1,9 +1,11 @@
 package frc.team5190.lib.commands
 
-import frc.team5190.lib.utils.CompletionCallback
-import frc.team5190.lib.utils.CompletionHandler
-import frc.team5190.lib.utils.CompletionHandlerImpl
-import kotlinx.coroutines.experimental.DisposableHandle
+import frc.team5190.lib.utils.BooleanState
+import frc.team5190.lib.utils.StateImpl
+import frc.team5190.lib.utils.launchFrequency
+import frc.team5190.lib.utils.processedState
+
+// Condition implementations for State<Boolean>
 
 open class ConditionCommand(condition: Condition) : Command() {
     init {
@@ -11,29 +13,21 @@ open class ConditionCommand(condition: Condition) : Command() {
     }
 }
 
+typealias Condition = BooleanState
+
 fun condition(value: Boolean): Condition = condition { value }
-fun condition(block: () -> Boolean): Condition = VariableCondition(block)
-fun condition(command: Command): Condition = CommandCondition(command)
+fun condition(frequency: Int = 50, block: () -> Boolean): Condition = VariableCondition(frequency, block)
 
-private class VariableCondition(private val block: () -> Boolean) : Condition() {
-    override fun not() = VariableCondition { !block() }
-    override fun isMet() = block()
-}
-
-private class CommandCondition(private val command: Command) : Condition() {
-    init {
-        command.invokeOnCompletion {
-            //Signal to parent that it has finished
-            invokeCompletionListeners()
+private class VariableCondition(private val frequency: Int = 50, private val block: () -> Boolean) : StateImpl<Boolean>(block()) {
+    override fun initWhenUsed() {
+        launchFrequency(frequency) {
+            internalValue = block()
         }
     }
-
-    override fun not() = condition { !command.isFinished() }
-    override fun isMet() = command.commandState.finished
 }
 
-infix fun Condition.or(block: () -> Boolean) = this or condition(block)
-infix fun Condition.and(block: () -> Boolean) = this and condition(block)
+infix fun Condition.or(block: () -> Boolean) = this or condition(block = block)
+infix fun Condition.and(block: () -> Boolean) = this and condition(block = block)
 
 infix fun Condition.or(command: Command) = this or condition(command)
 infix fun Condition.and(command: Command) = this and condition(command)
@@ -41,51 +35,8 @@ infix fun Condition.and(command: Command) = this and condition(command)
 infix fun Condition.or(condition: Condition) = conditionGroup(this, condition) { one, two -> one || two }
 infix fun Condition.and(condition: Condition) = conditionGroup(this, condition) { one, two -> one && two }
 
-private fun conditionGroup(firstCondition: Condition, secondCondition: Condition, condition: (Boolean, Boolean) -> Boolean): Condition =
-        GroupCondition(firstCondition, secondCondition, condition)
-
-private class GroupCondition(private val firstCondition: Condition,
-                             private val secondCondition: Condition,
-                             private val condition: (Boolean, Boolean) -> Boolean) : Condition() {
-    private val groupMutex = Any()
-    private var hasRegisteredListeners = false
-
-    override fun invokeOnCompletion(block: CompletionCallback.() -> Unit): DisposableHandle {
-        synchronized(groupMutex) {
-            if (!hasRegisteredListeners) {
-                hasRegisteredListeners = true
-                firstCondition.invokeOnCompletion {
-                    if (condition(true, secondCondition.isMet())) invokeCompletionListeners()
-                }
-                secondCondition.invokeOnCompletion {
-                    if (condition(firstCondition.isMet(), true)) invokeCompletionListeners()
-                }
-            }
-        }
-        return super.invokeOnCompletion(block)
-    }
-
-    override fun not() = GroupCondition(firstCondition, secondCondition) { one, two -> !condition(one, two) }
-
-    override fun isMet() = condition(firstCondition.isMet(), secondCondition.isMet())
-}
-
-abstract class Condition : CompletionHandler {
-    companion object {
-        val FALSE
-            get() = condition(false)
-        val TRUE
-            get() = condition(true)
-    }
-
-    private val completeHandler = CompletionHandlerImpl {
-        if (isMet()) it()
-    }
-
-    protected fun invokeCompletionListeners() = completeHandler.invokeCompletionListeners()
-    override fun invokeOnCompletion(block: CompletionCallback.() -> Unit) = completeHandler.invokeOnCompletion(block)
-
-    abstract fun isMet(): Boolean
-
-    abstract operator fun not(): Condition
+private fun conditionGroup(firstCondition: Condition, secondCondition: Condition, condition: (Boolean, Boolean) -> Boolean) = processedState(listOf(firstCondition, secondCondition)) { values ->
+    val one = values[0]
+    val two = values[1]
+    condition(one, two)
 }

@@ -45,12 +45,12 @@ class CommandGroupTest {
                 }
             }
             val time1 = measureTimeMillis {
-                command.start()
+                command.start().await()
                 command.await()
             }
             println("Took $time1 ms")
             val time2 = measureTimeMillis {
-                command.start()
+                command.start().await()
                 command.await()
             }
             println("Took $time2 ms")

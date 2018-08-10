@@ -1,5 +1,6 @@
 package frc.team5190.lib.commands
 
+import frc.team5190.lib.utils.StateImpl
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
@@ -13,7 +14,7 @@ class DelayCommand(delay: Long, unit: TimeUnit = TimeUnit.SECONDS) : Command() {
     }
 }
 
-class DelayCondition(var delay: Long, var unit: TimeUnit) : Condition() {
+class DelayCondition(var delay: Long, var unit: TimeUnit) : StateImpl<Boolean>(false) {
 
     companion object {
         private val timeoutContext = newSingleThreadContext("Delay Condition")
@@ -21,24 +22,17 @@ class DelayCondition(var delay: Long, var unit: TimeUnit) : Condition() {
 
     private lateinit var job: Job
     private var startTime = 0L
-    private var running = false
 
-    fun start() = start(System.nanoTime())
     fun start(startTime: Long) {
-        running = true
+        internalValue = false
         this.startTime = startTime
-        job = launch(context = timeoutContext) {
+        job = launch(timeoutContext) {
             delay(unit.toNanos(delay) - (System.nanoTime() - startTime), TimeUnit.NANOSECONDS)
-            invokeCompletionListeners()
+            internalValue = true
         }
     }
 
     fun stop() {
-        running = false
         job.cancel()
     }
-
-    override fun not() = TODO("This is never needed")
-
-    override fun isMet() = running && System.nanoTime() - startTime >= unit.toNanos(delay)
 }

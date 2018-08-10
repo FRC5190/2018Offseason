@@ -1,15 +1,13 @@
 package frc.team5190.lib.commands
 
-import kotlinx.coroutines.experimental.Job
+import frc.team5190.lib.utils.invokeWhenTrue
+import frc.team5190.lib.utils.launchFrequency
+import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.actor
 import kotlinx.coroutines.experimental.channels.sendBlocking
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
-import java.util.concurrent.TimeUnit
 
 object CommandHandler {
 
@@ -21,7 +19,7 @@ object CommandHandler {
     private val tasks = mutableListOf<CommandTaskImpl>()
 
     private sealed class CommandEvent {
-        class StartEvent(val command: Command, val startTime: Long) : CommandEvent()
+        class StartEvent(val command: Command, val startTime: Long, val callback: CompletableDeferred<Unit>?) : CommandEvent()
         class StopCommandEvent(val command: Command, val stopTime: Long) : CommandEvent()
         class StopEvent(val command: CommandTaskImpl, val stopTime: Long, val startDefault: (Subsystem) -> Boolean) : CommandEvent()
     }
@@ -45,6 +43,7 @@ object CommandHandler {
                 val task = CommandTaskImpl(command, subsystems.toList())
                 tasks.add(task)
                 task.initialize(event.startTime)
+                event.callback?.complete(Unit)
             }
             is CommandEvent.StopCommandEvent -> {
                 val task = tasks.find { it.command == event.command } ?: return
@@ -59,18 +58,20 @@ object CommandHandler {
                 val subsystems = command.subsystems.filter { event.startDefault(it) }
                 for (subsystem in subsystems) {
                     val default = subsystem.defaultCommand
-                    if (default != null) handleEvent(CommandEvent.StartEvent(default, event.stopTime))
+                    if (default != null) handleEvent(CommandEvent.StartEvent(default, event.stopTime, null))
                 }
             }
         }
     }
 
-    fun start(command: Command, startTime: Long) {
+    fun start(command: Command, startTime: Long): Deferred<Unit> {
         // Check if all subsystems are registered
         for (subsystem in command.requiredSubsystems) {
             if (!SubsystemHandler.isRegistered(subsystem)) throw IllegalArgumentException("A command required a subsystem that hasnt been registered! Subsystem: ${subsystem.name} ${subsystem::class.java.simpleName} Command: ${command::class.java.simpleName}")
         }
-        commandActor.sendBlocking(CommandEvent.StartEvent(command, startTime))
+        val callback = CompletableDeferred<Unit>()
+        commandActor.sendBlocking(CommandEvent.StartEvent(command, startTime, callback))
+        return callback
     }
 
     fun stop(command: Command, stopTime: Long) = commandActor.sendBlocking(CommandEvent.StopCommandEvent(command, stopTime))
@@ -88,10 +89,9 @@ object CommandHandler {
 
         suspend fun initialize(startTime: Long) = commandMutex.withLock {
             started = true
-            command.commandState = Command.CommandState.BAKING
             command.startTime = startTime
             command.initialize0()
-            command.exposedCondition.invokeOnceOnCompletion {
+            command.exposedCondition.invokeWhenTrue {
                 finishedNormally = true
                 val timeout = command.timeout
                 val stopTime = if (timeout.first > 0) {
@@ -102,41 +102,30 @@ object CommandHandler {
             }
             val frequency = command.updateFrequency
             if (frequency == 0) return@withLock
-            if (frequency < 0) throw IllegalArgumentException("Command frequency cannot be negative!")
 
-            val timeBetweenUpdate = TimeUnit.SECONDS.toNanos(1) / frequency
-            updater = launch(context = commandContext) {
-                // Stores when the next update should happen
-                var nextNS = System.nanoTime() + timeBetweenUpdate
-                while (isActive) {
-                    try {
-                        if (command.isFinished()) {
-                            finishedNormally = true
-                            // stop command if finished
-                            stop(System.nanoTime())
-                            return@launch
-                        }
-                        commandMutex.withLock {
-                            if (!isActive) return@launch
-                            command.execute0()
-                        }
-                    } catch (e: Throwable) {
-                        e.printStackTrace()
+            updater = launchFrequency(frequency, commandContext) {
+                try {
+                    if (command.isFinished()) {
+                        finishedNormally = true
+                        // stop command if finished
+                        stop(System.nanoTime())
+                        return@launchFrequency
                     }
-                    val delayNeeded = nextNS - System.nanoTime()
-                    nextNS += timeBetweenUpdate
-                    delay(delayNeeded, TimeUnit.NANOSECONDS)
+                    commandMutex.withLock {
+                        if (!isActive) return@launchFrequency
+                        command.execute0()
+                    }
+                } catch (e: Throwable) {
+                    e.printStackTrace()
                 }
             }
         }
 
         suspend fun dispose() = commandMutex.withLock {
-            if (!started) return
-            command.commandState = if (finishedNormally) Command.CommandState.BAKED else Command.CommandState.BURNT
+            if (!started) return@withLock
             updater?.cancel()
             updater = null
             command.dispose0()
-            command.completionHandler.invokeCompletionListeners()
         }
 
         abstract suspend fun stop(stopTime: Long)

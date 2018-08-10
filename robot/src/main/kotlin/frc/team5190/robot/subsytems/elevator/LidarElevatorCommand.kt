@@ -11,6 +11,7 @@ import frc.team5190.lib.commands.and
 import frc.team5190.lib.commands.condition
 import frc.team5190.lib.math.units.Distance
 import frc.team5190.lib.math.units.Inches
+import frc.team5190.lib.utils.not
 import frc.team5190.lib.utils.withProcessing
 import frc.team5190.robot.sensors.CubeSensors
 import frc.team5190.robot.sensors.Lidar

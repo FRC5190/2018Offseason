@@ -1,5 +1,6 @@
 package frc.team5190.lib.commands
 
+import frc.team5190.lib.utils.StateImpl
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.actor
@@ -20,10 +21,10 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
     private var parentCommandGroup: CommandGroup? = null
     private lateinit var commandGroupHandler: CommandGroupHandler
 
-    private inner class GroupCondition : Condition() {
-        fun invoke() = invokeCompletionListeners()
-        override fun not() = TODO("This is never needed")
-        override fun isMet() = commandState != CommandState.PREPARED && commandTasks.isEmpty()
+    private inner class GroupCondition : StateImpl<Boolean>(false) {
+        fun invoke() {
+            internalValue = true
+        }
     }
 
     private val groupCondition = GroupCondition()
