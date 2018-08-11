@@ -27,11 +27,11 @@ class RoutineSwitchFromCenter(startingPosition: Autonomous.StartingPositions,
             } else "Right"
             val mirrored = switchSide == MatchData.OwnedSide.RIGHT
 
-            val drop1stCube = FollowTrajectoryCommand("Center Start to $switch Switch")
-            val toCenter = FollowTrajectoryCommand("Switch to Center", mirrored)
-            val toPyramid = FollowTrajectoryCommand("Center to Pyramid")
-            val toCenter2 = FollowTrajectoryCommand("Pyramid to Center")
-            val drop2ndCube = FollowTrajectoryCommand("Center to Switch", mirrored)
+            val drop1stCube = FollowTrajectoryCommand(if (switch == "Left") Trajectories.centerStartToLeftSwitch else Trajectories.centerStartToRightSwitch)
+            val toCenter = FollowTrajectoryCommand(Trajectories.switchToCenter, mirrored)
+            val toPyramid = FollowTrajectoryCommand(Trajectories.centerToPyramid)
+            val toCenter2 = FollowTrajectoryCommand(Trajectories.pyramidToCenter)
+            val drop2ndCube = FollowTrajectoryCommand(Trajectories.centerToSwitch, mirrored)
 
             val shoot1stCube = drop1stCube.addMarkerAt(
                     Trajectories.kSwitchLeftAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-0.2, 0.0)))

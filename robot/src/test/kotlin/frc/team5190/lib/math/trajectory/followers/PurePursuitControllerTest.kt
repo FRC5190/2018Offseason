@@ -23,7 +23,7 @@ class PurePursuitControllerTest {
     @Test
     fun testTrajectoryFollower() {
         val name = "Scale to Cube 3"
-        val trajectory: Trajectory<TimedState<Pose2dWithCurvature>> = Trajectories[name]
+        val trajectory: Trajectory<TimedState<Pose2dWithCurvature>> = Trajectories.scaleToCube3
         val iterator = TrajectoryIterator(TimedView(trajectory))
         trajectoryFollower = PurePursuitController(trajectory)
 

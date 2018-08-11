@@ -9,6 +9,7 @@ import frc.team5190.lib.commands.*
 import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.math.geometry.Translation2d
 import frc.team5190.robot.auto.Autonomous
+import frc.team5190.robot.auto.Trajectories
 import frc.team5190.robot.subsytems.SubsystemPreset
 import frc.team5190.robot.subsytems.arm.ArmSubsystem
 import frc.team5190.robot.subsytems.arm.ClosedLoopArmCommand
@@ -32,14 +33,14 @@ class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPosi
             val mirrored = scaleSide == MatchData.OwnedSide.RIGHT
 
             val drop1stCube = FollowTrajectoryCommand(
-                    identifier = "Left Start to $scale Scale",
+                    trajectory = if (scale == "Far") Trajectories.leftStartToFarScale else Trajectories.leftStartToNearScale,
                     pathMirrored = startingPosition == Autonomous.StartingPositions.RIGHT)
 
-            val pickup2ndCube = FollowTrajectoryCommand(identifier = "Scale to Cube 1", pathMirrored = mirrored)
-            val drop2ndCube   = FollowTrajectoryCommand(identifier = "Cube 1 to Scale", pathMirrored = mirrored)
-            val pickup3rdCube = FollowTrajectoryCommand(identifier = "Scale to Cube 2", pathMirrored = mirrored)
-            val drop3rdCube   = FollowTrajectoryCommand(identifier = "Cube 2 to Scale", pathMirrored = mirrored)
-            val pickup4thCube = FollowTrajectoryCommand(identifier = "Scale to Cube 3", pathMirrored = mirrored)
+            val pickup2ndCube = FollowTrajectoryCommand(trajectory = Trajectories.scaleToCube1, pathMirrored = mirrored)
+            val drop2ndCube   = FollowTrajectoryCommand(trajectory = Trajectories.cube1ToScale, pathMirrored = mirrored)
+            val pickup3rdCube = FollowTrajectoryCommand(trajectory = Trajectories.scaleToCube2, pathMirrored = mirrored)
+            val drop3rdCube   = FollowTrajectoryCommand(trajectory = Trajectories.cube2ToScale, pathMirrored = mirrored)
+            val pickup4thCube = FollowTrajectoryCommand(trajectory = Trajectories.scaleToCube3, pathMirrored = mirrored)
 
             val after2ndCube = DelayCommand(250, TimeUnit.MILLISECONDS)
 
