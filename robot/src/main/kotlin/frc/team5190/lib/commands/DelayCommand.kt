@@ -34,5 +34,6 @@ class DelayCondition(var delay: Long, var unit: TimeUnit) : StateImpl<Boolean>(f
 
     fun stop() {
         job.cancel()
+        internalValue = false
     }
 }

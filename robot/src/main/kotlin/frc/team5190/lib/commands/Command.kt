@@ -117,7 +117,6 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) {
     }
 
     suspend fun await() = suspendCancellableCoroutine<Unit> { cont ->
-        println(commandState.value.name)
         cont.disposeOnCancellation(commandState.invokeOnceWhenFinished {
             cont.resume(Unit)
         })
