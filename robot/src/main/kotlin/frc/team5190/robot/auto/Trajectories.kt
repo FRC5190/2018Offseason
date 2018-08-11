@@ -63,7 +63,7 @@ object Trajectories {
 
 
     // Hash Map
-    private val trajectories = hashMapOf<String, Deferred<Trajectory<TimedState<Pose2dWithCurvature>>>>()
+    private val trajectories = hashMapOf<String, Trajectory<TimedState<Pose2dWithCurvature>>>()
 
     init {
 
@@ -177,7 +177,7 @@ object Trajectories {
     }
 
     operator fun get(identifier: String): Trajectory<TimedState<Pose2dWithCurvature>> = runBlocking {
-        trajectories[identifier]?.await()!!
+        trajectories[identifier]!!
     }
 
     private fun generateTrajectory(name: String,
@@ -187,7 +187,7 @@ object Trajectories {
                                    maxAcceleration: Double = kMaxAcceleration,
                                    constraints: ArrayList<TimingConstraint<Pose2dWithCurvature>> = kConstraints
     ) {
-        trajectories[name] = async {
+        trajectories[name] = runBlocking {
             val start = System.nanoTime()
             TrajectoryGenerator.generateTrajectory(reversed, waypoints, constraints, 0.0, 0.0, maxVelocity, maxAcceleration)!!.also {
                 System.out.printf("[Trajectory Generator] Generation of %-35s took %3.3f milliseconds.%n", "\"$name\"", (System.nanoTime() - start) / 1000000.0)
