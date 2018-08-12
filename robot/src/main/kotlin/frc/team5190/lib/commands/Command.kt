@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit
 abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) {
     companion object {
         const val DEFAULT_FREQUENCY = 50
-
     }
 
     init {
@@ -81,9 +80,9 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) {
 
     open suspend fun execute0() = execute()
     open suspend fun dispose0() {
-        (commandState as CommandStateImpl).changeValue(CommandState.BAKED)
         timeoutCondition?.stop()
         dispose()
+        (commandState as CommandStateImpl).changeValue(CommandState.BAKED)
     }
 
     protected open suspend fun initialize() {}
