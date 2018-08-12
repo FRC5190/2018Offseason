@@ -29,10 +29,10 @@ class RoutineSwitchScaleFromCenter(startingPosition: Autonomous.StartingPosition
             val switchMirrored = switchSide == MatchData.OwnedSide.RIGHT
             val scaleMirorred  = scaleSide == MatchData.OwnedSide.RIGHT
 
-            val drop1stCube = FollowTrajectoryCommand("Center Start to $switch Switch")
-            val toCenter    = FollowTrajectoryCommand("Switch to Center", switchMirrored)
-            val toPyramid   = FollowTrajectoryCommand("Center to Pyramid")
-            val drop2ndCube = FollowTrajectoryCommand("Pyramid to Scale", scaleMirorred)
+            val drop1stCube = FollowTrajectoryCommand(if (switch == "Left") Trajectories.centerStartToLeftSwitch else Trajectories.centerStartToRightSwitch)
+            val toCenter = FollowTrajectoryCommand(Trajectories.switchToCenter, switchMirrored)
+            val toPyramid = FollowTrajectoryCommand(Trajectories.centerToPyramid)
+            val drop2ndCube = FollowTrajectoryCommand(Trajectories.pyramidToScale, scaleMirorred)
 
             val elevatorUp   = drop2ndCube.addMarkerAt(Translation2d(11.5, 23.1).let { if(scaleMirorred) it.mirror else it })
             val shoot1stCube = drop1stCube.addMarkerAt(

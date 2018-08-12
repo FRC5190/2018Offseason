@@ -214,8 +214,8 @@ class Dashboard(tk.Frame):
                 nt_instance.putBoolean('Reset', False)
 
             sp = nt_instance.getString('Starting Position', 'Left')
-            ssa = nt_instance.getString('Near Scale Auto Mode', '3 Scale')
-            ca = nt_instance.getString('Far Scale Auto Mode', '2 Scale')
+            ssa = nt_instance.getString('Near Scale Auto Mode', 'ThreeCube')
+            ca = nt_instance.getString('Far Scale Auto Mode', 'ThreeCube')
 
             default_y = 23.5
             default_heading = np.pi
@@ -318,33 +318,30 @@ class Dashboard(tk.Frame):
 
                     nt_instance.putString('Starting Position', to_set)
 
+
                 # Change Same Side Auto
                 elif 45 < event.xdata < 54 and event.ydata > -3.5 and nt_instance.getString('Starting Position', 'Left') != 'Center':
 
                     current = nt_instance.getString(
-                        'Near Scale Auto Mode', '3 Scale')
+                        'Near Scale Auto Mode', 'ThreeCube')
 
-                    if current == '3 Scale':
+                    if current == 'ThreeCube':
                         to_set = 'Baseline'
-                    elif current == 'Baseline':
-                        to_set = '1 Switch'
                     else:
-                        to_set = '3 Scale'
-
+                        to_set = 'ThreeCube'
+                 
                     nt_instance.putString('Near Scale Auto Mode', to_set)
 
                 # Change Cross Auto
                 elif 45 < event.xdata < 54 and event.ydata > -4.5 and nt_instance.getString('Starting Position', 'Left') != 'Center':
 
-                    current = nt_instance.getString('Far Scale Auto Mode', '2 Scale')
+                    current = nt_instance.getString('Far Scale Auto Mode', 'ThreeCube')
                     to_set = ''
 
-                    if current == '2 Scale':
+                    if current == 'ThreeCube':
                         to_set = 'Baseline'
-                    elif current == 'Baseline':
-                        to_set = '1 Switch'
                     else:
-                        to_set = '2 Scale'
+                        to_set = 'ThreeCube'
 
                     nt_instance.putString('Near Scale Auto Mode', to_set)
 
