@@ -1,5 +1,6 @@
 package frc.team5190.lib.commands
 
+import frc.team5190.lib.utils.StateImpl
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.actor
@@ -20,10 +21,14 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
     private var parentCommandGroup: CommandGroup? = null
     private lateinit var commandGroupHandler: CommandGroupHandler
 
-    private inner class GroupCondition : Condition() {
-        fun invoke() = invokeCompletionListeners()
-        override fun not() = TODO("This is never needed")
-        override fun isMet() = commandState != CommandState.PREPARED && commandTasks.isEmpty()
+    private inner class GroupCondition : StateImpl<Boolean>(false) {
+        fun invoke() {
+            internalValue = true
+        }
+
+        fun reset() {
+            internalValue = false
+        }
     }
 
     private val groupCondition = GroupCondition()
@@ -36,16 +41,21 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
     protected abstract suspend fun handleStartEvent()
     protected open suspend fun handleFinishEvent(stopTime: Long) {}
 
-    override suspend fun initialize() {
+    override suspend fun initialize0() {
+        super.initialize0()
         commandGroupHandler = if (parentCommandGroup != null) NestedCommandGroupHandler() else BaseCommandGroupHandler()
-
+        groupCondition.reset()
+        
         // Start this group
         commandTasks = commands.map { GroupCommandTask(this, it) }
         commandGroupHandler.start()
         handleStartEvent()
     }
 
-    override suspend fun dispose() = commandGroupHandler.dispose()
+    override suspend fun dispose0() {
+        commandGroupHandler.dispose()
+        super.dispose0()
+    }
 
     protected suspend fun start(task: GroupCommandTask, startTime: Long) = commandGroupHandler.startCommand(task, startTime)
 
@@ -123,7 +133,7 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
                 }
                 is GroupEvent.FinishTask -> {
                     val task = event.task
-                    if(!runningCommands.contains(task)) return // discard extra requests
+                    if (!runningCommands.contains(task)) return // discard extra requests
                     runningCommands -= task
                     task.dispose()
                     task.group.commandTasks -= task

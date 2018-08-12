@@ -1,17 +1,16 @@
 package frc.team5190.lib.commands
 
+import frc.team5190.lib.utils.constState
+
 abstract class InstantCommand : Command() {
     init {
         updateFrequency = 0
-        finishCondition += Condition.TRUE
+        finishCondition += constState(true)
     }
 }
 
 class InstantRunnableCommand(private val runnable: suspend () -> Unit) : InstantCommand() {
-    override suspend fun initialize() {
-        super.initialize()
-        runnable()
-    }
+    override suspend fun initialize() = runnable()
 }
 
 class PeriodicRunnableCommand(

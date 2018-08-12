@@ -1,15 +1,14 @@
 package frc.team5190.lib.commands
 
-import frc.team5190.lib.utils.CompletionCallback
-import frc.team5190.lib.utils.CompletionHandler
-import frc.team5190.lib.utils.CompletionHandlerImpl
+import frc.team5190.lib.utils.State
+import frc.team5190.lib.utils.StateImpl
+import frc.team5190.lib.utils.StateListener
+import frc.team5190.lib.utils.constState
 import frc.team5190.lib.wrappers.FalconRobotBase
-import kotlinx.coroutines.experimental.DisposableHandle
-import kotlinx.coroutines.experimental.disposeOnCancellation
-import kotlinx.coroutines.experimental.suspendCancellableCoroutine
+import kotlinx.coroutines.experimental.*
 import java.util.concurrent.TimeUnit
 
-abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) : CompletionHandler {
+abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) {
     companion object {
         const val DEFAULT_FREQUENCY = 50
     }
@@ -24,9 +23,8 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) : CompletionHan
         protected set
 
     internal open val requiredSubsystems: List<Subsystem> = mutableListOf()
-    internal val completionHandler = CompletionHandlerImpl {}
 
-    protected val finishCondition = CommandCondition(Condition.FALSE)
+    protected val finishCondition = CommandCondition(constState(false))
     internal val exposedCondition: Condition
         get() = finishCondition
 
@@ -34,65 +32,40 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) : CompletionHan
     var timeout = 0L to TimeUnit.SECONDS
         private set
 
-    var commandState = CommandState.PREPARED
-        internal set
+    val commandState: State<CommandState> = CommandStateImpl()
+
     var startTime = 0L
         internal set
-
-    enum class CommandState(val finished: Boolean) {
-        /**
-         * Command is ready and hasn't been ran yet
-         */
-        PREPARED(false),
-        /**
-         * Command is currently running and hasn't finished
-         */
-        BAKING(false),
-        /**
-         * Command completed normally
-         */
-        BAKED(true),
-        /**
-         * Command was forced to finish
-         */
-        BURNT(true)
-    }
 
     /**
      * Is true when all the finish conditions are met
      */
-    fun isFinished() = finishCondition.isMet()
+    fun isFinished() = finishCondition.value
 
     // Little cheat so you don't have to reassign finishCondition every time you modify it
-    protected class CommandCondition(private var currentCondition: Condition) : Condition() {
-        private val listener: CompletionCallback.() -> Unit = { invokeCompletionListeners() }
-        private var handle: DisposableHandle? = null
+    protected class CommandCondition(private var currentCondition: Condition) : State<Boolean> {
+        private var used = false
 
-        override fun invokeOnCompletion(block: CompletionCallback.() -> Unit): DisposableHandle {
-            synchronized(listener) {
-                if (handle == null) {
-                    handle = currentCondition.invokeOnCompletion(listener)
-                }
-            }
-            return super.invokeOnCompletion(block)
+        override val value: Boolean
+            get() = currentCondition.value
+
+        override fun invokeOnChange(listener: StateListener<Boolean>): DisposableHandle = synchronized(this) {
+            used = true
+            return currentCondition.invokeOnChange(listener)
         }
 
-        override fun not() = TODO("Um what, this is never needed")
+        override fun invokeWhen(state: List<Boolean>, ignoreCurrent: Boolean, listener: StateListener<Boolean>): DisposableHandle = synchronized(this) {
+            used = true
+            return currentCondition.invokeWhen(state, ignoreCurrent, listener)
+        }
 
-        override fun isMet() = currentCondition.isMet()
         /**
          * Shortcut for the or operator
          */
         operator fun plusAssign(condition: Condition) {
-            synchronized(listener) {
-                val newCondition = currentCondition or condition
-                if (handle != null) {
-                    // update handle to new condition
-                    throw IllegalStateException("Cannot add condition once a listener has been added")
-                    // handle?.dispose()
-                    // handle = newCondition.invokeOnCompletion(listener)
-                }
-                currentCondition = newCondition
+            synchronized(this) {
+                if (used) throw IllegalStateException("Cannot add condition once a listener has been added")
+                currentCondition = currentCondition or condition
             }
         }
     }
@@ -100,6 +73,7 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) : CompletionHan
     protected operator fun Subsystem.unaryPlus() = (requiredSubsystems as MutableList).add(this)
 
     open suspend fun initialize0() {
+        (commandState as CommandStateImpl).changeValue(CommandState.BAKING)
         initialize()
         timeoutCondition?.start(startTime)
     }
@@ -108,17 +82,26 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) : CompletionHan
     open suspend fun dispose0() {
         timeoutCondition?.stop()
         dispose()
+        (commandState as CommandStateImpl).changeValue(CommandState.BAKED)
     }
 
     protected open suspend fun initialize() {}
     protected open suspend fun execute() {}
     protected open suspend fun dispose() {}
 
-    fun start() = CommandHandler.start(this, System.nanoTime())
-
+    fun start(): Deferred<Unit> {
+        if(commandState.value == CommandState.BAKING){
+            println("[Command] ${this::class.java.simpleName} is already running, discarding start.")
+            return CompletableDeferred(Unit)
+        }
+        if(commandState.value == CommandState.QUEUED){
+            println("[Command] ${this::class.java.simpleName} is already queued, discarding start.")
+            return CompletableDeferred(Unit)
+        }
+        (commandState as CommandStateImpl).changeValue(CommandState.QUEUED)
+        return CommandHandler.start(this, System.nanoTime())
+    }
     fun stop() = CommandHandler.stop(this, System.nanoTime())
-
-    override fun invokeOnCompletion(block: CompletionCallback.() -> Unit) = completionHandler.invokeOnCompletion(block)
 
     fun withExit(condition: Condition) = also { finishCondition += condition }
     fun withTimeout(delay: Long, unit: TimeUnit = TimeUnit.MILLISECONDS) = also {
@@ -133,9 +116,16 @@ abstract class Command(updateFrequency: Int = DEFAULT_FREQUENCY) : CompletionHan
     }
 
     suspend fun await() = suspendCancellableCoroutine<Unit> { cont ->
-        cont.disposeOnCancellation(invokeOnceOnCompletion {
+        cont.disposeOnCancellation(commandState.invokeOnceWhenFinished {
             cont.resume(Unit)
         })
     }
-}
 
+
+    private inner class CommandStateImpl : StateImpl<CommandState>(CommandState.PREPARED) {
+        fun changeValue(value: CommandState) {
+            this.internalValue = value
+        }
+    }
+
+}
