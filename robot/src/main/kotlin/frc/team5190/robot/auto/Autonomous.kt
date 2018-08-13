@@ -11,7 +11,6 @@ import frc.team5190.lib.math.geometry.Pose2d
 import frc.team5190.robot.NetworkInterface
 import frc.team5190.robot.Robot
 import frc.team5190.robot.auto.routines.RoutineBaseline
-import frc.team5190.robot.auto.routines.RoutineScaleFromSide
 import frc.team5190.robot.auto.routines.RoutineSwitchFromCenter
 import frc.team5190.robot.auto.routines.RoutineSwitchScaleFromCenter
 import kotlinx.coroutines.experimental.delay

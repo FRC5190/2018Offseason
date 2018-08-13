@@ -14,14 +14,24 @@ fun <T> constSource(value: T) = object : Source<T> {
     override val value = value
 }
 
-inline fun <T> variableSource(crossinline value: () -> T) = object  : Source<T> {
+inline fun <T> variableSource(crossinline value: () -> T) = object : Source<T> {
     override val value: T
         get() = value()
 }
 
+inline fun <T, K> mergeSource(one: Source<out T>, two: Source<out T>, crossinline value: (T, T) -> K) = object : Source<K> {
+    override val value: K
+        get() = value(one.value, two.value)
+}
+
+
+fun <T> Source<T>.withEquals(equalsWhat: T): BooleanSource = withProcessing { it == equalsWhat }
+
 inline fun <F, T> Source<F>.withProcessing(crossinline processor: (F) -> T) = variableSource {
     processor(this@withProcessing.value)
 }
+
+fun <T> BooleanSource.map(trueMap: T, falseMap: T) = withProcessing { if (it) trueMap else falseMap }
 
 fun DoubleSource.withThreshold(threshold: Double = 0.5): BooleanSource = withProcessing {
     val currentValue = this@withThreshold.value

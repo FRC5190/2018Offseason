@@ -6,8 +6,8 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 // Basic Implementation
 
-interface State<T> {
-    val value: T
+interface State<T> : Source<T> {
+    override val value: T
 
     // Default implementations
     fun invokeOnChange(listener: StateListener<T>): DisposableHandle
@@ -70,7 +70,7 @@ abstract class StateImpl<T>(initValue: T) : State<T> {
 
 fun <F, T> processedState(state: State<F>, processing: (F) -> T) = processedState(listOf(state)) { values -> processing(values.first()) }
 
-fun <F, T> processedState(states: List<State<F>>, processing: (List<F>) -> T) = object : State<T> {
+fun <F, T> processedState(states: List<State<out F>>, processing: (List<F>) -> T) = object : State<T> {
     override val value: T
         get() = processing(states.map { it.value })
 
@@ -121,6 +121,38 @@ fun <T> constState(value: T) = object : State<T> {
 
 typealias StateListener<T> = DisposableHandle.(T) -> Unit
 
+// Comparision State
+
+fun <F> comparisionState(one: State<out F>, two: State<out F>, processing: (F, F) -> Boolean): BooleanState = processedState(listOf(one, two)) { values -> processing(values[0], values[1]) }
+
+// Variable State
+
+fun <T> variableState(initValue: T): VariableState<T> = VariableStateImpl(initValue)
+
+private class VariableStateImpl<T>(initValue: T) : StateImpl<T>(initValue), VariableState<T> {
+    override var value: T
+        set(value) {
+            internalValue = value
+        }
+        get() = super.value
+}
+
+interface VariableState<T> : State<T> {
+    override var value: T
+}
+
+// Updatable State
+
+fun <T> updatableState(frequency: Int = 50, block: () -> T): StateImpl<T> = UpdatableState(frequency, block)
+
+private class UpdatableState<T>(private val frequency: Int = 50, private val block: () -> T) : StateImpl<T>(block()) {
+    override fun initWhenUsed() {
+        launchFrequency(frequency) {
+            internalValue = block()
+        }
+    }
+}
+
 // Boolean State
 
 typealias BooleanState = State<Boolean>
@@ -137,3 +169,7 @@ operator fun BooleanState.not(): BooleanState = object : BooleanState {
     override fun invokeOnChange(listener: StateListener<Boolean>) = this@not.invokeOnChange { listener(this, !it) }
     override fun invokeWhen(state: List<Boolean>, ignoreCurrent: Boolean, listener: StateListener<Boolean>) = this@not.invokeWhen(state, ignoreCurrent) { listener(this, !it) }
 }
+
+// Extensions
+
+operator fun <T, V> Map<T, V>.get(key: State<T>): State<V?> = processedState(key) { this@get[it] }
