@@ -77,15 +77,14 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
 
         // Add markers
         markers.clear()
+        // Iterate through the trajectory and add a data point every 50 ms.
+        val iterator = TrajectoryIterator(TimedView(trajectoryUsed))
+        val dataArray = arrayListOf<TrajectorySamplePoint<TimedState<Pose2dWithCurvature>>>()
+
+        while (!iterator.isDone) {
+            dataArray.add(iterator.advance(0.05))
+        }
         markerLocations.forEach { marker ->
-            // Iterate through the trajectory and add a data point every 50 ms.
-            val iterator = TrajectoryIterator(TimedView(trajectoryUsed))
-            val dataArray = arrayListOf<TrajectorySamplePoint<TimedState<Pose2dWithCurvature>>>()
-
-            while (!iterator.isDone) {
-                dataArray.add(iterator.advance(0.05))
-            }
-
             val condition = marker.condition as VariableState<Boolean>
             condition.value = false // make sure its false
 
@@ -101,6 +100,7 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
 
         // Initialize path follower
         trajectoryFollower = NonLinearController(finalTrajectory)
+        trajectoryFinished.value = false
     }
 
     fun addMarkerAt(location: Translation2d) = addMarkerAt(constSource(location))
@@ -138,6 +138,8 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
         // Update marker states
         val followerStateTime = trajectoryFollower.point.state.t
         markers.forEach { it.condition.value = followerStateTime > it.t }
+
+        trajectoryFinished.value = trajectoryFollower.isFinished
 
         lastVelocity = output
     }
