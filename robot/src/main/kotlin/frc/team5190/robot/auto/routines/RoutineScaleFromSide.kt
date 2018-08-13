@@ -3,10 +3,7 @@ package frc.team5190.robot.auto.routines
 import frc.team5190.lib.commands.*
 import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.math.geometry.Translation2d
-import frc.team5190.lib.utils.State
-import frc.team5190.lib.utils.map
-import frc.team5190.lib.utils.mergeSource
-import frc.team5190.lib.utils.withEquals
+import frc.team5190.lib.utils.*
 import frc.team5190.robot.auto.StartingPositions
 import frc.team5190.robot.auto.Trajectories
 import frc.team5190.robot.subsytems.SubsystemPreset
@@ -20,8 +17,8 @@ import frc.team5190.robot.subsytems.intake.IntakeSubsystem
 import openrio.powerup.MatchData
 import java.util.concurrent.TimeUnit
 
-class RoutineScaleFromSide(startingPosition: State<StartingPositions>,
-                           private val scaleSide: State<MatchData.OwnedSide>) : AutoRoutine(startingPosition) {
+class RoutineScaleFromSide(startingPosition: Source<StartingPositions>,
+                           private val scaleSide: Source<MatchData.OwnedSide>) : AutoRoutine(startingPosition) {
 
     override fun createRoutine(): Command {
         val cross = mergeSource(startingPosition, scaleSide) { one, two -> one.name.first().equals(two.name.first(), true) }

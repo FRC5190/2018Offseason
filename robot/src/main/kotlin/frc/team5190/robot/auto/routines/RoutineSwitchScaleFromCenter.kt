@@ -20,7 +20,7 @@ import frc.team5190.robot.subsytems.intake.IntakeSubsystem
 import openrio.powerup.MatchData
 import java.util.concurrent.TimeUnit
 
-class RoutineSwitchScaleFromCenter(startingPosition: State<StartingPositions>,
+class RoutineSwitchScaleFromCenter(startingPosition: Source<StartingPositions>,
                                    private val switchSide: Source<MatchData.OwnedSide>,
                                    private val scaleSide: Source<MatchData.OwnedSide>) : AutoRoutine(startingPosition) {
     override fun createRoutine(): Command {

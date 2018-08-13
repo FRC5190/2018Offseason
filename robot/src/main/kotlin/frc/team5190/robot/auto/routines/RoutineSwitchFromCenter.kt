@@ -7,6 +7,7 @@ import frc.team5190.lib.commands.condition
 import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.math.geometry.Pose2d
 import frc.team5190.lib.math.geometry.Translation2d
+import frc.team5190.lib.utils.Source
 import frc.team5190.lib.utils.State
 import frc.team5190.lib.utils.map
 import frc.team5190.lib.utils.withEquals
@@ -19,7 +20,7 @@ import frc.team5190.robot.subsytems.intake.IntakeSubsystem
 import openrio.powerup.MatchData
 import java.util.concurrent.TimeUnit
 
-class RoutineSwitchFromCenter(startingPosition: State<StartingPositions>,
+class RoutineSwitchFromCenter(startingPosition: Source<StartingPositions>,
                               private val switchSide: State<MatchData.OwnedSide>) : AutoRoutine(startingPosition) {
     override fun createRoutine(): Command {
         val switch = switchSide.withEquals(MatchData.OwnedSide.LEFT)

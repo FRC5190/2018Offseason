@@ -18,12 +18,12 @@ object Autonomous {
     private val autoContext = newSingleThreadContext("Autonomous")
 
     object Config {
-        val startingPosition = autoConfigListener { StartingPositions.valueOf(NetworkInterface.startingPosition.getString("Left").toUpperCase()) }
+        val startingPosition = variableSource { StartingPositions.valueOf(NetworkInterface.startingPosition.getString("Left").toUpperCase()) }
         val switchSide = autoConfigListener { MatchData.getOwnedSide(MatchData.GameFeature.SWITCH_NEAR) }
         val scaleSide = autoConfigListener { MatchData.getOwnedSide(MatchData.GameFeature.SCALE) }
-        val switchAutoMode = autoConfigListener { SwitchAutoMode.valueOf(NetworkInterface.switchAutoMode.getString("Basic").toUpperCase()) }
-        val nearScaleAutoMode = autoConfigListener { ScaleAutoMode.valueOf(NetworkInterface.nearScaleAutoMode.getString("Baseline").toUpperCase()) }
-        val farScaleAutoMode = autoConfigListener { ScaleAutoMode.valueOf(NetworkInterface.farScaleAutoMode.getString("Baseline").toUpperCase()) }
+        val switchAutoMode = variableSource { SwitchAutoMode.valueOf(NetworkInterface.switchAutoMode.getString("Basic").toUpperCase()) }
+        val nearScaleAutoMode = variableSource { ScaleAutoMode.valueOf(NetworkInterface.nearScaleAutoMode.getString("Baseline").toUpperCase()) }
+        val farScaleAutoMode = variableSource { ScaleAutoMode.valueOf(NetworkInterface.farScaleAutoMode.getString("Baseline").toUpperCase()) }
     }
 
     private val farScale = mergeSource(Config.startingPosition, Config.scaleSide) { one, two -> !one.name.first().equals(two.name.first(), true) }
