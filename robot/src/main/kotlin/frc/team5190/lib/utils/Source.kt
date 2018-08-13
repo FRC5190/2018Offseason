@@ -19,11 +19,7 @@ inline fun <T> variableSource(crossinline value: () -> T) = object : Source<T> {
         get() = value()
 }
 
-inline fun <T, K> mergeSource(one: Source<out T>, two: Source<out T>, crossinline value: (T, T) -> K) = object : Source<K> {
-    override val value: K
-        get() = value(one.value, two.value)
-}
-
+inline fun <T, K> mergeSource(one: Source<out T>, two: Source<out T>, crossinline value: (T, T) -> K) = variableSource { value(one.value, two.value) }
 
 fun <T> Source<T>.withEquals(equalsWhat: T): BooleanSource = withProcessing { it == equalsWhat }
 
