@@ -1,9 +1,6 @@
 package frc.team5190.lib.commands
 
-import frc.team5190.lib.utils.BooleanState
-import frc.team5190.lib.utils.StateImpl
-import frc.team5190.lib.utils.launchFrequency
-import frc.team5190.lib.utils.processedState
+import frc.team5190.lib.utils.*
 
 // Condition implementations for State<Boolean>
 
@@ -16,15 +13,7 @@ open class ConditionCommand(condition: Condition) : Command() {
 typealias Condition = BooleanState
 
 fun condition(value: Boolean): Condition = condition { value }
-fun condition(frequency: Int = 50, block: () -> Boolean): Condition = VariableCondition(frequency, block)
-
-private class VariableCondition(private val frequency: Int = 50, private val block: () -> Boolean) : StateImpl<Boolean>(block()) {
-    override fun initWhenUsed() {
-        launchFrequency(frequency) {
-            internalValue = block()
-        }
-    }
-}
+fun condition(frequency: Int = 50, block: () -> Boolean): Condition = updatableState(frequency, block)
 
 infix fun Condition.or(block: () -> Boolean) = this or condition(block = block)
 infix fun Condition.and(block: () -> Boolean) = this and condition(block = block)

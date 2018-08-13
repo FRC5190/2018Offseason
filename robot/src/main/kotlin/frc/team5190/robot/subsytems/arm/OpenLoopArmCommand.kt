@@ -15,7 +15,5 @@ class OpenLoopArmCommand(private val percentOutput: DoubleSource) : Command() {
         +ArmSubsystem
     }
 
-    override suspend fun execute() {
-        ArmSubsystem.set(ControlMode.PercentOutput, percentOutput.value)
-    }
+    override suspend fun execute() = ArmSubsystem.set(ControlMode.PercentOutput, percentOutput.value)
 }

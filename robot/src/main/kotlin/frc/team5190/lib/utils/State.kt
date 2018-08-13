@@ -2,6 +2,7 @@ package frc.team5190.lib.utils
 
 import kotlinx.coroutines.experimental.DisposableHandle
 import kotlinx.coroutines.experimental.NonDisposableHandle
+import kotlinx.coroutines.experimental.newSingleThreadContext
 import java.util.concurrent.CopyOnWriteArrayList
 
 // Basic Implementation
@@ -123,7 +124,8 @@ typealias StateListener<T> = DisposableHandle.(T) -> Unit
 
 // Comparision State
 
-fun <F> comparisionState(one: State<out F>, two: State<out F>, processing: (F, F) -> Boolean): BooleanState = processedState(listOf(one, two)) { values -> processing(values[0], values[1]) }
+fun <F> comparisionState(one: State<out F>, two: State<out F>, processing: (F, F) -> Boolean): BooleanState =
+        processedState(listOf(one, two)) { values -> processing(values[0], values[1]) }
 
 // Variable State
 
@@ -146,8 +148,12 @@ interface VariableState<T> : State<T> {
 fun <T> updatableState(frequency: Int = 50, block: () -> T): StateImpl<T> = UpdatableState(frequency, block)
 
 private class UpdatableState<T>(private val frequency: Int = 50, private val block: () -> T) : StateImpl<T>(block()) {
+    companion object {
+        private val context = newSingleThreadContext("Updatable State")
+    }
+
     override fun initWhenUsed() {
-        launchFrequency(frequency) {
+        launchFrequency(frequency, context) {
             internalValue = block()
         }
     }
@@ -167,7 +173,8 @@ operator fun BooleanState.not(): BooleanState = object : BooleanState {
         get() = !this@not.value
 
     override fun invokeOnChange(listener: StateListener<Boolean>) = this@not.invokeOnChange { listener(this, !it) }
-    override fun invokeWhen(state: List<Boolean>, ignoreCurrent: Boolean, listener: StateListener<Boolean>) = this@not.invokeWhen(state, ignoreCurrent) { listener(this, !it) }
+    override fun invokeWhen(state: List<Boolean>, ignoreCurrent: Boolean, listener: StateListener<Boolean>) =
+            this@not.invokeWhen(state, ignoreCurrent) { listener(this, !it) }
 }
 
 // Extensions

@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.coroutines.experimental.CoroutineContext
 
 fun launchFrequency(
-        frequency: Int,
+        frequency: Int = 50,
         context: CoroutineContext = DefaultDispatcher,
         start: CoroutineStart = CoroutineStart.DEFAULT,
         parent: Job? = null,

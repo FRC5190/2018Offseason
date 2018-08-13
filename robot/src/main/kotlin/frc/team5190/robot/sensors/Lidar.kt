@@ -11,6 +11,7 @@ import frc.team5190.lib.math.geometry.Rotation2d
 import frc.team5190.lib.math.units.Distance
 import frc.team5190.lib.math.units.Inches
 import frc.team5190.lib.utils.Source
+import frc.team5190.lib.utils.launchFrequency
 import frc.team5190.robot.Constants
 import frc.team5190.robot.Localization
 import frc.team5190.robot.Robot
@@ -41,8 +42,6 @@ object Lidar : Source<Pair<Boolean, Distance>> {
     override val value
         get() = underScale to scaleHeight
 
-    private var rawDistance = 0.0
-
     init {
         // X - Raw Sensor Units
         // Y - Height in Inches
@@ -54,18 +53,13 @@ object Lidar : Source<Pair<Boolean, Distance>> {
 
         data.forEach { regressionFunction.addData(it.first, it.second) }
 
-        launch {
-            while (isActive){
-                run()
-                delay(20)
-            }
-        }
+        launchFrequency { run() }
     }
 
     private fun run() {
         Canifier.getPWMInput(CANifier.PWMChannel.PWMChannel0, pwmData)
 
-        rawDistance = pwmData[0]
+        val rawDistance = pwmData[0]
         scaleHeight = Inches(regressionFunction.predict(rawDistance))
         underScale = kMinScaleHeight - kAllowedTolerance < scaleHeight && scaleHeight < kMaxScaleHeight + kAllowedTolerance
 
