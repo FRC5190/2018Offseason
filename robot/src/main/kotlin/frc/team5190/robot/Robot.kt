@@ -53,6 +53,9 @@ class Robot : FalconRobotBase() {
         println("5")
         Lidar
 
+        onTransition(Mode.ANY, Mode.ANY) { from, to ->
+            println("Transitioned from $from to $to")
+        }
     }
 
 }

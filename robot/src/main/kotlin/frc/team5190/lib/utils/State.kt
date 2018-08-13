@@ -14,7 +14,7 @@ interface State<T> : Source<T> {
     fun invokeOnChange(listener: StateListener<T>): DisposableHandle
 
     fun invokeWhen(state: T, ignoreCurrent: Boolean = false, listener: StateListener<T>) = invokeWhen(listOf(state), ignoreCurrent, listener)
-    fun invokeWhen(state: List<T>, ignoreCurrent: Boolean, listener: StateListener<T>): DisposableHandle
+    fun invokeWhen(state: List<T>, ignoreCurrent: Boolean = false, listener: StateListener<T>): DisposableHandle
 
     // Shortcut implementations
     fun invokeOnceOnChange(listener: StateListener<T>) = invokeOnChange {
