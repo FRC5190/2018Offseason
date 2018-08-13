@@ -26,7 +26,6 @@ import frc.team5190.robot.Localization
 
 class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedState<Pose2dWithCurvature>>>, private val pathMirrored: BooleanSource = constSource(false)) : Command() {
 
-    constructor(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>, pathMirrored: Boolean = false) : this(trajectory, constSource(pathMirrored))
     constructor(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>, pathMirrored: BooleanSource = constSource(false)) : this(constSource(trajectory), pathMirrored)
 
     private val trajectoryFinished = variableState(false)

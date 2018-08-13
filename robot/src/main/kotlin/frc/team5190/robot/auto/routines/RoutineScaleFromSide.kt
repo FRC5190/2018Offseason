@@ -1,4 +1,4 @@
-package frc.team5190.robot.auto.routines2
+package frc.team5190.robot.auto.routines
 
 import frc.team5190.lib.commands.*
 import frc.team5190.lib.extensions.parallel
