@@ -1,5 +1,7 @@
 package frc.team5190.lib.utils
 
+import edu.wpi.first.wpilibj.AnalogInput
+import edu.wpi.first.wpilibj.AnalogOutput
 import kotlinx.coroutines.experimental.DisposableHandle
 import kotlinx.coroutines.experimental.NonDisposableHandle
 import kotlinx.coroutines.experimental.newSingleThreadContext
@@ -180,3 +182,9 @@ operator fun BooleanState.not(): BooleanState = object : BooleanState {
 // Extensions
 
 operator fun <T, V> Map<T, V>.get(key: State<T>): State<V?> = processedState(key) { this@get[it] }
+
+// Sensor Extensions
+
+val AnalogInput.voltageState
+    get() = voltageState()
+fun AnalogInput.voltageState(frequency: Int = AnalogInput.getGlobalSampleRate().toInt()) = updatableState(frequency) { this@voltageState.averageVoltage }
