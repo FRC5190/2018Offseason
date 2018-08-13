@@ -28,7 +28,7 @@ object IntakeSubsystem : Subsystem() {
             voltageCompensationSaturation = Volts(12.0)
             voltageCompensationEnabled = true
 
-            continousCurrentLimit = Amps(18)
+            continuousCurrentLimit = Amps(18)
             currentLimitingEnabled = true
 
             brakeMode = NeutralMode.Coast
