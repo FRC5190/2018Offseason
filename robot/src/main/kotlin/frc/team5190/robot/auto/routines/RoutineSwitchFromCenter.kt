@@ -21,7 +21,7 @@ import openrio.powerup.MatchData
 import java.util.concurrent.TimeUnit
 
 class RoutineSwitchFromCenter(startingPosition: Source<StartingPositions>,
-                              private val switchSide: State<MatchData.OwnedSide>) : AutoRoutine(startingPosition) {
+                              private val switchSide: Source<MatchData.OwnedSide>) : AutoRoutine(startingPosition) {
     override fun createRoutine(): Command {
         val switch = switchSide.withEquals(MatchData.OwnedSide.LEFT)
         val mirrored = switchSide.withEquals(MatchData.OwnedSide.RIGHT)

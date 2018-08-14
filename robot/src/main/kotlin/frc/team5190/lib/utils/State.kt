@@ -1,8 +1,8 @@
 package frc.team5190.lib.utils
 
 import edu.wpi.first.wpilibj.AnalogInput
-import edu.wpi.first.wpilibj.AnalogOutput
 import kotlinx.coroutines.experimental.DisposableHandle
+import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.NonDisposableHandle
 import kotlinx.coroutines.experimental.newSingleThreadContext
 import java.util.concurrent.CopyOnWriteArrayList
@@ -47,8 +47,14 @@ abstract class StateImpl<T>(initValue: T) : State<T> {
 
     private val changeListeners = CopyOnWriteArrayList<Pair<DisposableHandle, StateListener<T>>>()
 
+    private fun removeListener(listener: StateListener<T>) = synchronized(syncValue) {
+        changeListeners.removeIf { it.second == listener }
+        if (changeListeners.isEmpty()) disposeWhenUnused()
+    }
+
     private var hasInit = false
     protected open fun initWhenUsed() {}
+    protected open fun disposeWhenUnused() {}
 
     override fun invokeOnChange(listener: StateListener<T>): DisposableHandle = synchronized(syncValue) {
         if (!hasInit) {
@@ -57,7 +63,7 @@ abstract class StateImpl<T>(initValue: T) : State<T> {
         }
         val handle = object : DisposableHandle {
             override fun dispose() {
-                changeListeners.removeIf { it.second == listener }
+                removeListener(listener)
             }
         }
         changeListeners.add(handle to listener)
@@ -73,48 +79,38 @@ abstract class StateImpl<T>(initValue: T) : State<T> {
 
 fun <F, T> processedState(state: State<F>, processing: (F) -> T) = processedState(listOf(state)) { values -> processing(values.first()) }
 
-fun <F, T> processedState(states: List<State<out F>>, processing: (List<F>) -> T) = object : State<T> {
-    override val value: T
-        get() = processing(states.map { it.value })
+fun <F, T> processedState(states: List<State<out F>>, processing: (List<F>) -> T): State<T> =
+        object : StateImpl<T>(processing(states.map { it.value })) {
 
-    private fun createInvokeOnChange(listener: StateListener<T>): Pair<T, DisposableHandle> {
-        var lastValue: T = value
-        val handles = mutableListOf<DisposableHandle>()
-        val mergedHandle = object : DisposableHandle {
-            override fun dispose() {
-                handles.forEach { it.dispose() }
-            }
-        }
-        val listenerAdapter: (List<F>) -> Unit = { list ->
-            synchronized(listener) {
-                val newValue = processing(list)
-                if (lastValue != newValue) listener(mergedHandle, newValue)
-                lastValue = newValue
-            }
-        }
-        synchronized(listener) {
-            handles += states.map { state ->
-                state.invokeOnChange { newValue ->
-                    val values = states.map { state1 ->
-                        if (state1 == state) newValue else state1.value
-                    }
-                    listenerAdapter(values)
+            override val value: T
+                get() = synchronized(handles) {
+                    if (handles.isEmpty()) {
+                        // If no listeners are registered just grab the new value and update it manually
+                        val newValue = processing(states.map { it.value })
+                        internalValue = newValue
+                        newValue
+                    } else super.value
                 }
+
+            private val handles = mutableListOf<DisposableHandle>()
+
+            override fun initWhenUsed() = synchronized(handles) {
+                states.forEach { state ->
+                    handles += state.invokeOnChange { value ->
+                        val newValues = states.map { stateVal -> if (stateVal == state) value else stateVal.value }
+                        synchronized(handles) {
+                            internalValue = processing(newValues)
+                        }
+                    }
+                }
+                internalValue = processing(states.map { it.value })
             }
-            lastValue = value
-            return lastValue to mergedHandle
+
+            override fun disposeWhenUnused() = synchronized(handles) {
+                handles.forEach { it.dispose() }
+                handles.clear()
+            }
         }
-    }
-
-    override fun invokeOnChange(listener: StateListener<T>) = createInvokeOnChange(listener).second
-
-    override fun invokeWhen(state: List<T>, ignoreCurrent: Boolean, listener: StateListener<T>): DisposableHandle = synchronized(listener) {
-        val (valueUsed, changeListener) = createInvokeOnChange { if (state.contains(it)) listener(this, it) }
-        if (state.contains(valueUsed)) listener(changeListener, valueUsed)
-        return changeListener
-    }
-
-}
 
 fun <T> constState(value: T) = object : State<T> {
     override val value = value
@@ -154,10 +150,16 @@ private class UpdatableState<T>(private val frequency: Int = 50, private val blo
         private val context = newSingleThreadContext("Updatable State")
     }
 
+    private lateinit var job: Job
+
     override fun initWhenUsed() {
-        launchFrequency(frequency, context) {
+        job = launchFrequency(frequency, context) {
             internalValue = block()
         }
+    }
+
+    override fun disposeWhenUnused() {
+        job.cancel()
     }
 }
 
@@ -187,4 +189,6 @@ operator fun <T, V> Map<T, V>.get(key: State<T>): State<V?> = processedState(key
 
 val AnalogInput.voltageState
     get() = voltageState()
-fun AnalogInput.voltageState(frequency: Int = AnalogInput.getGlobalSampleRate().toInt()) = updatableState(frequency) { this@voltageState.averageVoltage }
+
+fun AnalogInput.voltageState(frequency: Int = AnalogInput.getGlobalSampleRate().toInt()) =
+        updatableState(frequency) { this@voltageState.averageVoltage }
