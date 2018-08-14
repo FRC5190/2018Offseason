@@ -1,11 +1,10 @@
-package frc.team5190.lib.states
+package frc.team5190.lib.utils
 
 import frc.team5190.lib.commands.and
 import frc.team5190.lib.commands.or
-import frc.team5190.lib.utils.*
 import org.junit.Test
 
-class ProcessedStateTests {
+class StateTests {
 
     @Test
     fun basicAnd() {
