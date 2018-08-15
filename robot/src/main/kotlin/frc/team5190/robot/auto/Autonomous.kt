@@ -6,8 +6,8 @@ import frc.team5190.lib.extensions.StateCommandGroupBuilder
 import frc.team5190.lib.extensions.stateCommandGroup
 import frc.team5190.lib.math.geometry.Pose2d
 import frc.team5190.lib.utils.*
+import frc.team5190.lib.wrappers.FalconRobotBase
 import frc.team5190.robot.NetworkInterface
-import frc.team5190.robot.Robot
 import frc.team5190.robot.auto.routines.*
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.newSingleThreadContext
@@ -18,18 +18,18 @@ object Autonomous {
     private val autoContext = newSingleThreadContext("Autonomous")
 
     object Config {
-        val startingPosition = variableSource { StartingPositions.valueOf(NetworkInterface.startingPosition.getString("Left").toUpperCase()) }
+        val startingPosition = variableSource { StartingPositions.valueOf(NetworkInterface.startingPosition.toUpperCase()) }
         val switchSide = autoConfigListener { MatchData.getOwnedSide(MatchData.GameFeature.SWITCH_NEAR) }
         val scaleSide = autoConfigListener { MatchData.getOwnedSide(MatchData.GameFeature.SCALE) }
-        val switchAutoMode = variableSource { SwitchAutoMode.valueOf(NetworkInterface.switchAutoMode.getString("Basic").toUpperCase()) }
-        val nearScaleAutoMode = variableSource { ScaleAutoMode.valueOf(NetworkInterface.nearScaleAutoMode.getString("Baseline").toUpperCase()) }
-        val farScaleAutoMode = variableSource { ScaleAutoMode.valueOf(NetworkInterface.farScaleAutoMode.getString("Baseline").toUpperCase()) }
+        val switchAutoMode = variableSource { SwitchAutoMode.valueOf(NetworkInterface.switchAutoMode.toUpperCase()) }
+        val nearScaleAutoMode = variableSource { ScaleAutoMode.valueOf(NetworkInterface.nearScaleAutoMode.toUpperCase()) }
+        val farScaleAutoMode = variableSource { ScaleAutoMode.valueOf(NetworkInterface.farScaleAutoMode.toUpperCase()) }
     }
 
     private val farScale = mergeSource(Config.startingPosition, Config.scaleSide) { one, two -> !one.name.first().equals(two.name.first(), true) }
 
     private var configValid = comparisionState(Config.switchSide, Config.scaleSide) { one, two -> one != MatchData.OwnedSide.UNKNOWN && two != MatchData.OwnedSide.UNKNOWN }
-    private val shouldPoll = !(updatableState(5) { Robot.INSTANCE.run { isAutonomous && isEnabled } } and configValid)
+    private val shouldPoll = !(updatableState(5) { FalconRobotBase.INSTANCE.run { isAutonomous && isEnabled } } and configValid)
 
     // Autonomous Master Group
 
@@ -61,9 +61,7 @@ object Autonomous {
     init {
         val IT = ""
         shouldPoll.invokeWhenFalse {
-            synchronized(Config) {
-                JUST S3ND IT
-            }
+            JUST S3ND IT
         }
     }
 

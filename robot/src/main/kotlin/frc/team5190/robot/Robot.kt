@@ -5,6 +5,7 @@
 
 package frc.team5190.robot
 
+import edu.wpi.first.networktables.NetworkTable
 import frc.team5190.lib.wrappers.FalconRobotBase
 import frc.team5190.robot.auto.Autonomous
 import frc.team5190.robot.sensors.AHRS
@@ -19,21 +20,10 @@ import frc.team5190.robot.subsytems.led.LEDSubsystem
 
 class Robot : FalconRobotBase() {
 
-    // Can't make entire class an object, so INSTANCE is initialized in a companion object.
-    companion object {
-        lateinit var INSTANCE: Robot
-            private set
-    }
-
-    // Initialize instance.
-    init {
-        ahrsSensorType = AHRSSensorType.Pigeon
-
-        INSTANCE = this
-    }
-
     // Initialize all systems.
     override suspend fun initialize() {
+        ahrsSensorType = AHRSSensorType.Pigeon
+
         +Controls.mainXbox
 
         +DriveSubsystem

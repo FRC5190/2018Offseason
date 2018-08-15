@@ -21,7 +21,8 @@ inline fun <T> variableSource(crossinline value: () -> T) = object : Source<T> {
 
 inline fun <T, K> mergeSource(one: Source<out T>, two: Source<out T>, crossinline value: (T, T) -> K) = variableSource { value(one.value, two.value) }
 
-fun <T> Source<T>.withEquals(equalsWhat: T): BooleanSource = withProcessing { it == equalsWhat }
+fun <T> Source<T>.withEquals(equalsWhat: T): BooleanSource = withEquals(constSource(equalsWhat))
+fun <T> Source<T>.withEquals(equalsWhat: Source<T>): BooleanSource = withProcessing { it == equalsWhat.value }
 
 inline fun <F, T> Source<F>.withProcessing(crossinline processor: (F) -> T) = variableSource {
     processor(this@withProcessing.value)

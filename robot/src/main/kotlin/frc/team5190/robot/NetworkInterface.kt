@@ -5,48 +5,50 @@
 
 package frc.team5190.robot
 
-import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Notifier
+import frc.team5190.lib.wrappers.FalconRobotBase
+import frc.team5190.lib.wrappers.networktables.FalconNetworkTable
+import frc.team5190.lib.wrappers.networktables.get
 import frc.team5190.robot.subsytems.drive.DriveSubsystem
 import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
+import frc.team5190.lib.wrappers.networktables.*
 
 @Suppress("HasPlatformType")
-object NetworkInterface  {
+object NetworkInterface {
 
-    val INSTANCE = NetworkTableInstance.getDefault().getTable("Live Dashboard")
+    val INSTANCE = FalconNetworkTable.getTable("Live Dashboard")
 
-    val startingPosition = INSTANCE.getEntry("Starting Position")
+    val startingPosition by INSTANCE["Starting Position"].delegate("Left")
 
-    val switchAutoMode = INSTANCE.getEntry("Switch Auto Mode")
-    val nearScaleAutoMode = INSTANCE.getEntry("Near Scale Auto Mode")
-    val farScaleAutoMode = INSTANCE.getEntry("Far Scale Auto Mode")
+    val switchAutoMode by INSTANCE["Switch Auto Mode"].delegate("Basic")
+    val nearScaleAutoMode by INSTANCE["Near Scale Auto Mode"].delegate("Baseline")
+    val farScaleAutoMode by INSTANCE["Far Scale Auto Mode"].delegate("Baseline")
 
-    private val robotX = INSTANCE.getEntry("Robot X")
-    private val robotY = INSTANCE.getEntry("Robot Y")
+    private val robotX = INSTANCE["Robot X"]
+    private val robotY = INSTANCE["Robot Y"]
 
-    private val robotHdg = INSTANCE.getEntry("Robot Heading")
+    private val robotHdg = INSTANCE["Robot Heading"]
 
-    private val pathX = INSTANCE.getEntry("Path X")
-    private val pathY = INSTANCE.getEntry("Path Y")
-    private val pathHdg = INSTANCE.getEntry("Path Heading")
+    private val pathX = INSTANCE["Path X"]
+    private val pathY = INSTANCE["Path Y"]
+    private val pathHdg = INSTANCE["Path Heading"]
 
-    private val lookaheadX = INSTANCE.getEntry("Lookahead X")
-    private val lookaheadY = INSTANCE.getEntry("Lookahead Y")
+    private val lookaheadX = INSTANCE["Lookahead X"]
+    private val lookaheadY = INSTANCE["Lookahead Y"]
 
-    private val driveLeftEncoder = INSTANCE.getEntry("Drive Left Encoder")
-    private val driveLeftPercent = INSTANCE.getEntry("Drive Left Pct")
-    private val driveLeftAmps = INSTANCE.getEntry("Drive Left Amps")
+    private val driveLeftEncoder = INSTANCE["Drive Left Encoder"]
+    private val driveLeftPercent = INSTANCE["Drive Left Pct"]
+    private val driveLeftAmps = INSTANCE["Drive Left Amps"]
 
-    private val driveRightEncoder = INSTANCE.getEntry("Drive Right Encoder")
-    private val driveRightPercent = INSTANCE.getEntry("Drive Right Pct")
-    private val driveRightAmps = INSTANCE.getEntry("Drive Right Amps")
+    private val driveRightEncoder = INSTANCE["Drive Right Encoder"]
+    private val driveRightPercent = INSTANCE["Drive Right Pct"]
+    private val driveRightAmps = INSTANCE["Drive Right Amps"]
 
-    private val isEnabled = INSTANCE.getEntry("Is Enabled")
-    private val gameData = INSTANCE.getEntry("Game Data")
+    private val isEnabled = INSTANCE["Is Enabled"]
+    private val gameData = INSTANCE["Game Data"]
 
     private val notifier: Notifier
-
 
     init {
         notifier = Notifier {
@@ -70,7 +72,7 @@ object NetworkInterface  {
             driveRightPercent.setDouble(DriveSubsystem.rightPercent * 100)
             driveRightAmps.setDouble(DriveSubsystem.rightAmperage)
 
-            isEnabled.setString(if (Robot.INSTANCE.isEnabled) "Enabled" else "Disabled")
+            isEnabled.setString(if (FalconRobotBase.INSTANCE.isEnabled) "Enabled" else "Disabled")
             gameData.setString(DriverStation.getInstance().gameSpecificMessage ?: "null")
         }
 
