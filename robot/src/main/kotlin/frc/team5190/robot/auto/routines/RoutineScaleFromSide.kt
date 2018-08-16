@@ -1,14 +1,10 @@
-/*
- * FRC Team 5190
- * Green Hope Falcons
- */
-
 package frc.team5190.robot.auto.routines
 
 import frc.team5190.lib.commands.*
 import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.math.geometry.Translation2d
-import frc.team5190.robot.auto.Autonomous
+import frc.team5190.lib.utils.*
+import frc.team5190.robot.auto.StartingPositions
 import frc.team5190.robot.auto.Trajectories
 import frc.team5190.robot.subsytems.SubsystemPreset
 import frc.team5190.robot.subsytems.arm.ArmSubsystem
@@ -21,82 +17,77 @@ import frc.team5190.robot.subsytems.intake.IntakeSubsystem
 import openrio.powerup.MatchData
 import java.util.concurrent.TimeUnit
 
-class RoutineScaleFromSide(private val startingPosition: Autonomous.StartingPositions,
-                           private val scaleSide: MatchData.OwnedSide) : BaseRoutine(startingPosition) {
+class RoutineScaleFromSide(startingPosition: Source<StartingPositions>,
+                           private val scaleSide: Source<MatchData.OwnedSide>) : AutoRoutine(startingPosition) {
 
-    @Suppress("UNUSED_VARIABLE")
-    override val routine: CommandGroup
-        get() {
-            val scale = if (startingPosition.name.first().toUpperCase() == scaleSide.name.first().toUpperCase()) {
-                "Near"
-            } else "Far"
-            val mirrored = scaleSide == MatchData.OwnedSide.RIGHT
+    override fun createRoutine(): Command {
+        val cross = mergeSource(startingPosition, scaleSide) { one, two -> !one.name.first().equals(two.name.first(), true) }
+        val shouldMirrorPath = scaleSide.withEquals(MatchData.OwnedSide.RIGHT)
 
-            val drop1stCube = FollowTrajectoryCommand(
-                    trajectory = if (scale == "Far") Trajectories.leftStartToFarScale else Trajectories.leftStartToNearScale,
-                    pathMirrored = startingPosition == Autonomous.StartingPositions.RIGHT)
+        val drop1stCube = FollowTrajectoryCommand(
+                trajectory = cross.map(Trajectories.leftStartToFarScale, Trajectories.leftStartToNearScale),
+                pathMirrored = startingPosition.withEquals(StartingPositions.RIGHT))
 
-            val pickup2ndCube = FollowTrajectoryCommand(trajectory = Trajectories.scaleToCube1, pathMirrored = mirrored)
-            val drop2ndCube   = FollowTrajectoryCommand(trajectory = Trajectories.cube1ToScale, pathMirrored = mirrored)
-            val pickup3rdCube = FollowTrajectoryCommand(trajectory = Trajectories.scaleToCube2, pathMirrored = mirrored)
-            val drop3rdCube   = FollowTrajectoryCommand(trajectory = Trajectories.cube2ToScale, pathMirrored = mirrored)
-            val pickup4thCube = FollowTrajectoryCommand(trajectory = Trajectories.scaleToCube3, pathMirrored = mirrored)
+        val pickup2ndCube = FollowTrajectoryCommand(Trajectories.scaleToCube1, shouldMirrorPath)
+        val drop2ndCube = FollowTrajectoryCommand(Trajectories.cube1ToScale, shouldMirrorPath)
+        val pickup3rdCube = FollowTrajectoryCommand(Trajectories.scaleToCube2, shouldMirrorPath)
+        val drop3rdCube = FollowTrajectoryCommand(Trajectories.cube2ToScale, shouldMirrorPath)
+        val pickup4thCube = FollowTrajectoryCommand(Trajectories.scaleToCube3, shouldMirrorPath)
 
-            val after2ndCube = DelayCommand(250, TimeUnit.MILLISECONDS)
+        val after2ndCube = DelayCommand(250, TimeUnit.MILLISECONDS)
 
-            val elevatorUp   = drop1stCube.addMarkerAt(Translation2d(11.0, 23.1))
-            val shoot1stCube = drop1stCube.addMarkerAt(if (mirrored) Translation2d(22.3, 20.6) else Translation2d(19.0, 8.0))
-            val shoot2ndCube = drop2ndCube.addMarkerAt(Translation2d(22.5, 19.9))
-            val shoot3rdCube = drop3rdCube.addMarkerAt(Translation2d(22.5, 19.9))
+        val elevatorUp = drop1stCube.addMarkerAt(Translation2d(11.0, 23.1))
+        val shoot1stCube = drop1stCube.addMarkerAt(shouldMirrorPath.map(Translation2d(22.3, 20.6), Translation2d(19.0, 8.0)))
+        val shoot2ndCube = drop2ndCube.addMarkerAt(Translation2d(22.5, 19.9))
+        val shoot3rdCube = drop3rdCube.addMarkerAt(Translation2d(22.5, 19.9))
 
-            return parallel {
-                sequential {
-                    +drop1stCube
-                    +ConditionCommand(condition { ElevatorSubsystem.currentPosition < ElevatorSubsystem.Position.FSTAGE.distance})
-                    +pickup2ndCube
-                    +after2ndCube
-                    +drop2ndCube
-                    +pickup3rdCube
-                    +drop3rdCube
-                    +pickup4thCube
+        return parallel {
+            sequential {
+                +drop1stCube
+//                +ConditionCommand(condition { ElevatorSubsystem.currentPosition < ElevatorSubsystem.Position.FSTAGE.distance })
+                +pickup2ndCube
+                +after2ndCube
+                +drop2ndCube
+                +pickup3rdCube
+                +drop3rdCube
+                +pickup4thCube
+            }
+            sequential {
+                +DelayCommand(250, TimeUnit.MILLISECONDS)
 
+                parallel {
+                    +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.SWITCH)
+                    +ClosedLoopArmCommand(ArmSubsystem.Position.UP)
+                }.withTimeout(1, TimeUnit.SECONDS)
+
+                +ConditionCommand(elevatorUp.condition or drop1stCube)
+                +SubsystemPreset.BEHIND.command.withExit(condition(drop1stCube))
+                +ConditionCommand(shoot1stCube.condition or drop1stCube)
+                +IntakeCommand(IntakeSubsystem.Direction.OUT).withExit(condition(drop1stCube))
+
+                parallel {
+                    +SubsystemPreset.INTAKE.command.withExit(condition(pickup2ndCube))
+                    +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(condition(pickup2ndCube))
                 }
-                sequential {
-                    +DelayCommand(250, TimeUnit.MILLISECONDS)
 
-                    parallel {
-                        +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.SWITCH)
-                        +ClosedLoopArmCommand(ArmSubsystem.Position.UP)
-                    }.withTimeout(1, TimeUnit.SECONDS)
+                +SubsystemPreset.BEHIND.command.withExit(condition(drop2ndCube))
+                +ConditionCommand(shoot2ndCube.condition)
+                +IntakeCommand(IntakeSubsystem.Direction.OUT).withExit(condition(drop2ndCube))
 
-                    +ConditionCommand(condition { drop1stCube.hasCrossedMarker(elevatorUp) } or drop1stCube)
-                    +SubsystemPreset.BEHIND.command.withExit(condition(drop1stCube))
-                    +ConditionCommand(condition { drop1stCube.hasCrossedMarker(shoot1stCube) } or drop1stCube)
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT).withExit(condition(drop1stCube))
+                parallel {
+                    +SubsystemPreset.INTAKE.command.withExit(condition(pickup3rdCube))
+                    +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(condition(pickup3rdCube))
+                }
 
-                    parallel {
-                        +SubsystemPreset.INTAKE.command.withExit(condition(pickup2ndCube))
-                        +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(condition(pickup2ndCube))
-                    }
+                +SubsystemPreset.BEHIND.command.withExit(condition(drop3rdCube))
+                +ConditionCommand(shoot3rdCube.condition)
+                +IntakeCommand(IntakeSubsystem.Direction.OUT).withTimeout(500L)
 
-                    +SubsystemPreset.BEHIND.command.withExit(condition(drop2ndCube))
-                    +ConditionCommand(condition { drop2ndCube.hasCrossedMarker(shoot2ndCube) })
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT).withExit(condition(drop2ndCube))
-
-                    parallel {
-                        +SubsystemPreset.INTAKE.command.withExit(condition(pickup3rdCube))
-                        +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(condition(pickup3rdCube))
-                    }
-
-                    +SubsystemPreset.BEHIND.command.withExit(condition(drop3rdCube))
-                    +ConditionCommand(condition { drop3rdCube.hasCrossedMarker(shoot3rdCube) })
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT).withTimeout(500L)
-
-                    parallel {
-                        +SubsystemPreset.INTAKE.command.withExit(condition(pickup4thCube))
-                        +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(condition(pickup4thCube))
-                    }
+                parallel {
+                    +SubsystemPreset.INTAKE.command.withExit(condition(pickup4thCube))
+                    +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(condition(pickup4thCube))
                 }
             }
         }
+    }
 }

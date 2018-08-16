@@ -47,7 +47,7 @@ object ElevatorSubsystem : Subsystem() {
             kP                  = Constants.kPElevator
             closedLoopTolerance = Constants.kElevatorClosedLpTolerance
 
-            continousCurrentLimit  = Amps(30)
+            continuousCurrentLimit  = Amps(30)
             currentLimitingEnabled = true
 
             motionCruiseVelocity = Constants.kElevatorMotionMagicVelocity

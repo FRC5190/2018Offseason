@@ -7,11 +7,9 @@ package frc.team5190.robot.subsytems.intake
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Command
-import frc.team5190.lib.commands.DelayCommand
 import frc.team5190.lib.utils.DoubleSource
 import frc.team5190.lib.utils.constSource
 import frc.team5190.robot.sensors.CubeSensors
-import java.util.concurrent.TimeUnit
 import kotlin.math.absoluteValue
 
 class IntakeCommand(private val direction: IntakeSubsystem.Direction,
@@ -19,7 +17,7 @@ class IntakeCommand(private val direction: IntakeSubsystem.Direction,
 
     init {
         +IntakeSubsystem
-        if(direction == IntakeSubsystem.Direction.IN) finishCondition += CubeSensors.cubeIn
+        if (direction == IntakeSubsystem.Direction.IN) finishCondition += CubeSensors.cubeIn
     }
 
     override suspend fun initialize() {

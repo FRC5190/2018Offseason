@@ -69,7 +69,7 @@ object DriveSubsystem : Subsystem() {
 
         allMasters.forEach {
             it.feedbackSensor = FeedbackDevice.QuadEncoder
-            it.encoderPhase = false
+            it.encoderPhase = true
         }
 
         allMotors.forEach {
@@ -86,7 +86,7 @@ object DriveSubsystem : Subsystem() {
 
             it.peakCurrentLimit = Amps(0)
             it.peakCurrentLimitDuration = Milliseconds(0)
-            it.continousCurrentLimit = Amps(40)
+            it.continuousCurrentLimit = Amps(40)
             it.currentLimitingEnabled = true
         }
         resetEncoders()

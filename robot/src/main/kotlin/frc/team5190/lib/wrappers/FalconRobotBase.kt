@@ -6,14 +6,9 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.team5190.lib.commands.Subsystem
 import frc.team5190.lib.commands.SubsystemHandler
+import frc.team5190.lib.utils.*
 import frc.team5190.lib.wrappers.hid.FalconHID
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
-import kotlinx.coroutines.experimental.sync.Mutex
-import kotlinx.coroutines.experimental.sync.withLock
-import java.util.concurrent.TimeUnit
 
 abstract class FalconRobotBase : RobotBase() {
 
@@ -30,52 +25,34 @@ abstract class FalconRobotBase : RobotBase() {
         DEBUG = false
     }
 
-    enum class Mode {
+    enum class Mode(private val any: Boolean = false) {
         NONE,
-        ANY,
+        ANY(true),
         DISABLED,
         AUTONOMOUS,
         TELEOP,
-        TEST
+        TEST;
+
+        val rawValues by lazy { if (any) enumValues<Mode>().toList() else listOf(this@Mode) }
     }
 
-    // Listener system
+    // State Machine
+    private val currentModeState = variableState(Mode.NONE)
+    val modeStateMachine = StateMachine(currentModeState)
 
-    private val listenerMutex = Mutex()
-    private val enterListeners = mutableListOf<Pair<Mode, suspend () -> Unit>>()
-    private val leaveListeners = mutableListOf<Pair<Mode, suspend () -> Unit>>()
-    private val transitionListeners = mutableListOf<Pair<Pair<Mode, Mode>, suspend () -> Unit>>()
+    fun onEnter(enterState: Mode, listener: SMEnterListener<Mode>) = modeStateMachine.onEnter(enterState.rawValues, listener)
 
-    private val whileListeners = mutableListOf<WhileListener>()
+    fun onLeave(leaveState: Mode, listener: SMLeaveListener<Mode>) = modeStateMachine.onLeave(leaveState.rawValues, listener)
 
-    private class WhileListener(val mode: Mode, val frequency: Long, val listener: suspend () -> Unit) {
-        lateinit var job: Job
-    }
+    fun onTransition(fromState: Mode, toState: Mode, listener: SMTransitionListener<Mode>) =
+            modeStateMachine.onTransition(fromState.rawValues, toState.rawValues, listener)
 
-    protected suspend fun onEnter(enterMode: Mode, listener: suspend () -> Unit) {
-        val entry = enterMode to listener
-        listenerMutex.withLock { enterListeners.add(entry) }
-    }
-
-    protected suspend fun onLeave(leaveMode: Mode, listener: suspend () -> Unit) {
-        val entry = leaveMode to listener
-        listenerMutex.withLock { leaveListeners.add(entry) }
-    }
-
-    protected suspend fun onTransition(fromMode: Mode, toMode: Mode, listener: suspend () -> Unit) {
-        val entry = (fromMode to toMode) to listener
-        listenerMutex.withLock { transitionListeners.add(entry) }
-    }
-
-    protected suspend fun onWhile(mode: Mode, frequency: Long = 50, listener: suspend () -> Unit) {
-        val entry = WhileListener(mode, frequency, listener)
-        listenerMutex.withLock { whileListeners.add(entry) }
-    }
+    fun onWhile(whileState: Mode, frequency: Int = 50, listener: SMWhileListener<Mode>) =
+            modeStateMachine.onWhile(whileState.rawValues, frequency, listener)
 
     // Main Robot Code
-
-    var currentMode = Mode.NONE
-        private set
+    val currentMode: State<Mode>
+        get() = currentModeState
 
     var initialized = false
         private set
@@ -97,7 +74,7 @@ abstract class FalconRobotBase : RobotBase() {
         // Update Values
         onWhile(Mode.ANY) {
             SmartDashboard.updateValues()
-            LiveWindow.updateValues()
+//            LiveWindow.updateValues()
         }
 
         initialize()
@@ -106,8 +83,6 @@ abstract class FalconRobotBase : RobotBase() {
         println("[Robot] Initialized and starting default commands")
         SubsystemHandler.startDefaultCommands()
         println("[Robot] Default commands started")
-
-        handleEnter(Mode.ANY)
 
         // Tell the DS that the robot is ready to be enabled
         HAL.observeUserProgramStarting()
@@ -123,63 +98,13 @@ abstract class FalconRobotBase : RobotBase() {
                 isTest -> Mode.TEST
                 else -> TODO("Robot in invalid mode!")
             }
-            if (newMode == currentMode) continue
-
-            handleTransition(currentMode, newMode)
-
-            currentMode = newMode
+            currentModeState.value = newMode
         }
-    }
-
-    private suspend fun handleTransition(fromMode: Mode, toMode: Mode) {
-        handleLeave(fromMode)
-        listenerMutex.withLock {
-            transitionListeners.filter { it.first.first == fromMode && it.first.second == toMode }.forEach { it.second() }
-        }
-        handleEnter(toMode)
-    }
-
-    private suspend fun handleEnter(mode: Mode) = listenerMutex.withLock {
-        // Handle events and start while threads
-        enterListeners.filter { it.first == mode }.forEach { it.second() }
-        // Start while listeners
-        val whilesToStart = whileListeners.filter { it.mode == mode || it.mode == Mode.ANY }
-        whilesToStart.forEach { listener ->
-            listener.job = launch {
-                val frequency = listener.frequency
-                if (frequency < 0) throw IllegalArgumentException("While frequency cannot be negative!")
-                val timeBetweenUpdate = TimeUnit.SECONDS.toNanos(1) / frequency
-
-                // Stores when the next update should happen
-                var nextNS = System.nanoTime() + timeBetweenUpdate
-                while (isActive) {
-                    try {
-                        listener.listener()
-                    } catch (e: Throwable) {
-                        e.printStackTrace()
-                    }
-                    val delayNeeded = nextNS - System.nanoTime()
-                    nextNS += timeBetweenUpdate
-                    delay(delayNeeded, TimeUnit.NANOSECONDS)
-                }
-            }
-        }
-    }
-
-    private suspend fun handleLeave(mode: Mode) = listenerMutex.withLock {
-        // Handle events and end while threads
-        leaveListeners.filter { it.first == mode }.forEach { it.second() }
-        // Stop and join while listeners
-        val whilesToStop = whileListeners.filter { it.mode == mode }
-        whilesToStop.forEach { it.job.cancel() }
-        whilesToStop.forEach { it.job.join() }
     }
 
     // Helpers
 
     protected suspend operator fun Subsystem.unaryPlus() = SubsystemHandler.addSubsystem(this)
-    protected suspend operator fun FalconHID<*>.unaryPlus() {
-        onWhile(Mode.TELEOP) { update() }
-    }
+    protected suspend operator fun FalconHID<*>.unaryPlus() = onWhile(Mode.TELEOP) { update() }
 
 }

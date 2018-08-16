@@ -1,6 +1,7 @@
 package frc.team5190.lib.commands
 
 import frc.team5190.lib.utils.StateImpl
+import frc.team5190.lib.utils.State
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.actor
@@ -15,7 +16,6 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
     }
 
     protected lateinit var commandTasks: List<GroupCommandTask>
-        private set
     override val requiredSubsystems = commands.map { it.requiredSubsystems }.flatten()
 
     private var parentCommandGroup: CommandGroup? = null
@@ -38,6 +38,7 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
         finishCondition += groupCondition
     }
 
+    protected open fun initTasks() = commands.map { GroupCommandTask(this, it) }
     protected abstract suspend fun handleStartEvent()
     protected open suspend fun handleFinishEvent(stopTime: Long) {}
 
@@ -47,7 +48,8 @@ abstract class CommandGroup(private val commands: List<Command>) : Command() {
         groupCondition.reset()
         
         // Start this group
-        commandTasks = commands.map { GroupCommandTask(this, it) }
+
+        commandTasks = initTasks()
         commandGroupHandler.start()
         handleStartEvent()
     }

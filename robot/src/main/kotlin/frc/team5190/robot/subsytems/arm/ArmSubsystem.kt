@@ -32,7 +32,7 @@ object ArmSubsystem : Subsystem() {
             kP                  = Constants.kPArm
             closedLoopTolerance = Constants.kArmClosedLpTolerance
 
-            continousCurrentLimit  = Amps(20)
+            continuousCurrentLimit  = Amps(20)
             currentLimitingEnabled = true
 
             motionCruiseVelocity = Constants.kArmMotionMagicVelocity

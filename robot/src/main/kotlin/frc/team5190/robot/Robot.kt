@@ -19,21 +19,10 @@ import frc.team5190.robot.subsytems.led.LEDSubsystem
 
 class Robot : FalconRobotBase() {
 
-    // Can't make entire class an object, so INSTANCE is initialized in a companion object.
-    companion object {
-        lateinit var INSTANCE: Robot
-            private set
-    }
-
-    // Initialize instance.
-    init {
-        ahrsSensorType = AHRSSensorType.Pigeon
-
-        INSTANCE = this
-    }
-
     // Initialize all systems.
     override suspend fun initialize() {
+        ahrsSensorType = AHRSSensorType.NavX
+
         +Controls.mainXbox
 
         +DriveSubsystem
@@ -53,6 +42,9 @@ class Robot : FalconRobotBase() {
         println("5")
         Lidar
 
+        onTransition(Mode.ANY, Mode.ANY) { from, to ->
+            println("Transitioned from $from to $to")
+        }
     }
 
 }

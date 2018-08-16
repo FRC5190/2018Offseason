@@ -6,12 +6,13 @@
 package frc.team5190.robot.sensors
 
 import com.ctre.phoenix.CANifier
-import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.Servo
 import frc.team5190.lib.math.geometry.Rotation2d
 import frc.team5190.lib.math.units.Distance
 import frc.team5190.lib.math.units.Inches
 import frc.team5190.lib.utils.Source
+import frc.team5190.lib.utils.launchFrequency
+import frc.team5190.lib.wrappers.FalconRobotBase
 import frc.team5190.robot.Constants
 import frc.team5190.robot.Localization
 import frc.team5190.robot.Robot
@@ -42,8 +43,6 @@ object Lidar : Source<Pair<Boolean, Distance>> {
     override val value
         get() = underScale to scaleHeight
 
-    private var rawDistance = 0.0
-
     init {
         // X - Raw Sensor Units
         // Y - Height in Inches
@@ -55,24 +54,19 @@ object Lidar : Source<Pair<Boolean, Distance>> {
 
         data.forEach { regressionFunction.addData(it.first, it.second) }
 
-        launch {
-            while (isActive){
-                run()
-                delay(20)
-            }
-        }
+        launchFrequency { run() }
     }
 
     private fun run() {
         Canifier.getPWMInput(CANifier.PWMChannel.PWMChannel0, pwmData)
 
-        rawDistance = pwmData[0]
+        val rawDistance = pwmData[0]
         scaleHeight = Inches(regressionFunction.predict(rawDistance))
         underScale = kMinScaleHeight - kAllowedTolerance < scaleHeight && scaleHeight < kMaxScaleHeight + kAllowedTolerance
 
-        servo.angle = if (Robot.INSTANCE.isOperatorControl) 90.0 else {
+        servo.angle = if (FalconRobotBase.INSTANCE.isOperatorControl) 90.0 else {
             val robotPosition = Localization.robotPosition
-            val scalePosition = Trajectories.kNearScaleFull.let { if (Autonomous.scaleSide == MatchData.OwnedSide.RIGHT) it.mirror else it }
+            val scalePosition = Trajectories.kNearScaleFull.let { if (Autonomous.Config.scaleSide.value == MatchData.OwnedSide.RIGHT) it.mirror else it }
             val angle = Rotation2d((scalePosition.translation - robotPosition.translation), true).degrees + 180 + AHRS.correctedAngle.degrees
 
             ((angle + 90) % 360) - 90.0
