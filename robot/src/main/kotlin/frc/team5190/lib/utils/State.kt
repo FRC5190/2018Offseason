@@ -58,8 +58,8 @@ abstract class StateImpl<T>(initValue: T) : State<T> {
 
     override fun invokeOnChange(listener: StateListener<T>): DisposableHandle = synchronized(syncValue) {
         if (!hasInit) {
-            initWhenUsed()
             hasInit = true
+            initWhenUsed()
         }
         val handle = object : DisposableHandle {
             override fun dispose() {

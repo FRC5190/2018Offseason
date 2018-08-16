@@ -53,7 +53,7 @@ class StateTests {
     }
 
     @Test
-    fun doubleVariableListener(){
+    fun doubleVariableListener() {
         val one = variableState(1.0)
         val two = variableState(5.0)
 
@@ -79,7 +79,7 @@ class StateTests {
     }
 
     @Test
-    fun whenListener(){
+    fun whenListener() {
         val three = variableState(false)
 
         var called = false
@@ -100,7 +100,7 @@ class StateTests {
     }
 
     @Test
-    fun valueTest(){
+    fun valueTest() {
         val one = variableState(false)
         val two = variableState(false)
 
@@ -188,5 +188,31 @@ class StateTests {
         assert(called)
     }
 
+    @Test
+    fun recursiveListener() {
+        lateinit var two: State<Double>
+
+        val one by lazy { two }
+
+        val three by lazy { processedState(one) { it > 5.0 } }
+
+        var calledFalse = false
+        var calledTrue = false
+
+        two = object : StateImpl<Double>(0.0) {
+            override fun initWhenUsed() {
+                three.invokeWhenFalse {
+                    calledFalse = true
+                }
+            }
+        }
+
+        three.invokeWhenTrue {
+            calledTrue = true
+        }
+
+        assert(calledFalse)
+        assert(!calledTrue)
+    }
 
 }
