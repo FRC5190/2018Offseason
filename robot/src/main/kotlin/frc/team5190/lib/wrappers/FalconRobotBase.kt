@@ -38,7 +38,7 @@ abstract class FalconRobotBase : RobotBase() {
 
     // State Machine
     private val currentModeState = variableState(Mode.NONE)
-    private val modeStateMachine = StateMachine(currentModeState)
+    val modeStateMachine = StateMachine(currentModeState)
 
     fun onEnter(enterState: Mode, listener: SMEnterListener<Mode>) = modeStateMachine.onEnter(enterState.rawValues, listener)
 
@@ -74,7 +74,7 @@ abstract class FalconRobotBase : RobotBase() {
         // Update Values
         onWhile(Mode.ANY) {
             SmartDashboard.updateValues()
-            LiveWindow.updateValues()
+//            LiveWindow.updateValues()
         }
 
         initialize()

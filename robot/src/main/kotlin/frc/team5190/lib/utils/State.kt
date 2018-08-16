@@ -190,5 +190,5 @@ operator fun <T, V> Map<T, V>.get(key: State<T>): State<V?> = processedState(key
 val AnalogInput.voltageState
     get() = voltageState()
 
-fun AnalogInput.voltageState(frequency: Int = AnalogInput.getGlobalSampleRate().toInt()) =
+fun AnalogInput.voltageState(frequency: Int = 50) =
         updatableState(frequency) { this@voltageState.averageVoltage }

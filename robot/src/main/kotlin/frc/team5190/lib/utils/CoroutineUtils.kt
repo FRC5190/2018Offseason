@@ -4,9 +4,11 @@ import kotlinx.coroutines.experimental.*
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.experimental.CoroutineContext
 
+val FALCON_CONTEXT = newFixedThreadPoolContext(5, "Falcon Context")
+
 fun launchFrequency(
         frequency: Int = 50,
-        context: CoroutineContext = DefaultDispatcher,
+        context: CoroutineContext = FALCON_CONTEXT,
         start: CoroutineStart = CoroutineStart.DEFAULT,
         parent: Job? = null,
         onCompletion: CompletionHandler? = null,

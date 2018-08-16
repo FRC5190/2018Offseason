@@ -69,7 +69,7 @@ object DriveSubsystem : Subsystem() {
 
         allMasters.forEach {
             it.feedbackSensor = FeedbackDevice.QuadEncoder
-            it.encoderPhase = false
+            it.encoderPhase = true
         }
 
         allMotors.forEach {

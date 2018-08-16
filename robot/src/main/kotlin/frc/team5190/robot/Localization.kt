@@ -14,6 +14,7 @@ import frc.team5190.lib.math.units.NativeUnits
 import frc.team5190.lib.utils.launchFrequency
 import frc.team5190.robot.sensors.AHRS
 import frc.team5190.robot.subsytems.drive.DriveSubsystem
+import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newSingleThreadContext
 import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.coroutines.experimental.sync.Mutex
@@ -32,7 +33,7 @@ object Localization {
     private var prevA = Rotation2d()
 
     init {
-        runBlocking(localizationContext) { reset() }
+        launch(localizationContext) { reset() }
         launchFrequency(100, localizationContext) { run() }
     }
 

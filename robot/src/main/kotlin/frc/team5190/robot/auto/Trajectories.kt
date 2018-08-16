@@ -142,7 +142,7 @@ object Trajectories {
 
     val baseline = waypoints {
         +kSideStart
-        +kSideStart.transformBy(Pose2d(Translation2d(-10.0, 0.0), Rotation2d()))
+        +kSideStart.transformBy(Pose2d(Translation2d(-20.0, 0.0), Rotation2d()))
     }.generateTrajectory(reversed = true)
 
 

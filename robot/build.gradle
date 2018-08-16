@@ -6,10 +6,8 @@ import jaci.openrio.gradle.GradleRIOPlugin
 import jaci.openrio.gradle.frc.FRCJavaArtifact
 import jaci.openrio.gradle.frc.RoboRIO
 
-def kotlin_version = "1.2.60"
-
 plugins {
-    id "org.jetbrains.kotlin.jvm" version kotlin_version
+    id "org.jetbrains.kotlin.jvm" version "1.2.60"
     id "java"
     id "idea"
     id "jaci.openrio.gradle.GradleRIO" version "2018.03.06"
@@ -47,8 +45,6 @@ dependencies {
 
     compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.23.3'
-    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-
 
     compile 'com.github.salomonbrys.kotson:kotson:2.5.0'
     compile 'org.apache.commons:commons-math3:3.6.1'

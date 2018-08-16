@@ -21,7 +21,7 @@ class RoutineScaleFromSide(startingPosition: Source<StartingPositions>,
                            private val scaleSide: Source<MatchData.OwnedSide>) : AutoRoutine(startingPosition) {
 
     override fun createRoutine(): Command {
-        val cross = mergeSource(startingPosition, scaleSide) { one, two -> one.name.first().equals(two.name.first(), true) }
+        val cross = mergeSource(startingPosition, scaleSide) { one, two -> !one.name.first().equals(two.name.first(), true) }
         val shouldMirrorPath = scaleSide.withEquals(MatchData.OwnedSide.RIGHT)
 
         val drop1stCube = FollowTrajectoryCommand(
@@ -44,7 +44,7 @@ class RoutineScaleFromSide(startingPosition: Source<StartingPositions>,
         return parallel {
             sequential {
                 +drop1stCube
-                +ConditionCommand(condition { ElevatorSubsystem.currentPosition < ElevatorSubsystem.Position.FSTAGE.distance })
+//                +ConditionCommand(condition { ElevatorSubsystem.currentPosition < ElevatorSubsystem.Position.FSTAGE.distance })
                 +pickup2ndCube
                 +after2ndCube
                 +drop2ndCube

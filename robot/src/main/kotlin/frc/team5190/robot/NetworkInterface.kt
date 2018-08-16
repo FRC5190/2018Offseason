@@ -22,8 +22,8 @@ object NetworkInterface {
     val startingPosition by INSTANCE["Starting Position"].delegate("Left")
 
     val switchAutoMode by INSTANCE["Switch Auto Mode"].delegate("Basic")
-    val nearScaleAutoMode by INSTANCE["Near Scale Auto Mode"].delegate("Baseline")
-    val farScaleAutoMode by INSTANCE["Far Scale Auto Mode"].delegate("Baseline")
+    val nearScaleAutoMode by INSTANCE["Near Scale Auto Mode"].delegate("ThreeCube")
+    val farScaleAutoMode by INSTANCE["Far Scale Auto Mode"].delegate("ThreeCube")
 
     private val robotX = INSTANCE["Robot X"]
     private val robotY = INSTANCE["Robot Y"]

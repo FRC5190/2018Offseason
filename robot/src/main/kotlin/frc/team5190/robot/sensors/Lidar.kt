@@ -12,6 +12,7 @@ import frc.team5190.lib.math.units.Distance
 import frc.team5190.lib.math.units.Inches
 import frc.team5190.lib.utils.Source
 import frc.team5190.lib.utils.launchFrequency
+import frc.team5190.lib.wrappers.FalconRobotBase
 import frc.team5190.robot.Constants
 import frc.team5190.robot.Localization
 import frc.team5190.robot.Robot
@@ -63,7 +64,7 @@ object Lidar : Source<Pair<Boolean, Distance>> {
         scaleHeight = Inches(regressionFunction.predict(rawDistance))
         underScale = kMinScaleHeight - kAllowedTolerance < scaleHeight && scaleHeight < kMaxScaleHeight + kAllowedTolerance
 
-        servo.angle = if (Robot.INSTANCE.isOperatorControl) 90.0 else {
+        servo.angle = if (FalconRobotBase.INSTANCE.isOperatorControl) 90.0 else {
             val robotPosition = Localization.robotPosition
             val scalePosition = Trajectories.kNearScaleFull.let { if (Autonomous.Config.scaleSide.value == MatchData.OwnedSide.RIGHT) it.mirror else it }
             val angle = Rotation2d((scalePosition.translation - robotPosition.translation), true).degrees + 180 + AHRS.correctedAngle.degrees

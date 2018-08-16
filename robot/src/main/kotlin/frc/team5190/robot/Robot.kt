@@ -5,7 +5,6 @@
 
 package frc.team5190.robot
 
-import edu.wpi.first.networktables.NetworkTable
 import frc.team5190.lib.wrappers.FalconRobotBase
 import frc.team5190.robot.auto.Autonomous
 import frc.team5190.robot.sensors.AHRS
@@ -22,7 +21,7 @@ class Robot : FalconRobotBase() {
 
     // Initialize all systems.
     override suspend fun initialize() {
-        ahrsSensorType = AHRSSensorType.Pigeon
+        ahrsSensorType = AHRSSensorType.NavX
 
         +Controls.mainXbox
 

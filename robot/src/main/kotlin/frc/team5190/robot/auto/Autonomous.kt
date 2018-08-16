@@ -43,6 +43,7 @@ object Autonomous {
                     }
                 }
                 state(false) {
+                    println("a5")
                     stateCommandGroup(Config.nearScaleAutoMode) {
                         state(ScaleAutoMode.THREECUBE, RoutineScaleFromSide(Config.startingPosition, Config.scaleSide))
                         state(ScaleAutoMode.BASELINE, RoutineBaseline(Config.startingPosition))
@@ -50,19 +51,27 @@ object Autonomous {
                 }
             }
         }
+        println("a4")
         state(StartingPositions.CENTER) {
             stateCommandGroup(Config.switchAutoMode) {
                 state(SwitchAutoMode.BASIC, RoutineSwitchFromCenter(Config.startingPosition, Config.switchSide))
                 state(SwitchAutoMode.ROBONAUTS, RoutineSwitchScaleFromCenter(Config.startingPosition, Config.switchSide, Config.scaleSide))
+                println("a3")
             }
         }
     }
 
     init {
         val IT = ""
-        shouldPoll.invokeWhenFalse {
+        shouldPoll.invokeOnChange {
+            println("a1")
+            if (it) return@invokeOnChange
             JUST S3ND IT
         }
+        FalconRobotBase.INSTANCE.modeStateMachine.onLeave(listOf(FalconRobotBase.Mode.AUTONOMOUS)){
+            JUST.stop()
+        }
+        println("a2")
     }
 
 
@@ -71,15 +80,9 @@ object Autonomous {
     private fun <T> autoConfigListener(block: () -> T): StateImpl<T> = AutoState(block = block)
 
     private class AutoState<T>(private val block: () -> T) : StateImpl<T>(block()) {
-        private var pollJob: Job? = null
-        override fun initWhenUsed() {
-            shouldPoll.invokeWhenTrue {
-                pollJob = launchFrequency(20, autoContext) {
-                    internalValue = block()
-                }
-            }
-            shouldPoll.invokeWhenFalse {
-                pollJob?.cancel()
+        init {
+            launchFrequency(20, autoContext) {
+                internalValue = block()
             }
         }
     }
