@@ -56,8 +56,8 @@ class RoutineScaleFromSide(startingPosition: Source<StartingPositions>,
                 +DelayCommand(250, TimeUnit.MILLISECONDS)
 
                 parallel {
-                    +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.SWITCH)
-                    +ClosedLoopArmCommand(ArmSubsystem.Position.UP)
+                    +ClosedLoopElevatorCommand(ElevatorSubsystem.kSwitchPosition)
+                    +ClosedLoopArmCommand(ArmSubsystem.kUpPosition)
                 }.withTimeout(1, TimeUnit.SECONDS)
 
                 +ConditionCommand(elevatorUp.condition or drop1stCube)

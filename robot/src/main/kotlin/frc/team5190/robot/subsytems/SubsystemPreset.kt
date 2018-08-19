@@ -19,41 +19,41 @@ import frc.team5190.robot.subsytems.elevator.LidarElevatorCommand
 enum class SubsystemPreset(private val builder: () -> Command) {
     INTAKE({
         parallel {
-            +ClosedLoopArmCommand(ArmSubsystem.Position.DOWN)
+            +ClosedLoopArmCommand(ArmSubsystem.kDownPosition)
             sequential {
-                +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.FSTAGE).withExit(condition {
-                    ArmSubsystem.currentPosition < ArmSubsystem.Position.UP.distance + NativeUnits(100)
+                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(condition {
+                    ArmSubsystem.currentPosition < ArmSubsystem.kUpPosition + NativeUnits(100)
                 })
-                +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.INTAKE)
+                +ClosedLoopElevatorCommand(ElevatorSubsystem.kIntakePosition)
             }
         }
     }),
     SWITCH({
         parallel {
-            +ClosedLoopArmCommand(ArmSubsystem.Position.MIDDLE)
+            +ClosedLoopArmCommand(ArmSubsystem.kMiddlePosition)
             sequential {
-                +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.FSTAGE).withExit(condition {
-                    ElevatorSubsystem.currentPosition < ElevatorSubsystem.Position.SWITCH.distance
-                            || ArmSubsystem.currentPosition < ArmSubsystem.Position.UP.distance + NativeUnits(100)
+                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(condition {
+                    ElevatorSubsystem.currentPosition < ElevatorSubsystem.kSwitchPosition
+                            || ArmSubsystem.currentPosition < ArmSubsystem.kUpPosition + NativeUnits(100)
                 })
-                +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.SWITCH)
+                +ClosedLoopElevatorCommand(ElevatorSubsystem.kSwitchPosition)
             }
         }
     }),
     SCALE({
         parallel {
-            +ClosedLoopArmCommand(ArmSubsystem.Position.MIDDLE)
-            +ClosedLoopElevatorCommand(ElevatorSubsystem.Position.HIGHSCALE)
+            +ClosedLoopArmCommand(ArmSubsystem.kMiddlePosition)
+            +ClosedLoopElevatorCommand(ElevatorSubsystem.kHighScalePosition)
         }
     }),
     BEHIND({
         parallel {
             +LidarElevatorCommand()
             sequential {
-                +ClosedLoopArmCommand(ArmSubsystem.Position.UP.distance + NativeUnits(75)).withExit(condition {
-                    ElevatorSubsystem.currentPosition > ElevatorSubsystem.Position.FSTAGE.distance
+                +ClosedLoopArmCommand(ArmSubsystem.kUpPosition + NativeUnits(75)).withExit(condition {
+                    ElevatorSubsystem.currentPosition > ElevatorSubsystem.kFirstStagePosition
                 })
-                +ClosedLoopArmCommand(ArmSubsystem.Position.BEHIND)
+                +ClosedLoopArmCommand(ArmSubsystem.kBehindPosition)
             }
         }
     });

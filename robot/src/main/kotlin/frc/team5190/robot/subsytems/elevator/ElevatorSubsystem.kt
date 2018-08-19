@@ -14,7 +14,16 @@ import frc.team5190.robot.Constants
 object ElevatorSubsystem : Subsystem() {
 
     private val elevatorMaster = FalconSRX(Constants.kElevatorMasterId)
-    private val elevatorSlave  = FalconSRX(Constants.kElevatorSlaveId)
+    private val elevatorSlave = FalconSRX(Constants.kElevatorSlaveId)
+
+    val settings = preferences { radius = 1.25 / 2.0 }
+
+    val kSwitchPosition = Inches(27.0, settings)
+    val kFirstStagePosition = Inches(32.0, settings)
+    val kScalePosition = NativeUnits(17000, settings)
+    val kHighScalePosition = Inches(60.0, settings)
+    val kIntakePosition = NativeUnits(500, settings)
+
 
     val atBottom
         get() = elevatorMaster.sensorCollection.isRevLimitSwitchClosed
@@ -22,14 +31,13 @@ object ElevatorSubsystem : Subsystem() {
     val currentPosition: Distance
         get() = elevatorMaster.sensorPosition
 
-    val settings = preferences { radius = 1.25 / 2.0 }
 
     var reset = false
 
     init {
         elevatorMaster.apply {
-            inverted       = false
-            encoderPhase   = false
+            inverted = false
+            encoderPhase = false
             feedbackSensor = FeedbackDevice.QuadEncoder
 
             configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen,
@@ -41,17 +49,17 @@ object ElevatorSubsystem : Subsystem() {
             peakFwdOutput = 1.0
             peakRevOutput = -1.0
 
-            softLimitFwd        = Constants.kElevatorSoftLimitFwd
+            softLimitFwd = Constants.kElevatorSoftLimitFwd
             softLimitFwdEnabled = true
 
-            kP                  = Constants.kPElevator
+            kP = Constants.kPElevator
             closedLoopTolerance = Constants.kElevatorClosedLpTolerance
 
-            continuousCurrentLimit  = Amps(30)
+            continuousCurrentLimit = Amps(30)
             currentLimitingEnabled = true
 
             motionCruiseVelocity = Constants.kElevatorMotionMagicVelocity
-            motionAcceleration   = Constants.kElevatorMotionMagicAcceleration
+            motionAcceleration = Constants.kElevatorMotionMagicAcceleration
 
             brakeMode = NeutralMode.Brake
         }
@@ -66,13 +74,5 @@ object ElevatorSubsystem : Subsystem() {
 
     fun resetEncoders() {
         elevatorMaster.sensorPosition = NativeUnits(0)
-    }
-
-    enum class Position(val distance: Distance) {
-        SWITCH   (Inches(27.0, settings)),
-        FSTAGE   (Inches(32.0, settings)),
-        SCALE    (NativeUnits(17000, settings)),
-        HIGHSCALE(Inches(60.0, settings)),
-        INTAKE   (NativeUnits(500))
     }
 }

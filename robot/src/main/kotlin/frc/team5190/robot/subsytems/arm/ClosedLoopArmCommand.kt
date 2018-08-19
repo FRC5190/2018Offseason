@@ -14,8 +14,6 @@ import frc.team5190.lib.math.units.NativeUnits
 
 class ClosedLoopArmCommand(private val pos: Distance? = null) : Command() {
 
-    constructor(position: ArmSubsystem.Position) : this(position.distance)
-
     private var targetPosition: Distance = Inches(0.0)
 
     init {

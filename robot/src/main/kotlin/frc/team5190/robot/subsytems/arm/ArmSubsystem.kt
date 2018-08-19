@@ -18,6 +18,12 @@ import frc.team5190.robot.Constants
 object ArmSubsystem : Subsystem() {
     private val armMaster = FalconSRX(Constants.kArmId)
 
+    val kDownPosition = Constants.kArmDownPosition
+    val kMiddlePosition = kDownPosition + NativeUnits(40)
+    val kUpPosition = kDownPosition + NativeUnits(200)
+    val kAllUpPosition = kDownPosition + NativeUnits(250)
+    val kBehindPosition = kDownPosition + NativeUnits(380)
+
     val currentPosition: Distance
         get() = armMaster.sensorPosition
 
@@ -45,12 +51,4 @@ object ArmSubsystem : Subsystem() {
     }
 
     fun set(controlMode: ControlMode, output: Double) = armMaster.set(controlMode, output)
-
-    enum class Position(val distance: Distance) {
-        DOWN  (Constants.kArmDownPosition),
-        MIDDLE(Constants.kArmDownPosition + NativeUnits(40)),
-        UP    (Constants.kArmDownPosition + NativeUnits(200)),
-        ALLUP (Constants.kArmDownPosition + NativeUnits(250)),
-        BEHIND(Constants.kArmDownPosition + NativeUnits(380))
-    }
 }

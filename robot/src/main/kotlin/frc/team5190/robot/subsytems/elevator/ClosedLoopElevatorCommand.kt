@@ -14,8 +14,6 @@ import frc.team5190.robot.Constants
 
 class ClosedLoopElevatorCommand(private val distance: Distance? = null) : Command() {
 
-    constructor(pos: ElevatorSubsystem.Position) : this(pos.distance)
-
     private var targetPosition: Distance = Inches(0.0)
 
     init {

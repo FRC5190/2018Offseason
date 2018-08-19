@@ -28,7 +28,7 @@ class LidarElevatorCommand : Command() {
         +ElevatorSubsystem
 
         finishCondition += !CubeSensors.cubeIn and condition {
-            ElevatorSubsystem.currentPosition > ElevatorSubsystem.Position.FSTAGE.distance - Inches(1.0, ElevatorSubsystem.settings)
+            ElevatorSubsystem.currentPosition > ElevatorSubsystem.kFirstStagePosition - Inches(1.0, ElevatorSubsystem.settings)
         }
     }
 
@@ -43,10 +43,10 @@ class LidarElevatorCommand : Command() {
         if (underScale) heightBuffer.add(scaleHeight)
 
         ElevatorSubsystem.set(ControlMode.MotionMagic, if (underScale) {
-            heightBufferAverage.coerceIn(ElevatorSubsystem.Position.FSTAGE.distance.STU.toDouble(),
-                    ElevatorSubsystem.Position.SCALE.distance.STU.toDouble())
+            heightBufferAverage.coerceIn(ElevatorSubsystem.kFirstStagePosition.STU.toDouble(),
+                    ElevatorSubsystem.kHighScalePosition.STU.toDouble())
         } else {
-            ElevatorSubsystem.Position.SCALE.distance.STU.toDouble()
+            ElevatorSubsystem.kScalePosition.STU.toDouble()
         })
     }
 }
