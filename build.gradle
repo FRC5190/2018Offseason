@@ -43,6 +43,8 @@ dependencies {
     compile pathfinder()
     compile openrio.powerup.matchData()
 
+    compile project("FalconLibrary")
+
     compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.23.3'
 
@@ -77,6 +79,7 @@ kotlin {
         coroutines "enable"
     }
 }
+
 version 'unspecified'
 apply plugin: 'kotlin'
 
