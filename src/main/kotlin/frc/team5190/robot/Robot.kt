@@ -21,7 +21,7 @@ class Robot : FalconRobotBase() {
 
     // Initialize all systems.
     override suspend fun initialize() {
-        ahrsSensorType = AHRSSensorType.NavX
+        ahrsSensorType = AHRSSensorType.Pigeon
 
         +Controls.mainXbox
 

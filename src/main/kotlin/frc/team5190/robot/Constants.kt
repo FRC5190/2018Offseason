@@ -71,24 +71,18 @@ object Constants {
 
     // DRIVE
     const val kDriveSensorUnitsPerRotation = 1440
-    const val kWheelRadiusInches           = 2.0
+    const val kWheelRadiusInches           = 3.0
     const val kTrackWidth                  = 2.458
 
     // ARM
     val kArmDownPosition = NativeUnits(-795)
 
     // DRIVE PID
-    const val kPLeftDriveVelocity = 0.3
-    const val kILeftDriveVelocity = 0.001
-    const val kVLeftDriveVelocity = 1 / 17.0
-    const val kALeftDriveVelocity = 0.0
-    const val kSLeftDriveVelocity = 0.1
 
-    const val kPRightDriveVelocity = 0.3
-    const val kIRightDriveVelocity = 0.001
-    const val kVRightDriveVelocity = 1 / 17.0
-    const val kARightDriveVelocity = 0.0
-    const val kSRightDriveVelocity = 0.1
+    const val kPDrive = 0.9
+    const val kVDrive = 0.647 // 1023 units per STU (velocity)
+    const val kADrive = 0.000 // 1023 units per STU (acceleration)
+    const val kSDrive = 0.100 // %
 
     // ELEVATOR PID
     const val kPElevator = 0.3

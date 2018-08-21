@@ -6,8 +6,10 @@
 package frc.team5190.robot.subsytems.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
+import com.ctre.phoenix.motorcontrol.DemandType
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.NeutralMode
+import edu.wpi.first.wpilibj.Solenoid
 import frc.team5190.lib.commands.Subsystem
 import frc.team5190.lib.math.units.*
 import frc.team5190.lib.wrappers.FalconSRX
@@ -28,6 +30,21 @@ object DriveSubsystem : Subsystem() {
     private val rightMotors = arrayOf(rightMaster, rightSlave1)
 
     private val allMotors = arrayOf(*leftMotors, *rightMotors)
+
+    private val shifter = Solenoid(Constants.kPCMId, Constants.kDriveSolenoidId)
+
+    var lowGear = false
+        set(wantLow) {
+            if (wantLow) {
+                shifter.set(true)
+                resetLowGear()
+            } else {
+                shifter.set(false)
+                resetHighGear()
+            }
+            field = wantLow
+        }
+
 
     val leftPosition: Distance
         get() = leftMaster.sensorPosition
@@ -55,6 +72,8 @@ object DriveSubsystem : Subsystem() {
 
 
     init {
+        lowGear = false
+
         arrayListOf(leftSlave1).forEach {
             it.follow(leftMaster)
             it.inverted = false
@@ -64,13 +83,15 @@ object DriveSubsystem : Subsystem() {
             it.inverted = true
         }
 
-        leftMotors.forEach { it.apply { it.inverted = false }  }
+        leftMotors.forEach { it.apply { it.inverted = false } }
         rightMotors.forEach { it.apply { it.inverted = true } }
 
         allMasters.forEach {
             it.feedbackSensor = FeedbackDevice.QuadEncoder
-            it.encoderPhase = true
+            it.encoderPhase = false
         }
+
+        resetHighGear()
 
         allMotors.forEach {
             it.peakFwdOutput = 1.0
@@ -94,9 +115,30 @@ object DriveSubsystem : Subsystem() {
         defaultCommand = ManualDriveCommand()
     }
 
+    private fun resetHighGear() {
+        allMasters.forEach {
+            it.kP = Constants.kPDrive
+            it.kF = Constants.kVDrive
+            it.openLoopRamp = Seconds(0.0)
+        }
+    }
+
+    private fun resetLowGear() {
+        allMasters.forEach {
+            it.kP = 0.0
+            it.kF = 0.0
+            it.openLoopRamp = Seconds(0.2)
+        }
+    }
+
     fun set(controlMode: ControlMode, leftOutput: Double, rightOutput: Double) {
         leftMaster.set(controlMode, leftOutput)
         rightMaster.set(controlMode, rightOutput)
+    }
+
+    fun setTrajectoryVelocity(pathOut: FollowTrajectoryCommand.Output) {
+        leftMaster.set(ControlMode.Velocity, pathOut.lSetpoint, DemandType.ArbitraryFeedForward, pathOut.lAdditiveFF)
+        rightMaster.set(ControlMode.Velocity, pathOut.rSetpoint, DemandType.ArbitraryFeedForward, pathOut.rAdditiveFF)
     }
 
     fun resetEncoders() {

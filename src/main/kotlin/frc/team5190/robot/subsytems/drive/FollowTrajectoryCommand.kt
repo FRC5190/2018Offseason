@@ -8,7 +8,8 @@ package frc.team5190.robot.subsytems.drive
 import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Command
 import frc.team5190.lib.commands.Condition
-import frc.team5190.lib.math.control.VelocityPIDFController
+import frc.team5190.lib.extensions.l
+import frc.team5190.lib.extensions.r
 import frc.team5190.lib.math.geometry.Pose2dWithCurvature
 import frc.team5190.lib.math.geometry.Translation2d
 import frc.team5190.lib.math.trajectory.Trajectory
@@ -19,10 +20,12 @@ import frc.team5190.lib.math.trajectory.followers.NonLinearController
 import frc.team5190.lib.math.trajectory.followers.TrajectoryFollower
 import frc.team5190.lib.math.trajectory.timing.TimedState
 import frc.team5190.lib.math.trajectory.view.TimedView
+import frc.team5190.lib.math.units.FeetPerSecond
 import frc.team5190.lib.utils.*
 import frc.team5190.robot.Constants
 import frc.team5190.robot.Kinematics
 import frc.team5190.robot.Localization
+import kotlin.math.sign
 
 class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedState<Pose2dWithCurvature>>>, private val pathMirrored: BooleanSource = constSource(false)) : Command() {
 
@@ -37,33 +40,10 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
     private val markerLocations = mutableListOf<Marker>()
     private val markers = mutableListOf<MarkerInternal>()
 
-    // PIDF controllers
-    private val lController: VelocityPIDFController
-    private val rController: VelocityPIDFController
-
     private var lastVelocity = 0.0 to 0.0
 
     init {
         +DriveSubsystem
-
-        // Initialize PIDF Controllers
-        lController = VelocityPIDFController(
-                kP = Constants.kPLeftDriveVelocity,
-                kI = Constants.kILeftDriveVelocity,
-                kV = Constants.kVLeftDriveVelocity,
-                kA = Constants.kALeftDriveVelocity,
-                kS = Constants.kSLeftDriveVelocity,
-                current = { DriveSubsystem.leftVelocity.FPS }
-        )
-
-        rController = VelocityPIDFController(
-                kP = Constants.kPRightDriveVelocity,
-                kI = Constants.kIRightDriveVelocity,
-                kV = Constants.kVRightDriveVelocity,
-                kA = Constants.kARightDriveVelocity,
-                kS = Constants.kSRightDriveVelocity,
-                current = { DriveSubsystem.rightVelocity.FPS }
-        )
 
         // Update the frequency of the command to the follower
         updateFrequency = 100 // Hz
@@ -120,10 +100,16 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
         val kinematics = trajectoryFollower.getSteering(position)
         val output = Kinematics.inverseKinematics(kinematics)
 
-        DriveSubsystem.set(ControlMode.PercentOutput,
-                lController.getPIDFOutput(output.first to (output.first - lastVelocity.first) * updateFrequency),
-                rController.getPIDFOutput(output.second to (output.second - lastVelocity.second) * updateFrequency))
+        val lVelocitySTU = FeetPerSecond(output.l).STU.toDouble()
+        val rVelocitySTU = FeetPerSecond(output.r).STU.toDouble()
 
+        val lAccelerationSTU = FeetPerSecond((output.l - lastVelocity.l) * updateFrequency).STU / 1000.0 // Why CTRE
+        val rAccelerationSTU = FeetPerSecond((output.r - lastVelocity.r) * updateFrequency).STU / 1000.0 // Why CTRE
+
+        DriveSubsystem.setTrajectoryVelocity(Output(
+                lSetpoint = lVelocitySTU, lAdditiveFF = Constants.kADrive * lAccelerationSTU + Constants.kSDrive * sign(lVelocitySTU),
+                rSetpoint = rVelocitySTU, rAdditiveFF = Constants.kADrive * rAccelerationSTU + Constants.kSDrive * sign(rVelocitySTU)
+        ))
 
         updateDashboard()
 
@@ -171,4 +157,6 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
 
     class Marker(val location: Source<Translation2d>, val condition: Condition)
     private class MarkerInternal(val t: Double, val condition: VariableState<Boolean>)
+
+    class Output(val lSetpoint: Double, val rSetpoint: Double, val lAdditiveFF: Double, val rAdditiveFF: Double)
 }

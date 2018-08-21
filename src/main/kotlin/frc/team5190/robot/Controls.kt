@@ -12,6 +12,7 @@ import frc.team5190.lib.wrappers.hid.*
 import frc.team5190.robot.subsytems.SubsystemPreset
 import frc.team5190.robot.subsytems.arm.OpenLoopArmCommand
 import frc.team5190.robot.subsytems.changeOn
+import frc.team5190.robot.subsytems.drive.DriveSubsystem
 import frc.team5190.robot.subsytems.elevator.OpenLoopElevatorCommand
 import frc.team5190.robot.subsytems.intake.IntakeCommand
 import frc.team5190.robot.subsytems.intake.IntakeSubsystem
@@ -22,8 +23,13 @@ object Controls {
         // Arm Controls
         val armUpCommand = OpenLoopArmCommand(constSource(0.5))
         val armDownCommand = OpenLoopArmCommand(constSource(-0.5))
+
+
         button(kY).change(armUpCommand)
         button(kB).change(armDownCommand)
+
+        button(kA).changeOn { DriveSubsystem.lowGear = true }
+        button(kA).changeOff { DriveSubsystem.lowGear = false }
 
         // Elevator Controls
         val elevatorUpCommand = OpenLoopElevatorCommand(constSource(0.4))
