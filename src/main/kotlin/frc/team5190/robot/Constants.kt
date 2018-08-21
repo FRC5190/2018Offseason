@@ -80,7 +80,7 @@ object Constants {
     // DRIVE PID
     const val kPDrive = 0.9
     const val kVDrive = 0.656 // 1023 units per STU (velocity)
-    const val kADrive = 0.000 // 1023 units per STU (acceleration)
+    const val kADrive = 0.009 // 1023 units per STU (acceleration)
     const val kSDrive = 0.100 // %
 
     // ELEVATOR PID
