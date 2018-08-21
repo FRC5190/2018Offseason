@@ -24,16 +24,18 @@ object Controls {
         val armUpCommand = OpenLoopArmCommand(constSource(0.5))
         val armDownCommand = OpenLoopArmCommand(constSource(-0.5))
 
-
         button(kY).change(armUpCommand)
         button(kB).change(armDownCommand)
 
+
+        // Drive Controls
         button(kA).changeOn { DriveSubsystem.lowGear = true }
         button(kA).changeOff { DriveSubsystem.lowGear = false }
 
         // Elevator Controls
         val elevatorUpCommand = OpenLoopElevatorCommand(constSource(0.4))
         val elevatorDownCommand = OpenLoopElevatorCommand(constSource(-0.4))
+
         triggerAxisButton(GenericHID.Hand.kRight, 0.2).change(elevatorUpCommand)
         button(kBumperRight).change(elevatorDownCommand)
 
