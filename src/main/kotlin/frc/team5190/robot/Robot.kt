@@ -29,17 +29,12 @@ class Robot : FalconRobotBase() {
         +ArmSubsystem
         +ElevatorSubsystem
         +IntakeSubsystem
-        println("0")
         +LEDSubsystem
-        println("1")
+
         Localization
-        println("2")
         NetworkInterface
-        println("3")
         Autonomous
-        println("4")
         AHRS
-        println("5")
         Lidar
 
         onTransition(Mode.ANY, Mode.ANY) { from, to ->

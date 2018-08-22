@@ -8,6 +8,7 @@ package frc.team5190.robot.subsytems.elevator
 import com.ctre.phoenix.motorcontrol.*
 import frc.team5190.lib.commands.Subsystem
 import frc.team5190.lib.math.units.*
+import frc.team5190.lib.utils.launchFrequency
 import frc.team5190.lib.wrappers.FalconSRX
 import frc.team5190.robot.Constants
 
@@ -53,6 +54,7 @@ object ElevatorSubsystem : Subsystem() {
             softLimitFwdEnabled = true
 
             kP = Constants.kPElevator
+            kF = Constants.kVElevator
             closedLoopTolerance = Constants.kElevatorClosedLpTolerance
 
             continuousCurrentLimit = Amps(30)
@@ -68,6 +70,8 @@ object ElevatorSubsystem : Subsystem() {
             inverted = true
         }
         defaultCommand = ClosedLoopElevatorCommand()
+
+        launchFrequency(10) { println ("Elevator Feed Forward: ${elevatorMaster.motorOutputPercent * 1023 / elevatorMaster.sensorVelocity.STU }") }
     }
 
     fun set(controlMode: ControlMode, output: Double) = elevatorMaster.set(controlMode, output)

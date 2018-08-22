@@ -85,9 +85,11 @@ object Constants {
 
     // ELEVATOR PID
     const val kPElevator = 0.3
+    const val kVElevator = 0.0 // 1023 units per STU (velocity)
 
     // ARM PID
     const val kPArm = 4.5
+    const val kVArm = 0.0 // 1023 units per STU (velocity)
 
     // LIMITS
     val kElevatorSoftLimitFwd = NativeUnits(22500)

@@ -12,6 +12,7 @@ import frc.team5190.lib.commands.Subsystem
 import frc.team5190.lib.math.units.Amps
 import frc.team5190.lib.math.units.Distance
 import frc.team5190.lib.math.units.NativeUnits
+import frc.team5190.lib.utils.launchFrequency
 import frc.team5190.lib.wrappers.FalconSRX
 import frc.team5190.robot.Constants
 
@@ -36,6 +37,7 @@ object ArmSubsystem : Subsystem() {
             peakRevOutput = -1.0
 
             kP                  = Constants.kPArm
+            kF                  = Constants.kVArm
             closedLoopTolerance = Constants.kArmClosedLpTolerance
 
             continuousCurrentLimit  = Amps(20)
@@ -48,6 +50,8 @@ object ArmSubsystem : Subsystem() {
         }
 
         defaultCommand = ClosedLoopArmCommand()
+
+         launchFrequency(10) { println ("Arm Feed Forward: ${armMaster.motorOutputPercent * 1023 / armMaster.sensorVelocity.STU }") }
     }
 
     fun set(controlMode: ControlMode, output: Double) = armMaster.set(controlMode, output)
