@@ -33,6 +33,7 @@ object ArmSubsystem : Subsystem() {
             inverted       = true
             encoderPhase   = false
             feedbackSensor = FeedbackDevice.Analog
+
             peakFwdOutput = 1.0
             peakRevOutput = -1.0
 
