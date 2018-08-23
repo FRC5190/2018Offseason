@@ -70,8 +70,6 @@ object ElevatorSubsystem : Subsystem() {
             inverted = true
         }
         defaultCommand = ClosedLoopElevatorCommand()
-
-        launchFrequency(10) { println ("Elevator Feed Forward: ${elevatorMaster.motorOutputPercent * 1023 / elevatorMaster.sensorVelocity.STU }") }
     }
 
     fun set(controlMode: ControlMode, output: Double) = elevatorMaster.set(controlMode, output)

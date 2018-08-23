@@ -19,11 +19,11 @@ object NetworkInterface {
 
     val INSTANCE = FalconNetworkTable.getTable("Live Dashboard")
 
-    val startingPosition by INSTANCE["Starting Position"].delegate("Left")
+    val startingPosition by INSTANCE["Starting Position"].delegate("Center")
 
     val switchAutoMode by INSTANCE["Switch Auto Mode"].delegate("Basic")
-    val nearScaleAutoMode by INSTANCE["Near Scale Auto Mode"].delegate("ThreeCube")
-    val farScaleAutoMode by INSTANCE["Far Scale Auto Mode"].delegate("ThreeCube")
+    val nearScaleAutoMode by INSTANCE["Near Scale Auto Mode"].delegate("Baseline")
+    val farScaleAutoMode by INSTANCE["Far Scale Auto Mode"].delegate("Baseline")
 
     private val robotX = INSTANCE["Robot X"]
     private val robotY = INSTANCE["Robot Y"]

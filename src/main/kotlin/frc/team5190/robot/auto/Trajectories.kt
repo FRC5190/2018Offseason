@@ -25,8 +25,8 @@ object Trajectories {
 
     // Constants in Feet Per Second
     private const val kMaxVelocity = 10.0
-    private const val kMaxAcceleration = 6.0
-    private const val kMaxCentripetalAcceleration = 6.0
+    private const val kMaxAcceleration = 4.0
+    private const val kMaxCentripetalAcceleration = 4.0
 
     // Constraints
     private val kConstraints = arrayListOf<TimingConstraint<Pose2dWithCurvature>>(
@@ -142,7 +142,7 @@ object Trajectories {
 
     val baseline = waypoints {
         +kSideStart
-        +kSideStart.transformBy(Pose2d(Translation2d(-20.0, 0.0), Rotation2d()))
+        +kSideStart.transformBy(Pose2d(Translation2d(-8.0, 0.0), Rotation2d()))
     }.generateTrajectory(reversed = true)
 
 

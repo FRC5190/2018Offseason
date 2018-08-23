@@ -51,8 +51,6 @@ object ArmSubsystem : Subsystem() {
         }
 
         defaultCommand = ClosedLoopArmCommand()
-
-         launchFrequency(10) { println ("Arm Feed Forward: ${armMaster.motorOutputPercent * 1023 / armMaster.sensorVelocity.STU }") }
     }
 
     fun set(controlMode: ControlMode, output: Double) = armMaster.set(controlMode, output)

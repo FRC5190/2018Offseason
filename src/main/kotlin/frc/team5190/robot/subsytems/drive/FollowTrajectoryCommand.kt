@@ -113,13 +113,13 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
 
         updateDashboard()
 
-        System.out.printf(
-                "RX: %3.3f, RY: %3.3f, RA: %2f, RLV: %2.3f, RRV: %2.3f, " +
-                        "AX: %3.3f, AY: %3.3f, AA: %2f, ALV: %2.3f, ARV: %2.3f%n",
-                pathX, pathY, Math.toDegrees(pathHdg), output.first, output.second,
-                position.translation.x, position.translation.y, position.rotation.degrees,
-                DriveSubsystem.leftVelocity.FPS, DriveSubsystem.rightVelocity.FPS
-        )
+//        System.out.printf(
+//                "RX: %3.3f, RY: %3.3f, RA: %2f, RLV: %2.3f, RRV: %2.3f, " +
+//                        "AX: %3.3f, AY: %3.3f, AA: %2f, ALV: %2.3f, ARV: %2.3f%n",
+//                pathX, pathY, Math.toDegrees(pathHdg), output.first, output.second,
+//                position.translation.x, position.translation.y, position.rotation.degrees,
+//                DriveSubsystem.leftVelocity.FPS, DriveSubsystem.rightVelocity.FPS
+//        )
 
         // Update marker states
         val followerStateTime = trajectoryFollower.point.state.t

@@ -10,6 +10,6 @@ import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 
 class RoutineBaseline(startingPosition: Source<StartingPositions>) : AutoRoutine(startingPosition) {
     override fun createRoutine() = FollowTrajectoryCommand(
-            trajectory = constSource(Trajectories.baseline),
+            trajectory = constSource(Trajectories.leftStartToNearScale),
             pathMirrored = startingPosition.withEquals(StartingPositions.RIGHT))
 }

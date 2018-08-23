@@ -8,7 +8,7 @@ import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.math.geometry.Pose2d
 import frc.team5190.lib.math.geometry.Translation2d
 import frc.team5190.lib.utils.Source
-import frc.team5190.lib.utils.State
+import frc.team5190.lib.utils.invokeWhenTrue
 import frc.team5190.lib.utils.map
 import frc.team5190.lib.utils.withEquals
 import frc.team5190.robot.auto.StartingPositions
@@ -17,7 +17,9 @@ import frc.team5190.robot.subsytems.SubsystemPreset
 import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 import frc.team5190.robot.subsytems.intake.IntakeCommand
 import frc.team5190.robot.subsytems.intake.IntakeSubsystem
+import frc.team5190.robot.subsytems.led.BlinkingLEDCommand
 import openrio.powerup.MatchData
+import java.awt.Color
 import java.util.concurrent.TimeUnit
 
 class RoutineSwitchFromCenter(startingPosition: Source<StartingPositions>,
@@ -40,6 +42,14 @@ class RoutineSwitchFromCenter(startingPosition: Source<StartingPositions>,
                 Trajectories.kSwitchLeftAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-0.2, 0.0)))
                         .translation.let { mirrored.map(it.mirror, it) })
 
+        shoot1stCube.condition.invokeWhenTrue {
+            println("Shoot 1st Cube: $it")
+        }
+
+        shoot2ndCube.condition.invokeWhenTrue {
+            println("Shoot 2nd Cube: $it")
+        }
+
         return parallel {
             sequential {
                 +drop1stCube
@@ -51,12 +61,15 @@ class RoutineSwitchFromCenter(startingPosition: Source<StartingPositions>,
             sequential {
                 +DelayCommand(250L, TimeUnit.MILLISECONDS)
                 +SubsystemPreset.SWITCH.command.withExit(condition(drop1stCube))
+                +BlinkingLEDCommand(Color.RED, 200).withTimeout(500L)
                 +ConditionCommand(shoot1stCube.condition)
                 +IntakeCommand(IntakeSubsystem.Direction.OUT).withTimeout(500L)
                 +SubsystemPreset.INTAKE.command.withExit(condition(toCenter))
+                +BlinkingLEDCommand(Color.BLUE, 200).withTimeout(500L)
                 +ConditionCommand(condition(toCenter))
                 +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(condition(toCenter2))
                 +SubsystemPreset.SWITCH.command.withExit(condition(drop2ndCube))
+                +BlinkingLEDCommand(Color.GREEN, 200).withTimeout(500L)
                 +ConditionCommand(shoot2ndCube.condition)
                 +IntakeCommand(IntakeSubsystem.Direction.OUT)
             }
