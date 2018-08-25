@@ -8,11 +8,7 @@ package frc.team5190.robot.subsytems.intake
 import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Command
 
-class IntakeHoldCommand : Command() {
-    init {
-        +IntakeSubsystem
-    }
-
+class IntakeHoldCommand : Command(IntakeSubsystem) {
     override suspend fun initialize() {
         IntakeSubsystem.solenoid.set(true)
         IntakeSubsystem.set(ControlMode.PercentOutput, 0.0)

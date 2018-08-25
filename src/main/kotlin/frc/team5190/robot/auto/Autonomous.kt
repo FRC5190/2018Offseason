@@ -1,15 +1,18 @@
 package frc.team5190.robot.auto
 
-import frc.team5190.lib.commands.and
 import frc.team5190.lib.extensions.S3ND
 import frc.team5190.lib.extensions.StateCommandGroupBuilder
 import frc.team5190.lib.extensions.stateCommandGroup
 import frc.team5190.lib.math.geometry.Pose2d
-import frc.team5190.lib.utils.*
+import frc.team5190.lib.utils.Source
+import frc.team5190.lib.utils.launchFrequency
+import frc.team5190.lib.utils.statefulvalue.StatefulValue
+import frc.team5190.lib.utils.statefulvalue.StatefulValueImpl
+import frc.team5190.lib.utils.statefulvalue.and
+import frc.team5190.lib.utils.statefulvalue.not
 import frc.team5190.lib.wrappers.FalconRobotBase
 import frc.team5190.robot.NetworkInterface
 import frc.team5190.robot.auto.routines.*
-import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.newSingleThreadContext
 import openrio.powerup.MatchData
 
@@ -18,18 +21,18 @@ object Autonomous {
     private val autoContext = newSingleThreadContext("Autonomous")
 
     object Config {
-        val startingPosition = variableSource { StartingPositions.valueOf(NetworkInterface.startingPosition.toUpperCase()) }
+        val startingPosition = Source { StartingPositions.valueOf(NetworkInterface.startingPosition.toUpperCase()) }
         val switchSide = autoConfigListener { MatchData.getOwnedSide(MatchData.GameFeature.SWITCH_NEAR) }
         val scaleSide = autoConfigListener { MatchData.getOwnedSide(MatchData.GameFeature.SCALE) }
-        val switchAutoMode = variableSource { SwitchAutoMode.valueOf(NetworkInterface.switchAutoMode.toUpperCase()) }
-        val nearScaleAutoMode = variableSource { ScaleAutoMode.valueOf(NetworkInterface.nearScaleAutoMode.toUpperCase()) }
-        val farScaleAutoMode = variableSource { ScaleAutoMode.valueOf(NetworkInterface.farScaleAutoMode.toUpperCase()) }
+        val switchAutoMode = Source { SwitchAutoMode.valueOf(NetworkInterface.switchAutoMode.toUpperCase()) }
+        val nearScaleAutoMode = Source { ScaleAutoMode.valueOf(NetworkInterface.nearScaleAutoMode.toUpperCase()) }
+        val farScaleAutoMode = Source { ScaleAutoMode.valueOf(NetworkInterface.farScaleAutoMode.toUpperCase()) }
     }
 
-    private val farScale = mergeSource(Config.startingPosition, Config.scaleSide) { one, two -> !one.name.first().equals(two.name.first(), true) }
+    private val farScale = Config.startingPosition.withMerge(Config.scaleSide.asSource()) { one, two -> !one.name.first().equals(two.name.first(), true) }
 
-    private var configValid = comparisionState(Config.switchSide, Config.scaleSide) { one, two -> one != MatchData.OwnedSide.UNKNOWN && two != MatchData.OwnedSide.UNKNOWN }
-    private val shouldPoll = !(updatableState(5) { FalconRobotBase.INSTANCE.run { isAutonomous && isEnabled } } and configValid)
+    private var configValid = Config.switchSide.withProcessing { it != MatchData.OwnedSide.UNKNOWN } and Config.scaleSide.withProcessing { it != MatchData.OwnedSide.UNKNOWN }
+    private val shouldPoll = !(StatefulValue(5) { FalconRobotBase.INSTANCE.run { isAutonomous && isEnabled } } and configValid)
 
     // Autonomous Master Group
 
@@ -38,14 +41,14 @@ object Autonomous {
             stateCommandGroup(farScale) {
                 state(true) {
                     stateCommandGroup(Config.farScaleAutoMode) {
-                        state(ScaleAutoMode.THREECUBE, RoutineScaleFromSide(Config.startingPosition, Config.scaleSide))
+                        state(ScaleAutoMode.THREECUBE, RoutineScaleFromSide(Config.startingPosition, Config.scaleSide.asSource()))
                         state(ScaleAutoMode.BASELINE, RoutineBaseline(Config.startingPosition))
                     }
                 }
                 state(false) {
                     println("a5")
                     stateCommandGroup(Config.nearScaleAutoMode) {
-                        state(ScaleAutoMode.THREECUBE, RoutineScaleFromSide(Config.startingPosition, Config.scaleSide))
+                        state(ScaleAutoMode.THREECUBE, RoutineScaleFromSide(Config.startingPosition, Config.scaleSide.asSource()))
                         state(ScaleAutoMode.BASELINE, RoutineBaseline(Config.startingPosition))
                     }
                 }
@@ -54,21 +57,22 @@ object Autonomous {
         println("a4")
         state(StartingPositions.CENTER) {
             stateCommandGroup(Config.switchAutoMode) {
-                state(SwitchAutoMode.BASIC, RoutineSwitchFromCenter(Config.startingPosition, Config.switchSide))
-                state(SwitchAutoMode.ROBONAUTS, RoutineSwitchScaleFromCenter(Config.startingPosition, Config.switchSide, Config.scaleSide))
+                state(SwitchAutoMode.BASIC, RoutineSwitchFromCenter(Config.startingPosition, Config.switchSide.asSource()))
+                state(SwitchAutoMode.ROBONAUTS, RoutineSwitchScaleFromCenter(Config.startingPosition, Config.switchSide.asSource(), Config.scaleSide.asSource()))
                 println("a3")
             }
         }
     }
 
     init {
+        @Suppress("LocalVariableName")
         val IT = ""
         shouldPoll.invokeOnChange {
             println("a1")
             if (it) return@invokeOnChange
             JUST S3ND IT
         }
-        FalconRobotBase.INSTANCE.modeStateMachine.onLeave(listOf(FalconRobotBase.Mode.AUTONOMOUS)){
+        FalconRobotBase.INSTANCE.modeStateMachine.onLeave(listOf(FalconRobotBase.Mode.AUTONOMOUS)) {
             JUST.stop()
         }
         println("a2")
@@ -77,12 +81,12 @@ object Autonomous {
 
     private fun <T> StateCommandGroupBuilder<T>.state(state: T, routine: AutoRoutine) = state(state, routine.create())
 
-    private fun <T> autoConfigListener(block: () -> T): StateImpl<T> = AutoState(block = block)
+    private fun <T> autoConfigListener(block: () -> T): StatefulValue<T> = AutoState(block = block)
 
-    private class AutoState<T>(private val block: () -> T) : StateImpl<T>(block()) {
+    private class AutoState<T>(private val block: () -> T) : StatefulValueImpl<T>(block()) {
         init {
             launchFrequency(20, autoContext) {
-                internalValue = block()
+                changeValue(block())
             }
         }
     }

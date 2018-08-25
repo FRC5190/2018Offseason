@@ -1,16 +1,11 @@
 package frc.team5190.robot.auto.routines
 
-import frc.team5190.lib.commands.Command
-import frc.team5190.lib.commands.ConditionCommand
-import frc.team5190.lib.commands.DelayCommand
-import frc.team5190.lib.commands.condition
+import frc.team5190.lib.commands.*
 import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.math.geometry.Pose2d
 import frc.team5190.lib.math.geometry.Translation2d
 import frc.team5190.lib.utils.Source
-import frc.team5190.lib.utils.State
 import frc.team5190.lib.utils.map
-import frc.team5190.lib.utils.withEquals
 import frc.team5190.robot.auto.StartingPositions
 import frc.team5190.robot.auto.Trajectories
 import frc.team5190.robot.subsytems.SubsystemPreset
@@ -49,15 +44,15 @@ class RoutineSwitchScaleFromCenter(startingPosition: Source<StartingPositions>,
             }
             sequential {
                 +DelayCommand(250L, TimeUnit.MILLISECONDS)
-                +SubsystemPreset.SWITCH.command.withExit(condition(drop1stCube))
-                +ConditionCommand(shoot1stCube.condition)
+                +SubsystemPreset.SWITCH.command.withExit(StatefulValue(drop1stCube))
+                +StatefulBooleanCommand(shoot1stCube.condition)
                 +IntakeCommand(IntakeSubsystem.Direction.OUT).withTimeout(500L)
-                +SubsystemPreset.INTAKE.command.withExit(condition(toCenter))
-                +ConditionCommand(condition(toCenter))
-                +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(condition(toPyramid))
-                +ConditionCommand(elevatorUp.condition)
-                +SubsystemPreset.BEHIND.command.withExit(condition(drop2ndCube))
-                +ConditionCommand(shoot2ndCube.condition)
+                +SubsystemPreset.INTAKE.command.withExit(StatefulValue(toCenter))
+                +StatefulBooleanCommand(StatefulValue(toCenter))
+                +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(StatefulValue(toPyramid))
+                +StatefulBooleanCommand(elevatorUp.condition)
+                +SubsystemPreset.BEHIND.command.withExit(StatefulValue(drop2ndCube))
+                +StatefulBooleanCommand(shoot2ndCube.condition)
                 +IntakeCommand(IntakeSubsystem.Direction.OUT)
             }
         }

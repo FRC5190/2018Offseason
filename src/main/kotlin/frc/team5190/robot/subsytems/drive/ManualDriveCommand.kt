@@ -16,7 +16,7 @@ import frc.team5190.lib.wrappers.hid.getY
 import frc.team5190.lib.wrappers.hid.kX
 import frc.team5190.robot.Controls
 
-class ManualDriveCommand : Command() {
+class ManualDriveCommand : Command(DriveSubsystem) {
 
     companion object {
         private var deadband = 0.02
@@ -25,14 +25,9 @@ class ManualDriveCommand : Command() {
         private val quickTurnSource = Controls.mainXbox.getRawButton(kX)
     }
 
-
     private var stopThreshold = DifferentialDrive.kDefaultQuickStopThreshold
     private var stopAlpha = DifferentialDrive.kDefaultQuickStopAlpha
     private var stopAccumulator = 0.0
-
-    init {
-        +DriveSubsystem
-    }
 
     override suspend fun execute() {
         val speed = -speedSource.value

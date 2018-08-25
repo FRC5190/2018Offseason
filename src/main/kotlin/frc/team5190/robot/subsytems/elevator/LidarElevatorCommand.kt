@@ -7,17 +7,16 @@ package frc.team5190.robot.subsytems.elevator
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Command
-import frc.team5190.lib.commands.and
-import frc.team5190.lib.commands.condition
 import frc.team5190.lib.math.units.Distance
 import frc.team5190.lib.math.units.Inches
-import frc.team5190.lib.utils.not
-import frc.team5190.lib.utils.withProcessing
+import frc.team5190.lib.utils.statefulvalue.StatefulValue
+import frc.team5190.lib.utils.statefulvalue.and
+import frc.team5190.lib.utils.statefulvalue.not
 import frc.team5190.robot.sensors.CubeSensors
 import frc.team5190.robot.sensors.Lidar
 import java.util.*
 
-class LidarElevatorCommand : Command() {
+class LidarElevatorCommand : Command(ElevatorSubsystem) {
     companion object {
         private val heightOffset = Inches(15.0)
         private val heightSource = Lidar.withProcessing { it.first to it.second.withSettings(ElevatorSubsystem.settings) }
@@ -25,9 +24,7 @@ class LidarElevatorCommand : Command() {
     }
 
     init {
-        +ElevatorSubsystem
-
-        finishCondition += !CubeSensors.cubeIn and condition {
+        finishCondition += !CubeSensors.cubeIn and StatefulValue {
             ElevatorSubsystem.currentPosition > ElevatorSubsystem.kFirstStagePosition - Inches(1.0, ElevatorSubsystem.settings)
         }
     }

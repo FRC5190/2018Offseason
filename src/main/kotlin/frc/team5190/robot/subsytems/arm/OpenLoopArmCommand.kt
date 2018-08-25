@@ -10,10 +10,6 @@ import frc.team5190.lib.commands.Command
 import frc.team5190.lib.utils.DoubleSource
 
 
-class OpenLoopArmCommand(private val percentOutput: DoubleSource) : Command() {
-    init {
-        +ArmSubsystem
-    }
-
+class OpenLoopArmCommand(private val percentOutput: DoubleSource) : Command(ArmSubsystem) {
     override suspend fun execute() = ArmSubsystem.set(ControlMode.PercentOutput, percentOutput.value)
 }

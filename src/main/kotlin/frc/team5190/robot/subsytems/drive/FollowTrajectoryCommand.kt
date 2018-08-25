@@ -7,7 +7,6 @@ package frc.team5190.robot.subsytems.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Command
-import frc.team5190.lib.commands.Condition
 import frc.team5190.lib.extensions.l
 import frc.team5190.lib.extensions.r
 import frc.team5190.lib.math.geometry.Pose2dWithCurvature
@@ -21,17 +20,20 @@ import frc.team5190.lib.math.trajectory.followers.TrajectoryFollower
 import frc.team5190.lib.math.trajectory.timing.TimedState
 import frc.team5190.lib.math.trajectory.view.TimedView
 import frc.team5190.lib.math.units.FeetPerSecond
-import frc.team5190.lib.utils.*
+import frc.team5190.lib.utils.BooleanSource
+import frc.team5190.lib.utils.Source
+import frc.team5190.lib.utils.statefulvalue.StatefulBoolean
+import frc.team5190.lib.utils.statefulvalue.StatefulVariable
 import frc.team5190.robot.Constants
 import frc.team5190.robot.Kinematics
 import frc.team5190.robot.Localization
 import kotlin.math.sign
 
-class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedState<Pose2dWithCurvature>>>, private val pathMirrored: BooleanSource = constSource(false)) : Command() {
+class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedState<Pose2dWithCurvature>>>, private val pathMirrored: BooleanSource = Source(false)) : Command(DriveSubsystem) {
 
-    constructor(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>, pathMirrored: BooleanSource = constSource(false)) : this(constSource(trajectory), pathMirrored)
+    constructor(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>, pathMirrored: BooleanSource = Source(false)) : this(Source(trajectory), pathMirrored)
 
-    private val trajectoryFinished = variableState(false)
+    private val trajectoryFinished = StatefulVariable(false)
     private lateinit var trajectoryUsed: Trajectory<TimedState<Pose2dWithCurvature>>
 
     // Path follower
@@ -43,10 +45,8 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
     private var lastVelocity = 0.0 to 0.0
 
     init {
-        +DriveSubsystem
-
         // Update the frequency of the command to the follower
-        updateFrequency = 100 // Hz
+        executeFrequency = 100 // Hz
 
         trajectoryFinished.value = false
         finishCondition += trajectoryFinished
@@ -65,7 +65,7 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
             dataArray.add(iterator.advance(0.05))
         }
         markerLocations.forEach { marker ->
-            val condition = marker.condition as VariableState<Boolean>
+            val condition = marker.condition as StatefulVariable<Boolean>
             condition.value = false // make sure its false
 
             val usedLocation = marker.location.value
@@ -83,8 +83,8 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
         trajectoryFinished.value = false
     }
 
-    fun addMarkerAt(location: Translation2d) = addMarkerAt(constSource(location))
-    fun addMarkerAt(location: Source<Translation2d>) = Marker(location, variableState(false)).also { markerLocations.add(it) }
+    fun addMarkerAt(location: Translation2d) = addMarkerAt(Source(location))
+    fun addMarkerAt(location: Source<Translation2d>) = Marker(location, StatefulVariable(false)).also { markerLocations.add(it) }
 
     private fun updateDashboard() {
         pathX = trajectoryFollower.pose.translation.x
@@ -103,8 +103,8 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
         val lVelocitySTU = FeetPerSecond(output.l).STU.toDouble()
         val rVelocitySTU = FeetPerSecond(output.r).STU.toDouble()
 
-        val lAccelerationSTU = FeetPerSecond((output.l - lastVelocity.l) * updateFrequency).STU / 1000.0 // Why CTRE
-        val rAccelerationSTU = FeetPerSecond((output.r - lastVelocity.r) * updateFrequency).STU / 1000.0 // Why CTRE
+        val lAccelerationSTU = FeetPerSecond((output.l - lastVelocity.l) * executeFrequency).STU / 1000.0 // Why CTRE
+        val rAccelerationSTU = FeetPerSecond((output.r - lastVelocity.r) * executeFrequency).STU / 1000.0 // Why CTRE
 
         DriveSubsystem.setTrajectoryVelocity(Output(
                 lSetpoint = lVelocitySTU, lAdditiveFF = Constants.kADrive * lAccelerationSTU + Constants.kSDrive * sign(lVelocitySTU),
@@ -155,8 +155,8 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
             private set
     }
 
-    class Marker(val location: Source<Translation2d>, val condition: Condition)
-    private class MarkerInternal(val t: Double, val condition: VariableState<Boolean>)
+    class Marker(val location: Source<Translation2d>, val condition: StatefulBoolean)
+    private class MarkerInternal(val t: Double, val condition: StatefulVariable<Boolean>)
 
     class Output(val lSetpoint: Double, val rSetpoint: Double, val lAdditiveFF: Double, val rAdditiveFF: Double)
 }

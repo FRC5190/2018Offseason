@@ -6,8 +6,7 @@
 package frc.team5190.robot
 
 import edu.wpi.first.wpilibj.GenericHID
-import frc.team5190.lib.utils.constSource
-import frc.team5190.lib.utils.withProcessing
+import frc.team5190.lib.utils.Source
 import frc.team5190.lib.wrappers.hid.*
 import frc.team5190.robot.subsytems.SubsystemPreset
 import frc.team5190.robot.subsytems.arm.OpenLoopArmCommand
@@ -21,8 +20,8 @@ import kotlin.math.pow
 object Controls {
     val mainXbox = xboxController(0) {
         // Arm Controls
-        val armUpCommand = OpenLoopArmCommand(constSource(0.5))
-        val armDownCommand = OpenLoopArmCommand(constSource(-0.5))
+        val armUpCommand = OpenLoopArmCommand(Source(0.5))
+        val armDownCommand = OpenLoopArmCommand(Source(-0.5))
 
         button(kY).change(armUpCommand)
         button(kB).change(armDownCommand)
@@ -33,8 +32,8 @@ object Controls {
         button(kA).changeOff { DriveSubsystem.lowGear = false }
 
         // Elevator Controls
-        val elevatorUpCommand = OpenLoopElevatorCommand(constSource(0.4))
-        val elevatorDownCommand = OpenLoopElevatorCommand(constSource(-0.4))
+        val elevatorUpCommand = OpenLoopElevatorCommand(Source(0.4))
+        val elevatorDownCommand = OpenLoopElevatorCommand(Source(-0.4))
 
         triggerAxisButton(GenericHID.Hand.kRight, 0.2).change(elevatorUpCommand)
         button(kBumperRight).change(elevatorDownCommand)
@@ -49,6 +48,6 @@ object Controls {
         triggerAxisButton(GenericHID.Hand.kLeft, 0.1) {
             change(IntakeCommand(IntakeSubsystem.Direction.OUT, source.withProcessing { it.pow(2) * 0.65 }))
         }
-        button(kBumperLeft).change(IntakeCommand(IntakeSubsystem.Direction.IN, constSource(1.0)))
+        button(kBumperLeft).change(IntakeCommand(IntakeSubsystem.Direction.IN, Source(1.0)))
     }
 }

@@ -10,11 +10,7 @@ import frc.team5190.lib.commands.Command
 import frc.team5190.lib.utils.DoubleSource
 
 
-class OpenLoopElevatorCommand(private val percentOutput: DoubleSource) : Command() {
-    init {
-        +ElevatorSubsystem
-    }
-
+class OpenLoopElevatorCommand(private val percentOutput: DoubleSource) : Command(ElevatorSubsystem) {
     override suspend fun execute() {
         if (ElevatorSubsystem.atBottom && !ElevatorSubsystem.reset) {
             ElevatorSubsystem.resetEncoders()

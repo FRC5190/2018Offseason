@@ -1,16 +1,15 @@
 package frc.team5190.robot.auto.routines
 
 import frc.team5190.lib.commands.Command
-import frc.team5190.lib.commands.ConditionCommand
 import frc.team5190.lib.commands.DelayCommand
-import frc.team5190.lib.commands.condition
+import frc.team5190.lib.commands.StatefulBooleanCommand
+import frc.team5190.lib.commands.StatefulValue
 import frc.team5190.lib.extensions.parallel
 import frc.team5190.lib.math.geometry.Pose2d
 import frc.team5190.lib.math.geometry.Translation2d
 import frc.team5190.lib.utils.Source
-import frc.team5190.lib.utils.invokeWhenTrue
 import frc.team5190.lib.utils.map
-import frc.team5190.lib.utils.withEquals
+import frc.team5190.lib.utils.statefulvalue.invokeWhenTrue
 import frc.team5190.robot.auto.StartingPositions
 import frc.team5190.robot.auto.Trajectories
 import frc.team5190.robot.subsytems.SubsystemPreset
@@ -60,17 +59,17 @@ class RoutineSwitchFromCenter(startingPosition: Source<StartingPositions>,
             }
             sequential {
                 +DelayCommand(250L, TimeUnit.MILLISECONDS)
-                +SubsystemPreset.SWITCH.command.withExit(condition(drop1stCube))
+                +SubsystemPreset.SWITCH.command.withExit(StatefulValue(drop1stCube))
                 +BlinkingLEDCommand(Color.RED, 200).withTimeout(500L)
-                +ConditionCommand(shoot1stCube.condition)
+                +StatefulBooleanCommand(shoot1stCube.condition)
                 +IntakeCommand(IntakeSubsystem.Direction.OUT).withTimeout(500L)
-                +SubsystemPreset.INTAKE.command.withExit(condition(toCenter))
+                +SubsystemPreset.INTAKE.command.withExit(StatefulValue(toCenter))
                 +BlinkingLEDCommand(Color.BLUE, 200).withTimeout(500L)
-                +ConditionCommand(condition(toCenter))
-                +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(condition(toCenter2))
-                +SubsystemPreset.SWITCH.command.withExit(condition(drop2ndCube))
+                +StatefulBooleanCommand(StatefulValue(toCenter))
+                +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(StatefulValue(toCenter2))
+                +SubsystemPreset.SWITCH.command.withExit(StatefulValue(drop2ndCube))
                 +BlinkingLEDCommand(Color.GREEN, 200).withTimeout(500L)
-                +ConditionCommand(shoot2ndCube.condition)
+                +StatefulBooleanCommand(shoot2ndCube.condition)
                 +IntakeCommand(IntakeSubsystem.Direction.OUT)
             }
         }

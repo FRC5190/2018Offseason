@@ -8,15 +8,14 @@ package frc.team5190.robot.subsytems.intake
 import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Command
 import frc.team5190.lib.utils.DoubleSource
-import frc.team5190.lib.utils.constSource
+import frc.team5190.lib.utils.Source
 import frc.team5190.robot.sensors.CubeSensors
 import kotlin.math.absoluteValue
 
 class IntakeCommand(private val direction: IntakeSubsystem.Direction,
-                    private val speed: DoubleSource = constSource(1.0)) : Command() {
+                    private val speed: DoubleSource = Source(1.0)) : Command(IntakeSubsystem) {
 
     init {
-        +IntakeSubsystem
         if (direction == IntakeSubsystem.Direction.IN) finishCondition += CubeSensors.cubeIn
     }
 

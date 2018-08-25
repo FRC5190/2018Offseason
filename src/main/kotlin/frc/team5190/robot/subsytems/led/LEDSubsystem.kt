@@ -2,8 +2,8 @@ package frc.team5190.robot.subsytems.led
 
 import frc.team5190.lib.commands.Subsystem
 import frc.team5190.lib.extensions.sequential
-import frc.team5190.lib.utils.invokeWhenFalse
-import frc.team5190.lib.utils.invokeWhenTrue
+import frc.team5190.lib.utils.statefulvalue.invokeWhenFalse
+import frc.team5190.lib.utils.statefulvalue.invokeWhenTrue
 import frc.team5190.robot.sensors.CubeSensors
 import java.awt.Color
 import java.util.concurrent.TimeUnit

@@ -2,10 +2,10 @@ package frc.team5190.robot.subsytems.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Command
-import frc.team5190.lib.commands.condition
+import frc.team5190.lib.utils.statefulvalue.StatefulValue
 import org.apache.commons.math3.stat.regression.SimpleRegression
 
-class CharacterizationCommand : Command() {
+class CharacterizationCommand : Command(DriveSubsystem) {
     private var outPct = 0.0
 
     private var vIntercept = 0.0
@@ -17,9 +17,8 @@ class CharacterizationCommand : Command() {
         get() = (DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity) / 2.0
 
     init {
-        +DriveSubsystem
-        finishCondition += condition { outPct > 1.0 }
-        updateFrequency = 1
+        finishCondition += StatefulValue { outPct > 1.0 }
+        executeFrequency = 1
     }
 
     override suspend fun initialize() {
