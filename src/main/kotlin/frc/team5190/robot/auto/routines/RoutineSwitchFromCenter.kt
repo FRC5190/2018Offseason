@@ -59,15 +59,15 @@ class RoutineSwitchFromCenter(startingPosition: Source<StartingPositions>,
             }
             sequential {
                 +DelayCommand(250L, TimeUnit.MILLISECONDS)
-                +SubsystemPreset.SWITCH.command.withExit(StatefulValue(drop1stCube))
+                +SubsystemPreset.SWITCH.command//.withExit(StatefulValue(drop1stCube))
                 +BlinkingLEDCommand(Color.RED, 200).withTimeout(500L)
                 +StatefulBooleanCommand(shoot1stCube.condition)
                 +IntakeCommand(IntakeSubsystem.Direction.OUT).withTimeout(500L)
-                +SubsystemPreset.INTAKE.command.withExit(StatefulValue(toCenter))
+                +SubsystemPreset.INTAKE.command//.withExit(StatefulValue(toCenter))
                 +BlinkingLEDCommand(Color.BLUE, 200).withTimeout(500L)
                 +StatefulBooleanCommand(StatefulValue(toCenter))
                 +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(StatefulValue(toCenter2))
-                +SubsystemPreset.SWITCH.command.withExit(StatefulValue(drop2ndCube))
+                +SubsystemPreset.SWITCH.command//.withExit(StatefulValue(drop2ndCube))
                 +BlinkingLEDCommand(Color.GREEN, 200).withTimeout(500L)
                 +StatefulBooleanCommand(shoot2ndCube.condition)
                 +IntakeCommand(IntakeSubsystem.Direction.OUT)
