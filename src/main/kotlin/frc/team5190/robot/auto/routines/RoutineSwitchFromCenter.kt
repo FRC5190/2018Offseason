@@ -9,7 +9,6 @@ import frc.team5190.lib.math.geometry.Pose2d
 import frc.team5190.lib.math.geometry.Translation2d
 import frc.team5190.lib.utils.Source
 import frc.team5190.lib.utils.map
-import frc.team5190.lib.utils.statefulvalue.invokeWhenTrue
 import frc.team5190.robot.auto.StartingPositions
 import frc.team5190.robot.auto.Trajectories
 import frc.team5190.robot.subsytems.SubsystemPreset
@@ -41,13 +40,14 @@ class RoutineSwitchFromCenter(startingPosition: Source<StartingPositions>,
                 Trajectories.kSwitchLeftAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-0.2, 0.0)))
                         .translation.let { mirrored.map(it.mirror, it) })
 
-        shoot1stCube.condition.invokeWhenTrue {
-            println("Shoot 1st Cube: $it")
-        }
+        drop1stCube.commandStateValue.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
+        toCenter.commandStateValue.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
+        toPyramid.commandStateValue.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
+        toCenter2.commandStateValue.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
+        drop2ndCube.commandStateValue.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
 
-        shoot2ndCube.condition.invokeWhenTrue {
-            println("Shoot 2nd Cube: $it")
-        }
+        shoot1stCube.condition.invokeOnceOnChange { println("Shoot 1st Cube: $it") }
+        shoot2ndCube.condition.invokeOnceOnChange { println("Shoot 2nd Cube: $it") }
 
         return parallel {
             sequential {
@@ -63,7 +63,7 @@ class RoutineSwitchFromCenter(startingPosition: Source<StartingPositions>,
                 +BlinkingLEDCommand(Color.RED, 200).withTimeout(500L)
                 +StatefulBooleanCommand(shoot1stCube.condition)
                 +IntakeCommand(IntakeSubsystem.Direction.OUT).withTimeout(500L)
-                +SubsystemPreset.INTAKE.command//.withExit(StatefulValue(toCenter))
+                +SubsystemPreset.INTAKE.command.withExit(StatefulValue(toPyramid))
                 +BlinkingLEDCommand(Color.BLUE, 200).withTimeout(500L)
                 +StatefulBooleanCommand(StatefulValue(toCenter))
                 +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(StatefulValue(toCenter2))

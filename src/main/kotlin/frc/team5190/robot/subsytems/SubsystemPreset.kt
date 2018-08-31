@@ -15,13 +15,14 @@ import frc.team5190.robot.subsytems.arm.ClosedLoopArmCommand
 import frc.team5190.robot.subsytems.elevator.ClosedLoopElevatorCommand
 import frc.team5190.robot.subsytems.elevator.ElevatorSubsystem
 import frc.team5190.robot.subsytems.elevator.LidarElevatorCommand
+import frc.team5190.lib.utils.statefulvalue.StatefulValue
 
 enum class SubsystemPreset(private val builder: () -> Command) {
     INTAKE({
         parallel {
             +ClosedLoopArmCommand(ArmSubsystem.kDownPosition)
             sequential {
-                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(condition {
+                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(StatefulValue {
                     ArmSubsystem.currentPosition < ArmSubsystem.kUpPosition + NativeUnits(100)
                 })
                 +ClosedLoopElevatorCommand(ElevatorSubsystem.kIntakePosition)
@@ -32,7 +33,7 @@ enum class SubsystemPreset(private val builder: () -> Command) {
         parallel {
             +ClosedLoopArmCommand(ArmSubsystem.kMiddlePosition)
             sequential {
-                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(condition {
+                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(StatefulValue {
                     ElevatorSubsystem.currentPosition < ElevatorSubsystem.kSwitchPosition
                             || ArmSubsystem.currentPosition < ArmSubsystem.kUpPosition + NativeUnits(100)
                 })
@@ -50,7 +51,7 @@ enum class SubsystemPreset(private val builder: () -> Command) {
         parallel {
             +LidarElevatorCommand()
             sequential {
-                +ClosedLoopArmCommand(ArmSubsystem.kUpPosition + NativeUnits(75)).withExit(condition {
+                +ClosedLoopArmCommand(ArmSubsystem.kUpPosition + NativeUnits(75)).withExit(StatefulValue {
                     ElevatorSubsystem.currentPosition > ElevatorSubsystem.kFirstStagePosition
                 })
                 +ClosedLoopArmCommand(ArmSubsystem.kBehindPosition)

@@ -2,6 +2,8 @@ package frc.team5190.robot.subsytems.led
 
 import frc.team5190.lib.commands.Subsystem
 import frc.team5190.lib.extensions.sequential
+import frc.team5190.lib.utils.statefulvalue.invokeOnFalse
+import frc.team5190.lib.utils.statefulvalue.invokeOnTrue
 import frc.team5190.lib.utils.statefulvalue.invokeWhenFalse
 import frc.team5190.lib.utils.statefulvalue.invokeWhenTrue
 import frc.team5190.robot.sensors.CubeSensors
@@ -18,7 +20,7 @@ object LEDSubsystem : Subsystem() {
             +SolidLEDCommand(Color.MAGENTA)
         }
 
-        CubeSensors.cubeIn.invokeWhenTrue { blinkCommandGroup.start() }
-        CubeSensors.cubeIn.invokeWhenFalse { blinkCommandGroup.stop() }
+        CubeSensors.cubeIn.invokeOnTrue { blinkCommandGroup.start() }
+        CubeSensors.cubeIn.invokeOnFalse { blinkCommandGroup.stop() }
     }
 }
