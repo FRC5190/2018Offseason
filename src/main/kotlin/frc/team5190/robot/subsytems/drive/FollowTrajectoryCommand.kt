@@ -79,7 +79,7 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
         }
 
         // Initialize path follower
-        trajectoryFollower = NonLinearController(finalTrajectory)
+        trajectoryFollower = NonLinearController(finalTrajectory, 0.30, 0.85)
         trajectoryFinished.value = false
     }
 

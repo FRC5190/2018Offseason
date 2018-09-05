@@ -6,10 +6,8 @@
 
 package frc.team5190.robot.auto
 
-import frc.team5190.lib.math.geometry.Pose2d
-import frc.team5190.lib.math.geometry.Pose2dWithCurvature
-import frc.team5190.lib.math.geometry.Rotation2d
-import frc.team5190.lib.math.geometry.Translation2d
+import frc.team5190.lib.math.geometry.*
+import frc.team5190.lib.math.trajectory.AStarOptimizer
 import frc.team5190.lib.math.trajectory.Trajectory
 import frc.team5190.lib.math.trajectory.TrajectoryGenerator
 import frc.team5190.lib.math.trajectory.timing.CentripetalAccelerationConstraint
@@ -106,7 +104,7 @@ object Trajectories {
     val centerStartToLeftSwitch = waypoints {
         +kCenterStart
         +kSwitchLeftAdjusted
-    }.generateTrajectory(reversed = false)
+    }.generateAStar(reversed = false)
 
     val centerStartToRightSwitch = waypoints {
         +kCenterStart
@@ -162,6 +160,34 @@ object Trajectories {
                     endVel = 0.0,
                     maxVelocity = maxVelocity,
                     maxAcceleration = maxAcceleration)!!
+        }
+
+        fun generateAStar(reversed: Boolean,
+                          maxVelocity: Double = kMaxVelocity,
+                          maxAcceleration: Double = kMaxAcceleration,
+                          constraints: ArrayList<TimingConstraint<Pose2dWithCurvature>> = kConstraints): Trajectory<TimedState<Pose2dWithCurvature>> {
+
+            if (points.size != 2) generateTrajectory(reversed, maxVelocity, maxAcceleration, constraints)
+
+            val kRobotSize = 3.0 // 2.75
+
+            val kLeftSwitch = Rectangle2d(140.0 / 12.0, 85.25 / 12.0, 56.0 / 12.0, 153.5 / 12.0)
+            val kPlatform = Rectangle2d(261.47 / 12.0, 95.25 / 12.0, 125.06 / 12.0, 133.5 / 12.0)
+            val kRightSwitch = Rectangle2d(54 - (kLeftSwitch.x + kLeftSwitch.w), kLeftSwitch.y, kLeftSwitch.w, kLeftSwitch.h)
+
+            val optimizedPoints = AStarOptimizer(kRobotSize, kLeftSwitch, kPlatform, kRightSwitch).optimize(points[0], points[1])!!.path as ArrayList<Pose2d>
+
+            optimizedPoints.forEach {println(it)}
+
+            return TrajectoryGenerator.generateTrajectory(
+                    reversed = reversed,
+                    waypoints = optimizedPoints,
+                    constraints = constraints,
+                    startVel = 0.0,
+                    endVel = 0.0,
+                    maxVelocity = maxVelocity,
+                    maxAcceleration = maxAcceleration)!!
+
         }
 
         operator fun Pose2d.unaryPlus() {

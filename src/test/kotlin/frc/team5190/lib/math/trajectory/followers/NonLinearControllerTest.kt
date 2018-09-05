@@ -30,9 +30,10 @@ class NonLinearControllerTest {
         val name = "Center Start to Left Switch"
         val trajectory: Trajectory<TimedState<Pose2dWithCurvature>> = Trajectories.centerStartToLeftSwitch
         val iterator = TrajectoryIterator(TimedView(trajectory))
-        trajectoryFollower = NonLinearController(trajectory)
+        trajectoryFollower = NonLinearController(trajectory, 0.30, 0.85)
 
-        var totalpose = Pose2d()
+        var totalpose = trajectory.firstState.state.pose
+
         var prevdx = 0.0
         var prevdtheta = 0.0
 
@@ -95,7 +96,7 @@ class NonLinearControllerTest {
         chart.styler.plotBackgroundColor = Color.DARK_GRAY
 
         chart.addSeries("Trajectory", refXList.toDoubleArray(), refYList.toDoubleArray())
-        chart.addSeries("Robot", xList.toDoubleArray(), yList.toDoubleArray())
+//        chart.addSeries("Robot", xList.toDoubleArray(), yList.toDoubleArray())
 
         val terror = trajectory.lastState.state.translation - totalpose.translation
         val rerror = trajectory.lastState.state.rotation - totalpose.rotation
