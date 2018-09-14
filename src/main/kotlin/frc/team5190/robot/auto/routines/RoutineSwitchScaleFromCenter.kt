@@ -1,13 +1,17 @@
 package frc.team5190.robot.auto.routines
 
-import frc.team5190.lib.commands.*
-import frc.team5190.lib.mathematics.twodim.geometry.Pose2d
-import frc.team5190.lib.mathematics.twodim.geometry.Translation2d
+import frc.team5190.lib.commands.Command
+import frc.team5190.lib.commands.ConditionCommand
+import frc.team5190.lib.commands.DelayCommand
+import frc.team5190.lib.commands.sequential
+import frc.team5190.lib.mathematics.units.NativeUnits
 import frc.team5190.lib.utils.Source
 import frc.team5190.lib.utils.map
+import frc.team5190.lib.utils.observabletype.UpdatableObservableValue
 import frc.team5190.robot.auto.StartingPositions
 import frc.team5190.robot.auto.Trajectories
 import frc.team5190.robot.subsytems.SubsystemPreset
+import frc.team5190.robot.subsytems.arm.ArmSubsystem
 import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 import frc.team5190.robot.subsytems.intake.IntakeCommand
 import frc.team5190.robot.subsytems.intake.IntakeSubsystem
@@ -27,14 +31,35 @@ class RoutineSwitchScaleFromCenter(startingPosition: Source<StartingPositions>,
         val toPyramid = FollowTrajectoryCommand(Trajectories.centerToPyramid)
         val drop2ndCube = FollowTrajectoryCommand(Trajectories.pyramidToScale, scaleMirrored)
 
-        val elevatorUp = drop2ndCube.addMarkerAt(Translation2d(11.5, 23.1).let { scaleMirrored.map(it.mirror, it) })
-        val shoot1stCube = drop1stCube.addMarkerAt(
-                Trajectories.kSwitchLeftAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-0.2, 0.0)))
-                        .translation.let { switchMirrored.map(it.mirror, it) })
-
-        val shoot2ndCube = drop2ndCube.addMarkerAt((Translation2d(22.3, 20.6)).let { scaleMirrored.map(it.mirror, it) })
-
-        return parallel {
+        return sequential {
+            +parallel {
+                +drop1stCube
+                +SubsystemPreset.SWITCH.command
+                +sequential {
+                    +DelayCommand(((drop1stCube.trajectory.value.lastState.t - 0.2) * 1000).toLong(), TimeUnit.MILLISECONDS)
+                    +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.5)).withTimeout(200, TimeUnit.MILLISECONDS)
+                }
+            }
+            +parallel {
+                +toCenter
+                +sequential {
+                    +DelayCommand(500, TimeUnit.MILLISECONDS)
+                    +SubsystemPreset.INTAKE.command
+                }
+            }
+            +parallel {
+                +toPyramid
+                +IntakeCommand(IntakeSubsystem.Direction.IN).withTimeout(3L, TimeUnit.SECONDS)
+            }
+            +parallel {
+                +drop2ndCube
+                +sequential {
+                    +DelayCommand(((drop2ndCube.trajectory.value.lastState.t - 1.75) * 1000).toLong(), TimeUnit.MILLISECONDS)
+                    +SubsystemPreset.BEHIND.command
+                    +ConditionCommand(UpdatableObservableValue { ArmSubsystem.currentPosition > ArmSubsystem.kBehindPosition - NativeUnits(100) })
+                    +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.35)).withTimeout(500, TimeUnit.MILLISECONDS)
+                }
+            }
         }
     }
 }
