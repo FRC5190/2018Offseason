@@ -33,6 +33,7 @@ deploy {
 
 repositories {
     mavenCentral()
+    maven { url "http://dl.bintray.com/kyonifer/maven" }
 }
 
 
@@ -44,13 +45,15 @@ dependencies {
     compile wpilib()
     compile ctre()
     compile navx()
-    compile pathfinder()
     compile openrio.powerup.matchData()
 
     compile project("FalconLibrary")
 
     compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.23.3'
+
+    compile group: "koma", name:"core", version:"0.11"
+    compile group: "koma", name:"backend-matrix-ejml", version: "0.11"
 
     compile 'com.github.salomonbrys.kotson:kotson:2.5.0'
     compile 'org.apache.commons:commons-math3:3.6.1'

@@ -5,8 +5,8 @@
 
 package frc.team5190.robot
 
-import frc.team5190.lib.extensions.epsilonEquals
-import frc.team5190.lib.math.geometry.Twist2d
+import frc.team5190.lib.mathematics.epsilonEquals
+import frc.team5190.lib.mathematics.twodim.geometry.Twist2d
 
 object Kinematics {
 

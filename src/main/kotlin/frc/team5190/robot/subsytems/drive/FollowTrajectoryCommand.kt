@@ -7,40 +7,37 @@ package frc.team5190.robot.subsytems.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Command
-import frc.team5190.lib.extensions.l
-import frc.team5190.lib.extensions.r
-import frc.team5190.lib.math.geometry.Pose2dWithCurvature
-import frc.team5190.lib.math.geometry.Translation2d
-import frc.team5190.lib.math.trajectory.Trajectory
-import frc.team5190.lib.math.trajectory.TrajectoryIterator
-import frc.team5190.lib.math.trajectory.TrajectorySamplePoint
-import frc.team5190.lib.math.trajectory.TrajectoryUtil
-import frc.team5190.lib.math.trajectory.followers.NonLinearController
-import frc.team5190.lib.math.trajectory.followers.TrajectoryFollower
-import frc.team5190.lib.math.trajectory.timing.TimedState
-import frc.team5190.lib.math.trajectory.view.TimedView
-import frc.team5190.lib.math.units.FeetPerSecond
+import frc.team5190.lib.mathematics.twodim.control.NonLinearController
+import frc.team5190.lib.mathematics.twodim.control.TrajectoryFollower
+import frc.team5190.lib.mathematics.twodim.geometry.Pose2dWithCurvature
+import frc.team5190.lib.mathematics.twodim.geometry.Translation2d
+import frc.team5190.lib.mathematics.twodim.trajectory.*
+import frc.team5190.lib.mathematics.twodim.trajectory.view.TimedView
+import frc.team5190.lib.mathematics.units.FeetPerSecond
 import frc.team5190.lib.utils.BooleanSource
 import frc.team5190.lib.utils.Source
+import frc.team5190.lib.utils.l
+import frc.team5190.lib.utils.r
 import frc.team5190.lib.utils.statefulvalue.StatefulBoolean
+import frc.team5190.lib.utils.statefulvalue.StatefulValue
 import frc.team5190.lib.utils.statefulvalue.StatefulVariable
 import frc.team5190.robot.Constants
 import frc.team5190.robot.Kinematics
 import frc.team5190.robot.Localization
 import kotlin.math.sign
 
-class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedState<Pose2dWithCurvature>>>, private val pathMirrored: BooleanSource = Source(false)) : Command(DriveSubsystem) {
+class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedState<Pose2dWithCurvature>>>,
+                              pathMirrored: BooleanSource = Source(false)) : Command(DriveSubsystem) {
 
-    constructor(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>, pathMirrored: BooleanSource = Source(false)) : this(Source(trajectory), pathMirrored)
+    constructor(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>,
+                pathMirrored: BooleanSource = Source(false)) : this(Source(trajectory), pathMirrored)
 
-    private val trajectoryFinished = StatefulVariable(false)
-    private lateinit var trajectoryUsed: Trajectory<TimedState<Pose2dWithCurvature>>
-
-    // Path follower
-    private lateinit var trajectoryFollower: TrajectoryFollower
+    private val trajectoryFollower: TrajectoryFollower
 
     private val markerLocations = mutableListOf<Marker>()
     private val markers = mutableListOf<MarkerInternal>()
+
+    private val trajectoryUsed: Trajectory<TimedState<Pose2dWithCurvature>>
 
     private var lastVelocity = 0.0 to 0.0
 
@@ -48,17 +45,13 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
         // Update the frequency of the command to the follower
         executeFrequency = 100 // Hz
 
-        trajectoryFinished.value = false
-        finishCondition += trajectoryFinished
-    }
-
-    override suspend fun initialize() {
-        trajectoryUsed = this.trajectory.value
-
         // Add markers
         markers.clear()
+
+        trajectoryUsed = if (pathMirrored.value) trajectory.value else trajectory.value.mirrorTimed()
+
         // Iterate through the trajectory and add a data point every 50 ms.
-        val iterator = TrajectoryIterator(TimedView(trajectoryUsed))
+        val iterator = TrajectoryIterator(TimedView(trajectory.value))
         val dataArray = arrayListOf<TrajectorySamplePoint<TimedState<Pose2dWithCurvature>>>()
 
         while (!iterator.isDone) {
@@ -72,15 +65,10 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
             markers.add(MarkerInternal(dataArray.minBy { usedLocation.distance(it.state.state.translation) }!!.state.t, condition))
         }
 
-        val finalTrajectory = if (pathMirrored.value) {
-            TrajectoryUtil.mirrorTimed(trajectoryUsed)
-        } else {
-            trajectoryUsed
-        }
-
         // Initialize path follower
-        trajectoryFollower = NonLinearController(finalTrajectory, 0.30, 0.85)
-        trajectoryFinished.value = false
+        trajectoryFollower = NonLinearController(trajectoryUsed, Constants.kDriveBeta, Constants.kDriveZeta)
+
+        _finishCondition += StatefulValue { trajectoryFollower.isFinished }
     }
 
     fun addMarkerAt(location: Translation2d) = addMarkerAt(Source(location))
@@ -113,19 +101,10 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
 
         updateDashboard()
 
-//        System.out.printf(
-//                "RX: %3.3f, RY: %3.3f, RA: %2f, RLV: %2.3f, RRV: %2.3f, " +
-//                        "AX: %3.3f, AY: %3.3f, AA: %2f, ALV: %2.3f, ARV: %2.3f%n",
-//                pathX, pathY, Math.toDegrees(pathHdg), output.first, output.second,
-//                position.translation.x, position.translation.y, position.rotation.degrees,
-//                DriveSubsystem.leftVelocity.FPS, DriveSubsystem.rightVelocity.FPS
-//        )
 
         // Update marker states
         val followerStateTime = trajectoryFollower.point.state.t
         markers.forEach { it.condition.value = followerStateTime > it.t }
-
-        trajectoryFinished.value = trajectoryFollower.isFinished
 
         lastVelocity = output
     }

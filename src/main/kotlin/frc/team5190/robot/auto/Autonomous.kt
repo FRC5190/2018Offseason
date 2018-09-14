@@ -1,9 +1,9 @@
 package frc.team5190.robot.auto
 
-import frc.team5190.lib.extensions.S3ND
-import frc.team5190.lib.extensions.StateCommandGroupBuilder
-import frc.team5190.lib.extensions.stateCommandGroup
-import frc.team5190.lib.math.geometry.Pose2d
+import frc.team5190.lib.commands.S3ND
+import frc.team5190.lib.commands.StateCommandGroupBuilder
+import frc.team5190.lib.commands.stateCommandGroup
+import frc.team5190.lib.mathematics.twodim.geometry.Pose2d
 import frc.team5190.lib.utils.Source
 import frc.team5190.lib.utils.launchFrequency
 import frc.team5190.lib.utils.statefulvalue.StatefulValue

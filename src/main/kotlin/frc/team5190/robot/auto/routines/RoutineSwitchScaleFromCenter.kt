@@ -1,9 +1,8 @@
 package frc.team5190.robot.auto.routines
 
 import frc.team5190.lib.commands.*
-import frc.team5190.lib.extensions.parallel
-import frc.team5190.lib.math.geometry.Pose2d
-import frc.team5190.lib.math.geometry.Translation2d
+import frc.team5190.lib.mathematics.twodim.geometry.Pose2d
+import frc.team5190.lib.mathematics.twodim.geometry.Translation2d
 import frc.team5190.lib.utils.Source
 import frc.team5190.lib.utils.map
 import frc.team5190.robot.auto.StartingPositions

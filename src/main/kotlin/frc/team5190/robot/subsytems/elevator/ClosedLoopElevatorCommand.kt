@@ -7,8 +7,8 @@ package frc.team5190.robot.subsytems.elevator
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Command
-import frc.team5190.lib.math.units.Distance
-import frc.team5190.lib.math.units.Inches
+import frc.team5190.lib.mathematics.units.Distance
+import frc.team5190.lib.mathematics.units.Inches
 import frc.team5190.lib.utils.statefulvalue.StatefulValue
 import frc.team5190.robot.Constants
 
@@ -19,7 +19,7 @@ class ClosedLoopElevatorCommand(private val distance: Distance? = null) : Comman
     init {
         if (distance != null) {
             // Only finish command if it has an objective
-            finishCondition += StatefulValue { (ElevatorSubsystem.currentPosition - targetPosition).absoluteValue < Constants.kElevatorClosedLpTolerance }
+            _finishCondition += StatefulValue { (ElevatorSubsystem.currentPosition - targetPosition).absoluteValue < Constants.kElevatorClosedLpTolerance }
         }
     }
 

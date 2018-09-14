@@ -28,7 +28,7 @@ class NonLinearControllerTest {
     @Test
     fun testTrajectoryFollower() {
         val name = "Center Start to Left Switch"
-        val trajectory: Trajectory<TimedState<Pose2dWithCurvature>> = Trajectories.leftStartToFarScale
+        val trajectory: Trajectory<TimedState<Pose2dWithCurvature>> = Trajectories.centerStartToLeftSwitch
         val iterator = TrajectoryIterator(TimedView(trajectory))
         trajectoryFollower = NonLinearController(trajectory, 0.30, 0.85)
 

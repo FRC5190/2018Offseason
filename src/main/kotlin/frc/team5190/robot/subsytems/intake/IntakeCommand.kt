@@ -16,7 +16,7 @@ class IntakeCommand(private val direction: IntakeSubsystem.Direction,
                     private val speed: DoubleSource = Source(1.0)) : Command(IntakeSubsystem) {
 
     init {
-        if (direction == IntakeSubsystem.Direction.IN) finishCondition += CubeSensors.cubeIn
+        if (direction == IntakeSubsystem.Direction.IN) _finishCondition += CubeSensors.cubeIn
     }
 
     override suspend fun initialize() {

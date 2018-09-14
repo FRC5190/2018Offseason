@@ -8,13 +8,9 @@ package frc.team5190.robot.sensors
 import com.ctre.phoenix.sensors.PigeonIMU
 import com.kauailabs.navx.frc.AHRS
 import edu.wpi.first.wpilibj.I2C
-import frc.team5190.lib.math.geometry.Rotation2d
-import frc.team5190.lib.utils.DoubleSource
+import frc.team5190.lib.mathematics.twodim.geometry.Rotation2d
 import frc.team5190.lib.utils.Source
 import frc.team5190.robot.Constants
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
-import java.util.concurrent.TimeUnit
 
 var ahrsSensorType = AHRSSensorType.Pigeon
 

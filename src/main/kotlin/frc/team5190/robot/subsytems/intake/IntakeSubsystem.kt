@@ -7,11 +7,10 @@ package frc.team5190.robot.subsytems.intake
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.NeutralMode
-import edu.wpi.first.wpilibj.AnalogInput
 import edu.wpi.first.wpilibj.Solenoid
 import frc.team5190.lib.commands.Subsystem
-import frc.team5190.lib.math.units.Amps
-import frc.team5190.lib.math.units.Volts
+import frc.team5190.lib.mathematics.units.Amps
+import frc.team5190.lib.mathematics.units.Volts
 import frc.team5190.lib.wrappers.FalconSRX
 import frc.team5190.robot.Constants
 

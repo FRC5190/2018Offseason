@@ -17,7 +17,7 @@ class CharacterizationCommand : Command(DriveSubsystem) {
         get() = (DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity) / 2.0
 
     init {
-        finishCondition += StatefulValue { outPct > 1.0 }
+        _finishCondition += StatefulValue { outPct > 1.0 }
         executeFrequency = 1
     }
 

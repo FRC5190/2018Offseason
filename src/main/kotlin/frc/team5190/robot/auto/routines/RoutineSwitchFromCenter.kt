@@ -1,12 +1,8 @@
 package frc.team5190.robot.auto.routines
 
-import frc.team5190.lib.commands.Command
-import frc.team5190.lib.commands.DelayCommand
-import frc.team5190.lib.commands.StatefulBooleanCommand
-import frc.team5190.lib.commands.StatefulValue
-import frc.team5190.lib.extensions.parallel
-import frc.team5190.lib.math.geometry.Pose2d
-import frc.team5190.lib.math.geometry.Translation2d
+import frc.team5190.lib.commands.*
+import frc.team5190.lib.mathematics.twodim.geometry.Pose2d
+import frc.team5190.lib.mathematics.twodim.geometry.Translation2d
 import frc.team5190.lib.utils.Source
 import frc.team5190.lib.utils.map
 import frc.team5190.robot.auto.StartingPositions
@@ -40,11 +36,11 @@ class RoutineSwitchFromCenter(startingPosition: Source<StartingPositions>,
                 Trajectories.kSwitchLeftAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-0.2, 0.0)))
                         .translation.let { mirrored.map(it.mirror, it) })
 
-        drop1stCube.commandStateValue.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
-        toCenter.commandStateValue.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
-        toPyramid.commandStateValue.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
-        toCenter2.commandStateValue.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
-        drop2ndCube.commandStateValue.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
+        drop1stCube.commandState.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
+        toCenter.commandState.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
+        toPyramid.commandState.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
+        toCenter2.commandState.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
+        drop2ndCube.commandState.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
 
         shoot1stCube.condition.invokeOnceOnChange { println("Shoot 1st Cube: $it") }
         shoot2ndCube.condition.invokeOnceOnChange { println("Shoot 2nd Cube: $it") }

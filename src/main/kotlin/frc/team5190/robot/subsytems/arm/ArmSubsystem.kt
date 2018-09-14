@@ -9,10 +9,9 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.NeutralMode
 import frc.team5190.lib.commands.Subsystem
-import frc.team5190.lib.math.units.Amps
-import frc.team5190.lib.math.units.Distance
-import frc.team5190.lib.math.units.NativeUnits
-import frc.team5190.lib.utils.launchFrequency
+import frc.team5190.lib.mathematics.units.Amps
+import frc.team5190.lib.mathematics.units.Distance
+import frc.team5190.lib.mathematics.units.NativeUnits
 import frc.team5190.lib.wrappers.FalconSRX
 import frc.team5190.robot.Constants
 
@@ -30,22 +29,22 @@ object ArmSubsystem : Subsystem() {
 
     init {
         armMaster.apply {
-            inverted       = true
-            encoderPhase   = false
+            inverted = true
+            encoderPhase = false
             feedbackSensor = FeedbackDevice.Analog
 
             peakFwdOutput = 1.0
             peakRevOutput = -1.0
 
-            kP                  = Constants.kPArm
-            kF                  = Constants.kVArm
+            kP = Constants.kPArm
+            kF = Constants.kVArm
             closedLoopTolerance = Constants.kArmClosedLpTolerance
 
-            continuousCurrentLimit  = Amps(20)
+            continuousCurrentLimit = Amps(20)
             currentLimitingEnabled = true
 
             motionCruiseVelocity = Constants.kArmMotionMagicVelocity
-            motionAcceleration   = Constants.kArmMotionMagicAcceleration
+            motionAcceleration = Constants.kArmMotionMagicAcceleration
 
             brakeMode = NeutralMode.Brake
         }

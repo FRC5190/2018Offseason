@@ -2,7 +2,7 @@ package frc.team5190.robot.auto.routines
 
 import frc.team5190.lib.commands.Command
 import frc.team5190.lib.commands.InstantRunnableCommand
-import frc.team5190.lib.extensions.sequential
+import frc.team5190.lib.commands.sequential
 import frc.team5190.lib.utils.Source
 import frc.team5190.robot.Localization
 import frc.team5190.robot.NetworkInterface

@@ -7,8 +7,8 @@ package frc.team5190.robot.subsytems.elevator
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Command
-import frc.team5190.lib.math.units.Distance
-import frc.team5190.lib.math.units.Inches
+import frc.team5190.lib.mathematics.units.Distance
+import frc.team5190.lib.mathematics.units.Inches
 import frc.team5190.lib.utils.statefulvalue.StatefulValue
 import frc.team5190.lib.utils.statefulvalue.and
 import frc.team5190.lib.utils.statefulvalue.not
@@ -24,7 +24,7 @@ class LidarElevatorCommand : Command(ElevatorSubsystem) {
     }
 
     init {
-        finishCondition += !CubeSensors.cubeIn and StatefulValue {
+        _finishCondition += !CubeSensors.cubeIn and StatefulValue {
             ElevatorSubsystem.currentPosition > ElevatorSubsystem.kFirstStagePosition - Inches(1.0, ElevatorSubsystem.settings)
         }
     }

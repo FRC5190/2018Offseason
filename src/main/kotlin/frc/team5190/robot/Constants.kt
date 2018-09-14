@@ -5,11 +5,10 @@
 
 package frc.team5190.robot
 
-import frc.team5190.lib.math.geometry.Pose2d
-import frc.team5190.lib.math.geometry.Rotation2d
-import frc.team5190.lib.math.geometry.Translation2d
-import frc.team5190.lib.math.units.*
-import frc.team5190.robot.subsytems.elevator.ElevatorSubsystem
+import frc.team5190.lib.mathematics.twodim.geometry.Pose2d
+import frc.team5190.lib.mathematics.twodim.geometry.Rotation2d
+import frc.team5190.lib.mathematics.twodim.geometry.Translation2d
+import frc.team5190.lib.mathematics.units.*
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 object Constants {
@@ -82,6 +81,9 @@ object Constants {
     const val kVDrive = 0.656 // 1023 units per STU (velocity)
     const val kADrive = 0.030 // 1023 units per STU (acceleration)
     const val kSDrive = 0.050 // %
+
+    const val kDriveBeta = 0.30
+    const val kDriveZeta = 0.85
 
     // ELEVATOR PID
     const val kPElevator = 0.3
