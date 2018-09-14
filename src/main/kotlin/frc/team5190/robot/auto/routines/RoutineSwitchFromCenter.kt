@@ -30,16 +30,34 @@ class RoutineSwitchFromCenter(startingPosition: Source<StartingPositions>,
         val drop2ndCube = FollowTrajectoryCommand(Trajectories.centerToSwitch, mirrored)
 
         return sequential {
-            parallel {
+            +parallel {
                 +drop1stCube
                 +SubsystemPreset.SWITCH.command
-                sequential {
+                +sequential {
                     +DelayCommand(((drop1stCube.trajectory.value.lastState.t - 0.2) * 1000).toLong(), TimeUnit.MILLISECONDS)
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT).withTimeout(200, TimeUnit.MILLISECONDS)
+                    +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.5)).withTimeout(200, TimeUnit.MILLISECONDS)
                 }
             }
-
-
+            +parallel {
+                +toCenter
+                +sequential {
+                    +DelayCommand(500, TimeUnit.MILLISECONDS)
+                    +SubsystemPreset.INTAKE.command
+                }
+            }
+            +parallel {
+                +toPyramid
+                +IntakeCommand(IntakeSubsystem.Direction.IN).withTimeout(3L, TimeUnit.SECONDS)
+            }
+            +toCenter2
+            +parallel {
+                +drop2ndCube
+                +SubsystemPreset.SWITCH.command
+                +sequential {
+                    +DelayCommand(((drop2ndCube.trajectory.value.lastState.t - 0.2) * 1000).toLong(), TimeUnit.MILLISECONDS)
+                    +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.5)).withTimeout(200, TimeUnit.MILLISECONDS)
+                }
+            }
         }
     }
 }
