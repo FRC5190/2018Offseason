@@ -1,8 +1,8 @@
 package frc.team5190.robot.auto.routines
 
-import frc.team5190.lib.commands.*
-import frc.team5190.lib.mathematics.twodim.geometry.Pose2d
-import frc.team5190.lib.mathematics.twodim.geometry.Translation2d
+import frc.team5190.lib.commands.Command
+import frc.team5190.lib.commands.DelayCommand
+import frc.team5190.lib.commands.sequential
 import frc.team5190.lib.utils.Source
 import frc.team5190.lib.utils.map
 import frc.team5190.robot.auto.StartingPositions
@@ -11,9 +11,7 @@ import frc.team5190.robot.subsytems.SubsystemPreset
 import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
 import frc.team5190.robot.subsytems.intake.IntakeCommand
 import frc.team5190.robot.subsytems.intake.IntakeSubsystem
-import frc.team5190.robot.subsytems.led.BlinkingLEDCommand
 import openrio.powerup.MatchData
-import java.awt.Color
 import java.util.concurrent.TimeUnit
 
 class RoutineSwitchFromCenter(startingPosition: Source<StartingPositions>,

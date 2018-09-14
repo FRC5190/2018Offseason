@@ -12,7 +12,10 @@ import frc.team5190.robot.auto.StartingPositions
 import frc.team5190.robot.auto.Trajectories
 import frc.team5190.robot.subsytems.SubsystemPreset
 import frc.team5190.robot.subsytems.arm.ArmSubsystem
+import frc.team5190.robot.subsytems.arm.ClosedLoopArmCommand
 import frc.team5190.robot.subsytems.drive.FollowTrajectoryCommand
+import frc.team5190.robot.subsytems.elevator.ClosedLoopElevatorCommand
+import frc.team5190.robot.subsytems.elevator.ElevatorSubsystem
 import frc.team5190.robot.subsytems.intake.IntakeCommand
 import frc.team5190.robot.subsytems.intake.IntakeSubsystem
 import openrio.powerup.MatchData
@@ -53,6 +56,8 @@ class RoutineSwitchScaleFromCenter(startingPosition: Source<StartingPositions>,
             }
             +parallel {
                 +drop2ndCube
+                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition)
+                +ClosedLoopArmCommand(ArmSubsystem.kUpPosition)
                 +sequential {
                     +DelayCommand(((drop2ndCube.trajectory.value.lastState.t - 1.75) * 1000).toLong(), TimeUnit.MILLISECONDS)
                     +SubsystemPreset.BEHIND.command
