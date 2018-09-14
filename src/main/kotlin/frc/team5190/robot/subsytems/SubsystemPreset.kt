@@ -7,9 +7,8 @@ package frc.team5190.robot.subsytems
 
 import frc.team5190.lib.commands.Command
 import frc.team5190.lib.commands.parallel
-import frc.team5190.lib.utils.statefulvalue.StatefulValue
-import frc.team5190.lib.wrappers.hid.FalconHIDButtonBuilder
 import frc.team5190.lib.mathematics.units.NativeUnits
+import frc.team5190.lib.wrappers.hid.FalconHIDButtonBuilder
 import frc.team5190.robot.subsytems.arm.ArmSubsystem
 import frc.team5190.robot.subsytems.arm.ClosedLoopArmCommand
 import frc.team5190.robot.subsytems.elevator.ClosedLoopElevatorCommand
@@ -21,7 +20,7 @@ enum class SubsystemPreset(private val builder: () -> Command) {
         parallel {
             +ClosedLoopArmCommand(ArmSubsystem.kDownPosition)
             sequential {
-                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(StatefulValue {
+                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(frc.team5190.lib.utils.observabletype.UpdatableObservableValue {
                     ArmSubsystem.currentPosition < ArmSubsystem.kUpPosition + NativeUnits(100)
                 })
                 +ClosedLoopElevatorCommand(ElevatorSubsystem.kIntakePosition)
@@ -32,7 +31,7 @@ enum class SubsystemPreset(private val builder: () -> Command) {
         parallel {
             +ClosedLoopArmCommand(ArmSubsystem.kMiddlePosition)
             sequential {
-                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(StatefulValue {
+                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(frc.team5190.lib.utils.observabletype.UpdatableObservableValue {
                     ElevatorSubsystem.currentPosition < ElevatorSubsystem.kSwitchPosition
                             || ArmSubsystem.currentPosition < ArmSubsystem.kUpPosition + NativeUnits(100)
                 })
@@ -50,7 +49,7 @@ enum class SubsystemPreset(private val builder: () -> Command) {
         parallel {
             +LidarElevatorCommand()
             sequential {
-                +ClosedLoopArmCommand(ArmSubsystem.kUpPosition + NativeUnits(75)).withExit(StatefulValue {
+                +ClosedLoopArmCommand(ArmSubsystem.kUpPosition + NativeUnits(75)).withExit(frc.team5190.lib.utils.observabletype.UpdatableObservableValue {
                     ElevatorSubsystem.currentPosition > ElevatorSubsystem.kFirstStagePosition
                 })
                 +ClosedLoopArmCommand(ArmSubsystem.kBehindPosition)

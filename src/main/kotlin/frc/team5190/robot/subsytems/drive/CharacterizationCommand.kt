@@ -2,7 +2,8 @@ package frc.team5190.robot.subsytems.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Command
-import frc.team5190.lib.utils.statefulvalue.StatefulValue
+import frc.team5190.lib.utils.observabletype.ObservableValue
+import frc.team5190.lib.utils.observabletype.UpdatableObservableValue
 import org.apache.commons.math3.stat.regression.SimpleRegression
 
 class CharacterizationCommand : Command(DriveSubsystem) {
@@ -17,7 +18,7 @@ class CharacterizationCommand : Command(DriveSubsystem) {
         get() = (DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity) / 2.0
 
     init {
-        _finishCondition += StatefulValue { outPct > 1.0 }
+        _finishCondition += UpdatableObservableValue { outPct > 1.0 }
         executeFrequency = 1
     }
 

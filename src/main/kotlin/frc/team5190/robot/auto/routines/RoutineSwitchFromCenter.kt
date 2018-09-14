@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit
 
 class RoutineSwitchFromCenter(startingPosition: Source<StartingPositions>,
                               private val switchSide: Source<MatchData.OwnedSide>) : AutoRoutine(startingPosition) {
+
     override fun createRoutine(): Command {
         val switch = switchSide.withEquals(MatchData.OwnedSide.LEFT)
         val mirrored = switchSide.withEquals(MatchData.OwnedSide.RIGHT)
@@ -28,46 +29,17 @@ class RoutineSwitchFromCenter(startingPosition: Source<StartingPositions>,
         val toCenter2 = FollowTrajectoryCommand(Trajectories.pyramidToCenter)
         val drop2ndCube = FollowTrajectoryCommand(Trajectories.centerToSwitch, mirrored)
 
-        val shoot1stCube = drop1stCube.addMarkerAt(
-                Trajectories.kSwitchLeftAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-0.2, 0.0)))
-                        .translation.let { mirrored.map(it.mirror, it) })
-
-        val shoot2ndCube = drop2ndCube.addMarkerAt(
-                Trajectories.kSwitchLeftAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-0.2, 0.0)))
-                        .translation.let { mirrored.map(it.mirror, it) })
-
-        drop1stCube.commandState.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
-        toCenter.commandState.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
-        toPyramid.commandState.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
-        toCenter2.commandState.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
-        drop2ndCube.commandState.invokeOnChange { "Drop 1st Cube changed to ${it.name}" }
-
-        shoot1stCube.condition.invokeOnceOnChange { println("Shoot 1st Cube: $it") }
-        shoot2ndCube.condition.invokeOnceOnChange { println("Shoot 2nd Cube: $it") }
-
-        return parallel {
-            sequential {
+        return sequential {
+            parallel {
                 +drop1stCube
-                +toCenter
-                +toPyramid
-                +toCenter2
-                +drop2ndCube
+                +SubsystemPreset.SWITCH.command
+                sequential {
+                    +DelayCommand(((drop1stCube.trajectory.value.lastState.t - 0.2) * 1000).toLong(), TimeUnit.MILLISECONDS)
+                    +IntakeCommand(IntakeSubsystem.Direction.OUT).withTimeout(200, TimeUnit.MILLISECONDS)
+                }
             }
-            sequential {
-                +DelayCommand(250L, TimeUnit.MILLISECONDS)
-                +SubsystemPreset.SWITCH.command//.withExit(StatefulValue(drop1stCube))
-                +BlinkingLEDCommand(Color.RED, 200).withTimeout(500L)
-                +StatefulBooleanCommand(shoot1stCube.condition)
-                +IntakeCommand(IntakeSubsystem.Direction.OUT).withTimeout(500L)
-                +SubsystemPreset.INTAKE.command.withExit(StatefulValue(toPyramid))
-                +BlinkingLEDCommand(Color.BLUE, 200).withTimeout(500L)
-                +StatefulBooleanCommand(StatefulValue(toCenter))
-                +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(StatefulValue(toCenter2))
-                +SubsystemPreset.SWITCH.command//.withExit(StatefulValue(drop2ndCube))
-                +BlinkingLEDCommand(Color.GREEN, 200).withTimeout(500L)
-                +StatefulBooleanCommand(shoot2ndCube.condition)
-                +IntakeCommand(IntakeSubsystem.Direction.OUT)
-            }
+
+
         }
     }
 }

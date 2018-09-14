@@ -5,21 +5,16 @@ import frc.team5190.lib.commands.StateCommandGroupBuilder
 import frc.team5190.lib.commands.stateCommandGroup
 import frc.team5190.lib.mathematics.twodim.geometry.Pose2d
 import frc.team5190.lib.utils.Source
-import frc.team5190.lib.utils.launchFrequency
-import frc.team5190.lib.utils.statefulvalue.StatefulValue
-import frc.team5190.lib.utils.statefulvalue.StatefulValueImpl
-import frc.team5190.lib.utils.statefulvalue.and
-import frc.team5190.lib.utils.statefulvalue.not
+import frc.team5190.lib.utils.observabletype.ObservableValue
+import frc.team5190.lib.utils.observabletype.UpdatableObservableValue
+import frc.team5190.lib.utils.observabletype.and
+import frc.team5190.lib.utils.observabletype.not
 import frc.team5190.lib.wrappers.FalconRobotBase
 import frc.team5190.robot.NetworkInterface
 import frc.team5190.robot.auto.routines.*
-import kotlinx.coroutines.experimental.newSingleThreadContext
 import openrio.powerup.MatchData
 
 object Autonomous {
-
-    private val autoContext = newSingleThreadContext("Autonomous")
-
     object Config {
         val startingPosition = Source { StartingPositions.valueOf(NetworkInterface.startingPosition.toUpperCase()) }
         val switchSide = autoConfigListener { MatchData.getOwnedSide(MatchData.GameFeature.SWITCH_NEAR) }
@@ -31,8 +26,8 @@ object Autonomous {
 
     private val farScale = Config.startingPosition.withMerge(Config.scaleSide.asSource()) { one, two -> !one.name.first().equals(two.name.first(), true) }
 
-    private var configValid = Config.switchSide.withProcessing { it != MatchData.OwnedSide.UNKNOWN } and Config.scaleSide.withProcessing { it != MatchData.OwnedSide.UNKNOWN }
-    private val shouldPoll = !(StatefulValue(5) { FalconRobotBase.INSTANCE.run { isAutonomous && isEnabled } } and configValid)
+    private var configValid = Config.switchSide.withProcessing { it != MatchData.OwnedSide.UNKNOWN } and Config.scaleSide.map { it != MatchData.OwnedSide.UNKNOWN }
+    private val shouldPoll = !(UpdatableObservableValue(5) { FalconRobotBase.INSTANCE.run { isAutonomous && isEnabled } } and configValid)
 
     // Autonomous Master Group
 
@@ -80,16 +75,7 @@ object Autonomous {
 
 
     private fun <T> StateCommandGroupBuilder<T>.state(state: T, routine: AutoRoutine) = state(state, routine.create())
-
-    private fun <T> autoConfigListener(block: () -> T): StatefulValue<T> = AutoState(block = block)
-
-    private class AutoState<T>(private val block: () -> T) : StatefulValueImpl<T>(block()) {
-        init {
-            launchFrequency(20, autoContext) {
-                changeValue(block())
-            }
-        }
-    }
+    private fun <T> autoConfigListener(block: () -> T): ObservableValue<T> = UpdatableObservableValue(block = block)
 
 }
 

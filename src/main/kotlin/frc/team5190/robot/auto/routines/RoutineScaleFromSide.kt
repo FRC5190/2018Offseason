@@ -43,52 +43,6 @@ class RoutineScaleFromSide(startingPosition: Source<StartingPositions>,
         val shoot3rdCube = drop3rdCube.addMarkerAt(Translation2d(22.5, 19.9))
 
         return parallel {
-            sequential {
-                +drop1stCube
-//                +ConditionCommand(condition { ElevatorSubsystem.currentPosition < ElevatorSubsystem.Position.FSTAGE.distance })
-                +pickup2ndCube
-                +after2ndCube
-                +drop2ndCube
-                +pickup3rdCube
-                +drop3rdCube
-                +pickup4thCube
-            }
-            sequential {
-                +DelayCommand(250, TimeUnit.MILLISECONDS)
-
-                parallel {
-                    +ClosedLoopElevatorCommand(ElevatorSubsystem.kSwitchPosition)
-                    +ClosedLoopArmCommand(ArmSubsystem.kUpPosition)
-                }.withTimeout(1, TimeUnit.SECONDS)
-
-                +ConditionCommand(elevatorUp.condition or drop1stCube)
-                +SubsystemPreset.BEHIND.command.withExit(condition(drop1stCube))
-                +ConditionCommand(shoot1stCube.condition or drop1stCube)
-                +IntakeCommand(IntakeSubsystem.Direction.OUT).withExit(condition(drop1stCube))
-
-                parallel {
-                    +SubsystemPreset.INTAKE.command.withExit(condition(pickup2ndCube))
-                    +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(condition(pickup2ndCube))
-                }
-
-                +SubsystemPreset.BEHIND.command.withExit(condition(drop2ndCube))
-                +ConditionCommand(shoot2ndCube.condition)
-                +IntakeCommand(IntakeSubsystem.Direction.OUT).withExit(condition(drop2ndCube))
-
-                parallel {
-                    +SubsystemPreset.INTAKE.command.withExit(condition(pickup3rdCube))
-                    +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(condition(pickup3rdCube))
-                }
-
-                +SubsystemPreset.BEHIND.command.withExit(condition(drop3rdCube))
-                +ConditionCommand(shoot3rdCube.condition)
-                +IntakeCommand(IntakeSubsystem.Direction.OUT).withTimeout(500L)
-
-                parallel {
-                    +SubsystemPreset.INTAKE.command.withExit(condition(pickup4thCube))
-                    +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(condition(pickup4thCube))
-                }
-            }
         }
     }
 }

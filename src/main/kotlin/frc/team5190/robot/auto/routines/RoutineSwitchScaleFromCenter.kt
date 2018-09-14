@@ -35,25 +35,6 @@ class RoutineSwitchScaleFromCenter(startingPosition: Source<StartingPositions>,
         val shoot2ndCube = drop2ndCube.addMarkerAt((Translation2d(22.3, 20.6)).let { scaleMirrored.map(it.mirror, it) })
 
         return parallel {
-            sequential {
-                +drop1stCube
-                +toCenter
-                +toPyramid
-                +drop2ndCube
-            }
-            sequential {
-                +DelayCommand(250L, TimeUnit.MILLISECONDS)
-                +SubsystemPreset.SWITCH.command.withExit(StatefulValue(drop1stCube))
-                +StatefulBooleanCommand(shoot1stCube.condition)
-                +IntakeCommand(IntakeSubsystem.Direction.OUT).withTimeout(500L)
-                +SubsystemPreset.INTAKE.command.withExit(StatefulValue(toCenter))
-                +StatefulBooleanCommand(StatefulValue(toCenter))
-                +IntakeCommand(IntakeSubsystem.Direction.IN).withExit(StatefulValue(toPyramid))
-                +StatefulBooleanCommand(elevatorUp.condition)
-                +SubsystemPreset.BEHIND.command.withExit(StatefulValue(drop2ndCube))
-                +StatefulBooleanCommand(shoot2ndCube.condition)
-                +IntakeCommand(IntakeSubsystem.Direction.OUT)
-            }
         }
     }
 }

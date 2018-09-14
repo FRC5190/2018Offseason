@@ -17,16 +17,14 @@ import frc.team5190.lib.mathematics.units.FeetPerSecond
 import frc.team5190.lib.utils.BooleanSource
 import frc.team5190.lib.utils.Source
 import frc.team5190.lib.utils.l
+import frc.team5190.lib.utils.observabletype.*
 import frc.team5190.lib.utils.r
-import frc.team5190.lib.utils.statefulvalue.StatefulBoolean
-import frc.team5190.lib.utils.statefulvalue.StatefulValue
-import frc.team5190.lib.utils.statefulvalue.StatefulVariable
 import frc.team5190.robot.Constants
 import frc.team5190.robot.Kinematics
 import frc.team5190.robot.Localization
 import kotlin.math.sign
 
-class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedState<Pose2dWithCurvature>>>,
+class FollowTrajectoryCommand(val trajectory: Source<Trajectory<TimedState<Pose2dWithCurvature>>>,
                               pathMirrored: BooleanSource = Source(false)) : Command(DriveSubsystem) {
 
     constructor(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>,
@@ -58,7 +56,7 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
             dataArray.add(iterator.advance(0.05))
         }
         markerLocations.forEach { marker ->
-            val condition = marker.condition as StatefulVariable<Boolean>
+            val condition = marker.condition as ObservableVariable<Boolean>
             condition.value = false // make sure its false
 
             val usedLocation = marker.location.value
@@ -68,11 +66,11 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
         // Initialize path follower
         trajectoryFollower = NonLinearController(trajectoryUsed, Constants.kDriveBeta, Constants.kDriveZeta)
 
-        _finishCondition += StatefulValue { trajectoryFollower.isFinished }
+        _finishCondition += UpdatableObservableValue { trajectoryFollower.isFinished }
     }
 
     fun addMarkerAt(location: Translation2d) = addMarkerAt(Source(location))
-    fun addMarkerAt(location: Source<Translation2d>) = Marker(location, StatefulVariable(false)).also { markerLocations.add(it) }
+    fun addMarkerAt(location: Source<Translation2d>) = Marker(location, ObservableVariable(false)).also { markerLocations.add(it) }
 
     private fun updateDashboard() {
         pathX = trajectoryFollower.pose.translation.x
@@ -134,8 +132,8 @@ class FollowTrajectoryCommand(private val trajectory: Source<Trajectory<TimedSta
             private set
     }
 
-    class Marker(val location: Source<Translation2d>, val condition: StatefulBoolean)
-    private class MarkerInternal(val t: Double, val condition: StatefulVariable<Boolean>)
+    class Marker(val location: Source<Translation2d>, val condition: ObservableValue<Boolean>)
+    private class MarkerInternal(val t: Double, val condition: ObservableVariable<Boolean>)
 
     class Output(val lSetpoint: Double, val rSetpoint: Double, val lAdditiveFF: Double, val rAdditiveFF: Double)
 }

@@ -10,7 +10,7 @@ import frc.team5190.lib.commands.Command
 import frc.team5190.lib.mathematics.units.Distance
 import frc.team5190.lib.mathematics.units.Inches
 import frc.team5190.lib.mathematics.units.NativeUnits
-import frc.team5190.lib.utils.statefulvalue.StatefulValue
+import frc.team5190.lib.utils.observabletype.UpdatableObservableValue
 
 class ClosedLoopArmCommand(private val pos: Distance? = null) : Command(ArmSubsystem) {
 
@@ -19,7 +19,7 @@ class ClosedLoopArmCommand(private val pos: Distance? = null) : Command(ArmSubsy
     init {
         if (pos != null) {
             // Only finish command if it has an objective
-            _finishCondition += StatefulValue { (ArmSubsystem.currentPosition - targetPosition).absoluteValue < NativeUnits(50) }
+            _finishCondition += UpdatableObservableValue { (ArmSubsystem.currentPosition - targetPosition).absoluteValue < NativeUnits(50) }
         }
     }
 

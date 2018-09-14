@@ -9,9 +9,9 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import frc.team5190.lib.commands.Command
 import frc.team5190.lib.mathematics.units.Distance
 import frc.team5190.lib.mathematics.units.Inches
-import frc.team5190.lib.utils.statefulvalue.StatefulValue
-import frc.team5190.lib.utils.statefulvalue.and
-import frc.team5190.lib.utils.statefulvalue.not
+import frc.team5190.lib.utils.observabletype.UpdatableObservableValue
+import frc.team5190.lib.utils.observabletype.and
+import frc.team5190.lib.utils.observabletype.not
 import frc.team5190.robot.sensors.CubeSensors
 import frc.team5190.robot.sensors.Lidar
 import java.util.*
@@ -24,7 +24,7 @@ class LidarElevatorCommand : Command(ElevatorSubsystem) {
     }
 
     init {
-        _finishCondition += !CubeSensors.cubeIn and StatefulValue {
+        _finishCondition += !CubeSensors.cubeIn and UpdatableObservableValue {
             ElevatorSubsystem.currentPosition > ElevatorSubsystem.kFirstStagePosition - Inches(1.0, ElevatorSubsystem.settings)
         }
     }
