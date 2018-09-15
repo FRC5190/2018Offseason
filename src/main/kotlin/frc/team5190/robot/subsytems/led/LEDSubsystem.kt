@@ -2,8 +2,10 @@ package frc.team5190.robot.subsytems.led
 
 import frc.team5190.lib.commands.Subsystem
 import frc.team5190.lib.commands.sequential
+import frc.team5190.lib.utils.observabletype.and
 import frc.team5190.lib.utils.observabletype.invokeOnFalse
 import frc.team5190.lib.utils.observabletype.invokeOnTrue
+import frc.team5190.lib.utils.observabletype.not
 import frc.team5190.robot.Controls
 import frc.team5190.robot.sensors.CubeSensors
 import java.awt.Color
@@ -19,13 +21,14 @@ object LEDSubsystem : Subsystem() {
             +SolidLEDCommand(Color.MAGENTA)
         }
 
+        val cubeInAndNotClimbing = CubeSensors.cubeIn and !Controls.isClimbing
+
         val climbingCommand = BlinkingLEDCommand(Color.ORANGE, 500)
 
-        CubeSensors.cubeIn.invokeOnTrue { blinkCommandGroup.start() }
-        CubeSensors.cubeIn.invokeOnFalse { blinkCommandGroup.stop() }
+        cubeInAndNotClimbing.invokeOnTrue { blinkCommandGroup.start() }
+        cubeInAndNotClimbing.invokeOnFalse { blinkCommandGroup.stop() }
 
-
-        Controls.isClimbing.invokeOnChangeTo(true) { blinkCommandGroup.stop(); climbingCommand.start() }
-        Controls.isClimbing.invokeOnChangeTo(false) { climbingCommand.stop() }
+        Controls.isClimbing.invokeOnTrue { climbingCommand.start() }
+        Controls.isClimbing.invokeOnFalse { climbingCommand.stop() }
     }
 }
