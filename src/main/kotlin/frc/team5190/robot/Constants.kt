@@ -93,12 +93,16 @@ object Constants {
     const val kPArm = 4.5
     const val kVArm = 16.78 + 0.9  // 1023 units per STU (velocity)
 
+    // CLIMBER PID
+    const val kPClimber = 2.0
+
     // LIMITS
     val kElevatorSoftLimitFwd = NativeUnits(22500)
 
     // TOLERANCE
     val kElevatorClosedLpTolerance = Inches(0.25)
     val kArmClosedLpTolerance      = Inches(0.0)
+    val kClimberClosedLpTolerance  = NativeUnits(1000)
 
     // MOTION MAGIC
     val kElevatorMotionMagicVelocity     = InchesPerSecond(72.0, preferences { radius = 1.25 / 2.0 })
@@ -106,4 +110,7 @@ object Constants {
 
     val kArmMotionMagicVelocity           = NativeUnitsPer100Ms(1000000)
     const val kArmMotionMagicAcceleration = 400
+
+    val kClimberMotionMagicVelocity           = NativeUnitsPer100Ms(1000000)
+    const val kClimberMotionMagicAcceleration = 12000
 }

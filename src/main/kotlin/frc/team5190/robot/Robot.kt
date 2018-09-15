@@ -12,6 +12,7 @@ import frc.team5190.robot.sensors.AHRSSensorType
 import frc.team5190.robot.sensors.Lidar
 import frc.team5190.robot.sensors.ahrsSensorType
 import frc.team5190.robot.subsytems.arm.ArmSubsystem
+import frc.team5190.robot.subsytems.climber.ClimberSubsystem
 import frc.team5190.robot.subsytems.drive.DriveSubsystem
 import frc.team5190.robot.subsytems.elevator.ElevatorSubsystem
 import frc.team5190.robot.subsytems.intake.IntakeSubsystem
@@ -28,6 +29,7 @@ class Robot : FalconRobotBase() {
         +DriveSubsystem
         +ArmSubsystem
         +ElevatorSubsystem
+        +ClimberSubsystem
         +IntakeSubsystem
         +LEDSubsystem
 
