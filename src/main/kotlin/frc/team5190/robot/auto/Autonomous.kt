@@ -15,22 +15,23 @@ import frc.team5190.robot.auto.routines.*
 import openrio.powerup.MatchData
 
 object Autonomous {
+
     object Config {
-        val startingPosition = Source { StartingPositions.valueOf(NetworkInterface.startingPosition.toUpperCase()) }
+        val startingPosition = Source { NetworkInterface.startingPositionChooser.selected }
         val switchSide = autoConfigListener { MatchData.getOwnedSide(MatchData.GameFeature.SWITCH_NEAR) }
         val scaleSide = autoConfigListener { MatchData.getOwnedSide(MatchData.GameFeature.SCALE) }
-        val switchAutoMode = Source { SwitchAutoMode.valueOf(NetworkInterface.switchAutoMode.toUpperCase()) }
-        val nearScaleAutoMode = Source { ScaleAutoMode.valueOf(NetworkInterface.nearScaleAutoMode.toUpperCase()) }
-        val farScaleAutoMode = Source { ScaleAutoMode.valueOf(NetworkInterface.farScaleAutoMode.toUpperCase()) }
+        val switchAutoMode = Source { NetworkInterface.switchAutoChooser.selected }
+        val nearScaleAutoMode = Source { NetworkInterface.nearScaleAutoChooser.selected }
+        val farScaleAutoMode = Source { NetworkInterface.farScaleAutoChooser.selected }
     }
 
     private val farScale = Config.startingPosition.withMerge(Config.scaleSide.asSource()) { one, two -> !one.name.first().equals(two.name.first(), true) }
 
-    private var configValid = Config.switchSide.withProcessing { it != MatchData.OwnedSide.UNKNOWN } and Config.scaleSide.map { it != MatchData.OwnedSide.UNKNOWN }
+    private var configValid = Config.switchSide.map { it != MatchData.OwnedSide.UNKNOWN } and Config.scaleSide.map { it != MatchData.OwnedSide.UNKNOWN }
     private val shouldPoll = !(UpdatableObservableValue(5) { FalconRobotBase.INSTANCE.run { isAutonomous && isEnabled } } and configValid)
 
-    // Autonomous Master Group
 
+    // Autonomous Master Group
     private val JUST = stateCommandGroup(Config.startingPosition) {
         state(StartingPositions.LEFT, StartingPositions.RIGHT) {
             stateCommandGroup(farScale) {
@@ -41,7 +42,6 @@ object Autonomous {
                     }
                 }
                 state(false) {
-                    println("a5")
                     stateCommandGroup(Config.nearScaleAutoMode) {
                         state(ScaleAutoMode.THREECUBE, RoutineScaleFromSide(Config.startingPosition, Config.scaleSide.asSource()))
                         state(ScaleAutoMode.BASELINE, RoutineBaseline(Config.startingPosition))
@@ -54,7 +54,6 @@ object Autonomous {
             stateCommandGroup(Config.switchAutoMode) {
                 state(SwitchAutoMode.BASIC, RoutineSwitchFromCenter(Config.startingPosition, Config.switchSide.asSource()))
                 state(SwitchAutoMode.ROBONAUTS, RoutineSwitchScaleFromCenter(Config.startingPosition, Config.switchSide.asSource(), Config.scaleSide.asSource()))
-                println("a3")
             }
         }
     }
@@ -63,20 +62,17 @@ object Autonomous {
         @Suppress("LocalVariableName")
         val IT = ""
         shouldPoll.invokeOnChange {
-            println("a1")
             if (it) return@invokeOnChange
             JUST S3ND IT
         }
         FalconRobotBase.INSTANCE.modeStateMachine.onLeave(listOf(FalconRobotBase.Mode.AUTONOMOUS)) {
             JUST.stop()
         }
-        println("a2")
     }
 
 
     private fun <T> StateCommandGroupBuilder<T>.state(state: T, routine: AutoRoutine) = state(state, routine.create())
     private fun <T> autoConfigListener(block: () -> T): ObservableValue<T> = UpdatableObservableValue(block = block)
-
 }
 
 enum class StartingPositions(val pose: Pose2d) {
