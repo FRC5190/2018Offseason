@@ -1,5 +1,8 @@
 # 5190 Offseason 2018
 
+[![Build Status](https://dev.azure.com/frc5190/FRC%202018%20Power%20Up/_apis/build/status/Offseason%20Code)](https://dev.azure.com/frc5190/FRC%202018%20Power%20Up/_build/latest?definitionId=3)
+
+
 This repository is broken up into various submodules. Each submodule contains a different aspect of the FRC Team 5190 Offseason projects or FRC Team 5190 unreleased projects during the 2018 POWER UP competition season.
 
 ### ```robot```
