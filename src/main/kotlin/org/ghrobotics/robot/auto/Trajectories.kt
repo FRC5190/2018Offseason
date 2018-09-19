@@ -172,7 +172,7 @@ object Trajectories {
                           constraints: ArrayList<TimingConstraint<Pose2dWithCurvature>> = kConstraints,
                           vararg rectangle2d: Rectangle2d): Trajectory<TimedState<Pose2dWithCurvature>> {
 
-            if (points.size != 2) return generateAStar(reversed, maxVelocity, maxAcceleration, constraints)
+            if (points.size != 2) return generateTrajectory(reversed, maxVelocity, maxAcceleration, constraints)
 
             val kRobotSize = 3.2 // 2.75
 
