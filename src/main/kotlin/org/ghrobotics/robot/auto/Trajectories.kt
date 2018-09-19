@@ -25,10 +25,15 @@ object Trajectories {
     private const val kMaxVelocity = 10.0
     private const val kMaxAcceleration = 4.0
     private const val kMaxCentripetalAcceleration = 4.0
+    private const val kSwitchAutoCentripetalAcceleration = 3.0
 
     // Constraints
     private val kConstraints = arrayListOf<TimingConstraint<Pose2dWithCurvature>>(
             CentripetalAccelerationConstraint(kMaxCentripetalAcceleration))
+
+    private val kSwitchAutoConstraints = arrayListOf<TimingConstraint<Pose2dWithCurvature>>(
+            CentripetalAccelerationConstraint(kSwitchAutoCentripetalAcceleration)
+    )
 
     // Field Relative Constants
     internal val kSideStart = Pose2d(Translation2d(kRobotStartX, kRobotSideStartY), Rotation2d(-1.0, 0.0))
@@ -49,7 +54,7 @@ object Trajectories {
     private val kSwitchLeft = Pose2d(Translation2d(11.9, 18.5), Rotation2d())
     private val kSwitchRight = Pose2d(Translation2d(11.9, 08.5), Rotation2d())
 
-    internal val kSwitchLeftAdjusted = kSwitchLeft.transformBy(kCenterToFrontBumper)
+    private val kSwitchLeftAdjusted = kSwitchLeft.transformBy(kCenterToFrontBumper)
     private val kSwitchRightAdjusted = kSwitchRight.transformBy(kCenterToFrontBumper)
 
     private val kFrontPyramidCube = Pose2d(Translation2d(10.25, 13.5), Rotation2d())
@@ -104,32 +109,32 @@ object Trajectories {
     val centerStartToLeftSwitch = waypoints {
         +kCenterStart
         +kSwitchLeftAdjusted
-    }.generateTrajectory(reversed = false)
+    }.generateTrajectory(reversed = false, constraints = kSwitchAutoConstraints)
 
     val centerStartToRightSwitch = waypoints {
         +kCenterStart
         +kSwitchRightAdjusted
-    }.generateTrajectory(reversed = false)
+    }.generateTrajectory(reversed = false, constraints = kSwitchAutoConstraints)
 
     val switchToCenter = waypoints {
         +kSwitchLeftAdjusted
         +kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-4.0, 0.0)))
-    }.generateTrajectory(reversed = true)
+    }.generateTrajectory(reversed = true, constraints = kSwitchAutoConstraints)
 
     val centerToPyramid = waypoints {
         +kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-4.0, 0.0)))
         +kFrontPyramidCubeAdjusted
-    }.generateTrajectory(reversed = false)
+    }.generateTrajectory(reversed = false, constraints = kSwitchAutoConstraints)
 
     val pyramidToCenter = waypoints {
         +kFrontPyramidCubeAdjusted
         +kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-4.0, 0.0)))
-    }.generateTrajectory(reversed = true)
+    }.generateTrajectory(reversed = true, constraints = kSwitchAutoConstraints)
 
     val centerToSwitch = waypoints {
         +kFrontPyramidCubeAdjusted.transformBy(Pose2d.fromTranslation(Translation2d(-4.0, 0.0)))
         +kSwitchLeftAdjusted
-    }.generateTrajectory(reversed = false)
+    }.generateTrajectory(reversed = false, constraints = kSwitchAutoConstraints)
 
     val pyramidToScale = waypoints {
         +kFrontPyramidCubeAdjusted
@@ -140,7 +145,7 @@ object Trajectories {
 
     val baseline = waypoints {
         +kSideStart
-        +kSideStart.transformBy(Pose2d(Translation2d(-8.0, 0.0), Rotation2d()))
+        +kSideStart.transformBy(Pose2d(Translation2d(-10.0, 0.0), Rotation2d()))
     }.generateTrajectory(reversed = true)
 
     private class Waypoints {

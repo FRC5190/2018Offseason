@@ -9,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.DemandType
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.NeutralMode
+import com.team254.lib.physics.DCMotorTransmission
 import edu.wpi.first.wpilibj.Solenoid
 import org.ghrobotics.lib.commands.Subsystem
 import org.ghrobotics.lib.mathematics.units.*
