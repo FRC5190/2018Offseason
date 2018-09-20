@@ -14,7 +14,7 @@ plugins {
 }
 
 def TEAM = 5190
-def ROBOT_CLASS = "frc.team5190.robot.Robot"
+def ROBOT_CLASS = "org.ghrobotics.robot.Robot"
 
 deploy {
     targets {

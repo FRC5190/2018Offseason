@@ -45,7 +45,7 @@ class FollowTrajectoryCommand(val trajectory: Source<Trajectory<TimedState<Pose2
         // Add markers
         markers.clear()
 
-        trajectoryUsed = if (pathMirrored.value) trajectory.value else trajectory.value.mirrorTimed()
+        trajectoryUsed = if (pathMirrored.value) trajectory.value.mirrorTimed() else trajectory.value
 
         // Iterate through the trajectory and add a data point every 50 ms.
         val iterator = TrajectoryIterator(TimedView(trajectory.value))

@@ -8,11 +8,14 @@ package org.ghrobotics.robot.subsytems.elevator
 import com.ctre.phoenix.motorcontrol.ControlMode
 import org.ghrobotics.lib.mathematics.units.Distance
 import org.ghrobotics.lib.mathematics.units.Inches
+import org.ghrobotics.lib.mathematics.units.NativeUnits
 import org.ghrobotics.lib.utils.observabletype.UpdatableObservableValue
 import org.ghrobotics.lib.utils.observabletype.and
 import org.ghrobotics.lib.utils.observabletype.not
+import org.ghrobotics.robot.Constants
 import org.ghrobotics.robot.sensors.CubeSensors
 import org.ghrobotics.robot.sensors.Lidar
+import org.ghrobotics.robot.subsytems.climber.ClimberSubsystem
 import java.util.*
 
 class LidarElevatorCommand : org.ghrobotics.lib.commands.Command(ElevatorSubsystem) {
@@ -22,10 +25,16 @@ class LidarElevatorCommand : org.ghrobotics.lib.commands.Command(ElevatorSubsyst
                 .withProcessing { it.first to (it.second - heightOffset) }
     }
 
+    private var heightNeeded = 0.0
+
     init {
         _finishCondition += !CubeSensors.cubeIn and UpdatableObservableValue {
-            ElevatorSubsystem.currentPosition > ElevatorSubsystem.kFirstStagePosition - Inches(1.0, ElevatorSubsystem.settings)
+            (ClimberSubsystem.currentPosition - NativeUnits(heightNeeded.toInt(), ElevatorSubsystem.settings)).absoluteValue < Constants.kClimberClosedLpTolerance
         }
+    }
+
+    override suspend fun initialize() {
+        heightNeeded = ElevatorSubsystem.kScalePosition.STU.toDouble()
     }
 
     private val heightBuffer = ArrayDeque<Distance>(3)
@@ -38,11 +47,13 @@ class LidarElevatorCommand : org.ghrobotics.lib.commands.Command(ElevatorSubsyst
 
         if (underScale) heightBuffer.add(scaleHeight)
 
-        ElevatorSubsystem.set(ControlMode.MotionMagic, if (underScale) {
+        heightNeeded = if (underScale) {
             heightBufferAverage.coerceIn(ElevatorSubsystem.kFirstStagePosition.STU.toDouble(),
                     ElevatorSubsystem.kHighScalePosition.STU.toDouble())
         } else {
             ElevatorSubsystem.kScalePosition.STU.toDouble()
-        })
+        }
+
+        ElevatorSubsystem.set(ControlMode.MotionMagic, heightNeeded)
     }
 }

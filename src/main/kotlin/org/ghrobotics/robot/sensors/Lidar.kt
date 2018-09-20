@@ -7,6 +7,8 @@ package org.ghrobotics.robot.sensors
 
 import com.ctre.phoenix.CANifier
 import edu.wpi.first.wpilibj.Servo
+import openrio.powerup.MatchData
+import org.apache.commons.math3.stat.regression.SimpleRegression
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
@@ -18,8 +20,6 @@ import org.ghrobotics.lib.wrappers.FalconRobotBase
 import org.ghrobotics.robot.Constants
 import org.ghrobotics.robot.Localization
 import org.ghrobotics.robot.auto.Autonomous
-import openrio.powerup.MatchData
-import org.apache.commons.math3.stat.regression.SimpleRegression
 
 object Lidar : Source<Pair<Boolean, Distance>> {
 

@@ -17,6 +17,7 @@ abstract class AutoRoutine(protected val startingPosition: Source<StartingPositi
     }
 
     private suspend fun init0() {
+        println("Started Auto Routine")
         NetworkInterface.INSTANCE.getEntry("Reset").setBoolean(true)
         DriveSubsystem.resetEncoders()
         val startingPositionValue = startingPosition.value
