@@ -44,12 +44,12 @@ class RoutineScaleFromSide(startingPosition: Source<StartingPositions>,
 
             var start = 0L
 
-            +parallel {
+            parallel {
                 +drop1stCube
-                +sequential {
+                sequential {
                     +DelayCommand(500, TimeUnit.MILLISECONDS)
 
-                    +parallel {
+                    parallel {
                         +InstantRunnableCommand { start = System.currentTimeMillis() }
                         +ClosedLoopArmCommand(ArmSubsystem.kUpPosition)
                         +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition)
@@ -58,9 +58,9 @@ class RoutineScaleFromSide(startingPosition: Source<StartingPositions>,
                                 .coerceAtLeast(0.001) * 1000
                     })
 
-                    +parallel {
+                    parallel {
                         +SubsystemPreset.BEHIND.command
-                        +sequential {
+                        sequential {
                             +ConditionCommand(UpdatableObservableValue { ArmSubsystem.currentPosition > ArmSubsystem.kBehindPosition - NativeUnits(100) })
                             +DelayCommand(100, TimeUnit.MILLISECONDS)
                             +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(outtakeSpeed)).withTimeout(500, TimeUnit.MILLISECONDS)
@@ -68,50 +68,50 @@ class RoutineScaleFromSide(startingPosition: Source<StartingPositions>,
                     }
                 }
             }
-            +parallel {
+            parallel {
                 +SubsystemPreset.INTAKE.command
                 +IntakeCommand(IntakeSubsystem.Direction.IN).withTimeout(10L, TimeUnit.SECONDS)
-                +sequential {
+                sequential {
                     +DelayCommand(300, TimeUnit.MILLISECONDS)
                     +pickup2ndCube.withExit(CubeSensors.cubeIn)
                 }
             }
-            +parallel {
+            parallel {
                 +drop2ndCube.withExit(UpdatableObservableValue {
                     (ElevatorSubsystem.currentPosition > ElevatorSubsystem.kFirstStagePosition
                             && !CubeSensors.cubeIn.value &&
                             ArmSubsystem.currentPosition > ArmSubsystem.kBehindPosition - NativeUnits(100))
                 })
-                +sequential {
+                sequential {
                     +DelayCommand(((drop2ndCube.trajectory.value.lastState.t - 2.7) * 1000).toLong(), TimeUnit.MILLISECONDS)
                     +SubsystemPreset.BEHIND.command
                 }
-                +sequential {
+                sequential {
                     +ConditionCommand(UpdatableObservableValue { ArmSubsystem.currentPosition > ArmSubsystem.kBehindPosition - NativeUnits(100) })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.4)).withTimeout(500, TimeUnit.MILLISECONDS)
                 }
             }
-            +parallel {
+            parallel {
                 +SubsystemPreset.INTAKE.command
                 +IntakeCommand(IntakeSubsystem.Direction.IN).withTimeout(10L, TimeUnit.SECONDS)
                 +pickup3rdCube.withExit(CubeSensors.cubeIn)
             }
-            +parallel {
+            parallel {
                 +drop3rdCube.withExit(UpdatableObservableValue {
                     (ElevatorSubsystem.currentPosition > ElevatorSubsystem.kFirstStagePosition
                             && !CubeSensors.cubeIn.value &&
                             ArmSubsystem.currentPosition > ArmSubsystem.kBehindPosition - NativeUnits(100))
                 })
-                +sequential {
+                sequential {
                     +DelayCommand(((drop3rdCube.trajectory.value.lastState.t - 2.7) * 1000).toLong(), TimeUnit.MILLISECONDS)
                     +SubsystemPreset.BEHIND.command
                 }
-                +sequential {
+                sequential {
                     +ConditionCommand(UpdatableObservableValue { ArmSubsystem.currentPosition > ArmSubsystem.kBehindPosition - NativeUnits(100) })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.4)).withTimeout(500, TimeUnit.MILLISECONDS)
                 }
             }
-            +parallel {
+            parallel {
                 +SubsystemPreset.INTAKE.command
                 +IntakeCommand(IntakeSubsystem.Direction.IN).withTimeout(10L, TimeUnit.SECONDS)
                 +pickup4thCube.withExit(CubeSensors.cubeIn)

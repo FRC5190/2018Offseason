@@ -1,6 +1,7 @@
 package org.ghrobotics.robot.auto.routines
 
 import openrio.powerup.MatchData
+import org.ghrobotics.lib.commands.Command
 import org.ghrobotics.lib.commands.DelayCommand
 import org.ghrobotics.lib.commands.InstantRunnableCommand
 import org.ghrobotics.lib.commands.sequential
@@ -17,7 +18,7 @@ import java.util.concurrent.TimeUnit
 class RoutineSwitchFromCenter(startingPosition: Source<StartingPositions>,
                               private val switchSide: Source<MatchData.OwnedSide>) : AutoRoutine(startingPosition) {
 
-    override fun createRoutine(): org.ghrobotics.lib.commands.Command {
+    override fun createRoutine(): Command {
         val switch = switchSide.withEquals(MatchData.OwnedSide.LEFT)
         val mirrored = switchSide.withEquals(MatchData.OwnedSide.RIGHT)
 
@@ -29,36 +30,33 @@ class RoutineSwitchFromCenter(startingPosition: Source<StartingPositions>,
         val drop2ndCube = FollowTrajectoryCommand(Trajectories.centerToSwitch, mirrored)
 
         return sequential {
-            +InstantRunnableCommand {
-                println(switch.value)
-            }
-            +parallel {
+            parallel {
                 +drop1stCube
                 +SubsystemPreset.SWITCH.command.withTimeout(3000, TimeUnit.MILLISECONDS)
-                +sequential {
-                    +DelayCommand(((drop1stCube.trajectory.value.lastState.t - 0.2) * 1000).toLong(), TimeUnit.MILLISECONDS)
+                sequential {
+                    +DelayCommand(delaySeconds = drop1stCube.trajectory.value.lastState.t - 0.2)
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.5)).withTimeout(200, TimeUnit.MILLISECONDS)
                 }
             }
             +InstantRunnableCommand {
                 println("HELLO SIR")
             }
-            +parallel {
+            parallel {
                 +toCenter
-                +sequential {
+                sequential {
                     +DelayCommand(500, TimeUnit.MILLISECONDS)
                     +SubsystemPreset.INTAKE.command
                 }
             }
-            +parallel {
+            parallel {
                 +toPyramid
                 +IntakeCommand(IntakeSubsystem.Direction.IN).withTimeout(3L, TimeUnit.SECONDS)
             }
             +toCenter2
-            +parallel {
+            parallel {
                 +drop2ndCube
                 +SubsystemPreset.SWITCH.command
-                +sequential {
+                sequential {
                     +DelayCommand(((drop2ndCube.trajectory.value.lastState.t - 0.2) * 1000).toLong(), TimeUnit.MILLISECONDS)
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.5)).withTimeout(200, TimeUnit.MILLISECONDS)
                 }

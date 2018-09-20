@@ -34,30 +34,30 @@ class RoutineSwitchScaleFromCenter(startingPosition: Source<StartingPositions>,
         val drop2ndCube = FollowTrajectoryCommand(Trajectories.pyramidToScale, scaleMirrored)
 
         return sequential {
-            +parallel {
+            parallel {
                 +drop1stCube
                 +SubsystemPreset.SWITCH.command
-                +sequential {
+                sequential {
                     +DelayCommand(((drop1stCube.trajectory.value.lastState.t - 0.2) * 1000).toLong(), TimeUnit.MILLISECONDS)
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.5)).withTimeout(200, TimeUnit.MILLISECONDS)
                 }
             }
-            +parallel {
+            parallel {
                 +toCenter
-                +sequential {
+                sequential {
                     +DelayCommand(500, TimeUnit.MILLISECONDS)
                     +SubsystemPreset.INTAKE.command
                 }
             }
-            +parallel {
+            parallel {
                 +toPyramid
                 +IntakeCommand(IntakeSubsystem.Direction.IN).withTimeout(3L, TimeUnit.SECONDS)
             }
-            +parallel {
+            parallel {
                 +drop2ndCube
                 +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition)
                 +ClosedLoopArmCommand(ArmSubsystem.kUpPosition)
-                +sequential {
+                sequential {
                     +DelayCommand(((drop2ndCube.trajectory.value.lastState.t - 1.75) * 1000).toLong(), TimeUnit.MILLISECONDS)
                     +SubsystemPreset.BEHIND.command
                     +ConditionCommand(UpdatableObservableValue { ArmSubsystem.currentPosition > ArmSubsystem.kBehindPosition - NativeUnits(100) })
