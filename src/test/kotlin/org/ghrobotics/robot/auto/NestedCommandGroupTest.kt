@@ -1,6 +1,7 @@
 package org.ghrobotics.robot.auto
 
 import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.withTimeout
 import org.ghrobotics.lib.commands.DelayCommand
 import org.ghrobotics.lib.commands.InstantRunnableCommand
 import org.ghrobotics.lib.commands.asObservableFinish
@@ -44,7 +45,12 @@ class NestedCommandGroupTest {
 
         }
 
-        runBlocking { group.start(); group.await() }
+        runBlocking {
+            group.start()
+            withTimeout(5, TimeUnit.SECONDS) {
+                group.await()
+            }
+        }
 
         println(var1)
         println(var2)
