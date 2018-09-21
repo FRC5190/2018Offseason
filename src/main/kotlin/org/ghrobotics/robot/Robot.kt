@@ -38,10 +38,6 @@ class Robot : FalconRobotBase() {
         Autonomous
         AHRS
         Lidar
-
-        onTransition(Mode.ANY, Mode.ANY) { from, to ->
-            println("Transitioned from $from to $to")
-        }
     }
 
 }

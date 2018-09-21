@@ -1,6 +1,10 @@
 package org.ghrobotics.robot.auto.routines
 
-import org.ghrobotics.lib.commands.*
+import openrio.powerup.MatchData
+import org.ghrobotics.lib.commands.ConditionCommand
+import org.ghrobotics.lib.commands.DelayCommand
+import org.ghrobotics.lib.commands.InstantRunnableCommand
+import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.NativeUnits
 import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.map
@@ -17,7 +21,6 @@ import org.ghrobotics.robot.subsytems.elevator.ClosedLoopElevatorCommand
 import org.ghrobotics.robot.subsytems.elevator.ElevatorSubsystem
 import org.ghrobotics.robot.subsytems.intake.IntakeCommand
 import org.ghrobotics.robot.subsytems.intake.IntakeSubsystem
-import openrio.powerup.MatchData
 import java.util.concurrent.TimeUnit
 
 class RoutineScaleFromSide(startingPosition: Source<StartingPositions>,
@@ -45,7 +48,11 @@ class RoutineScaleFromSide(startingPosition: Source<StartingPositions>,
             var start = 0L
 
             parallel {
-                +drop1stCube
+                +drop1stCube.withExit(UpdatableObservableValue {
+                    (ElevatorSubsystem.currentPosition > ElevatorSubsystem.kFirstStagePosition
+                            && !CubeSensors.cubeIn.value &&
+                            ArmSubsystem.currentPosition > ArmSubsystem.kBehindPosition - NativeUnits(100))
+                })
                 sequential {
                     +DelayCommand(500, TimeUnit.MILLISECONDS)
 

@@ -8,6 +8,7 @@ package org.ghrobotics.robot
 import edu.wpi.first.wpilibj.GenericHID
 import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.observabletype.ObservableVariable
+import org.ghrobotics.lib.utils.observabletype.not
 import org.ghrobotics.lib.wrappers.hid.*
 import org.ghrobotics.robot.subsytems.SubsystemPreset
 import org.ghrobotics.robot.subsytems.arm.OpenLoopArmCommand
@@ -30,7 +31,7 @@ object Controls {
         button(kBack).changeOn { isClimbing.value = true }
         button(kStart).changeOn { isClimbing.value = false }
 
-        if (!isClimbing.value) {
+        state(!isClimbing) {
             // Arm Controls
             val armUpCommand = OpenLoopArmCommand(Source(0.5))
             val armDownCommand = OpenLoopArmCommand(Source(-0.5))
@@ -60,8 +61,8 @@ object Controls {
                 change(IntakeCommand(IntakeSubsystem.Direction.OUT, source.withProcessing { it.pow(2) * 0.65 }))
             }
             button(kBumperLeft).change(IntakeCommand(IntakeSubsystem.Direction.IN, Source(1.0)))
-        } else {
-
+        }
+        state(isClimbing) {
             val climberUpCommand = OpenLoopClimbCommand(Source(0.9))
             val climberDownCommand = OpenLoopClimbCommand(Source(-0.9))
 
