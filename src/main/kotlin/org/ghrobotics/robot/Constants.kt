@@ -9,6 +9,7 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.robot.subsytems.elevator.ElevatorSubsystem
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 object Constants {
@@ -88,8 +89,8 @@ object Constants {
     const val kADrive = 0.030 // 1023 units per STU (acceleration)
     const val kSDrive = 0.050 // %
 
-    const val kDriveBeta = 0.30
-    const val kDriveZeta = 0.85
+    const val kDriveBeta = 0.20
+    const val kDriveZeta = 0.90
 
 
     // ARM
@@ -100,7 +101,7 @@ object Constants {
 
     val kArmMotionMagicVelocity = NativeUnitsPer100Ms(1000000)
     const val kArmMotionMagicAcceleration = 400
-    val kArmClosedLpTolerance = Inches(0.0)
+    val kArmClosedLpTolerance = NativeUnits(50)
 
 
     // ELEVATOR
@@ -108,7 +109,7 @@ object Constants {
     const val kVElevator = 0.395 // 1023 units per STU (velocity)
 
     val kElevatorSoftLimitFwd = NativeUnits(22500)
-    val kElevatorClosedLpTolerance = Inches(0.25)
+    val kElevatorClosedLpTolerance = Inches(1.0, preferences { radius = 1.25 / 2.0 })
 
     val kElevatorMotionMagicVelocity = InchesPerSecond(72.0, preferences { radius = 1.25 / 2.0 })
     val kElevatorMotionMagicAcceleration = InchesPerSecond(90.0, preferences { radius = 1.25 / 2.0 }).STU

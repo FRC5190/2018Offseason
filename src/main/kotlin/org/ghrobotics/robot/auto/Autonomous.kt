@@ -13,7 +13,11 @@ import org.ghrobotics.lib.utils.observabletype.not
 import org.ghrobotics.lib.wrappers.FalconRobotBase
 import org.ghrobotics.robot.Localization
 import org.ghrobotics.robot.NetworkInterface
-import org.ghrobotics.robot.auto.routines.*
+import org.ghrobotics.robot.auto.routines.AutoRoutine
+import org.ghrobotics.robot.auto.routines.RoutineScaleFromSide
+import org.ghrobotics.robot.auto.routines.RoutineSwitchFromCenter
+import org.ghrobotics.robot.auto.routines.RoutineSwitchScaleFromCenter
+import org.ghrobotics.robot.sensors.AHRS
 
 object Autonomous {
 
@@ -39,13 +43,13 @@ object Autonomous {
                 state(true) {
                     stateCommandGroup(Config.farScaleAutoMode) {
                         state(ScaleAutoMode.THREECUBE, RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource()))
-                        state(ScaleAutoMode.BASELINE, RoutineBaseline(Config.startingPosition.asSource()))
+                        state(ScaleAutoMode.BASELINE, RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource()))
                     }
                 }
                 state(false) {
                     stateCommandGroup(Config.nearScaleAutoMode) {
                         state(ScaleAutoMode.THREECUBE, RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource()))
-                        state(ScaleAutoMode.BASELINE, RoutineBaseline(Config.startingPosition.asSource()))
+                        state(ScaleAutoMode.BASELINE, RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource()))
                     }
                 }
             }
@@ -69,7 +73,7 @@ object Autonomous {
         FalconRobotBase.INSTANCE.modeStateMachine.onLeave(listOf(FalconRobotBase.Mode.AUTONOMOUS)) {
             JUST.stop()
         }
-        Config.startingPosition.invokeOnChange { runBlocking { Localization.reset(it.pose) } }
+        Config.startingPosition.invokeOnChange { runBlocking { Localization.reset(it.pose); } }
     }
 
 

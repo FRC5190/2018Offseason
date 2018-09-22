@@ -32,14 +32,11 @@ class RoutineSwitchFromCenter(startingPosition: Source<StartingPositions>,
         return sequential {
             parallel {
                 +drop1stCube
-                +SubsystemPreset.SWITCH.command.withTimeout(3000, TimeUnit.MILLISECONDS)
+                +SubsystemPreset.SWITCH.command//.withTimeout(3000, TimeUnit.MILLISECONDS)
                 sequential {
                     +DelayCommand(delaySeconds = drop1stCube.trajectory.value.lastState.t - 0.2)
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.5)).withTimeout(200, TimeUnit.MILLISECONDS)
                 }
-            }
-            +InstantRunnableCommand {
-                println("HELLO SIR")
             }
             parallel {
                 +toCenter

@@ -1,15 +1,13 @@
 package org.ghrobotics.robot.auto.routines
 
 import openrio.powerup.MatchData
-import org.ghrobotics.lib.commands.ConditionCommand
-import org.ghrobotics.lib.commands.DelayCommand
-import org.ghrobotics.lib.commands.InstantRunnableCommand
-import org.ghrobotics.lib.commands.sequential
+import org.ghrobotics.lib.commands.*
 import org.ghrobotics.lib.mathematics.units.NativeUnits
 import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.map
 import org.ghrobotics.lib.utils.mergeSource
 import org.ghrobotics.lib.utils.observabletype.UpdatableObservableValue
+import org.ghrobotics.lib.utils.observabletype.invokeOnTrue
 import org.ghrobotics.robot.auto.StartingPositions
 import org.ghrobotics.robot.auto.Trajectories
 import org.ghrobotics.robot.sensors.CubeSensors
@@ -21,6 +19,8 @@ import org.ghrobotics.robot.subsytems.elevator.ClosedLoopElevatorCommand
 import org.ghrobotics.robot.subsytems.elevator.ElevatorSubsystem
 import org.ghrobotics.robot.subsytems.intake.IntakeCommand
 import org.ghrobotics.robot.subsytems.intake.IntakeSubsystem
+import org.ghrobotics.robot.subsytems.led.BlinkingLEDCommand
+import java.awt.Color
 import java.util.concurrent.TimeUnit
 
 class RoutineScaleFromSide(startingPosition: Source<StartingPositions>,
@@ -40,12 +40,16 @@ class RoutineScaleFromSide(startingPosition: Source<StartingPositions>,
         val drop3rdCube = FollowTrajectoryCommand(Trajectories.cube2ToScale, shouldMirrorPath)
         val pickup4thCube = FollowTrajectoryCommand(Trajectories.scaleToCube3, shouldMirrorPath)
 
-        val timeToGoUp = cross.map(1.50, 1.75).value
+        val timeToGoUp = cross.map(2.50, 2.75).value
         val outtakeSpeed = cross.map(0.65, 0.35).value
 
         return sequential {
 
             var start = 0L
+
+            drop1stCube.commandState.asObservableFinish().invokeOnTrue {
+                println("FIRST CUBE PATH DONE")
+            }
 
             parallel {
                 +drop1stCube.withExit(UpdatableObservableValue {
@@ -56,24 +60,33 @@ class RoutineScaleFromSide(startingPosition: Source<StartingPositions>,
                 sequential {
                     +DelayCommand(500, TimeUnit.MILLISECONDS)
 
-                    parallel {
-                        +InstantRunnableCommand { start = System.currentTimeMillis() }
-                        +ClosedLoopArmCommand(ArmSubsystem.kUpPosition)
-                        +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition)
-                    }.overrideExit(UpdatableObservableValue {
-                        (System.currentTimeMillis() - start) > (drop1stCube.trajectory.value.lastState.t - timeToGoUp)
-                                .coerceAtLeast(0.001) * 1000
-                    })
+                    +InstantRunnableCommand { start = System.currentTimeMillis() }
 
                     parallel {
-                        +SubsystemPreset.BEHIND.command
-                        sequential {
-                            +ConditionCommand(UpdatableObservableValue { ArmSubsystem.currentPosition > ArmSubsystem.kBehindPosition - NativeUnits(100) })
-                            +DelayCommand(100, TimeUnit.MILLISECONDS)
-                            +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(outtakeSpeed)).withTimeout(500, TimeUnit.MILLISECONDS)
+                        +ClosedLoopArmCommand(ArmSubsystem.kUpPosition)
+                        +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition)
+                    }
+
+                    sequential {
+                        +DelayCommand(drop1stCube.trajectory.value.lastState.t - timeToGoUp)
+                        parallel {
+                            +SubsystemPreset.BEHIND.command.also {
+                                BlinkingLEDCommand(Color.BLUE, 400).start()
+                            }
+                            sequential {
+                                +ConditionCommand(UpdatableObservableValue { ArmSubsystem.currentPosition > ArmSubsystem.kBehindPosition - NativeUnits(100) })
+                                +DelayCommand(100, TimeUnit.MILLISECONDS)
+                                +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(outtakeSpeed)).withTimeout(500, TimeUnit.MILLISECONDS)
+                                +InstantRunnableCommand {
+                                    println("DROPPED CUBE PRE")
+                                }
+                            }
                         }
                     }
                 }
+            }
+            +InstantRunnableCommand {
+                println("DROPPED CUBE POST")
             }
             parallel {
                 +SubsystemPreset.INTAKE.command

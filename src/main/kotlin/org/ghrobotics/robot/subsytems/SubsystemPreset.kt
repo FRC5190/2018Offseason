@@ -46,7 +46,7 @@ enum class SubsystemPreset(private val builder: () -> org.ghrobotics.lib.command
     }),
     BEHIND({
         parallel {
-            +LidarElevatorCommand()
+            +org.ghrobotics.robot.subsytems.elevator.ClosedLoopElevatorCommand(org.ghrobotics.robot.subsytems.elevator.ElevatorSubsystem.kScalePosition)
             sequential {
                 +ClosedLoopArmCommand(ArmSubsystem.kUpPosition + NativeUnits(75)).withExit(org.ghrobotics.lib.utils.observabletype.UpdatableObservableValue {
                     ElevatorSubsystem.currentPosition > ElevatorSubsystem.kFirstStagePosition
