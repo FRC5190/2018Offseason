@@ -75,6 +75,7 @@ object Constants {
     const val kRobotAngularDrag = 12.0 // N*m / (rad/sec)
 
     // MECHANISM TRANSFORMATIONS
+    val kFrontToIntake = Pose2d(Translation2d(-kIntakeLength, 0.0), Rotation2d())
     val kCenterToIntake = Pose2d(Translation2d(-(kRobotLength / 2.0) - kIntakeLength, 0.0), Rotation2d())
     val kCenterToFrontBumper = Pose2d(Translation2d(-(kRobotLength / 2.0) - kBumperLength, 0.0), Rotation2d())
 
