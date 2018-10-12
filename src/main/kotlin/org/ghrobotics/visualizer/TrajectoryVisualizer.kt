@@ -1,10 +1,14 @@
 package org.ghrobotics.visualizer
 
+import javafx.geometry.Pos
 import javafx.scene.chart.LineChart
 import javafx.scene.chart.NumberAxis
 import javafx.scene.chart.XYChart
 import javafx.scene.paint.Color
 import javafx.scene.paint.Paint
+import javafx.scene.text.Font
+import javafx.scene.text.FontPosture
+import javafx.scene.text.FontWeight
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
@@ -19,14 +23,6 @@ import kotlin.math.absoluteValue
 
 
 class TrajectoryVisualizer : App(MainView::class) {
-
-    val trajectory = Trajectories.pyramidToScale
-
-    init {
-        PositionChart.updateChart(trajectory)
-        VelocityChart.updateChart(trajectory)
-    }
-
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
@@ -48,6 +44,20 @@ class MainView : View() {
                 tab("Velocity") {
                     add(VelocityChart)
                     isClosable = false
+                }
+            }
+            hbox {
+                style {
+                    paddingAll = 10
+                    backgroundColor = MultiValue(arrayOf(Color.LIGHTGRAY))
+                }
+                combobox<Trajectories.Container> {
+                    alignment = Pos.CENTER
+                    items = Trajectories.trajectories.observable()
+                    selectionModel.selectedItemProperty().addListener { _, _, newValue ->
+                        PositionChart.updateChart(newValue.trajectory)
+                        VelocityChart.updateChart(newValue.trajectory)
+                    }
                 }
             }
         }
