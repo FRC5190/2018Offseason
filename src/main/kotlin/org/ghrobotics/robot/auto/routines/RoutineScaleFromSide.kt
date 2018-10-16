@@ -1,13 +1,17 @@
 package org.ghrobotics.robot.auto.routines
 
+import kotlinx.coroutines.experimental.GlobalScope
 import openrio.powerup.MatchData
-import org.ghrobotics.lib.commands.*
-import org.ghrobotics.lib.mathematics.units.NativeUnits
+import org.ghrobotics.lib.commands.ConditionCommand
+import org.ghrobotics.lib.commands.DelayCommand
+import org.ghrobotics.lib.commands.parallel
+import org.ghrobotics.lib.commands.sequential
+import org.ghrobotics.lib.mathematics.units.millisecond
+import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.map
-import org.ghrobotics.lib.utils.mergeSource
-import org.ghrobotics.lib.utils.observabletype.UpdatableObservableValue
-import org.ghrobotics.lib.utils.observabletype.invokeOnTrue
+import org.ghrobotics.lib.utils.observabletype.updatableValue
+import org.ghrobotics.robot.Constants
 import org.ghrobotics.robot.auto.StartingPositions
 import org.ghrobotics.robot.auto.Trajectories
 import org.ghrobotics.robot.sensors.CubeSensors
@@ -21,18 +25,21 @@ import org.ghrobotics.robot.subsytems.intake.IntakeCommand
 import org.ghrobotics.robot.subsytems.intake.IntakeSubsystem
 import org.ghrobotics.robot.subsytems.led.BlinkingLEDCommand
 import java.awt.Color
-import java.util.concurrent.TimeUnit
 
-class RoutineScaleFromSide(startingPosition: Source<StartingPositions>,
-                           private val scaleSide: Source<MatchData.OwnedSide>) : AutoRoutine(startingPosition) {
+class RoutineScaleFromSide(
+    startingPosition: Source<StartingPositions>,
+    private val scaleSide: Source<MatchData.OwnedSide>
+) : AutoRoutine(startingPosition) {
 
     override fun createRoutine(): org.ghrobotics.lib.commands.Command {
-        val cross = mergeSource(startingPosition, scaleSide) { one, two -> !one.name.first().equals(two.name.first(), true) }
+        val cross = startingPosition
+            .withMerge(scaleSide) { one, two -> !one.name.first().equals(two.name.first(), true) }
         val shouldMirrorPath = scaleSide.withEquals(MatchData.OwnedSide.RIGHT)
 
         val drop1stCube = FollowTrajectoryCommand(
-                trajectory = cross.map(Trajectories.leftStartToFarScale, Trajectories.leftStartToNearScale),
-                pathMirrored = startingPosition.withEquals(StartingPositions.RIGHT))
+            trajectory = cross.map(Trajectories.leftStartToFarScale, Trajectories.leftStartToNearScale),
+            pathMirrored = startingPosition.withEquals(StartingPositions.RIGHT)
+        )
 
         val pickup2ndCube = FollowTrajectoryCommand(Trajectories.scaleToCube1, shouldMirrorPath)
         val drop2ndCube = FollowTrajectoryCommand(Trajectories.cube1ToScale, shouldMirrorPath)
@@ -40,100 +47,93 @@ class RoutineScaleFromSide(startingPosition: Source<StartingPositions>,
         val drop3rdCube = FollowTrajectoryCommand(Trajectories.cube2ToScale, shouldMirrorPath)
         val pickup4thCube = FollowTrajectoryCommand(Trajectories.scaleToCube3, shouldMirrorPath)
 
-        val timeToGoUp = cross.map(2.50, 2.75).value
-        val outtakeSpeed = cross.map(0.65, 0.35).value
+        val timeToGoUp = cross.map(2.50.second, 2.75.second)
+            .withProcessing { drop1stCube.trajectory.value.lastState.t.second - it }
+        val outtakeSpeed = cross.map(0.65, 0.35)
 
         return sequential {
 
-            var start = 0L
-
-            drop1stCube.commandState.asObservableFinish().invokeOnTrue {
-                println("FIRST CUBE PATH DONE")
-            }
-
-            parallel {
-                +drop1stCube.withExit(UpdatableObservableValue {
-                    (ElevatorSubsystem.currentPosition > ElevatorSubsystem.kFirstStagePosition
-                            && !CubeSensors.cubeIn.value &&
-                            ArmSubsystem.currentPosition > ArmSubsystem.kBehindPosition - NativeUnits(100))
+            +parallel {
+                +drop1stCube.withExit(GlobalScope.updatableValue {
+                    (ElevatorSubsystem.elevatorPosition > ElevatorSubsystem.kFirstStagePosition
+                            && !CubeSensors.cubeIn.value
+                            && ArmSubsystem.armPosition > ArmSubsystem.kBehindPosition - Constants.kArmAutoTolerance)
                 })
-                sequential {
-                    +DelayCommand(500, TimeUnit.MILLISECONDS)
+                +sequential {
+                    +DelayCommand(500.millisecond)
 
-                    +InstantRunnableCommand { start = System.currentTimeMillis() }
-
-                    parallel {
+                    +parallel {
                         +ClosedLoopArmCommand(ArmSubsystem.kUpPosition)
                         +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition)
                     }
 
-                    sequential {
-                        +DelayCommand(drop1stCube.trajectory.value.lastState.t - timeToGoUp)
-                        parallel {
+                    +sequential {
+                        +DelayCommand(timeToGoUp)
+                        +parallel {
                             +SubsystemPreset.BEHIND.command.also {
-                                BlinkingLEDCommand(Color.BLUE, 400).start()
+                                BlinkingLEDCommand(Color.BLUE, 400.millisecond).start()
                             }
-                            sequential {
-                                +ConditionCommand(UpdatableObservableValue { ArmSubsystem.currentPosition > ArmSubsystem.kBehindPosition - NativeUnits(100) })
-                                +DelayCommand(100, TimeUnit.MILLISECONDS)
-                                +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(outtakeSpeed)).withTimeout(500, TimeUnit.MILLISECONDS)
-                                +InstantRunnableCommand {
-                                    println("DROPPED CUBE PRE")
-                                }
+                            +sequential {
+                                +ConditionCommand(GlobalScope.updatableValue {
+                                    ArmSubsystem.armPosition > ArmSubsystem.kBehindPosition - Constants.kArmAutoTolerance
+                                })
+                                +DelayCommand(100.millisecond)
+                                +IntakeCommand(IntakeSubsystem.Direction.OUT, outtakeSpeed).withTimeout(500.millisecond)
                             }
                         }
                     }
                 }
             }
-            +InstantRunnableCommand {
-                println("DROPPED CUBE POST")
-            }
-            parallel {
+            +parallel {
                 +SubsystemPreset.INTAKE.command
-                +IntakeCommand(IntakeSubsystem.Direction.IN).withTimeout(10L, TimeUnit.SECONDS)
-                sequential {
-                    +DelayCommand(300, TimeUnit.MILLISECONDS)
+                +IntakeCommand(IntakeSubsystem.Direction.IN).withTimeout(10.second)
+                +sequential {
+                    +DelayCommand(300.millisecond)
                     +pickup2ndCube.withExit(CubeSensors.cubeIn)
                 }
             }
-            parallel {
-                +drop2ndCube.withExit(UpdatableObservableValue {
-                    (ElevatorSubsystem.currentPosition > ElevatorSubsystem.kFirstStagePosition
-                            && !CubeSensors.cubeIn.value &&
-                            ArmSubsystem.currentPosition > ArmSubsystem.kBehindPosition - NativeUnits(100))
+            +parallel {
+                +drop2ndCube.withExit(GlobalScope.updatableValue {
+                    (ElevatorSubsystem.elevatorPosition > ElevatorSubsystem.kFirstStagePosition
+                            && !CubeSensors.cubeIn.value
+                            && ArmSubsystem.armPosition > ArmSubsystem.kBehindPosition - Constants.kArmAutoTolerance)
                 })
-                sequential {
-                    +DelayCommand(((drop2ndCube.trajectory.value.lastState.t - 2.7) * 1000).toLong(), TimeUnit.MILLISECONDS)
+                +sequential {
+                    +DelayCommand((drop2ndCube.trajectory.value.lastState.t - 2.7).second)
                     +SubsystemPreset.BEHIND.command
                 }
-                sequential {
-                    +ConditionCommand(UpdatableObservableValue { ArmSubsystem.currentPosition > ArmSubsystem.kBehindPosition - NativeUnits(100) })
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.4)).withTimeout(500, TimeUnit.MILLISECONDS)
+                +sequential {
+                    +ConditionCommand(GlobalScope.updatableValue {
+                        ArmSubsystem.armPosition > ArmSubsystem.kBehindPosition - Constants.kArmAutoTolerance
+                    })
+                    +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.4)).withTimeout(500.millisecond)
                 }
             }
-            parallel {
+            +parallel {
                 +SubsystemPreset.INTAKE.command
-                +IntakeCommand(IntakeSubsystem.Direction.IN).withTimeout(10L, TimeUnit.SECONDS)
+                +IntakeCommand(IntakeSubsystem.Direction.IN).withTimeout(10.second)
                 +pickup3rdCube.withExit(CubeSensors.cubeIn)
             }
-            parallel {
-                +drop3rdCube.withExit(UpdatableObservableValue {
-                    (ElevatorSubsystem.currentPosition > ElevatorSubsystem.kFirstStagePosition
-                            && !CubeSensors.cubeIn.value &&
-                            ArmSubsystem.currentPosition > ArmSubsystem.kBehindPosition - NativeUnits(100))
+            +parallel {
+                +drop3rdCube.withExit(GlobalScope.updatableValue {
+                    (ElevatorSubsystem.elevatorPosition > ElevatorSubsystem.kFirstStagePosition
+                            && !CubeSensors.cubeIn.value
+                            && ArmSubsystem.armPosition > ArmSubsystem.kBehindPosition - Constants.kArmAutoTolerance)
                 })
-                sequential {
-                    +DelayCommand(((drop3rdCube.trajectory.value.lastState.t - 2.7) * 1000).toLong(), TimeUnit.MILLISECONDS)
+                +sequential {
+                    +DelayCommand((drop3rdCube.trajectory.value.lastState.t - 2.7).second)
                     +SubsystemPreset.BEHIND.command
                 }
-                sequential {
-                    +ConditionCommand(UpdatableObservableValue { ArmSubsystem.currentPosition > ArmSubsystem.kBehindPosition - NativeUnits(100) })
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.4)).withTimeout(500, TimeUnit.MILLISECONDS)
+                +sequential {
+                    +ConditionCommand(GlobalScope.updatableValue {
+                        ArmSubsystem.armPosition > ArmSubsystem.kBehindPosition - Constants.kArmAutoTolerance
+                    })
+                    +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.4)).withTimeout(500.millisecond)
                 }
             }
-            parallel {
+            +parallel {
                 +SubsystemPreset.INTAKE.command
-                +IntakeCommand(IntakeSubsystem.Direction.IN).withTimeout(10L, TimeUnit.SECONDS)
+                +IntakeCommand(IntakeSubsystem.Direction.IN).withTimeout(10.second)
                 +pickup4thCube.withExit(CubeSensors.cubeIn)
             }
         }

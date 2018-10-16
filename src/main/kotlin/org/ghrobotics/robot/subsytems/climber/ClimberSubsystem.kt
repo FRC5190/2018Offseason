@@ -5,23 +5,25 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource
 import org.ghrobotics.lib.commands.Subsystem
-import org.ghrobotics.lib.mathematics.units.Amps
-import org.ghrobotics.lib.mathematics.units.Distance
-import org.ghrobotics.lib.mathematics.units.NativeUnits
-import org.ghrobotics.lib.mathematics.units.Seconds
-import org.ghrobotics.lib.wrappers.FalconSRX
+import org.ghrobotics.lib.mathematics.units.amp
+import org.ghrobotics.lib.mathematics.units.nativeunits.STU
+import org.ghrobotics.lib.mathematics.units.second
+import org.ghrobotics.lib.wrappers.GenericFalonSRX
 import org.ghrobotics.robot.Constants
 
 object ClimberSubsystem : Subsystem() {
 
-    private val climberMaster = FalconSRX(Constants.kWinchMasterId)
-    private val climberSlave = FalconSRX(Constants.kWinchSlaveId)
+    private val climberMaster = GenericFalonSRX(Constants.kWinchMasterId)
+    private val climberSlave = GenericFalonSRX(Constants.kWinchSlaveId)
 
-    val kHighScalePosition = NativeUnits(47600)
-    val kBottomPosition = NativeUnits(0)
+    val kHighScalePosition = 47600.STU
+    val kBottomPosition = 0.STU
 
-    val currentPosition: Distance
+    var climberPosition
         get() = climberMaster.sensorPosition
+        set(value) {
+            climberMaster.set(ControlMode.MotionMagic, value)
+        }
 
     init {
         climberMaster.apply {
@@ -29,22 +31,27 @@ object ClimberSubsystem : Subsystem() {
             encoderPhase = false
             feedbackSensor = FeedbackDevice.QuadEncoder
 
-            peakFwdOutput = 1.0
-            peakRevOutput = -1.0
+            peakForwardOutput = 1.0
+            peakReverseOutput = -1.0
 
             kP = Constants.kPClimber
             motionCruiseVelocity = Constants.kClimberMotionMagicVelocity
             motionAcceleration = Constants.kClimberMotionMagicAcceleration
 
-            configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, Constants.kCTRETimeout)
+            configReverseLimitSwitchSource(
+                LimitSwitchSource.FeedbackConnector,
+                LimitSwitchNormal.NormallyOpen,
+                Constants.kCTRETimeout
+            )
             overrideLimitSwitchesEnable = true
 
-            continuousCurrentLimit = Amps(40)
-            peakCurrentLimit = Amps(0)
-            peakCurrentLimitDuration = Seconds(0.0)
+            continuousCurrentLimit = 40.amp
+            peakCurrentLimit = 0.amp
+            peakCurrentLimitDuration = 0.second
             currentLimitingEnabled = true
         }
         climberSlave.follow(climberMaster)
+
         defaultCommand = ClosedLoopClimbCommand()
     }
 
@@ -53,6 +60,6 @@ object ClimberSubsystem : Subsystem() {
     }
 
     fun resetEncoders() {
-        climberMaster.sensorPosition = NativeUnits(0)
+        climberMaster.sensorPosition = 0.STU
     }
 }

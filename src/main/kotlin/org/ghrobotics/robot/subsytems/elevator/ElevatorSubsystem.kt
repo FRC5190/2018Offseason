@@ -7,30 +7,32 @@ package org.ghrobotics.robot.subsytems.elevator
 
 import com.ctre.phoenix.motorcontrol.*
 import org.ghrobotics.lib.commands.Subsystem
-import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.lib.mathematics.units.amp
+import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.units.meter
+import org.ghrobotics.lib.mathematics.units.nativeunits.STU
 import org.ghrobotics.lib.wrappers.FalconSRX
 import org.ghrobotics.robot.Constants
 
 object ElevatorSubsystem : Subsystem() {
 
-    private val elevatorMaster = FalconSRX(Constants.kElevatorMasterId)
-    private val elevatorSlave = FalconSRX(Constants.kElevatorSlaveId)
+    private val elevatorMaster = FalconSRX(Constants.kElevatorMasterId, Constants.elevatorNativeUnitSettings)
+    private val elevatorSlave = FalconSRX(Constants.kElevatorSlaveId, Constants.elevatorNativeUnitSettings)
 
-    val settings = preferences { radius = 1.25 / 2.0 }
-
-    val kSwitchPosition = Inches(27.0, settings)
-    val kFirstStagePosition = Inches(32.0, settings)
-    val kScalePosition = NativeUnits(17000, settings)
-    val kHighScalePosition = Inches(60.0, settings)
-    val kIntakePosition = NativeUnits(500, settings)
-
+    val kSwitchPosition = 27.inch
+    val kFirstStagePosition = 32.inch
+    val kScalePosition = 17000.STU.toModel(Constants.elevatorNativeUnitSettings)
+    val kHighScalePosition = 60.inch
+    val kIntakePosition = 500.STU.toModel(Constants.elevatorNativeUnitSettings)
 
     val atBottom
         get() = elevatorMaster.sensorCollection.isRevLimitSwitchClosed
 
-    val currentPosition: Distance
+    var elevatorPosition
         get() = elevatorMaster.sensorPosition
-
+        set(value) {
+            elevatorMaster.set(ControlMode.MotionMagic, value)
+        }
 
     var reset = false
 
@@ -40,23 +42,27 @@ object ElevatorSubsystem : Subsystem() {
             encoderPhase = false
             feedbackSensor = FeedbackDevice.QuadEncoder
 
-            configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen,
-                    Constants.kCTRETimeout)
-            configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen,
-                    Constants.kCTRETimeout)
+            configForwardLimitSwitchSource(
+                LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen,
+                Constants.kCTRETimeout
+            )
+            configReverseLimitSwitchSource(
+                LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen,
+                Constants.kCTRETimeout
+            )
             overrideLimitSwitchesEnable = true
 
-            peakFwdOutput = 1.0
-            peakRevOutput = -1.0
+            peakForwardOutput = 1.0
+            peakReverseOutput = -1.0
 
-            softLimitFwd = Constants.kElevatorSoftLimitFwd
-            softLimitFwdEnabled = true
+            softLimitForward = Constants.kElevatorSoftLimitFwd
+            softLimitForwardEnabled = true
 
             kP = Constants.kPElevator
             kF = Constants.kVElevator
-            closedLoopTolerance = Constants.kElevatorClosedLpTolerance
+            allowedClosedLoopError = Constants.kElevatorClosedLpTolerance
 
-            continuousCurrentLimit = Amps(30)
+            continuousCurrentLimit = 30.amp
             currentLimitingEnabled = true
 
             motionCruiseVelocity = Constants.kElevatorMotionMagicVelocity
@@ -74,6 +80,7 @@ object ElevatorSubsystem : Subsystem() {
     fun set(controlMode: ControlMode, output: Double) = elevatorMaster.set(controlMode, output)
 
     fun resetEncoders() {
-        elevatorMaster.sensorPosition = NativeUnits(0)
+        elevatorMaster.sensorPosition = 0.meter
     }
+
 }

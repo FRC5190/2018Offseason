@@ -5,22 +5,26 @@
 
 package org.ghrobotics.robot.subsytems
 
+import kotlinx.coroutines.experimental.GlobalScope
+import org.ghrobotics.lib.commands.Command
 import org.ghrobotics.lib.commands.parallel
-import org.ghrobotics.lib.mathematics.units.NativeUnits
+import org.ghrobotics.lib.commands.sequential
+import org.ghrobotics.lib.mathematics.units.nativeunits.STU
+import org.ghrobotics.lib.utils.observabletype.updatableValue
 import org.ghrobotics.lib.wrappers.hid.FalconHIDButtonBuilder
+import org.ghrobotics.robot.Constants
 import org.ghrobotics.robot.subsytems.arm.ArmSubsystem
 import org.ghrobotics.robot.subsytems.arm.ClosedLoopArmCommand
 import org.ghrobotics.robot.subsytems.elevator.ClosedLoopElevatorCommand
 import org.ghrobotics.robot.subsytems.elevator.ElevatorSubsystem
-import org.ghrobotics.robot.subsytems.elevator.LidarElevatorCommand
 
-enum class SubsystemPreset(private val builder: () -> org.ghrobotics.lib.commands.Command) {
+enum class SubsystemPreset(private val builder: () -> Command) {
     INTAKE({
         parallel {
             +ClosedLoopArmCommand(ArmSubsystem.kDownPosition)
-            sequential {
-                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(org.ghrobotics.lib.utils.observabletype.UpdatableObservableValue {
-                    ArmSubsystem.currentPosition < ArmSubsystem.kUpPosition + NativeUnits(100)
+            +sequential {
+                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(GlobalScope.updatableValue {
+                    ArmSubsystem.armPosition < ArmSubsystem.kUpPosition + 100.STU.toModel(Constants.kArmNativeUnitModel)
                 })
                 +ClosedLoopElevatorCommand(ElevatorSubsystem.kIntakePosition)
             }
@@ -29,10 +33,10 @@ enum class SubsystemPreset(private val builder: () -> org.ghrobotics.lib.command
     SWITCH({
         parallel {
             +ClosedLoopArmCommand(ArmSubsystem.kMiddlePosition)
-            sequential {
-                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(org.ghrobotics.lib.utils.observabletype.UpdatableObservableValue {
-                    ElevatorSubsystem.currentPosition < ElevatorSubsystem.kSwitchPosition
-                            || ArmSubsystem.currentPosition < ArmSubsystem.kUpPosition + NativeUnits(100)
+            +sequential {
+                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(GlobalScope.updatableValue {
+                    ElevatorSubsystem.elevatorPosition < ElevatorSubsystem.kSwitchPosition
+                            || ArmSubsystem.armPosition < ArmSubsystem.kUpPosition + 100.STU.toModel(Constants.kArmNativeUnitModel)
                 })
                 +ClosedLoopElevatorCommand(ElevatorSubsystem.kSwitchPosition)
             }
@@ -46,11 +50,12 @@ enum class SubsystemPreset(private val builder: () -> org.ghrobotics.lib.command
     }),
     BEHIND({
         parallel {
-            +org.ghrobotics.robot.subsytems.elevator.ClosedLoopElevatorCommand(org.ghrobotics.robot.subsytems.elevator.ElevatorSubsystem.kScalePosition)
-            sequential {
-                +ClosedLoopArmCommand(ArmSubsystem.kUpPosition + NativeUnits(75)).withExit(org.ghrobotics.lib.utils.observabletype.UpdatableObservableValue {
-                    ElevatorSubsystem.currentPosition > ElevatorSubsystem.kFirstStagePosition
-                })
+            +ClosedLoopElevatorCommand(ElevatorSubsystem.kScalePosition)
+            +sequential {
+                +ClosedLoopArmCommand(ArmSubsystem.kUpPosition + 75.STU.toModel(Constants.kArmNativeUnitModel)).withExit(
+                    GlobalScope.updatableValue {
+                        ElevatorSubsystem.elevatorPosition > ElevatorSubsystem.kFirstStagePosition
+                    })
                 +ClosedLoopArmCommand(ArmSubsystem.kBehindPosition)
             }
         }

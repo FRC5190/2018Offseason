@@ -9,23 +9,26 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.NeutralMode
 import org.ghrobotics.lib.commands.Subsystem
-import org.ghrobotics.lib.mathematics.units.Amps
-import org.ghrobotics.lib.mathematics.units.Distance
-import org.ghrobotics.lib.mathematics.units.NativeUnits
+import org.ghrobotics.lib.mathematics.units.amp
+import org.ghrobotics.lib.mathematics.units.nativeunits.STU
 import org.ghrobotics.lib.wrappers.FalconSRX
 import org.ghrobotics.robot.Constants
 
 object ArmSubsystem : Subsystem() {
-    private val armMaster = FalconSRX(Constants.kArmId)
+
+    private val armMaster = FalconSRX(Constants.kArmId, Constants.kArmNativeUnitModel)
 
     val kDownPosition = Constants.kArmDownPosition
-    val kMiddlePosition = kDownPosition + NativeUnits(40)
-    val kUpPosition = kDownPosition + NativeUnits(200)
-    val kAllUpPosition = kDownPosition + NativeUnits(250)
-    val kBehindPosition = kDownPosition + NativeUnits(380)
+    val kMiddlePosition = kDownPosition + 40.STU.toModel(Constants.kArmNativeUnitModel)
+    val kUpPosition = kDownPosition + 200.STU.toModel(Constants.kArmNativeUnitModel)
+    val kAllUpPosition = kDownPosition + 250.STU.toModel(Constants.kArmNativeUnitModel)
+    val kBehindPosition = kDownPosition + 380.STU.toModel(Constants.kArmNativeUnitModel)
 
-    val currentPosition: Distance
+    var armPosition
         get() = armMaster.sensorPosition
+        set(value) {
+            armMaster.set(ControlMode.MotionMagic, value)
+        }
 
     init {
         armMaster.apply {
@@ -33,14 +36,14 @@ object ArmSubsystem : Subsystem() {
             encoderPhase = false
             feedbackSensor = FeedbackDevice.Analog
 
-            peakFwdOutput = 1.0
-            peakRevOutput = -1.0
+            peakForwardOutput = 1.0
+            peakReverseOutput = -1.0
 
             kP = Constants.kPArm
             kF = Constants.kVArm
-            closedLoopTolerance = Constants.kArmClosedLpTolerance
+            allowedClosedLoopError = Constants.kArmClosedLpTolerance
 
-            continuousCurrentLimit = Amps(20)
+            continuousCurrentLimit = 20.amp
             currentLimitingEnabled = true
 
             motionCruiseVelocity = Constants.kArmMotionMagicVelocity

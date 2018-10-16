@@ -21,7 +21,7 @@ abstract class AutoRoutine(protected val startingPosition: Source<StartingPositi
         NetworkInterface.INSTANCE.getEntry("Reset").setBoolean(true)
         DriveSubsystem.resetEncoders()
         val startingPositionValue = startingPosition.value
-        AHRS.angleOffset = startingPositionValue.pose.rotation.degrees
+        AHRS.angleOffset = startingPositionValue.pose.rotation.degree
         Localization.reset(startingPositionValue.pose)
         init()
     }

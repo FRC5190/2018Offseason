@@ -9,14 +9,14 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.NeutralMode
 import edu.wpi.first.wpilibj.Solenoid
 import org.ghrobotics.lib.commands.Subsystem
-import org.ghrobotics.lib.mathematics.units.Amps
-import org.ghrobotics.lib.mathematics.units.Volts
-import org.ghrobotics.lib.wrappers.FalconSRX
+import org.ghrobotics.lib.mathematics.units.amp
+import org.ghrobotics.lib.mathematics.units.derivedunits.volt
+import org.ghrobotics.lib.wrappers.GenericFalonSRX
 import org.ghrobotics.robot.Constants
 
 object IntakeSubsystem : Subsystem() {
-    private val intakeMaster = FalconSRX(Constants.kIntakeMasterId)
-    private val intakeSlave = FalconSRX(Constants.kIntakeSlaveId)
+    private val intakeMaster = GenericFalonSRX(Constants.kIntakeMasterId)
+    private val intakeSlave = GenericFalonSRX(Constants.kIntakeSlaveId)
 
     val solenoid = Solenoid(Constants.kPCMId, Constants.kIntakeSolenoidId)
 
@@ -24,10 +24,10 @@ object IntakeSubsystem : Subsystem() {
         defaultCommand = IntakeHoldCommand()
 
         intakeMaster.apply {
-            voltageCompensationSaturation = Volts(12.0)
+            voltageCompensationSaturation = 12.volt
             voltageCompensationEnabled = true
 
-            continuousCurrentLimit = Amps(18)
+            continuousCurrentLimit = 18.amp
             currentLimitingEnabled = true
 
             brakeMode = NeutralMode.Coast

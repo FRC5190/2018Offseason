@@ -1,5 +1,6 @@
 package org.ghrobotics.robot.auto
 
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.runBlocking
 import openrio.powerup.MatchData
 import org.ghrobotics.lib.commands.S3ND
@@ -7,9 +8,10 @@ import org.ghrobotics.lib.commands.StateCommandGroupBuilder
 import org.ghrobotics.lib.commands.stateCommandGroup
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.utils.Source
-import org.ghrobotics.lib.utils.observabletype.UpdatableObservableValue
 import org.ghrobotics.lib.utils.observabletype.and
+import org.ghrobotics.lib.utils.observabletype.map
 import org.ghrobotics.lib.utils.observabletype.not
+import org.ghrobotics.lib.utils.observabletype.updatableValue
 import org.ghrobotics.lib.wrappers.FalconRobotBase
 import org.ghrobotics.robot.Localization
 import org.ghrobotics.robot.NetworkInterface
@@ -17,23 +19,25 @@ import org.ghrobotics.robot.auto.routines.AutoRoutine
 import org.ghrobotics.robot.auto.routines.RoutineScaleFromSide
 import org.ghrobotics.robot.auto.routines.RoutineSwitchFromCenter
 import org.ghrobotics.robot.auto.routines.RoutineSwitchScaleFromCenter
-import org.ghrobotics.robot.sensors.AHRS
 
 object Autonomous {
 
     object Config {
-        val startingPosition = UpdatableObservableValue { NetworkInterface.startingPositionChooser.selected }
-        val switchSide = UpdatableObservableValue { MatchData.getOwnedSide(MatchData.GameFeature.SWITCH_NEAR) }
-        val scaleSide = UpdatableObservableValue { MatchData.getOwnedSide(MatchData.GameFeature.SCALE) }
+        val startingPosition = GlobalScope.updatableValue { NetworkInterface.startingPositionChooser.selected }
+        val switchSide = GlobalScope.updatableValue { MatchData.getOwnedSide(MatchData.GameFeature.SWITCH_NEAR) }
+        val scaleSide = GlobalScope.updatableValue { MatchData.getOwnedSide(MatchData.GameFeature.SCALE) }
         val switchAutoMode = Source { NetworkInterface.switchAutoChooser.selected }
         val nearScaleAutoMode = Source { NetworkInterface.nearScaleAutoChooser.selected }
         val farScaleAutoMode = Source { NetworkInterface.farScaleAutoChooser.selected }
     }
 
-    private val farScale = Config.startingPosition.asSource().withMerge(Config.scaleSide.asSource()) { one, two -> !one.name.first().equals(two.name.first(), true) }
+    private val farScale = Config.startingPosition.asSource()
+        .withMerge(Config.scaleSide.asSource()) { one, two -> !one.name.first().equals(two.name.first(), true) }
 
-    private var configValid = Config.switchSide.map { it != MatchData.OwnedSide.UNKNOWN } and Config.scaleSide.map { it != MatchData.OwnedSide.UNKNOWN }
-    private val shouldPoll = !(UpdatableObservableValue(5) { FalconRobotBase.INSTANCE.run { isAutonomous && isEnabled } } and configValid)
+    private var configValid =
+        Config.switchSide.map { it != MatchData.OwnedSide.UNKNOWN } and Config.scaleSide.map { it != MatchData.OwnedSide.UNKNOWN }
+    private val shouldPoll =
+        !(GlobalScope.updatableValue(5) { FalconRobotBase.INSTANCE.run { isAutonomous && isEnabled } } and configValid)
 
 
     // Autonomous Master Group
@@ -42,23 +46,44 @@ object Autonomous {
             stateCommandGroup(farScale) {
                 state(true) {
                     stateCommandGroup(Config.farScaleAutoMode) {
-                        state(ScaleAutoMode.THREECUBE, RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource()))
-                        state(ScaleAutoMode.BASELINE, RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource()))
+                        state(
+                            ScaleAutoMode.THREECUBE,
+                            RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource())
+                        )
+                        state(
+                            ScaleAutoMode.BASELINE,
+                            RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource())
+                        )
                     }
                 }
                 state(false) {
                     stateCommandGroup(Config.nearScaleAutoMode) {
-                        state(ScaleAutoMode.THREECUBE, RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource()))
-                        state(ScaleAutoMode.BASELINE, RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource()))
+                        state(
+                            ScaleAutoMode.THREECUBE,
+                            RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource())
+                        )
+                        state(
+                            ScaleAutoMode.BASELINE,
+                            RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource())
+                        )
                     }
                 }
             }
         }
-        println("a4")
         state(StartingPositions.CENTER) {
             stateCommandGroup(Config.switchAutoMode) {
-                state(SwitchAutoMode.BASIC, RoutineSwitchFromCenter(Config.startingPosition.asSource(), Config.switchSide.asSource()))
-                state(SwitchAutoMode.ROBONAUTS, RoutineSwitchScaleFromCenter(Config.startingPosition.asSource(), Config.switchSide.asSource(), Config.scaleSide.asSource()))
+                state(
+                    SwitchAutoMode.BASIC,
+                    RoutineSwitchFromCenter(Config.startingPosition.asSource(), Config.switchSide.asSource())
+                )
+                state(
+                    SwitchAutoMode.ROBONAUTS,
+                    RoutineSwitchScaleFromCenter(
+                        Config.startingPosition.asSource(),
+                        Config.switchSide.asSource(),
+                        Config.scaleSide.asSource()
+                    )
+                )
             }
         }
     }

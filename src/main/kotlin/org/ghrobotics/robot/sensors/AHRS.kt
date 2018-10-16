@@ -8,7 +8,8 @@ package org.ghrobotics.robot.sensors
 import com.ctre.phoenix.sensors.PigeonIMU
 import com.kauailabs.navx.frc.AHRS
 import edu.wpi.first.wpilibj.I2C
-import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
+import org.ghrobotics.lib.mathematics.units.Rotation2d
+import org.ghrobotics.lib.mathematics.units.degree
 import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.robot.Constants
 
@@ -26,19 +27,17 @@ private fun create(ahrsSensorType: AHRSSensorType): AHRSSensor = when (ahrsSenso
 }
 
 interface AHRSSensor : Source<Rotation2d> {
-    var angleOffset: Double
+    var angleOffset: Rotation2d
     val correctedAngle: Rotation2d
     fun reset()
     // Source Implementation
-    override val value
-        get() = correctedAngle
+    override val value get() = correctedAngle
 }
 
 private abstract class AHRSSensorImpl : AHRSSensor {
-    protected abstract val sensorYaw: Double
-    override var angleOffset = 0.0
-    override val correctedAngle: Rotation2d
-        get() = Rotation2d.fromDegrees(sensorYaw + angleOffset)
+    protected abstract val sensorYaw: Rotation2d
+    override var angleOffset = 0.degree
+    override val correctedAngle: Rotation2d get() = (sensorYaw + angleOffset).degree
 }
 
 private class Pigeon : AHRSSensorImpl() {
@@ -48,8 +47,7 @@ private class Pigeon : AHRSSensorImpl() {
         reset()
     }
 
-    override val sensorYaw: Double
-        get() = pigeon.fusedHeading
+    override val sensorYaw get() = pigeon.fusedHeading.degree
 
     override fun reset() {
         pigeon.setYaw(0.0, Constants.kCTRETimeout)
@@ -63,8 +61,7 @@ private class NavX : AHRSSensorImpl() {
         reset()
     }
 
-    override val sensorYaw: Double
-        get() = -navX.fusedHeading.toDouble()
+    override val sensorYaw get() = (-navX.fusedHeading).degree
 
     override fun reset() {
         navX.reset()

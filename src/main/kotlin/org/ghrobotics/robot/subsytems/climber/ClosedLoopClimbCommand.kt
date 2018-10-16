@@ -1,23 +1,24 @@
 package org.ghrobotics.robot.subsytems.climber
 
-import com.ctre.phoenix.motorcontrol.ControlMode
-import org.ghrobotics.lib.mathematics.units.Distance
-import org.ghrobotics.lib.mathematics.units.NativeUnits
-import org.ghrobotics.lib.utils.observabletype.UpdatableObservableValue
+import kotlinx.coroutines.experimental.GlobalScope
+import org.ghrobotics.lib.commands.Command
+import org.ghrobotics.lib.mathematics.units.nativeunits.NativeUnit
+import org.ghrobotics.lib.mathematics.units.nativeunits.STU
+import org.ghrobotics.lib.utils.observabletype.updatableValue
 import org.ghrobotics.robot.Constants
 
-class ClosedLoopClimbCommand(private val distance: Distance? = null) : org.ghrobotics.lib.commands.Command(ClimberSubsystem) {
-    private var targetPosition: Distance = NativeUnits(0)
+class ClosedLoopClimbCommand(private val distance: NativeUnit? = null) : Command(ClimberSubsystem) {
+    private var targetPosition: NativeUnit = 0.STU
 
     init {
         if (distance != null) {
             // Only finish command if it has an objective
-            _finishCondition += UpdatableObservableValue { (ClimberSubsystem.currentPosition - targetPosition).absoluteValue < Constants.kClimberClosedLpTolerance }
+            _finishCondition += GlobalScope.updatableValue { (ClimberSubsystem.climberPosition - targetPosition).absoluteValue < Constants.kClimberClosedLpTolerance }
         }
     }
 
     override suspend fun initialize() {
-        targetPosition = distance ?: ClimberSubsystem.currentPosition
-        ClimberSubsystem.set(ControlMode.MotionMagic, targetPosition.STU.toDouble())
+        targetPosition = distance ?: ClimberSubsystem.climberPosition
+        ClimberSubsystem.climberPosition = targetPosition
     }
 }

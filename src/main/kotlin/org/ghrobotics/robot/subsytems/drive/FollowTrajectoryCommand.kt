@@ -6,75 +6,93 @@
 package org.ghrobotics.robot.subsytems.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
-import org.ghrobotics.lib.mathematics.twodim.control.NonLinearController
+import kotlinx.coroutines.experimental.GlobalScope
+import org.ghrobotics.lib.commands.Command
+import org.ghrobotics.lib.mathematics.twodim.control.RamseteController
 import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryFollower
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
-import org.ghrobotics.lib.mathematics.twodim.trajectory.*
-import org.ghrobotics.lib.mathematics.twodim.trajectory.view.TimedView
-import org.ghrobotics.lib.mathematics.units.FeetPerSecond
+import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedEntry
+import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
+import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TrajectorySamplePoint
+import org.ghrobotics.lib.mathematics.twodim.trajectory.types.mirror
+import org.ghrobotics.lib.mathematics.units.degree
+import org.ghrobotics.lib.mathematics.units.meter
+import org.ghrobotics.lib.mathematics.units.millisecond
+import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.utils.BooleanSource
 import org.ghrobotics.lib.utils.Source
-import org.ghrobotics.lib.utils.l
-import org.ghrobotics.lib.utils.observabletype.*
-import org.ghrobotics.lib.utils.r
+import org.ghrobotics.lib.utils.observabletype.ObservableValue
+import org.ghrobotics.lib.utils.observabletype.ObservableVariable
+import org.ghrobotics.lib.utils.observabletype.updatableValue
 import org.ghrobotics.robot.Constants
-import org.ghrobotics.robot.Kinematics
 import org.ghrobotics.robot.Localization
-import kotlin.math.sign
 
-class FollowTrajectoryCommand(val trajectory: Source<Trajectory<TimedState<Pose2dWithCurvature>>>,
-                              pathMirrored: BooleanSource = Source(false)) : org.ghrobotics.lib.commands.Command(DriveSubsystem) {
+class FollowTrajectoryCommand(
+    val trajectory: Source<TimedTrajectory<Pose2dWithCurvature>>,
+    pathMirrored: BooleanSource = Source(false)
+) : Command(DriveSubsystem) {
 
-    constructor(trajectory: Trajectory<TimedState<Pose2dWithCurvature>>,
-                pathMirrored: BooleanSource = Source(false)) : this(Source(trajectory), pathMirrored)
+    constructor(
+        trajectory: TimedTrajectory<Pose2dWithCurvature>,
+        pathMirrored: BooleanSource = Source(false)
+    ) : this(Source(trajectory), pathMirrored)
 
     private val trajectoryFollower: TrajectoryFollower
 
     private val markerLocations = mutableListOf<Marker>()
     private val markers = mutableListOf<MarkerInternal>()
 
-    private val trajectoryUsed: Trajectory<TimedState<Pose2dWithCurvature>>
-
-    private var lastVelocity = 0.0 to 0.0
+    private val trajectoryUsed: TimedTrajectory<Pose2dWithCurvature>
 
     init {
         // Update the frequency of the command to the follower
-        executeFrequency = 100 // Hz
+        executeFrequency = (1.second / deltaTime).toInt() // Hz
 
         // Add markers
         markers.clear()
 
-        trajectoryUsed = if (pathMirrored.value) trajectory.value.mirrorTimed() else trajectory.value
+        trajectoryUsed = if (pathMirrored.value) trajectory.value.mirror() else trajectory.value
 
         // Iterate through the trajectory and add a data point every 50 ms.
-        val iterator = TrajectoryIterator(TimedView(trajectory.value))
-        val dataArray = arrayListOf<TrajectorySamplePoint<TimedState<Pose2dWithCurvature>>>()
+        val iterator = trajectoryUsed.iterator()
+        val dataArray = arrayListOf<TrajectorySamplePoint<TimedEntry<Pose2dWithCurvature>>>()
 
         while (!iterator.isDone) {
-            dataArray.add(iterator.advance(0.05))
+            dataArray.add(iterator.advance(deltaTime))
         }
         markerLocations.forEach { marker ->
             val condition = marker.condition as ObservableVariable<Boolean>
             condition.value = false // make sure its false
 
             val usedLocation = marker.location.value
-            markers.add(MarkerInternal(dataArray.minBy { usedLocation.distance(it.state.state.translation) }!!.state.t, condition))
+            markers.add(
+                MarkerInternal(
+                    dataArray.minBy { usedLocation.distance(it.state.state.pose.translation) }!!.state.t,
+                    condition
+                )
+            )
         }
 
         // Initialize path follower
-        trajectoryFollower = NonLinearController(trajectoryUsed, Constants.kDriveBeta, Constants.kDriveZeta)
+        trajectoryFollower = RamseteController(
+            trajectoryUsed,
+            Constants.kDifferentialDrive,
+            Constants.kDriveBeta,
+            Constants.kDriveZeta
+        )
 
-        _finishCondition += UpdatableObservableValue { trajectoryFollower.isFinished }
+        _finishCondition += GlobalScope.updatableValue { trajectoryFollower.isFinished }
     }
 
     fun addMarkerAt(location: Translation2d) = addMarkerAt(Source(location))
-    fun addMarkerAt(location: Source<Translation2d>) = Marker(location, ObservableVariable(false)).also { markerLocations.add(it) }
+    fun addMarkerAt(location: Source<Translation2d>) =
+        Marker(location, ObservableVariable(false)).also { markerLocations.add(it) }
 
     private fun updateDashboard() {
-        pathX = trajectoryFollower.pose.translation.x
-        pathY = trajectoryFollower.pose.translation.y
-        pathHdg = trajectoryFollower.pose.rotation.radians
+        pathX = trajectoryFollower.referencePose.translation.x
+        pathY = trajectoryFollower.referencePose.translation.y
+        pathHdg = trajectoryFollower.referencePose.rotation
 
         lookaheadX = pathX
         lookaheadY = pathY
@@ -82,57 +100,49 @@ class FollowTrajectoryCommand(val trajectory: Source<Trajectory<TimedState<Pose2
 
     override suspend fun execute() {
         val position = Localization.robotPosition
-        val kinematics = trajectoryFollower.getSteering(position)
-        val output = Kinematics.inverseKinematics(kinematics)
 
-        val lVelocitySTU = FeetPerSecond(output.l).STU.toDouble()
-        val rVelocitySTU = FeetPerSecond(output.r).STU.toDouble()
+        val output = trajectoryFollower.getOutputFromDynamics(position)
 
-        val lAccelerationSTU = FeetPerSecond((output.l - lastVelocity.l) * executeFrequency).STU / 1000.0 // Why CTRE
-        val rAccelerationSTU = FeetPerSecond((output.r - lastVelocity.r) * executeFrequency).STU / 1000.0 // Why CTRE
-
-        DriveSubsystem.setTrajectoryVelocity(Output(
-                lSetpoint = lVelocitySTU, lAdditiveFF = Constants.kADrive * lAccelerationSTU + Constants.kSDrive * sign(lVelocitySTU),
-                rSetpoint = rVelocitySTU, rAdditiveFF = Constants.kADrive * rAccelerationSTU + Constants.kSDrive * sign(rVelocitySTU)
-        ))
+        DriveSubsystem.setTrajectoryVelocity(output)
 
         updateDashboard()
 
-
         // Update marker states
-        val followerStateTime = trajectoryFollower.point.state.t
+        val followerStateTime = trajectoryFollower.referencePoint.state.t
         markers.forEach { it.condition.value = followerStateTime > it.t }
-
-        lastVelocity = output
     }
 
     override suspend fun dispose() {
         DriveSubsystem.set(controlMode = ControlMode.PercentOutput, leftOutput = 0.0, rightOutput = 0.0)
-        println("[Trajectory Follower] " +
-                "Norm of Translational Error: " +
-                "${(Localization.robotPosition.translation - trajectoryUsed.lastState.state.translation).norm}")
-        println("[Trajectory Follower]" +
-                "Rotation Error: " +
-                "${(Localization.robotPosition.rotation - trajectoryUsed.lastState.state.rotation).degrees} degrees.")
+        println(
+            "[Trajectory Follower] " +
+                    "Norm of Translational Error: " +
+                    "${(Localization.robotPosition.translation - trajectoryUsed.lastState.state.pose.translation).norm}"
+        )
+        println(
+            "[Trajectory Follower]" +
+                    "Rotation Error: " +
+                    "${(Localization.robotPosition.rotation - trajectoryUsed.lastState.state.pose.rotation).degree.asDouble} degrees."
+        )
 
     }
 
     companion object {
-        var pathX = 0.0
+        val deltaTime = 50.millisecond
+
+        var pathX = 0.meter
             private set
-        var pathY = 0.0
+        var pathY = 0.meter
             private set
-        var pathHdg = 0.0
+        var pathHdg = 0.degree
             private set
 
-        var lookaheadX = 0.0
+        var lookaheadX = 0.meter
             private set
-        var lookaheadY = 0.0
+        var lookaheadY = 0.meter
             private set
     }
 
     class Marker(val location: Source<Translation2d>, val condition: ObservableValue<Boolean>)
     private class MarkerInternal(val t: Double, val condition: ObservableVariable<Boolean>)
-
-    class Output(val lSetpoint: Double, val rSetpoint: Double, val lAdditiveFF: Double, val rAdditiveFF: Double)
 }

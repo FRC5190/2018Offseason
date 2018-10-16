@@ -5,11 +5,17 @@
 
 package org.ghrobotics.robot
 
+import com.team254.lib.physics.DCMotorTransmission
+import com.team254.lib.physics.DifferentialDrive
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
-import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
-import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.*
-import org.ghrobotics.robot.subsytems.elevator.ElevatorSubsystem
+import org.ghrobotics.lib.mathematics.units.derivedunits.acceleration
+import org.ghrobotics.lib.mathematics.units.derivedunits.velocity
+import org.ghrobotics.lib.mathematics.units.expressions.SIExp2
+import org.ghrobotics.lib.mathematics.units.fractions.SIFrac11
+import org.ghrobotics.lib.mathematics.units.fractions.SIFrac12
+import org.ghrobotics.lib.mathematics.units.nativeunits.*
+import tornadofx.deg
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 object Constants {
@@ -57,30 +63,35 @@ object Constants {
 
 
     // ROBOT
-    const val kRobotWidth = 27.0 / 12.0
-    const val kRobotLength = 33.0 / 12.0
-    const val kIntakeLength = 16.0 / 12.0
-    const val kBumperLength = 02.0 / 12.0
+    val kRobotWidth = 27.inch
+    val kRobotLength = 33.inch
+    val kIntakeLength = 16.0.inch
+    val kBumperLength = 2.0.inch
 
-    const val kRobotStartX = (kRobotLength / 2.0) + kBumperLength
+    val kRobotStartX = (kRobotLength / 2.0) + kBumperLength
 
-    const val kExchangeZoneBottomY = 14.5
-    const val kPortalZoneBottomY = 27 - (29.69 / 12.0)
+    val kExchangeZoneBottomY = 14.5.feet
+    val kPortalZoneBottomY = (27 - (29.69 / 12.0)).feet
 
-    const val kRobotSideStartY = kPortalZoneBottomY - (kRobotWidth / 2.0) - kBumperLength
-    const val kRobotCenterStartY = kExchangeZoneBottomY - (kRobotWidth / 2.0) - kBumperLength
+    val kRobotSideStartY = kPortalZoneBottomY - (kRobotWidth / 2.0) - kBumperLength
+    val kRobotCenterStartY = kExchangeZoneBottomY - (kRobotWidth / 2.0) - kBumperLength
 
     const val kRobotMass = 54.53 /* Robot */ + 5.669 /* Battery */ + 7 /* Bumpers */ // kg
     const val kRobotMomentOfInertia = 10.0 // kg m^2
     const val kRobotAngularDrag = 12.0 // N*m / (rad/sec)
 
     // MECHANISM TRANSFORMATIONS
-    val kFrontToIntake = Pose2d(Translation2d(-kIntakeLength, 0.0), Rotation2d())
-    val kCenterToIntake = Pose2d(Translation2d(-(kRobotLength / 2.0) - kIntakeLength, 0.0), Rotation2d())
-    val kCenterToFrontBumper = Pose2d(Translation2d(-(kRobotLength / 2.0) - kBumperLength, 0.0), Rotation2d())
+    val kFrontToIntake = Pose2d(-kIntakeLength, 0.meter, 0.degree)
+    val kCenterToIntake = Pose2d(-(kRobotLength / 2.0) - kIntakeLength, 0.meter, 0.degree)
+    val kCenterToFrontBumper = Pose2d(-(kRobotLength / 2.0) - kBumperLength, 0.meter, 0.degree)
 
 
     // DRIVE
+    val kDriveNativeUnitModel = NativeUnitLengthModel(
+        1440.STU,
+        2.92.inch
+    )
+
     const val kDriveSensorUnitsPerRotation = 1440
     const val kWheelRadiusInches = 2.92 // Inches
     const val kTrackWidth = 2.6 // Feet
@@ -93,34 +104,56 @@ object Constants {
     const val kDriveBeta = 0.20
     const val kDriveZeta = 0.90
 
+    val kDriveTransmission = DCMotorTransmission(
+        0.0,
+        0.0,
+        0.0
+    )
+
+    val kDifferentialDrive = DifferentialDrive(
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        kDriveTransmission,
+        kDriveTransmission
+    )
 
     // ARM
-    val kArmDownPosition = NativeUnits(-795)
+    val kArmNativeUnitModel = NativeUnitRotationModel()
+
+    val kArmDownPosition = (-795).STU.toModel(kArmNativeUnitModel)
 
     const val kPArm = 4.5
     const val kVArm = 16.78 + 0.9 // 1023 units per STU (velocity)
 
-    val kArmMotionMagicVelocity = NativeUnitsPer100Ms(1000000)
-    const val kArmMotionMagicAcceleration = 400
-    val kArmClosedLpTolerance = NativeUnits(50)
+    val kArmMotionMagicVelocity = SIFrac11(1000000.degree, 1.second)
+    val kArmMotionMagicAcceleration = SIFrac12(400.STU.toModel(kArmNativeUnitModel), SIExp2(1.second, 1.second))
+    val kArmClosedLpTolerance = 14.degree
 
+    val kArmAutoTolerance = 35.degree
 
     // ELEVATOR
     const val kPElevator = 0.3
     const val kVElevator = 0.395 // 1023 units per STU (velocity)
 
-    val kElevatorSoftLimitFwd = NativeUnits(22500)
-    val kElevatorClosedLpTolerance = Inches(1.0, preferences { radius = 1.25 / 2.0 })
+    val elevatorNativeUnitSettings = NativeUnitLengthModel(
+        1440.STU,
+        1.25.inch / 2.0
+    )
 
-    val kElevatorMotionMagicVelocity = InchesPerSecond(72.0, preferences { radius = 1.25 / 2.0 })
-    val kElevatorMotionMagicAcceleration = InchesPerSecond(90.0, preferences { radius = 1.25 / 2.0 }).STU
+    val kElevatorSoftLimitFwd = 22500.STU
+    val kElevatorClosedLpTolerance = 1.inch
 
+    val kElevatorMotionMagicVelocity = 72.inch.velocity
+    val kElevatorMotionMagicAcceleration = 90.inch.acceleration
 
     // CLIMBER
     const val kPClimber = 2.0
 
-    val kClimberClosedLpTolerance = NativeUnits(1000)
+    val kClimberClosedLpTolerance = 1000.STU
 
-    val kClimberMotionMagicVelocity = NativeUnitsPer100Ms(1000000)
-    const val kClimberMotionMagicAcceleration = 12000
+    val kClimberMotionMagicVelocity = 1000000.STUPer100ms
+    val kClimberMotionMagicAcceleration = 12000.STUPer100msPerSecond
 }

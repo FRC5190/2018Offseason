@@ -1,5 +1,6 @@
 package org.ghrobotics.visualizer
 
+/*
 import javafx.geometry.Pos
 import javafx.scene.chart.LineChart
 import javafx.scene.chart.NumberAxis
@@ -20,7 +21,6 @@ import org.ghrobotics.robot.Constants
 import org.ghrobotics.robot.auto.Trajectories
 import tornadofx.*
 import kotlin.math.absoluteValue
-
 
 class TrajectoryVisualizer : App(MainView::class) {
     companion object {
@@ -155,3 +155,4 @@ object VelocityChart : LineChart<Number, Number>(NumberAxis(), NumberAxis()) {
         }
     }
 }
+*/

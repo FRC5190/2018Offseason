@@ -9,21 +9,26 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.DemandType
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.NeutralMode
-import com.team254.lib.physics.DCMotorTransmission
 import edu.wpi.first.wpilibj.Solenoid
 import org.ghrobotics.lib.commands.Subsystem
-import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryFollower
+import org.ghrobotics.lib.mathematics.units.amp
+import org.ghrobotics.lib.mathematics.units.derivedunits.Velocity
+import org.ghrobotics.lib.mathematics.units.derivedunits.volt
+import org.ghrobotics.lib.mathematics.units.meter
+import org.ghrobotics.lib.mathematics.units.millisecond
+import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.wrappers.FalconSRX
 import org.ghrobotics.robot.Constants
 
 
 object DriveSubsystem : Subsystem() {
 
-    private val leftMaster = FalconSRX(Constants.kLeftMasterId)
-    private val rightMaster = FalconSRX(Constants.kRightMasterId)
+    private val leftMaster = FalconSRX(Constants.kLeftMasterId, Constants.kDriveNativeUnitModel)
+    private val rightMaster = FalconSRX(Constants.kRightMasterId, Constants.kDriveNativeUnitModel)
 
-    private val leftSlave1 = FalconSRX(Constants.kLeftSlaveId1)
-    private val rightSlave1 = FalconSRX(Constants.kRightSlaveId1)
+    private val leftSlave1 = FalconSRX(Constants.kLeftSlaveId1, Constants.kDriveNativeUnitModel)
+    private val rightSlave1 = FalconSRX(Constants.kRightSlaveId1, Constants.kDriveNativeUnitModel)
 
     private val allMasters = arrayOf(leftMaster, rightMaster)
 
@@ -47,16 +52,16 @@ object DriveSubsystem : Subsystem() {
         }
 
 
-    val leftPosition: Distance
+    val leftPosition
         get() = leftMaster.sensorPosition
 
-    val rightPosition: Distance
+    val rightPosition
         get() = rightMaster.sensorPosition
 
-    val leftVelocity: Speed
+    val leftVelocity: Velocity
         get() = leftMaster.sensorVelocity
 
-    val rightVelocity: Speed
+    val rightVelocity: Velocity
         get() = rightMaster.sensorVelocity
 
     val leftPercent: Double
@@ -95,20 +100,20 @@ object DriveSubsystem : Subsystem() {
         resetHighGear()
 
         allMotors.forEach {
-            it.peakFwdOutput = 1.0
-            it.peakRevOutput = -1.0
+            it.peakForwardOutput = 1.0
+            it.peakReverseOutput = -1.0
 
-            it.nominalFwdOutput = 0.0
-            it.nominalRevOutput = 0.0
+            it.nominalForwardOutput = 0.0
+            it.nominalReverseOutput = 0.0
 
             it.brakeMode = NeutralMode.Brake
 
-            it.voltageCompensationSaturation = Volts(12.0)
+            it.voltageCompensationSaturation = 12.volt
             it.voltageCompensationEnabled = true
 
-            it.peakCurrentLimit = Amps(0)
-            it.peakCurrentLimitDuration = Milliseconds(0)
-            it.continuousCurrentLimit = Amps(40)
+            it.peakCurrentLimit = 0.amp
+            it.peakCurrentLimitDuration = 0.millisecond
+            it.continuousCurrentLimit = 40.amp
             it.currentLimitingEnabled = true
         }
         resetEncoders()
@@ -120,7 +125,7 @@ object DriveSubsystem : Subsystem() {
         allMasters.forEach {
             it.kP = Constants.kPDrive
             it.kF = Constants.kVDrive
-            it.openLoopRamp = Seconds(0.0)
+            it.openLoopRamp = 0.second
         }
     }
 
@@ -128,7 +133,7 @@ object DriveSubsystem : Subsystem() {
         allMasters.forEach {
             it.kP = 0.0
             it.kF = 0.0
-            it.openLoopRamp = Seconds(0.2)
+            it.openLoopRamp = 0.2.second
         }
     }
 
@@ -137,14 +142,14 @@ object DriveSubsystem : Subsystem() {
         rightMaster.set(controlMode, rightOutput)
     }
 
-    fun setTrajectoryVelocity(pathOut: FollowTrajectoryCommand.Output) {
-        leftMaster.set(ControlMode.Velocity, pathOut.lSetpoint, DemandType.ArbitraryFeedForward, pathOut.lAdditiveFF)
-        rightMaster.set(ControlMode.Velocity, pathOut.rSetpoint, DemandType.ArbitraryFeedForward, pathOut.rAdditiveFF)
+    fun setTrajectoryVelocity(pathOut: TrajectoryFollower.Output) {
+        leftMaster.set(ControlMode.Velocity, pathOut.lSetpoint, DemandType.ArbitraryFeedForward, pathOut.lfVoltage.asDouble / 12.0)
+        rightMaster.set(ControlMode.Velocity, pathOut.rSetpoint, DemandType.ArbitraryFeedForward, pathOut.rfVoltage.asDouble / 12.0)
     }
 
     fun resetEncoders() {
         allMasters.forEach {
-            it.sensorPosition = NativeUnits(0)
+            it.sensorPosition = 0.meter
         }
     }
 }

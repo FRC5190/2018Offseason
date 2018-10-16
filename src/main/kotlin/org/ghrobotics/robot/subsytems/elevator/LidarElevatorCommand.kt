@@ -5,42 +5,40 @@
 
 package org.ghrobotics.robot.subsytems.elevator
 
-import com.ctre.phoenix.motorcontrol.ControlMode
-import org.ghrobotics.lib.mathematics.units.Distance
-import org.ghrobotics.lib.mathematics.units.Inches
-import org.ghrobotics.lib.mathematics.units.NativeUnits
-import org.ghrobotics.lib.utils.observabletype.UpdatableObservableValue
+import kotlinx.coroutines.experimental.GlobalScope
+import org.ghrobotics.lib.commands.Command
+import org.ghrobotics.lib.mathematics.units.Length
+import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.utils.observabletype.and
 import org.ghrobotics.lib.utils.observabletype.not
+import org.ghrobotics.lib.utils.observabletype.updatableValue
 import org.ghrobotics.robot.Constants
 import org.ghrobotics.robot.sensors.CubeSensors
 import org.ghrobotics.robot.sensors.Lidar
-import org.ghrobotics.robot.subsytems.climber.ClimberSubsystem
 import java.util.*
 
-class LidarElevatorCommand : org.ghrobotics.lib.commands.Command(ElevatorSubsystem) {
+class LidarElevatorCommand : Command(ElevatorSubsystem) {
     companion object {
-        private val heightOffset = Inches(15.0)
-        private val heightSource = Lidar.withProcessing { it.first to it.second.withSettings(ElevatorSubsystem.settings) }
-                .withProcessing { it.first to (it.second - heightOffset) }
+        private val heightOffset = 15.inch
+        private val heightSource = Lidar.withProcessing { it.first to (it.second - heightOffset) }
     }
 
-    private var heightNeeded = 0.0
+    private var heightNeeded = 0.inch
 
     init {
-        _finishCondition += !CubeSensors.cubeIn and UpdatableObservableValue {
-            (ClimberSubsystem.currentPosition - NativeUnits(heightNeeded.toInt(), ElevatorSubsystem.settings)).absoluteValue < Constants.kClimberClosedLpTolerance
+        _finishCondition += !CubeSensors.cubeIn and GlobalScope.updatableValue {
+            (ElevatorSubsystem.elevatorPosition - heightNeeded).absoluteValue < Constants.kElevatorClosedLpTolerance
         }
     }
 
     override suspend fun initialize() {
-        heightNeeded = ElevatorSubsystem.kScalePosition.STU.toDouble()
+        heightNeeded = ElevatorSubsystem.kScalePosition
     }
 
-    private val heightBuffer = ArrayDeque<Distance>(3)
+    private val heightBuffer = ArrayDeque<Length>(3)
 
     private val heightBufferAverage
-        get() = heightBuffer.map { it.IN }.average()
+        get() = heightBuffer.map { it.inch.asDouble }.average().inch
 
     override suspend fun execute() {
         val (underScale, scaleHeight) = heightSource.value
@@ -48,12 +46,14 @@ class LidarElevatorCommand : org.ghrobotics.lib.commands.Command(ElevatorSubsyst
         if (underScale) heightBuffer.add(scaleHeight)
 
         heightNeeded = if (underScale) {
-            heightBufferAverage.coerceIn(ElevatorSubsystem.kFirstStagePosition.STU.toDouble(),
-                    ElevatorSubsystem.kHighScalePosition.STU.toDouble())
+            heightBufferAverage.coerceIn(
+                ElevatorSubsystem.kFirstStagePosition,
+                ElevatorSubsystem.kHighScalePosition
+            )
         } else {
-            ElevatorSubsystem.kScalePosition.STU.toDouble()
+            ElevatorSubsystem.kScalePosition
         }
 
-        ElevatorSubsystem.set(ControlMode.MotionMagic, heightNeeded)
+        ElevatorSubsystem.elevatorPosition = heightNeeded
     }
 }

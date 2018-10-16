@@ -46,7 +46,8 @@ object NetworkInterface {
     private val notifier: Notifier
 
     init {
-        StartingPositions.values().forEach { startingPositionChooser.addDefault(it.name.toLowerCase().capitalize(), it) }
+        StartingPositions.values()
+            .forEach { startingPositionChooser.addDefault(it.name.toLowerCase().capitalize(), it) }
 
         ScaleAutoMode.values().forEach {
             nearScaleAutoChooser.addDefault(it.name.toLowerCase().capitalize(), it)
@@ -61,20 +62,20 @@ object NetworkInterface {
         SmartDashboard.putData("Switch Auto Mode", switchAutoChooser)
 
         notifier = Notifier {
-            val x = Localization.robotPosition.translation.x
-            val y = Localization.robotPosition.translation.y
-            val a = Localization.robotPosition.rotation.radians
+            val x = Localization.robotPosition.translation.x.feet.asDouble
+            val y = Localization.robotPosition.translation.y.feet.asDouble
+            val a = Localization.robotPosition.rotation.radian.asDouble
 
             robotX.setDouble(x)
             robotY.setDouble(y)
             robotHdg.setDouble(a)
 
-            pathX.setDouble(FollowTrajectoryCommand.pathX)
-            pathY.setDouble(FollowTrajectoryCommand.pathY)
-            pathHdg.setDouble(FollowTrajectoryCommand.pathHdg)
+            pathX.setDouble(FollowTrajectoryCommand.pathX.feet.asDouble)
+            pathY.setDouble(FollowTrajectoryCommand.pathY.feet.asDouble)
+            pathHdg.setDouble(FollowTrajectoryCommand.pathHdg.degree.asDouble)
 
-            lookaheadX.setDouble(FollowTrajectoryCommand.lookaheadX)
-            lookaheadY.setDouble(FollowTrajectoryCommand.lookaheadY)
+            lookaheadX.setDouble(FollowTrajectoryCommand.lookaheadX.feet.asDouble)
+            lookaheadY.setDouble(FollowTrajectoryCommand.lookaheadY.feet.asDouble)
 
             isEnabled.setString(if (FalconRobotBase.INSTANCE.isEnabled) "Enabled" else "Disabled")
             gameData.setString(DriverStation.getInstance().gameSpecificMessage ?: "null")
