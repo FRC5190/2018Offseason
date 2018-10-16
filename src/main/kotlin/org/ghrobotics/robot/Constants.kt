@@ -5,8 +5,6 @@
 
 package org.ghrobotics.robot
 
-import com.team254.lib.physics.DCMotorTransmission
-import com.team254.lib.physics.DifferentialDrive
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.mathematics.units.derivedunits.acceleration
@@ -15,7 +13,6 @@ import org.ghrobotics.lib.mathematics.units.expressions.SIExp2
 import org.ghrobotics.lib.mathematics.units.fractions.SIFrac11
 import org.ghrobotics.lib.mathematics.units.fractions.SIFrac12
 import org.ghrobotics.lib.mathematics.units.nativeunits.*
-import tornadofx.deg
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 object Constants {
@@ -87,38 +84,25 @@ object Constants {
 
 
     // DRIVE
+    val kDriveSensorUnitsPerRotation = 1440.STU
+    val kWheelRadius = 2.92.inch
+    val kTrackWidth = 2.6.feet
+
     val kDriveNativeUnitModel = NativeUnitLengthModel(
-        1440.STU,
-        2.92.inch
+            kDriveSensorUnitsPerRotation,
+            kWheelRadius
     )
 
-    const val kDriveSensorUnitsPerRotation = 1440
-    const val kWheelRadiusInches = 2.92 // Inches
-    const val kTrackWidth = 2.6 // Feet
+    const val kPDrive = 2.0 // Talon SRX Units
 
-    const val kPDrive = 2.0
-    const val kVDrive = 0.656 // 1023 units per STU (velocity)
-    const val kADrive = 0.030 // 1023 units per STU (acceleration)
-    const val kSDrive = 0.050 // %
+    const val kStaticFrictionVoltage = 1.2 // Volts
+    const val kVDrive = 0.173 // Volts per radians per second
+    const val kADrive = 0.020 // Volts per radians per second per second
 
-    const val kDriveBeta = 0.20
-    const val kDriveZeta = 0.90
 
-    val kDriveTransmission = DCMotorTransmission(
-        0.0,
-        0.0,
-        0.0
-    )
+    const val kDriveBeta = 0.16667 // Inverse meters squared
+    const val kDriveZeta = 0.85 // Unitless dampening co-efficient
 
-    val kDifferentialDrive = DifferentialDrive(
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        kDriveTransmission,
-        kDriveTransmission
-    )
 
     // ARM
     val kArmNativeUnitModel = NativeUnitRotationModel()
@@ -134,13 +118,14 @@ object Constants {
 
     val kArmAutoTolerance = 35.degree
 
+
     // ELEVATOR
     const val kPElevator = 0.3
     const val kVElevator = 0.395 // 1023 units per STU (velocity)
 
     val elevatorNativeUnitSettings = NativeUnitLengthModel(
-        1440.STU,
-        1.25.inch / 2.0
+            1440.STU,
+            1.25.inch / 2.0
     )
 
     val kElevatorSoftLimitFwd = 22500.STU
@@ -148,6 +133,7 @@ object Constants {
 
     val kElevatorMotionMagicVelocity = 72.inch.velocity
     val kElevatorMotionMagicAcceleration = 90.inch.acceleration
+
 
     // CLIMBER
     const val kPClimber = 2.0

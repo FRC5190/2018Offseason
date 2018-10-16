@@ -77,7 +77,7 @@ class FollowTrajectoryCommand(
         // Initialize path follower
         trajectoryFollower = RamseteController(
             trajectoryUsed,
-            Constants.kDifferentialDrive,
+            DriveSubsystem.driveModel,
             Constants.kDriveBeta,
             Constants.kDriveZeta
         )

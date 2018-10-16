@@ -9,6 +9,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.DemandType
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.NeutralMode
+import com.team254.lib.physics.DCMotorTransmission
+import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.Solenoid
 import org.ghrobotics.lib.commands.Subsystem
 import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryFollower
@@ -20,6 +22,7 @@ import org.ghrobotics.lib.mathematics.units.millisecond
 import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.wrappers.FalconSRX
 import org.ghrobotics.robot.Constants
+import kotlin.math.pow
 
 
 object DriveSubsystem : Subsystem() {
@@ -38,6 +41,22 @@ object DriveSubsystem : Subsystem() {
     private val allMotors = arrayOf(*leftMotors, *rightMotors)
 
     private val shifter = Solenoid(Constants.kPCMId, Constants.kDriveSolenoidId)
+
+    private val transmission = DCMotorTransmission(
+        1 / Constants.kVDrive,
+        Constants.kTrackWidth.asMetric.asDouble.pow(2) * Constants.kRobotMass / (2.0 * Constants.kADrive),
+        Constants.kStaticFrictionVoltage
+    )
+
+    val driveModel = DifferentialDrive(
+        Constants.kRobotMass,
+        Constants.kRobotMomentOfInertia,
+        Constants.kRobotAngularDrag,
+        Constants.kWheelRadius.asMetric.asDouble,
+        Constants.kTrackWidth.asMetric.asDouble / 2.0,
+        transmission,
+        transmission
+    )
 
     var lowGear = false
         set(wantLow) {
@@ -63,18 +82,6 @@ object DriveSubsystem : Subsystem() {
 
     val rightVelocity: Velocity
         get() = rightMaster.sensorVelocity
-
-    val leftPercent: Double
-        get() = leftMaster.motorOutputPercent
-
-    val rightPercent: Double
-        get() = rightMaster.motorOutputPercent
-
-    val leftAmperage: Double
-        get() = leftMaster.outputCurrent
-
-    val rightAmperage: Double
-        get() = rightMaster.outputCurrent
 
 
     init {
@@ -124,7 +131,7 @@ object DriveSubsystem : Subsystem() {
     private fun resetHighGear() {
         allMasters.forEach {
             it.kP = Constants.kPDrive
-            it.kF = Constants.kVDrive
+            it.kF = 0.0
             it.openLoopRamp = 0.second
         }
     }
