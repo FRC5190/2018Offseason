@@ -10,10 +10,17 @@ import org.ghrobotics.lib.commands.Command
 import org.ghrobotics.lib.utils.DoubleSource
 import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.robot.sensors.CubeSensors
-import kotlin.math.absoluteValue
+import kotlin.math.withSign
 
-class IntakeCommand(private val direction: IntakeSubsystem.Direction,
-                    private val speed: DoubleSource = Source(1.0)) : Command(IntakeSubsystem) {
+class IntakeCommand(
+    direction: IntakeSubsystem.Direction,
+    speed: DoubleSource = Source(1.0)
+) : Command(IntakeSubsystem) {
+
+    private val speed = speed
+        .withProcessing { it.withSign(if (direction == IntakeSubsystem.Direction.IN) -1 else 1) }
+
+    constructor(direction: IntakeSubsystem.Direction, speed: Double) : this(direction, Source(speed))
 
     init {
         if (direction == IntakeSubsystem.Direction.IN) _finishCondition += CubeSensors.cubeIn
@@ -21,19 +28,10 @@ class IntakeCommand(private val direction: IntakeSubsystem.Direction,
 
     override suspend fun initialize() {
         IntakeSubsystem.solenoid.set(false)
-        updateSpeed()
     }
 
     override suspend fun execute() {
-        updateSpeed()
-    }
-
-    private fun updateSpeed() {
-        val newSpeed = speed.value.absoluteValue
-        IntakeSubsystem.set(ControlMode.PercentOutput, when (direction) {
-            IntakeSubsystem.Direction.IN -> -newSpeed
-            IntakeSubsystem.Direction.OUT -> newSpeed
-        })
+        IntakeSubsystem.set(ControlMode.PercentOutput, speed.value)
     }
 
     override suspend fun dispose() {

@@ -7,6 +7,7 @@ import org.ghrobotics.robot.subsytems.drive.FollowTrajectoryCommand
 
 class RoutineBaseline(startingPosition: Source<StartingPositions>) : AutoRoutine(startingPosition) {
     override fun createRoutine() = FollowTrajectoryCommand(
-            trajectory = Source(Trajectories.baseline),
-            pathMirrored = startingPosition.withEquals(StartingPositions.RIGHT))
+        trajectory = Source(Trajectories.baseline),
+        pathMirrored = startingPosition.withEquals(StartingPositions.RIGHT)
+    )
 }

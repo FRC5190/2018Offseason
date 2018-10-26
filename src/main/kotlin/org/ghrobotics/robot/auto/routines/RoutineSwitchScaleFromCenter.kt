@@ -2,10 +2,7 @@ package org.ghrobotics.robot.auto.routines
 
 import kotlinx.coroutines.experimental.GlobalScope
 import openrio.powerup.MatchData
-import org.ghrobotics.lib.commands.ConditionCommand
-import org.ghrobotics.lib.commands.DelayCommand
-import org.ghrobotics.lib.commands.parallel
-import org.ghrobotics.lib.commands.sequential
+import org.ghrobotics.lib.commands.*
 import org.ghrobotics.lib.mathematics.units.millisecond
 import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.utils.Source
@@ -28,7 +25,7 @@ class RoutineSwitchScaleFromCenter(
     private val switchSide: Source<MatchData.OwnedSide>,
     private val scaleSide: Source<MatchData.OwnedSide>
 ) : AutoRoutine(startingPosition) {
-    override fun createRoutine(): org.ghrobotics.lib.commands.Command {
+    override fun createRoutine(): Command {
         val switch = switchSide.withEquals(MatchData.OwnedSide.LEFT)
         val switchMirrored = switchSide.withEquals(MatchData.OwnedSide.RIGHT)
         val scaleMirrored = scaleSide.withEquals(MatchData.OwnedSide.RIGHT)
@@ -49,7 +46,7 @@ class RoutineSwitchScaleFromCenter(
                 +SubsystemPreset.SWITCH.command
                 +sequential {
                     +DelayCommand((drop1stCube.trajectory.value.lastState.t - 0.2).second)
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.5)).withTimeout(200.millisecond)
+                    +IntakeCommand(IntakeSubsystem.Direction.OUT, 0.5).withTimeout(200.millisecond)
                 }
             }
             +parallel {
@@ -66,14 +63,14 @@ class RoutineSwitchScaleFromCenter(
             +parallel {
                 +drop2ndCube
                 +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition)
-                +ClosedLoopArmCommand(ArmSubsystem.kUpPosition)
+                +ClosedLoopArmCommand(Constants.kArmUpPosition)
                 sequential {
                     +DelayCommand((drop2ndCube.trajectory.value.lastState.t - 1.75).second)
                     +SubsystemPreset.BEHIND.command
                     +ConditionCommand(GlobalScope.updatableValue {
-                        ArmSubsystem.armPosition > ArmSubsystem.kBehindPosition - Constants.kArmAutoTolerance
+                        ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance
                     })
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.35)).withTimeout(500.millisecond)
+                    +IntakeCommand(IntakeSubsystem.Direction.OUT, 0.35).withTimeout(500.millisecond)
                 }
             }
         }

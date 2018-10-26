@@ -10,19 +10,15 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.NeutralMode
 import org.ghrobotics.lib.commands.Subsystem
 import org.ghrobotics.lib.mathematics.units.amp
-import org.ghrobotics.lib.mathematics.units.nativeunits.STU
 import org.ghrobotics.lib.wrappers.FalconSRX
 import org.ghrobotics.robot.Constants
 
 object ArmSubsystem : Subsystem() {
 
-    private val armMaster = FalconSRX(Constants.kArmId, Constants.kArmNativeUnitModel)
-
-    val kDownPosition = Constants.kArmDownPosition
-    val kMiddlePosition = kDownPosition + 40.STU.toModel(Constants.kArmNativeUnitModel)
-    val kUpPosition = kDownPosition + 200.STU.toModel(Constants.kArmNativeUnitModel)
-    val kAllUpPosition = kDownPosition + 250.STU.toModel(Constants.kArmNativeUnitModel)
-    val kBehindPosition = kDownPosition + 380.STU.toModel(Constants.kArmNativeUnitModel)
+    private val armMaster = FalconSRX(
+        Constants.kArmId,
+        Constants.kArmNativeUnitModel
+    )
 
     var armPosition
         get() = armMaster.sensorPosition
@@ -41,7 +37,7 @@ object ArmSubsystem : Subsystem() {
 
             kP = Constants.kPArm
             kF = Constants.kVArm
-            allowedClosedLoopError = Constants.kArmClosedLpTolerance
+            allowedClosedLoopError = Constants.kArmClosedLoopTolerance
 
             continuousCurrentLimit = 20.amp
             currentLimitingEnabled = true

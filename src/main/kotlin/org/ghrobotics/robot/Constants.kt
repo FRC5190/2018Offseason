@@ -89,8 +89,8 @@ object Constants {
     val kTrackWidth = 2.6.feet
 
     val kDriveNativeUnitModel = NativeUnitLengthModel(
-            kDriveSensorUnitsPerRotation,
-            kWheelRadius
+        kDriveSensorUnitsPerRotation,
+        kWheelRadius
     )
 
     const val kPDrive = 2.0 // Talon SRX Units
@@ -105,27 +105,30 @@ object Constants {
 
 
     // ARM
-    val kArmNativeUnitModel = NativeUnitRotationModel()
+    val kArmNativeUnitModel = NativeUnitRotationModel(1024.STU)
 
-    val kArmDownPosition = (-795).STU.toModel(kArmNativeUnitModel)
+    val kArmDownPosition = (-280).degree
+    val kArmMiddlePosition = kArmDownPosition + 14.degree
+    val kArmUpPosition = kArmDownPosition + 70.degree
+    val kArmAllUpPosition = kArmDownPosition + 88.degree
+    val kArmBehindPosition = kArmDownPosition + 134.degree
 
     const val kPArm = 4.5
     const val kVArm = 16.78 + 0.9 // 1023 units per STU (velocity)
 
     val kArmMotionMagicVelocity = SIFrac11(1000000.degree, 1.second)
-    val kArmMotionMagicAcceleration = SIFrac12(400.STU.toModel(kArmNativeUnitModel), SIExp2(1.second, 1.second))
-    val kArmClosedLpTolerance = 14.degree
+    val kArmMotionMagicAcceleration = SIFrac12(140.degree, SIExp2(1.second, 1.second))
 
+    val kArmClosedLoopTolerance = 14.degree
     val kArmAutoTolerance = 35.degree
-
 
     // ELEVATOR
     const val kPElevator = 0.3
     const val kVElevator = 0.395 // 1023 units per STU (velocity)
 
     val elevatorNativeUnitSettings = NativeUnitLengthModel(
-            1440.STU,
-            1.25.inch / 2.0
+        1440.STU,
+        1.25.inch / 2.0
     )
 
     val kElevatorSoftLimitFwd = 22500.STU

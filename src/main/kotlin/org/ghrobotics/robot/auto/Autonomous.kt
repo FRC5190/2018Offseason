@@ -31,8 +31,8 @@ object Autonomous {
         val farScaleAutoMode = Source { NetworkInterface.farScaleAutoChooser.selected }
     }
 
-    private val farScale = Config.startingPosition.asSource()
-        .withMerge(Config.scaleSide.asSource()) { one, two -> !one.name.first().equals(two.name.first(), true) }
+    val isSameSide = Config.startingPosition.asSource()
+        .withMerge(Config.scaleSide.asSource()) { one, two -> !one.isSameSide(two) }
 
     private var configValid =
         Config.switchSide.map { it != MatchData.OwnedSide.UNKNOWN } and Config.scaleSide.map { it != MatchData.OwnedSide.UNKNOWN }
@@ -43,13 +43,15 @@ object Autonomous {
     // Autonomous Master Group
     private val JUST = stateCommandGroup(Config.startingPosition.asSource()) {
         state(StartingPositions.LEFT, StartingPositions.RIGHT) {
-            stateCommandGroup(farScale) {
+            stateCommandGroup(isSameSide) {
                 state(true) {
-                    stateCommandGroup(Config.farScaleAutoMode) {
+                    stateCommandGroup(Config.nearScaleAutoMode) {
+                        // Three cube same side
                         state(
                             ScaleAutoMode.THREECUBE,
                             RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource())
                         )
+                        // Baseline same side
                         state(
                             ScaleAutoMode.BASELINE,
                             RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource())
@@ -57,11 +59,13 @@ object Autonomous {
                     }
                 }
                 state(false) {
-                    stateCommandGroup(Config.nearScaleAutoMode) {
+                    stateCommandGroup(Config.farScaleAutoMode) {
+                        // 2.5 cube cross
                         state(
                             ScaleAutoMode.THREECUBE,
                             RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource())
                         )
+                        // Baseline cross
                         state(
                             ScaleAutoMode.BASELINE,
                             RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource())
@@ -72,10 +76,12 @@ object Autonomous {
         }
         state(StartingPositions.CENTER) {
             stateCommandGroup(Config.switchAutoMode) {
+                // Center 2 cube
                 state(
                     SwitchAutoMode.BASIC,
                     RoutineSwitchFromCenter(Config.startingPosition.asSource(), Config.switchSide.asSource())
                 )
+                // Center 1 cube switch and 1 cube scale
                 state(
                     SwitchAutoMode.ROBONAUTS,
                     RoutineSwitchScaleFromCenter(
@@ -105,10 +111,15 @@ object Autonomous {
     private fun <T> StateCommandGroupBuilder<T>.state(state: T, routine: AutoRoutine) = state(state, routine.create())
 }
 
-enum class StartingPositions(val pose: Pose2d) {
-    LEFT(Trajectories.kSideStart),
-    CENTER(Trajectories.kCenterStart),
-    RIGHT(Trajectories.kSideStart.mirror)
+enum class StartingPositions(
+    val pose: Pose2d,
+    private val matchSide: MatchData.OwnedSide
+) {
+    LEFT(Trajectories.kSideStart, MatchData.OwnedSide.LEFT),
+    CENTER(Trajectories.kCenterStart, MatchData.OwnedSide.UNKNOWN),
+    RIGHT(Trajectories.kSideStart.mirror, MatchData.OwnedSide.RIGHT);
+
+    fun isSameSide(side: MatchData.OwnedSide) = matchSide == side
 }
 
 enum class SwitchAutoMode {

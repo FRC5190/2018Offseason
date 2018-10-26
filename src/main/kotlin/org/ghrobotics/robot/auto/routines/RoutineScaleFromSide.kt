@@ -12,6 +12,7 @@ import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.map
 import org.ghrobotics.lib.utils.observabletype.updatableValue
 import org.ghrobotics.robot.Constants
+import org.ghrobotics.robot.auto.Autonomous
 import org.ghrobotics.robot.auto.StartingPositions
 import org.ghrobotics.robot.auto.Trajectories
 import org.ghrobotics.robot.sensors.CubeSensors
@@ -23,8 +24,6 @@ import org.ghrobotics.robot.subsytems.elevator.ClosedLoopElevatorCommand
 import org.ghrobotics.robot.subsytems.elevator.ElevatorSubsystem
 import org.ghrobotics.robot.subsytems.intake.IntakeCommand
 import org.ghrobotics.robot.subsytems.intake.IntakeSubsystem
-import org.ghrobotics.robot.subsytems.led.BlinkingLEDCommand
-import java.awt.Color
 
 class RoutineScaleFromSide(
     startingPosition: Source<StartingPositions>,
@@ -32,12 +31,13 @@ class RoutineScaleFromSide(
 ) : AutoRoutine(startingPosition) {
 
     override fun createRoutine(): org.ghrobotics.lib.commands.Command {
-        val cross = startingPosition
-            .withMerge(scaleSide) { one, two -> !one.name.first().equals(two.name.first(), true) }
         val shouldMirrorPath = scaleSide.withEquals(MatchData.OwnedSide.RIGHT)
 
         val drop1stCube = FollowTrajectoryCommand(
-            trajectory = cross.map(Trajectories.leftStartToFarScale, Trajectories.leftStartToNearScale),
+            trajectory = Autonomous.isSameSide.map(
+                Trajectories.leftStartToNearScale,
+                Trajectories.leftStartToFarScale
+            ),
             pathMirrored = startingPosition.withEquals(StartingPositions.RIGHT)
         )
 
@@ -47,35 +47,34 @@ class RoutineScaleFromSide(
         val drop3rdCube = FollowTrajectoryCommand(Trajectories.cube2ToScale, shouldMirrorPath)
         val pickup4thCube = FollowTrajectoryCommand(Trajectories.scaleToCube3, shouldMirrorPath)
 
-        val timeToGoUp = cross.map(2.50.second, 2.75.second)
-            .withProcessing { drop1stCube.trajectory.value.lastState.t.second - it }
-        val outtakeSpeed = cross.map(0.65, 0.35)
+        val timeToGoUp = Autonomous.isSameSide.map(
+            2.75.second,
+            2.50.second
+        ).withProcessing { drop1stCube.trajectory.value.lastState.t.second - it }
+
+        val outtakeSpeed = Autonomous.isSameSide.map(0.35, 0.65)
 
         return sequential {
-
             +parallel {
                 +drop1stCube.withExit(GlobalScope.updatableValue {
                     (ElevatorSubsystem.elevatorPosition > ElevatorSubsystem.kFirstStagePosition
                             && !CubeSensors.cubeIn.value
-                            && ArmSubsystem.armPosition > ArmSubsystem.kBehindPosition - Constants.kArmAutoTolerance)
+                            && ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance)
                 })
                 +sequential {
                     +DelayCommand(500.millisecond)
 
                     +parallel {
-                        +ClosedLoopArmCommand(ArmSubsystem.kUpPosition)
+                        +ClosedLoopArmCommand(Constants.kArmUpPosition)
                         +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition)
                     }
 
                     +sequential {
                         +DelayCommand(timeToGoUp)
                         +parallel {
-                            +SubsystemPreset.BEHIND.command.also {
-                                BlinkingLEDCommand(Color.BLUE, 400.millisecond).start()
-                            }
                             +sequential {
                                 +ConditionCommand(GlobalScope.updatableValue {
-                                    ArmSubsystem.armPosition > ArmSubsystem.kBehindPosition - Constants.kArmAutoTolerance
+                                    ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance
                                 })
                                 +DelayCommand(100.millisecond)
                                 +IntakeCommand(IntakeSubsystem.Direction.OUT, outtakeSpeed).withTimeout(500.millisecond)
@@ -96,7 +95,7 @@ class RoutineScaleFromSide(
                 +drop2ndCube.withExit(GlobalScope.updatableValue {
                     (ElevatorSubsystem.elevatorPosition > ElevatorSubsystem.kFirstStagePosition
                             && !CubeSensors.cubeIn.value
-                            && ArmSubsystem.armPosition > ArmSubsystem.kBehindPosition - Constants.kArmAutoTolerance)
+                            && ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance)
                 })
                 +sequential {
                     +DelayCommand((drop2ndCube.trajectory.value.lastState.t - 2.7).second)
@@ -104,9 +103,9 @@ class RoutineScaleFromSide(
                 }
                 +sequential {
                     +ConditionCommand(GlobalScope.updatableValue {
-                        ArmSubsystem.armPosition > ArmSubsystem.kBehindPosition - Constants.kArmAutoTolerance
+                        ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance
                     })
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.4)).withTimeout(500.millisecond)
+                    +IntakeCommand(IntakeSubsystem.Direction.OUT, 0.4).withTimeout(500.millisecond)
                 }
             }
             +parallel {
@@ -118,7 +117,7 @@ class RoutineScaleFromSide(
                 +drop3rdCube.withExit(GlobalScope.updatableValue {
                     (ElevatorSubsystem.elevatorPosition > ElevatorSubsystem.kFirstStagePosition
                             && !CubeSensors.cubeIn.value
-                            && ArmSubsystem.armPosition > ArmSubsystem.kBehindPosition - Constants.kArmAutoTolerance)
+                            && ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance)
                 })
                 +sequential {
                     +DelayCommand((drop3rdCube.trajectory.value.lastState.t - 2.7).second)
@@ -126,9 +125,9 @@ class RoutineScaleFromSide(
                 }
                 +sequential {
                     +ConditionCommand(GlobalScope.updatableValue {
-                        ArmSubsystem.armPosition > ArmSubsystem.kBehindPosition - Constants.kArmAutoTolerance
+                        ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance
                     })
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.4)).withTimeout(500.millisecond)
+                    +IntakeCommand(IntakeSubsystem.Direction.OUT, 0.4).withTimeout(500.millisecond)
                 }
             }
             +parallel {

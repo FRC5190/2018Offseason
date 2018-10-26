@@ -9,7 +9,6 @@ import kotlinx.coroutines.experimental.GlobalScope
 import org.ghrobotics.lib.commands.Command
 import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
-import org.ghrobotics.lib.mathematics.units.nativeunits.STU
 import org.ghrobotics.lib.utils.observabletype.updatableValue
 import org.ghrobotics.lib.wrappers.hid.FalconHIDButtonBuilder
 import org.ghrobotics.robot.Constants
@@ -21,10 +20,10 @@ import org.ghrobotics.robot.subsytems.elevator.ElevatorSubsystem
 enum class SubsystemPreset(private val builder: () -> Command) {
     INTAKE({
         parallel {
-            +ClosedLoopArmCommand(ArmSubsystem.kDownPosition)
+            +ClosedLoopArmCommand(Constants.kArmDownPosition)
             +sequential {
                 +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(GlobalScope.updatableValue {
-                    ArmSubsystem.armPosition < ArmSubsystem.kUpPosition + 100.STU.toModel(Constants.kArmNativeUnitModel)
+                    ArmSubsystem.armPosition < Constants.kArmUpPosition + Constants.kArmAutoTolerance
                 })
                 +ClosedLoopElevatorCommand(ElevatorSubsystem.kIntakePosition)
             }
@@ -32,11 +31,11 @@ enum class SubsystemPreset(private val builder: () -> Command) {
     }),
     SWITCH({
         parallel {
-            +ClosedLoopArmCommand(ArmSubsystem.kMiddlePosition)
+            +ClosedLoopArmCommand(Constants.kArmMiddlePosition)
             +sequential {
                 +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(GlobalScope.updatableValue {
                     ElevatorSubsystem.elevatorPosition < ElevatorSubsystem.kSwitchPosition
-                            || ArmSubsystem.armPosition < ArmSubsystem.kUpPosition + 100.STU.toModel(Constants.kArmNativeUnitModel)
+                            || ArmSubsystem.armPosition < Constants.kArmUpPosition + Constants.kArmAutoTolerance
                 })
                 +ClosedLoopElevatorCommand(ElevatorSubsystem.kSwitchPosition)
             }
@@ -44,7 +43,7 @@ enum class SubsystemPreset(private val builder: () -> Command) {
     }),
     SCALE({
         parallel {
-            +ClosedLoopArmCommand(ArmSubsystem.kMiddlePosition)
+            +ClosedLoopArmCommand(Constants.kArmMiddlePosition)
             +ClosedLoopElevatorCommand(ElevatorSubsystem.kHighScalePosition)
         }
     }),
@@ -52,17 +51,16 @@ enum class SubsystemPreset(private val builder: () -> Command) {
         parallel {
             +ClosedLoopElevatorCommand(ElevatorSubsystem.kScalePosition)
             +sequential {
-                +ClosedLoopArmCommand(ArmSubsystem.kUpPosition + 75.STU.toModel(Constants.kArmNativeUnitModel)).withExit(
+                +ClosedLoopArmCommand(Constants.kArmUpPosition + Constants.kArmAutoTolerance).withExit(
                     GlobalScope.updatableValue {
                         ElevatorSubsystem.elevatorPosition > ElevatorSubsystem.kFirstStagePosition
                     })
-                +ClosedLoopArmCommand(ArmSubsystem.kBehindPosition)
+                +ClosedLoopArmCommand(Constants.kArmBehindPosition)
             }
         }
     });
 
-    val command
-        get() = builder()
+    val command get() = builder()
 }
 
 // Smh

@@ -123,7 +123,8 @@ object DriveSubsystem : Subsystem() {
             it.continuousCurrentLimit = 40.amp
             it.currentLimitingEnabled = true
         }
-        resetEncoders()
+        // Zero the encoders once on start up
+        allMasters.forEach { it.sensorPosition = 0.meter }
 
         defaultCommand = ManualDriveCommand()
     }
@@ -150,13 +151,17 @@ object DriveSubsystem : Subsystem() {
     }
 
     fun setTrajectoryVelocity(pathOut: TrajectoryFollower.Output) {
-        leftMaster.set(ControlMode.Velocity, pathOut.lSetpoint, DemandType.ArbitraryFeedForward, pathOut.lfVoltage.asDouble / 12.0)
-        rightMaster.set(ControlMode.Velocity, pathOut.rSetpoint, DemandType.ArbitraryFeedForward, pathOut.rfVoltage.asDouble / 12.0)
-    }
-
-    fun resetEncoders() {
-        allMasters.forEach {
-            it.sensorPosition = 0.meter
-        }
+        leftMaster.set(
+            ControlMode.Velocity,
+            pathOut.lSetpoint,
+            DemandType.ArbitraryFeedForward,
+            pathOut.lfVoltage.asDouble / 12.0
+        )
+        rightMaster.set(
+            ControlMode.Velocity,
+            pathOut.rSetpoint,
+            DemandType.ArbitraryFeedForward,
+            pathOut.rfVoltage.asDouble / 12.0
+        )
     }
 }
