@@ -76,6 +76,7 @@ class RoutineScaleFromSide(
                                 +ConditionCommand(GlobalScope.updatableValue {
                                     ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance
                                 })
+                                if (!Autonomous.isSameSide.value) +DelayCommand(0.1.second)
                                 +DelayCommand(100.millisecond)
                                 +IntakeCommand(IntakeSubsystem.Direction.OUT, outtakeSpeed).withTimeout(500.millisecond)
                             }
