@@ -5,43 +5,45 @@ import kotlinx.coroutines.experimental.GlobalScope
 import org.apache.commons.math3.stat.regression.SimpleRegression
 import org.ghrobotics.lib.commands.Command
 import org.ghrobotics.lib.mathematics.units.derivedunits.feetPerSecond
-import org.ghrobotics.lib.mathematics.units.nativeunits.NativeUnitVelocity
-import org.ghrobotics.lib.mathematics.units.nativeunits.fromModel
 import org.ghrobotics.lib.utils.observabletype.updatableValue
 import org.ghrobotics.robot.Constants
 
 class CharacterizationCommand : Command(DriveSubsystem) {
-    private var outPct = 0.0
+    private var voltage = 0.0
 
     private var vIntercept = 0.0
 
     private val linReg = SimpleRegression()
-    private val dataPts = mutableListOf<Pair<Double, NativeUnitVelocity>>()
+    private val dataPts = mutableListOf<Pair<Double, Double>>()
 
     private val avgDriveSpd
         get() = (DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity) / 2.0
 
     init {
-        _finishCondition += GlobalScope.updatableValue { outPct > 1.0 }
+        _finishCondition += GlobalScope.updatableValue { voltage > 12.0 }
         executeFrequency = 1
     }
 
     override suspend fun initialize() {
-        dataPts.add(outPct to avgDriveSpd.fromModel(Constants.kDriveNativeUnitModel))
+        dataPts.add(voltage to (avgDriveSpd.feetPerSecond / Constants.kWheelRadius).asDouble)
     }
 
     override suspend fun execute() {
+
         if (avgDriveSpd.feetPerSecond.asDouble > 0.01) {
-            if (vIntercept == 0.0) vIntercept = outPct
-            dataPts.add(outPct * 1023 to avgDriveSpd.fromModel(Constants.kDriveNativeUnitModel))
-            println("Added Data Point: $outPct% --> $avgDriveSpd feet per second.")
+            if (vIntercept == 0.0) {
+                vIntercept = voltage
+            }
+            dataPts.add(voltage to (avgDriveSpd.feetPerSecond / Constants.kWheelRadius).asDouble)
+            println("Added Data Point: $voltage V --> $avgDriveSpd radians per second.")
         }
-        outPct += 0.25 / 12.0
-        DriveSubsystem.set(ControlMode.PercentOutput, outPct, outPct)
+
+        voltage += 0.25
+        DriveSubsystem.set(ControlMode.PercentOutput, voltage / 12.0, voltage / 12.0)
     }
 
     override suspend fun dispose() {
-        dataPts.forEach { linReg.addData(it.first, it.second.asDouble) }
-        println("kV for Talon SRX: ${1 / linReg.slope}, kS: $vIntercept, Linearity: ${linReg.rSquare}")
+        dataPts.forEach { linReg.addData(it.first, it.second) }
+        println("kV: ${1 / linReg.slope} V per rad/s, kS: $vIntercept V, Linearity: ${linReg.rSquare}")
     }
 }
