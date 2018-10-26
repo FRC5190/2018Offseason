@@ -100,7 +100,7 @@ object Constants {
     const val kADrive = 0.020 // Volts per radians per second per second
 
 
-    const val kDriveBeta = 0.16667 // Inverse meters squared
+    const val kDriveBeta = 1.68 // Inverse meters squared
     const val kDriveZeta = 0.85 // Unitless dampening co-efficient
 
 
