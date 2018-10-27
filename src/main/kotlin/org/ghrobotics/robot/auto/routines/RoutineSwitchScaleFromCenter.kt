@@ -25,7 +25,7 @@ class RoutineSwitchScaleFromCenter(
     private val switchSide: Source<MatchData.OwnedSide>,
     private val scaleSide: Source<MatchData.OwnedSide>
 ) : AutoRoutine(startingPosition) {
-    override fun createRoutine(): Command {
+    override fun createRoutine(): AbstractFalconCommand {
         val switch = switchSide.withEquals(MatchData.OwnedSide.LEFT)
         val switchMirrored = switchSide.withEquals(MatchData.OwnedSide.RIGHT)
         val scaleMirrored = scaleSide.withEquals(MatchData.OwnedSide.RIGHT)

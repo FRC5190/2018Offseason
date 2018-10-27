@@ -6,7 +6,7 @@
 package org.ghrobotics.robot.subsytems
 
 import kotlinx.coroutines.experimental.GlobalScope
-import org.ghrobotics.lib.commands.Command
+import org.ghrobotics.lib.commands.AbstractFalconCommand
 import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.utils.observabletype.updatableValue
@@ -17,7 +17,7 @@ import org.ghrobotics.robot.subsytems.arm.ClosedLoopArmCommand
 import org.ghrobotics.robot.subsytems.elevator.ClosedLoopElevatorCommand
 import org.ghrobotics.robot.subsytems.elevator.ElevatorSubsystem
 
-enum class SubsystemPreset(private val builder: () -> Command) {
+enum class SubsystemPreset(private val builder: () -> AbstractFalconCommand) {
     INTAKE({
         parallel {
             +ClosedLoopArmCommand(Constants.kArmDownPosition)

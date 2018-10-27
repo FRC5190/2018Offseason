@@ -4,14 +4,14 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource
-import org.ghrobotics.lib.commands.Subsystem
+import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.amp
 import org.ghrobotics.lib.mathematics.units.nativeunits.STU
 import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.wrappers.GenericFalonSRX
 import org.ghrobotics.robot.Constants
 
-object ClimberSubsystem : Subsystem() {
+object ClimberSubsystem : FalconSubsystem() {
 
     private val climberMaster = GenericFalonSRX(Constants.kWinchMasterId)
     private val climberSlave = GenericFalonSRX(Constants.kWinchSlaveId)

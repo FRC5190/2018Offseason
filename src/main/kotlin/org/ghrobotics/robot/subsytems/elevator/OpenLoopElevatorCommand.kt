@@ -6,11 +6,11 @@
 package org.ghrobotics.robot.subsytems.elevator
 
 import com.ctre.phoenix.motorcontrol.ControlMode
-import org.ghrobotics.lib.commands.Command
+import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.utils.DoubleSource
 
 
-class OpenLoopElevatorCommand(private val percentOutput: DoubleSource) : Command(ElevatorSubsystem) {
+class OpenLoopElevatorCommand(private val percentOutput: DoubleSource) : FalconCommand(ElevatorSubsystem) {
     override suspend fun execute() {
         if (ElevatorSubsystem.atBottom && !ElevatorSubsystem.reset) {
             ElevatorSubsystem.resetEncoders()

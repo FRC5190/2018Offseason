@@ -6,13 +6,13 @@
 package org.ghrobotics.robot.subsytems.arm
 
 import kotlinx.coroutines.experimental.GlobalScope
-import org.ghrobotics.lib.commands.Command
+import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.Rotation2d
 import org.ghrobotics.lib.mathematics.units.degree
 import org.ghrobotics.lib.utils.observabletype.updatableValue
 import org.ghrobotics.robot.Constants
 
-class ClosedLoopArmCommand(private val pos: Rotation2d? = null) : Command(ArmSubsystem) {
+class ClosedLoopArmCommand(private val pos: Rotation2d? = null) : FalconCommand(ArmSubsystem) {
 
     private var targetPosition: Rotation2d = 0.degree
 

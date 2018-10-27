@@ -3,12 +3,12 @@ package org.ghrobotics.robot.subsytems.drive
 import com.ctre.phoenix.motorcontrol.ControlMode
 import kotlinx.coroutines.experimental.GlobalScope
 import org.apache.commons.math3.stat.regression.SimpleRegression
-import org.ghrobotics.lib.commands.Command
+import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.derivedunits.feetPerSecond
 import org.ghrobotics.lib.utils.observabletype.updatableValue
 import org.ghrobotics.robot.Constants
 
-class CharacterizationCommand : Command(DriveSubsystem) {
+class CharacterizationCommand : FalconCommand(DriveSubsystem) {
     private var voltage = 0.0
 
     private var vIntercept = 0.0

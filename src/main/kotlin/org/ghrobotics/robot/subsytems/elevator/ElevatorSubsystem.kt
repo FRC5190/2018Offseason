@@ -6,7 +6,7 @@
 package org.ghrobotics.robot.subsytems.elevator
 
 import com.ctre.phoenix.motorcontrol.*
-import org.ghrobotics.lib.commands.Subsystem
+import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.amp
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.mathematics.units.meter
@@ -14,7 +14,7 @@ import org.ghrobotics.lib.mathematics.units.nativeunits.STU
 import org.ghrobotics.lib.wrappers.FalconSRX
 import org.ghrobotics.robot.Constants
 
-object ElevatorSubsystem : Subsystem() {
+object ElevatorSubsystem : FalconSubsystem() {
 
     private val elevatorMaster = FalconSRX(Constants.kElevatorMasterId, Constants.elevatorNativeUnitSettings)
     private val elevatorSlave = FalconSRX(Constants.kElevatorSlaveId, Constants.elevatorNativeUnitSettings)

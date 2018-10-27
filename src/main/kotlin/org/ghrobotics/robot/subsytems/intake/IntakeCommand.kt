@@ -6,7 +6,7 @@
 package org.ghrobotics.robot.subsytems.intake
 
 import com.ctre.phoenix.motorcontrol.ControlMode
-import org.ghrobotics.lib.commands.Command
+import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.utils.DoubleSource
 import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.robot.sensors.CubeSensors
@@ -15,7 +15,7 @@ import kotlin.math.withSign
 class IntakeCommand(
     direction: IntakeSubsystem.Direction,
     speed: DoubleSource = Source(1.0)
-) : Command(IntakeSubsystem) {
+) : FalconCommand(IntakeSubsystem) {
 
     private val speed = speed
         .withProcessing { it.withSign(if (direction == IntakeSubsystem.Direction.IN) -1 else 1) }

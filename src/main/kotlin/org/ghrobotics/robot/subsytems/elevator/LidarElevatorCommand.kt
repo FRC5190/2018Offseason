@@ -6,7 +6,7 @@
 package org.ghrobotics.robot.subsytems.elevator
 
 import kotlinx.coroutines.experimental.GlobalScope
-import org.ghrobotics.lib.commands.Command
+import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.utils.observabletype.and
@@ -17,7 +17,7 @@ import org.ghrobotics.robot.sensors.CubeSensors
 import org.ghrobotics.robot.sensors.Lidar
 import java.util.*
 
-class LidarElevatorCommand : Command(ElevatorSubsystem) {
+class LidarElevatorCommand : FalconCommand(ElevatorSubsystem) {
     companion object {
         private val heightOffset = 15.inch
         private val heightSource = Lidar.withProcessing { it.first to (it.second - heightOffset) }

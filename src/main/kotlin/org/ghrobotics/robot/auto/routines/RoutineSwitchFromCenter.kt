@@ -1,7 +1,7 @@
 package org.ghrobotics.robot.auto.routines
 
 import openrio.powerup.MatchData
-import org.ghrobotics.lib.commands.Command
+import org.ghrobotics.lib.commands.AbstractFalconCommand
 import org.ghrobotics.lib.commands.DelayCommand
 import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
@@ -21,7 +21,7 @@ class RoutineSwitchFromCenter(
     private val switchSide: Source<MatchData.OwnedSide>
 ) : AutoRoutine(startingPosition) {
 
-    override fun createRoutine(): Command {
+    override fun createRoutine(): AbstractFalconCommand {
         val switch = switchSide.withEquals(MatchData.OwnedSide.LEFT)
         val mirrored = switchSide.withEquals(MatchData.OwnedSide.RIGHT)
 

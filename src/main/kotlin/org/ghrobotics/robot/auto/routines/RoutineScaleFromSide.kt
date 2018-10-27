@@ -2,10 +2,7 @@ package org.ghrobotics.robot.auto.routines
 
 import kotlinx.coroutines.experimental.GlobalScope
 import openrio.powerup.MatchData
-import org.ghrobotics.lib.commands.ConditionCommand
-import org.ghrobotics.lib.commands.DelayCommand
-import org.ghrobotics.lib.commands.parallel
-import org.ghrobotics.lib.commands.sequential
+import org.ghrobotics.lib.commands.*
 import org.ghrobotics.lib.mathematics.units.millisecond
 import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.utils.Source
@@ -30,7 +27,7 @@ class RoutineScaleFromSide(
     private val scaleSide: Source<MatchData.OwnedSide>
 ) : AutoRoutine(startingPosition) {
 
-    override fun createRoutine(): org.ghrobotics.lib.commands.Command {
+    override fun createRoutine(): AbstractFalconCommand {
         val shouldMirrorPath = scaleSide.withEquals(MatchData.OwnedSide.RIGHT)
 
         val drop1stCube = FollowTrajectoryCommand(

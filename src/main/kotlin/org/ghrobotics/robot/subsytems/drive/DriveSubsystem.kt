@@ -12,7 +12,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode
 import com.team254.lib.physics.DCMotorTransmission
 import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.Solenoid
-import org.ghrobotics.lib.commands.Subsystem
+import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryFollower
 import org.ghrobotics.lib.mathematics.units.amp
 import org.ghrobotics.lib.mathematics.units.derivedunits.Velocity
@@ -25,7 +25,7 @@ import org.ghrobotics.robot.Constants
 import kotlin.math.pow
 
 
-object DriveSubsystem : Subsystem() {
+object DriveSubsystem : FalconSubsystem() {
 
     private val leftMaster = FalconSRX(Constants.kLeftMasterId, Constants.kDriveNativeUnitModel)
     private val rightMaster = FalconSRX(Constants.kRightMasterId, Constants.kDriveNativeUnitModel)

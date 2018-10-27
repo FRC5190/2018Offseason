@@ -8,13 +8,13 @@ package org.ghrobotics.robot.subsytems.arm
 import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.NeutralMode
-import org.ghrobotics.lib.commands.Subsystem
+import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.amp
 import org.ghrobotics.lib.mathematics.units.nativeunits.fromModel
 import org.ghrobotics.lib.wrappers.FalconSRX
 import org.ghrobotics.robot.Constants
 
-object ArmSubsystem : Subsystem() {
+object ArmSubsystem : FalconSubsystem() {
 
     private val armMaster = FalconSRX(
         Constants.kArmId,

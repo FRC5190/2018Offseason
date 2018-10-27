@@ -1,6 +1,6 @@
 package org.ghrobotics.robot.subsytems.led
 
-import org.ghrobotics.lib.commands.Subsystem
+import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.millisecond
 import org.ghrobotics.lib.mathematics.units.second
@@ -12,7 +12,7 @@ import org.ghrobotics.robot.Controls
 import org.ghrobotics.robot.sensors.CubeSensors
 import java.awt.Color
 
-object LEDSubsystem : Subsystem() {
+object LEDSubsystem : FalconSubsystem() {
 
     init {
         defaultCommand = SolidLEDCommand(Color.BLACK)

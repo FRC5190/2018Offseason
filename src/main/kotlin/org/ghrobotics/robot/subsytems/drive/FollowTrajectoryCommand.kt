@@ -7,7 +7,7 @@ package org.ghrobotics.robot.subsytems.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import kotlinx.coroutines.experimental.GlobalScope
-import org.ghrobotics.lib.commands.Command
+import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.twodim.control.RamseteController
 import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryFollower
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
@@ -31,7 +31,7 @@ import org.ghrobotics.robot.Localization
 class FollowTrajectoryCommand(
     val trajectory: Source<TimedTrajectory<Pose2dWithCurvature>>,
     pathMirrored: BooleanSource = Source(false)
-) : Command(DriveSubsystem) {
+) : FalconCommand(DriveSubsystem) {
 
     constructor(
         trajectory: TimedTrajectory<Pose2dWithCurvature>,

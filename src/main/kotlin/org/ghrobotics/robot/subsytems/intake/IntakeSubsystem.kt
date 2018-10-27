@@ -8,13 +8,13 @@ package org.ghrobotics.robot.subsytems.intake
 import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.NeutralMode
 import edu.wpi.first.wpilibj.Solenoid
-import org.ghrobotics.lib.commands.Subsystem
+import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.amp
 import org.ghrobotics.lib.mathematics.units.derivedunits.volt
 import org.ghrobotics.lib.wrappers.GenericFalonSRX
 import org.ghrobotics.robot.Constants
 
-object IntakeSubsystem : Subsystem() {
+object IntakeSubsystem : FalconSubsystem() {
     private val intakeMaster = GenericFalonSRX(Constants.kIntakeMasterId)
     private val intakeSlave = GenericFalonSRX(Constants.kIntakeSlaveId)
 

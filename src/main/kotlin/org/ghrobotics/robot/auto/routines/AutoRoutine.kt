@@ -1,6 +1,6 @@
 package org.ghrobotics.robot.auto.routines
 
-import org.ghrobotics.lib.commands.Command
+import org.ghrobotics.lib.commands.AbstractFalconCommand
 import org.ghrobotics.lib.commands.InstantRunnableCommand
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.utils.Source
@@ -22,6 +22,6 @@ abstract class AutoRoutine(protected val startingPosition: Source<StartingPositi
         +createRoutine()
     }
 
-    protected abstract fun createRoutine(): Command
+    protected abstract fun createRoutine(): AbstractFalconCommand
 
 }

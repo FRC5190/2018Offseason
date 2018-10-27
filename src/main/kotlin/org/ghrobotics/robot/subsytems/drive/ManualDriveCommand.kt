@@ -8,7 +8,7 @@ package org.ghrobotics.robot.subsytems.drive
 import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.drive.DifferentialDrive
-import org.ghrobotics.lib.commands.Command
+import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.utils.withDeadband
 import org.ghrobotics.lib.wrappers.hid.getRawButton
 import org.ghrobotics.lib.wrappers.hid.getX
@@ -16,7 +16,7 @@ import org.ghrobotics.lib.wrappers.hid.getY
 import org.ghrobotics.lib.wrappers.hid.kX
 import org.ghrobotics.robot.Controls
 
-class ManualDriveCommand : Command(DriveSubsystem) {
+class ManualDriveCommand : FalconCommand(DriveSubsystem) {
 
     companion object {
         private var deadband = 0.02

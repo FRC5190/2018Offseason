@@ -6,13 +6,13 @@
 package org.ghrobotics.robot.subsytems.elevator
 
 import kotlinx.coroutines.experimental.GlobalScope
-import org.ghrobotics.lib.commands.Command
+import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.utils.observabletype.updatableValue
 import org.ghrobotics.robot.Constants
 
-class ClosedLoopElevatorCommand(private val distance: Length? = null) : Command(ElevatorSubsystem) {
+class ClosedLoopElevatorCommand(private val distance: Length? = null) : FalconCommand(ElevatorSubsystem) {
 
     private var targetPosition = 0.inch
 
