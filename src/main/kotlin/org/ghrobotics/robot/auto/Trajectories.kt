@@ -10,13 +10,11 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
 import org.ghrobotics.lib.mathematics.twodim.trajectory.DefaultTrajectoryGenerator
 import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.CentripetalAccelerationConstraint
+import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.DifferentialDriveDynamicsConstraint
 import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.TimingConstraint
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
 import org.ghrobotics.lib.mathematics.units.degree
-import org.ghrobotics.lib.mathematics.units.derivedunits.Acceleration
-import org.ghrobotics.lib.mathematics.units.derivedunits.Velocity
-import org.ghrobotics.lib.mathematics.units.derivedunits.acceleration
-import org.ghrobotics.lib.mathematics.units.derivedunits.velocity
+import org.ghrobotics.lib.mathematics.units.derivedunits.*
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.robot.Constants.kCenterToFrontBumper
@@ -24,17 +22,20 @@ import org.ghrobotics.robot.Constants.kCenterToIntake
 import org.ghrobotics.robot.Constants.kRobotCenterStartY
 import org.ghrobotics.robot.Constants.kRobotSideStartY
 import org.ghrobotics.robot.Constants.kRobotStartX
+import org.ghrobotics.robot.subsytems.drive.DriveSubsystem
 
 object Trajectories {
 
     // Constants in Feet Per Second
-    private val kMaxVelocity = 8.0.feet.velocity
-    private val kMaxAcceleration = 4.0.feet.acceleration
+    private val kMaxVelocity = 10.0.feet.velocity
+    private val kMaxAcceleration = 5.0.feet.acceleration
     private val kMaxCentripetalAcceleration = 4.5.feet.acceleration
 
     // Constraints
-    private val kConstraints = arrayListOf<TimingConstraint<Pose2dWithCurvature>>(
-        CentripetalAccelerationConstraint(kMaxCentripetalAcceleration)
+    private val kConstraints = arrayListOf(
+            CentripetalAccelerationConstraint(kMaxCentripetalAcceleration),
+            DifferentialDriveDynamicsConstraint(DriveSubsystem.driveModel, 10.0.volt)
+
     )
 
     // Field Relative Constants
@@ -159,8 +160,8 @@ object Trajectories {
         +kFrontPyramidCubeAdjusted.transformBy(Pose2d(7.feet, 9.feet, 180.degree))
         +kNearScaleEmpty
     }.generateTrajectory(
-        "Pyramid to Scale", reversed = true, maxVelocity = 4.feet.velocity, maxAcceleration = 3.feet.acceleration,
-        constraints = arrayListOf(CentripetalAccelerationConstraint(3.0))
+            "Pyramid to Scale", reversed = true, maxVelocity = 4.feet.velocity, maxAcceleration = 3.feet.acceleration,
+            constraints = arrayListOf(CentripetalAccelerationConstraint(3.0))
     )
 
     val baseline = waypoints {
@@ -172,21 +173,21 @@ object Trajectories {
         val points = mutableListOf<Pose2d>()
 
         fun generateTrajectory(
-            name: String,
-            reversed: Boolean,
-            maxVelocity: Velocity = kMaxVelocity,
-            maxAcceleration: Acceleration = kMaxAcceleration,
-            constraints: ArrayList<TimingConstraint<Pose2dWithCurvature>> = kConstraints
+                name: String,
+                reversed: Boolean,
+                maxVelocity: Velocity = kMaxVelocity,
+                maxAcceleration: Acceleration = kMaxAcceleration,
+                constraints: ArrayList<TimingConstraint<Pose2dWithCurvature>> = kConstraints
         ): TimedTrajectory<Pose2dWithCurvature> {
 
             return DefaultTrajectoryGenerator.generateTrajectory(
-                reversed = reversed,
-                wayPoints = points,
-                constraints = constraints,
-                startVelocity = 0.meter.velocity,
-                endVelocity = 0.meter.velocity,
-                maxVelocity = maxVelocity,
-                maxAcceleration = maxAcceleration
+                    reversed = reversed,
+                    wayPoints = points,
+                    constraints = constraints,
+                    startVelocity = 0.meter.velocity,
+                    endVelocity = 0.meter.velocity,
+                    maxVelocity = maxVelocity,
+                    maxAcceleration = maxAcceleration
             ).also { trajectories.add(Container(name, it)) }
         }
 

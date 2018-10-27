@@ -17,7 +17,7 @@ class CharacterizationCommand : FalconCommand(DriveSubsystem) {
     private val dataPts = mutableListOf<Pair<Double, Double>>()
 
     private val avgDriveSpd
-        get() = (DriveSubsystem.leftVelocity + DriveSubsystem.rightVelocity) / 2.0
+        get() = (DriveSubsystem.leftVelocity.feetPerSecond.asDouble + DriveSubsystem.rightVelocity.feetPerSecond.asDouble) / 2.0
 
     init {
         _finishCondition += GlobalScope.updatableValue { voltage > 12.0 }
@@ -25,16 +25,16 @@ class CharacterizationCommand : FalconCommand(DriveSubsystem) {
     }
 
     override suspend fun initialize() {
-        dataPts.add(voltage to (avgDriveSpd.feetPerSecond / Constants.kWheelRadius).asDouble)
+        dataPts.add(voltage to (avgDriveSpd / Constants.kWheelRadius.feet.asDouble))
     }
 
     override suspend fun execute() {
 
-        if (avgDriveSpd.feetPerSecond.asDouble > 0.01) {
+        if (avgDriveSpd > 0.01) {
             if (vIntercept == 0.0) {
                 vIntercept = voltage
             }
-            dataPts.add(voltage to (avgDriveSpd.feetPerSecond / Constants.kWheelRadius).asDouble)
+            dataPts.add(voltage to (avgDriveSpd / Constants.kWheelRadius.feet.asDouble))
             println("Added Data Point: $voltage V --> $avgDriveSpd radians per second.")
         }
 

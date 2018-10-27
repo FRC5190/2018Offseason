@@ -132,6 +132,7 @@ object DriveSubsystem : FalconSubsystem() {
     private fun resetHighGear() {
         allMasters.forEach {
             it.kP = Constants.kPDrive
+            it.kD = Constants.kDDrive
             it.kF = 0.0
             it.openLoopRamp = 0.second
         }

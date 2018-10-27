@@ -93,15 +93,16 @@ object Constants {
         kWheelRadius
     )
 
-    const val kPDrive = 2.0 // Talon SRX Units
+    const val kPDrive = 1.7 // Talon SRX Units
+    const val kDDrive = 10.0
 
     const val kStaticFrictionVoltage = 1.2 // Volts
-    const val kVDrive = 0.173 // Volts per radians per second
+    const val kVDrive = 0.185 // Volts per radians per second
     const val kADrive = 0.020 // Volts per radians per second per second
 
 
-    const val kDriveBeta = 1.68 // Inverse meters squared
-    const val kDriveZeta = 0.85 // Unitless dampening co-efficient
+    const val kDriveBeta = 2.00 // Inverse meters squared
+    const val kDriveZeta = 0.90 // Unitless dampening co-efficient
 
 
     // ARM
