@@ -25,13 +25,13 @@ class LidarElevatorCommand : FalconCommand(ElevatorSubsystem) {
 
     private var heightNeeded = 0.inch
 
-    init {
-        _finishCondition += !CubeSensors.cubeIn and GlobalScope.updatableValue {
+    override fun CreateCommandScope.create() {
+        finishCondition += !CubeSensors.cubeIn and GlobalScope.updatableValue {
             (ElevatorSubsystem.elevatorPosition - heightNeeded).absoluteValue < Constants.kElevatorClosedLpTolerance
         }
     }
 
-    override suspend fun initialize() {
+    override suspend fun InitCommandScope.initialize() {
         heightNeeded = ElevatorSubsystem.kScalePosition
     }
 

@@ -13,12 +13,12 @@ import org.ghrobotics.lib.utils.observabletype.map
 import org.ghrobotics.lib.utils.observabletype.not
 import org.ghrobotics.lib.utils.observabletype.updatableValue
 import org.ghrobotics.lib.wrappers.FalconRobotBase
-import org.ghrobotics.robot.Localization
 import org.ghrobotics.robot.NetworkInterface
 import org.ghrobotics.robot.auto.routines.AutoRoutine
 import org.ghrobotics.robot.auto.routines.RoutineScaleFromSide
 import org.ghrobotics.robot.auto.routines.RoutineSwitchFromCenter
 import org.ghrobotics.robot.auto.routines.RoutineSwitchScaleFromCenter
+import org.ghrobotics.robot.subsytems.drive.DriveSubsystem
 
 object Autonomous {
 
@@ -104,7 +104,7 @@ object Autonomous {
         FalconRobotBase.INSTANCE.modeStateMachine.onLeave(listOf(FalconRobotBase.Mode.AUTONOMOUS)) {
             JUST.stop()
         }
-        Config.startingPosition.invokeOnChange { runBlocking { Localization.reset(it.pose); } }
+        Config.startingPosition.invokeOnChange { runBlocking { DriveSubsystem.localization.reset(it.pose); } }
     }
 
 

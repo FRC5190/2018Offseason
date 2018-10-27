@@ -16,16 +16,16 @@ class ClosedLoopArmCommand(private val pos: Rotation2d? = null) : FalconCommand(
 
     private var targetPosition: Rotation2d = 0.degree
 
-    init {
+    override fun CreateCommandScope.create() {
         if (pos != null) {
             // Only finish command if it has an objective
-            _finishCondition += GlobalScope.updatableValue {
+            finishCondition += GlobalScope.updatableValue {
                 (ArmSubsystem.armPosition - targetPosition).absoluteValue < Constants.kArmClosedLoopTolerance
             }
         }
     }
 
-    override suspend fun initialize() {
+    override suspend fun InitCommandScope.initialize() {
         targetPosition = pos ?: ArmSubsystem.armPosition
         ArmSubsystem.armPosition = targetPosition
     }

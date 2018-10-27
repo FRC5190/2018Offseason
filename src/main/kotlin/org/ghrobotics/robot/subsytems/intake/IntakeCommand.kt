@@ -13,7 +13,7 @@ import org.ghrobotics.robot.sensors.CubeSensors
 import kotlin.math.withSign
 
 class IntakeCommand(
-    direction: IntakeSubsystem.Direction,
+    private val direction: IntakeSubsystem.Direction,
     speed: DoubleSource = Source(1.0)
 ) : FalconCommand(IntakeSubsystem) {
 
@@ -22,11 +22,11 @@ class IntakeCommand(
 
     constructor(direction: IntakeSubsystem.Direction, speed: Double) : this(direction, Source(speed))
 
-    init {
-        if (direction == IntakeSubsystem.Direction.IN) _finishCondition += CubeSensors.cubeIn
+    override fun CreateCommandScope.create() {
+        if (direction == IntakeSubsystem.Direction.IN) finishCondition += CubeSensors.cubeIn
     }
 
-    override suspend fun initialize() {
+    override suspend fun InitCommandScope.initialize() {
         IntakeSubsystem.solenoid.set(false)
     }
 

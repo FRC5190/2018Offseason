@@ -20,8 +20,8 @@ import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.launchFrequency
 import org.ghrobotics.lib.wrappers.FalconRobotBase
 import org.ghrobotics.robot.Constants
-import org.ghrobotics.robot.Localization
 import org.ghrobotics.robot.auto.Autonomous
+import org.ghrobotics.robot.subsytems.drive.DriveSubsystem
 
 object Lidar : Source<Pair<Boolean, Length>> {
 
@@ -68,7 +68,7 @@ object Lidar : Source<Pair<Boolean, Length>> {
                 kAllowedTolerance
 
         servo.angle = if (FalconRobotBase.INSTANCE.isOperatorControl) 90.0 else {
-            val robotPosition = Localization.robotPosition
+            val robotPosition = DriveSubsystem.localization.robotPosition
             val scalePosition =
                 kNearScaleFull.let { if (Autonomous.Config.scaleSide.value == MatchData.OwnedSide.RIGHT) it.mirror else it }
             val angle = (scalePosition.translation - robotPosition.translation).let {

@@ -1,8 +1,8 @@
 package org.ghrobotics.robot.auto.routines
 
 import openrio.powerup.MatchData
-import org.ghrobotics.lib.commands.AbstractFalconCommand
 import org.ghrobotics.lib.commands.DelayCommand
+import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.millisecond
@@ -12,7 +12,7 @@ import org.ghrobotics.lib.utils.map
 import org.ghrobotics.robot.auto.StartingPositions
 import org.ghrobotics.robot.auto.Trajectories
 import org.ghrobotics.robot.subsytems.SubsystemPreset
-import org.ghrobotics.robot.subsytems.drive.FollowTrajectoryCommand
+import org.ghrobotics.robot.subsytems.drive.DriveSubsystem
 import org.ghrobotics.robot.subsytems.intake.IntakeCommand
 import org.ghrobotics.robot.subsytems.intake.IntakeSubsystem
 
@@ -21,27 +21,27 @@ class RoutineSwitchFromCenter(
     private val switchSide: Source<MatchData.OwnedSide>
 ) : AutoRoutine(startingPosition) {
 
-    override fun createRoutine(): AbstractFalconCommand {
+    override fun createRoutine(): FalconCommand {
         val switch = switchSide.withEquals(MatchData.OwnedSide.LEFT)
         val mirrored = switchSide.withEquals(MatchData.OwnedSide.RIGHT)
 
-        val drop1stCube = FollowTrajectoryCommand(
+        val drop1stCube = DriveSubsystem.followTrajectory(
             switch.map(
                 Trajectories.centerStartToLeftSwitch,
                 Trajectories.centerStartToRightSwitch
             )
         )
-        val toCenter = FollowTrajectoryCommand(Trajectories.switchToCenter, mirrored)
-        val toPyramid = FollowTrajectoryCommand(Trajectories.centerToPyramid)
-        val toCenter2 = FollowTrajectoryCommand(Trajectories.pyramidToCenter)
-        val drop2ndCube = FollowTrajectoryCommand(Trajectories.centerToSwitch, mirrored)
+        val toCenter = DriveSubsystem.followTrajectory(Trajectories.switchToCenter, mirrored)
+        val toPyramid = DriveSubsystem.followTrajectory(Trajectories.centerToPyramid, false)
+        val toCenter2 = DriveSubsystem.followTrajectory(Trajectories.pyramidToCenter, false)
+        val drop2ndCube = DriveSubsystem.followTrajectory(Trajectories.centerToSwitch, mirrored)
 
         return sequential {
             +parallel {
                 +drop1stCube
                 +SubsystemPreset.SWITCH.command//.withTimeout(3000, TimeUnit.MILLISECONDS)
                 +sequential {
-                    +DelayCommand((drop1stCube.trajectory.value.lastState.t - 0.2).second)
+                    +DelayCommand((drop1stCube.trajectoryUsed.lastState.t - 0.2).second)
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.5)).withTimeout(200.millisecond)
                 }
             }
@@ -61,7 +61,7 @@ class RoutineSwitchFromCenter(
                 +drop2ndCube
                 +SubsystemPreset.SWITCH.command
                 +sequential {
-                    +DelayCommand((drop2ndCube.trajectory.value.lastState.t - 0.2).second)
+                    +DelayCommand((drop2ndCube.trajectoryUsed.lastState.t - 0.2).second)
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.5)).withTimeout(200.millisecond)
                 }
             }

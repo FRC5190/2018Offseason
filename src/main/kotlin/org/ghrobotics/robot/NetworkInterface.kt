@@ -9,13 +9,14 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
+import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryFollower
 import org.ghrobotics.lib.wrappers.FalconRobotBase
 import org.ghrobotics.lib.wrappers.networktables.FalconNetworkTable
 import org.ghrobotics.lib.wrappers.networktables.get
 import org.ghrobotics.robot.auto.ScaleAutoMode
 import org.ghrobotics.robot.auto.StartingPositions
 import org.ghrobotics.robot.auto.SwitchAutoMode
-import org.ghrobotics.robot.subsytems.drive.FollowTrajectoryCommand
+import org.ghrobotics.robot.subsytems.drive.DriveSubsystem
 
 @Suppress("HasPlatformType")
 object NetworkInterface {
@@ -62,20 +63,27 @@ object NetworkInterface {
         SmartDashboard.putData("Switch Auto Mode", switchAutoChooser)
 
         notifier = Notifier {
-            val x = Localization.robotPosition.translation.x.feet.asDouble
-            val y = Localization.robotPosition.translation.y.feet.asDouble
-            val a = Localization.robotPosition.rotation.radian.asDouble
+            val robotPosition = DriveSubsystem.localization.robotPosition
+
+            val x = robotPosition.translation.x.feet.asDouble
+            val y = robotPosition.translation.y.feet.asDouble
+            val a = robotPosition.rotation.radian.asDouble
 
             robotX.setDouble(x)
             robotY.setDouble(y)
             robotHdg.setDouble(a)
 
-            pathX.setDouble(FollowTrajectoryCommand.pathX.feet.asDouble)
-            pathY.setDouble(FollowTrajectoryCommand.pathY.feet.asDouble)
-            pathHdg.setDouble(FollowTrajectoryCommand.pathHdg.degree.asDouble)
+            val trajectoryFollower: TrajectoryFollower = DriveSubsystem.trajectoryFollower
 
-            lookaheadX.setDouble(FollowTrajectoryCommand.lookaheadX.feet.asDouble)
-            lookaheadY.setDouble(FollowTrajectoryCommand.lookaheadY.feet.asDouble)
+            pathX.setDouble(trajectoryFollower.referencePose.translation.x.feet.asDouble)
+            pathY.setDouble(trajectoryFollower.referencePose.translation.y.feet.asDouble)
+            pathHdg.setDouble(trajectoryFollower.referencePose.rotation.degree.asDouble)
+
+            /*if(trajectoryFollower is PurePursuitController) {
+                lookaheadX.setDouble(trajectoryFollower.lookaheadX.feet.asDouble)
+                lookaheadY.setDouble(trajectoryFollower.lookaheadY.feet.asDouble)
+            }*/
+
 
             isEnabled.setString(if (FalconRobotBase.INSTANCE.isEnabled) "Enabled" else "Disabled")
             gameData.setString(DriverStation.getInstance().gameSpecificMessage ?: "null")

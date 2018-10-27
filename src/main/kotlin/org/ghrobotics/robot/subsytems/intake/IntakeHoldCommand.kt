@@ -9,7 +9,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import org.ghrobotics.lib.commands.FalconCommand
 
 class IntakeHoldCommand : FalconCommand(IntakeSubsystem) {
-    override suspend fun initialize() {
+    override suspend fun InitCommandScope.initialize() {
         IntakeSubsystem.solenoid.set(true)
         IntakeSubsystem.set(ControlMode.PercentOutput, 0.0)
     }

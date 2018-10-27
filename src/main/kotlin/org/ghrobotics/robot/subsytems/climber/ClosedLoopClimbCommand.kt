@@ -10,14 +10,16 @@ import org.ghrobotics.robot.Constants
 class ClosedLoopClimbCommand(private val distance: NativeUnit? = null) : FalconCommand(ClimberSubsystem) {
     private var targetPosition: NativeUnit = 0.STU
 
-    init {
+    override fun CreateCommandScope.create() {
         if (distance != null) {
             // Only finish command if it has an objective
-            _finishCondition += GlobalScope.updatableValue { (ClimberSubsystem.climberPosition - targetPosition).absoluteValue < Constants.kClimberClosedLpTolerance }
+            finishCondition += GlobalScope.updatableValue {
+                (ClimberSubsystem.climberPosition - targetPosition).absoluteValue < Constants.kClimberClosedLpTolerance
+            }
         }
     }
 
-    override suspend fun initialize() {
+    override suspend fun InitCommandScope.initialize() {
         targetPosition = distance ?: ClimberSubsystem.climberPosition
         ClimberSubsystem.climberPosition = targetPosition
     }

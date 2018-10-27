@@ -33,7 +33,6 @@ class Robot : FalconRobotBase() {
         +IntakeSubsystem
         +LEDSubsystem
 
-        Localization
         NetworkInterface
         Autonomous
         AHRS

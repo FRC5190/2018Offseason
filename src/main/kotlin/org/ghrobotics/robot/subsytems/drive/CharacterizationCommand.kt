@@ -19,12 +19,12 @@ class CharacterizationCommand : FalconCommand(DriveSubsystem) {
     private val avgDriveSpd
         get() = (DriveSubsystem.leftVelocity.feetPerSecond.asDouble + DriveSubsystem.rightVelocity.feetPerSecond.asDouble) / 2.0
 
-    init {
-        _finishCondition += GlobalScope.updatableValue { voltage > 12.0 }
+    override fun CreateCommandScope.create() {
+        finishCondition += GlobalScope.updatableValue { voltage > 12.0 }
         executeFrequency = 1
     }
 
-    override suspend fun initialize() {
+    override suspend fun InitCommandScope.initialize() {
         dataPts.add(voltage to (avgDriveSpd / Constants.kWheelRadius.feet.asDouble))
     }
 

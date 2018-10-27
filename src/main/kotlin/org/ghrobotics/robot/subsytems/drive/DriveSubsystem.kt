@@ -13,6 +13,7 @@ import com.team254.lib.physics.DCMotorTransmission
 import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.Solenoid
 import org.ghrobotics.lib.commands.FalconSubsystem
+import org.ghrobotics.lib.mathematics.twodim.control.RamseteController
 import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryFollower
 import org.ghrobotics.lib.mathematics.units.amp
 import org.ghrobotics.lib.mathematics.units.derivedunits.Velocity
@@ -20,15 +21,18 @@ import org.ghrobotics.lib.mathematics.units.derivedunits.volt
 import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.lib.mathematics.units.millisecond
 import org.ghrobotics.lib.mathematics.units.second
+import org.ghrobotics.lib.sensors.AHRSSensor
+import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import org.ghrobotics.lib.wrappers.FalconSRX
 import org.ghrobotics.robot.Constants
+import org.ghrobotics.robot.sensors.AHRS
 import kotlin.math.pow
 
 
-object DriveSubsystem : FalconSubsystem() {
+object DriveSubsystem : TankDriveSubsystem() {
 
-    private val leftMaster = FalconSRX(Constants.kLeftMasterId, Constants.kDriveNativeUnitModel)
-    private val rightMaster = FalconSRX(Constants.kRightMasterId, Constants.kDriveNativeUnitModel)
+    override val leftMaster = FalconSRX(Constants.kLeftMasterId, Constants.kDriveNativeUnitModel)
+    override val rightMaster = FalconSRX(Constants.kRightMasterId, Constants.kDriveNativeUnitModel)
 
     private val leftSlave1 = FalconSRX(Constants.kLeftSlaveId1, Constants.kDriveNativeUnitModel)
     private val rightSlave1 = FalconSRX(Constants.kRightSlaveId1, Constants.kDriveNativeUnitModel)
@@ -39,6 +43,8 @@ object DriveSubsystem : FalconSubsystem() {
     private val rightMotors = arrayOf(rightMaster, rightSlave1)
 
     private val allMotors = arrayOf(*leftMotors, *rightMotors)
+
+    override val ahrsSensor = AHRS
 
     private val shifter = Solenoid(Constants.kPCMId, Constants.kDriveSolenoidId)
 
@@ -56,6 +62,12 @@ object DriveSubsystem : FalconSubsystem() {
         Constants.kTrackWidth.asMetric.asDouble / 2.0,
         transmission,
         transmission
+    )
+
+    override val trajectoryFollower = RamseteController(
+        driveModel,
+        Constants.kDriveBeta,
+        Constants.kDriveZeta
     )
 
     var lowGear = false
@@ -149,20 +161,5 @@ object DriveSubsystem : FalconSubsystem() {
     fun set(controlMode: ControlMode, leftOutput: Double, rightOutput: Double) {
         leftMaster.set(controlMode, leftOutput)
         rightMaster.set(controlMode, rightOutput)
-    }
-
-    fun setTrajectoryVelocity(pathOut: TrajectoryFollower.Output) {
-        leftMaster.set(
-            ControlMode.Velocity,
-            pathOut.lSetpoint,
-            DemandType.ArbitraryFeedForward,
-            pathOut.lfVoltage.asDouble / 12.0
-        )
-        rightMaster.set(
-            ControlMode.Velocity,
-            pathOut.rSetpoint,
-            DemandType.ArbitraryFeedForward,
-            pathOut.rfVoltage.asDouble / 12.0
-        )
     }
 }
