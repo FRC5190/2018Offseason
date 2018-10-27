@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.NeutralMode
 import org.ghrobotics.lib.commands.Subsystem
 import org.ghrobotics.lib.mathematics.units.amp
+import org.ghrobotics.lib.mathematics.units.nativeunits.fromModel
 import org.ghrobotics.lib.wrappers.FalconSRX
 import org.ghrobotics.robot.Constants
 
@@ -23,7 +24,9 @@ object ArmSubsystem : Subsystem() {
     var armPosition
         get() = armMaster.sensorPosition
         set(value) {
-            armMaster.set(ControlMode.MotionMagic, value)
+            var effectiveValue = value.fromModel(Constants.kArmNativeUnitModel).asDouble
+            if(effectiveValue > 0) effectiveValue -= Constants.kArmNativeUnitModel.sensorUnitsPerRotation.asDouble
+            armMaster.set(ControlMode.MotionMagic, effectiveValue)
         }
 
     init {
