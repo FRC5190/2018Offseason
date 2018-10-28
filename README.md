@@ -22,23 +22,6 @@ This repository is broken up into various submodules. Each submodule contains a 
 * Open IntelliJ IDEA, click 'Open' and click on the '5190-Offseason-2018' Gradle Icon.
 * Use the terminal to deploy code: ```.\gradlew deploy```
 
-### ```livedashboard```
-
-#### Custom dashboard developed by students. Features include
-
-* Data sent over Network Tables from robot to Python dashboard
-* Live robot pose plotting
-* ```matplotlib``` and ```tkinter```
-* Shows relative robot position and path (when following path)
-* Smooth animations
-
-##### Instructions for Pose Plotter
-
-* Download ```python``` and depedencies mentioned above.
-* Download and install ```pynetworktables``` using: ```pip install pynetworktables```
-* Use the terminal to run the program: ```python livedashboard.py```
-* You can test the program by changing the NT IP in ```poseplotter.py``` to ```127.0.1.1``` and running ```dashboardtest.py``` in a new terminal window
-
 ### ```strategysim```
 
 #### Developed by 5190 Programming Mentors to simulate robot strategy. Some features include
