@@ -1,7 +1,10 @@
 package org.ghrobotics.robot.auto.routines
 
 import openrio.powerup.MatchData
-import org.ghrobotics.lib.commands.*
+import org.ghrobotics.lib.commands.DelayCommand
+import org.ghrobotics.lib.commands.FalconCommand
+import org.ghrobotics.lib.commands.parallel
+import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.millisecond
 import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.utils.Source
@@ -20,8 +23,8 @@ import org.ghrobotics.robot.subsytems.intake.IntakeCommand
 import org.ghrobotics.robot.subsytems.intake.IntakeSubsystem
 
 class RoutineSwitchFromCenter(
-    startingPosition: Source<StartingPositions>,
-    private val switchSide: Source<MatchData.OwnedSide>
+        startingPosition: Source<StartingPositions>,
+        private val switchSide: Source<MatchData.OwnedSide>
 ) : AutoRoutine(startingPosition) {
 
     override fun createRoutine(): FalconCommand {
@@ -34,7 +37,7 @@ class RoutineSwitchFromCenter(
                 +SubsystemPreset.SWITCH.command
                 +sequential {
                     +DelayCommand(isLeftSwitch.map(centerStartToLeftSwitch, centerStartToRightSwitch)
-                        .map { (it.lastState.t - 0.2).second })
+                            .map { (it.lastState.t - 0.2).second })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.5)).withTimeout(200.millisecond)
                 }
             }

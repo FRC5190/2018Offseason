@@ -44,25 +44,25 @@ object DriveSubsystem : TankDriveSubsystem() {
     private val shifter = Solenoid(Constants.kPCMId, Constants.kDriveSolenoidId)
 
     private val transmission = DCMotorTransmission(
-        1 / Constants.kVDrive,
-        Constants.kWheelRadius.asMetric.asDouble.pow(2) * Constants.kRobotMass / (2.0 * Constants.kADrive),
-        Constants.kStaticFrictionVoltage
+            1 / Constants.kVDrive,
+            Constants.kWheelRadius.asMetric.asDouble.pow(2) * Constants.kRobotMass / (2.0 * Constants.kADrive),
+            Constants.kStaticFrictionVoltage
     )
 
     val driveModel = DifferentialDrive(
-        Constants.kRobotMass,
-        Constants.kRobotMomentOfInertia,
-        Constants.kRobotAngularDrag,
-        Constants.kWheelRadius.asMetric.asDouble,
-        Constants.kTrackWidth.asMetric.asDouble / 2.0,
-        transmission,
-        transmission
+            Constants.kRobotMass,
+            Constants.kRobotMomentOfInertia,
+            Constants.kRobotAngularDrag,
+            Constants.kWheelRadius.asMetric.asDouble,
+            Constants.kTrackWidth.asMetric.asDouble / 2.0,
+            transmission,
+            transmission
     )
 
     override val trajectoryFollower = RamseteController(
-        driveModel,
-        Constants.kDriveBeta,
-        Constants.kDriveZeta
+            driveModel,
+            Constants.kDriveBeta,
+            Constants.kDriveZeta
     )
 
     var lowGear = false

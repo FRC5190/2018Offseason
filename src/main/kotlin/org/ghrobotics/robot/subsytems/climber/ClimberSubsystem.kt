@@ -36,9 +36,9 @@ object ClimberSubsystem : FalconSubsystem() {
             motionAcceleration = Constants.kClimberMotionMagicAcceleration
 
             configReverseLimitSwitchSource(
-                LimitSwitchSource.FeedbackConnector,
-                LimitSwitchNormal.NormallyOpen,
-                Constants.kCTRETimeout
+                    LimitSwitchSource.FeedbackConnector,
+                    LimitSwitchNormal.NormallyOpen,
+                    Constants.kCTRETimeout
             )
             overrideLimitSwitchesEnable = true
 

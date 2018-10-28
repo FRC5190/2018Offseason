@@ -48,8 +48,8 @@ class LidarElevatorCommand : FalconCommand(ElevatorSubsystem) {
 
         heightNeeded = if (underScale) {
             heightBufferAverage.coerceIn(
-                ElevatorSubsystem.kFirstStagePosition,
-                ElevatorSubsystem.kHighScalePosition
+                    ElevatorSubsystem.kFirstStagePosition,
+                    ElevatorSubsystem.kHighScalePosition
             )
         } else {
             ElevatorSubsystem.kScalePosition

@@ -42,12 +42,12 @@ object ElevatorSubsystem : FalconSubsystem() {
             feedbackSensor = FeedbackDevice.QuadEncoder
 
             configForwardLimitSwitchSource(
-                LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen,
-                Constants.kCTRETimeout
+                    LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen,
+                    Constants.kCTRETimeout
             )
             configReverseLimitSwitchSource(
-                LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen,
-                Constants.kCTRETimeout
+                    LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen,
+                    Constants.kCTRETimeout
             )
             overrideLimitSwitchesEnable = true
 

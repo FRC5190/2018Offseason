@@ -33,12 +33,12 @@ object Autonomous {
     }
 
     val isSameSide = Config.startingPosition.asSource()
-        .withMerge(Config.scaleSide.asSource()) { one, two -> !one.isSameSide(two) }
+            .withMerge(Config.scaleSide.asSource()) { one, two -> !one.isSameSide(two) }
 
     private var configValid =
-        Config.switchSide.map { it != MatchData.OwnedSide.UNKNOWN } and Config.scaleSide.map { it != MatchData.OwnedSide.UNKNOWN }
+            Config.switchSide.map { it != MatchData.OwnedSide.UNKNOWN } and Config.scaleSide.map { it != MatchData.OwnedSide.UNKNOWN }
     private val shouldPoll =
-        !(GlobalScope.updatableValue(5) { FalconRobotBase.INSTANCE.run { isAutonomous && isEnabled } } and configValid)
+            !(GlobalScope.updatableValue(5) { FalconRobotBase.INSTANCE.run { isAutonomous && isEnabled } } and configValid)
 
 
     // Autonomous Master Group
@@ -49,13 +49,13 @@ object Autonomous {
                     stateCommandGroup(Config.nearScaleAutoMode) {
                         // Three cube same side
                         state(
-                            ScaleAutoMode.THREECUBE,
-                            RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource())
+                                ScaleAutoMode.THREECUBE,
+                                RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource())
                         )
                         // Baseline same side
                         state(
-                            ScaleAutoMode.BASELINE,
-                            RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource())
+                                ScaleAutoMode.BASELINE,
+                                RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource())
                         )
                     }
                 }
@@ -63,13 +63,13 @@ object Autonomous {
                     stateCommandGroup(Config.farScaleAutoMode) {
                         // 2.5 cube cross
                         state(
-                            ScaleAutoMode.THREECUBE,
-                            RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource())
+                                ScaleAutoMode.THREECUBE,
+                                RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource())
                         )
                         // Baseline cross
                         state(
-                            ScaleAutoMode.BASELINE,
-                            RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource())
+                                ScaleAutoMode.BASELINE,
+                                RoutineScaleFromSide(Config.startingPosition.asSource(), Config.scaleSide.asSource())
                         )
                     }
                 }
@@ -79,17 +79,17 @@ object Autonomous {
             stateCommandGroup(Config.switchAutoMode) {
                 // Center 2 cube
                 state(
-                    SwitchAutoMode.BASIC,
-                    RoutineSwitchFromCenter(Config.startingPosition.asSource(), Config.switchSide.asSource())
+                        SwitchAutoMode.BASIC,
+                        RoutineSwitchFromCenter(Config.startingPosition.asSource(), Config.switchSide.asSource())
                 )
                 // Center 1 cube switch and 1 cube scale
                 state(
-                    SwitchAutoMode.ROBONAUTS,
-                    RoutineSwitchScaleFromCenter(
-                        Config.startingPosition.asSource(),
-                        Config.switchSide.asSource(),
-                        Config.scaleSide.asSource()
-                    )
+                        SwitchAutoMode.ROBONAUTS,
+                        RoutineSwitchScaleFromCenter(
+                                Config.startingPosition.asSource(),
+                                Config.switchSide.asSource(),
+                                Config.scaleSide.asSource()
+                        )
                 )
             }
         }
@@ -113,8 +113,8 @@ object Autonomous {
 }
 
 enum class StartingPositions(
-    val pose: Pose2d,
-    private val matchSide: MatchData.OwnedSide
+        val pose: Pose2d,
+        private val matchSide: MatchData.OwnedSide
 ) {
     LEFT(Trajectories.kSideStart, MatchData.OwnedSide.LEFT),
     CENTER(Trajectories.kCenterStart, MatchData.OwnedSide.UNKNOWN),

@@ -29,8 +29,8 @@ import org.ghrobotics.robot.subsytems.intake.IntakeCommand
 import org.ghrobotics.robot.subsytems.intake.IntakeSubsystem
 
 class RoutineScaleFromSide(
-    startingPosition: Source<StartingPositions>,
-    private val scaleSide: Source<MatchData.OwnedSide>
+        startingPosition: Source<StartingPositions>,
+        private val scaleSide: Source<MatchData.OwnedSide>
 ) : AutoRoutine(startingPosition) {
 
     override fun createRoutine(): FalconCommand {
@@ -46,10 +46,10 @@ class RoutineScaleFromSide(
             // Place first cube in scale
             +parallel {
                 +DriveSubsystem.followTrajectory(
-                    Autonomous.isSameSide,
-                    leftStartToNearScale,
-                    leftStartToFarScale,
-                    startingPosition.withEquals(StartingPositions.RIGHT)
+                        Autonomous.isSameSide,
+                        leftStartToNearScale,
+                        leftStartToFarScale,
+                        startingPosition.withEquals(StartingPositions.RIGHT)
                 ).withExit(stopScalePathCondition)
                 +sequential {
                     // Start moving the arm and elevator up
@@ -63,13 +63,13 @@ class RoutineScaleFromSide(
                     +sequential {
                         // Finish moving arm and elevator once we are near scale
                         +DelayCommand(Autonomous.isSameSide.map(
-                            2.75.second,
-                            2.50.second
+                                2.75.second,
+                                2.50.second
                         ).withMerge(
-                            Autonomous.isSameSide.map(
-                                leftStartToNearScale,
-                                leftStartToFarScale
-                            )
+                                Autonomous.isSameSide.map(
+                                        leftStartToNearScale,
+                                        leftStartToFarScale
+                                )
                         ) { offset, path ->
                             path.lastState.t.second - offset
                         })
@@ -81,8 +81,8 @@ class RoutineScaleFromSide(
                             +ConditionalCommand(Autonomous.isSameSide.map { !it }, DelayCommand(0.1.second))
                             +DelayCommand(100.millisecond)
                             +IntakeCommand(
-                                IntakeSubsystem.Direction.OUT,
-                                Autonomous.isSameSide.map(0.35, 0.65)
+                                    IntakeSubsystem.Direction.OUT,
+                                    Autonomous.isSameSide.map(0.35, 0.65)
                             ).withTimeout(500.millisecond)
                         }
                     }
@@ -95,13 +95,13 @@ class RoutineScaleFromSide(
                 +sequential {
                     +DelayCommand(300.millisecond)
                     +DriveSubsystem.followTrajectory(Trajectories.scaleToCube1, shouldMirrorPath)
-                        .withExit(CubeSensors.cubeIn)
+                            .withExit(CubeSensors.cubeIn)
                 }
             }
             // Place second cube in scale
             +parallel {
                 +DriveSubsystem.followTrajectory(cube1ToScale, shouldMirrorPath)
-                    .withExit(stopScalePathCondition)
+                        .withExit(stopScalePathCondition)
                 +sequential {
                     +DelayCommand((cube1ToScale.lastState.t - 2.7).second)
                     +SubsystemPreset.BEHIND.command
@@ -118,14 +118,14 @@ class RoutineScaleFromSide(
                 +SubsystemPreset.INTAKE.command
                 +IntakeCommand(IntakeSubsystem.Direction.IN).withTimeout(10.second)
                 +DriveSubsystem.followTrajectory(
-                    Trajectories.scaleToCube2,
-                    shouldMirrorPath
+                        Trajectories.scaleToCube2,
+                        shouldMirrorPath
                 ).withExit(CubeSensors.cubeIn)
             }
             // Place third cube in scale
             +parallel {
                 +DriveSubsystem.followTrajectory(cube2ToScale, shouldMirrorPath)
-                    .withExit(stopScalePathCondition)
+                        .withExit(stopScalePathCondition)
                 +sequential {
                     +DelayCommand((cube2ToScale.lastState.t - 2.7).second)
                     +SubsystemPreset.BEHIND.command
@@ -142,7 +142,7 @@ class RoutineScaleFromSide(
                 +SubsystemPreset.INTAKE.command
                 +IntakeCommand(IntakeSubsystem.Direction.IN).withTimeout(10.second)
                 +DriveSubsystem.followTrajectory(Trajectories.scaleToCube3, shouldMirrorPath)
-                    .withExit(CubeSensors.cubeIn)
+                        .withExit(CubeSensors.cubeIn)
             }
         }
     }

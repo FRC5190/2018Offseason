@@ -48,7 +48,7 @@ object NetworkInterface {
 
     init {
         StartingPositions.values()
-            .forEach { startingPositionChooser.addDefault(it.name.toLowerCase().capitalize(), it) }
+                .forEach { startingPositionChooser.addDefault(it.name.toLowerCase().capitalize(), it) }
 
         ScaleAutoMode.values().forEach {
             nearScaleAutoChooser.addDefault(it.name.toLowerCase().capitalize(), it)

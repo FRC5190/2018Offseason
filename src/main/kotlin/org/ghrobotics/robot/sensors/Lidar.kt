@@ -48,9 +48,9 @@ object Lidar : Source<Pair<Boolean, Length>> {
         // X - Raw Sensor Units
         // Y - Height in Inches
         val data = arrayOf(
-            1050.0 to 45.0,
-            1500.0 to 55.0,
-            1900.0 to 70.0
+                1050.0 to 45.0,
+                1500.0 to 55.0,
+                1900.0 to 70.0
         )
 
         data.forEach { regressionFunction.addData(it.first, it.second) }
@@ -69,7 +69,7 @@ object Lidar : Source<Pair<Boolean, Length>> {
         servo.angle = if (FalconRobotBase.INSTANCE.isOperatorControl) 90.0 else {
             val robotPosition = DriveSubsystem.localization.robotPosition
             val scalePosition =
-                kNearScaleFull.let { if (Autonomous.Config.scaleSide.value == MatchData.OwnedSide.RIGHT) it.mirror else it }
+                    kNearScaleFull.let { if (Autonomous.Config.scaleSide.value == MatchData.OwnedSide.RIGHT) it.mirror else it }
             val angle = (scalePosition.translation - robotPosition.translation).let {
                 Rotation2d(it.xRaw, it.yRaw, true)
             }.degree + 180.degree + AHRS.correctedAngle

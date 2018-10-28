@@ -8,7 +8,7 @@ import org.ghrobotics.robot.subsytems.drive.DriveSubsystem
 
 class RoutineBaseline(startingPosition: Source<StartingPositions>) : AutoRoutine(startingPosition) {
     override fun createRoutine() = DriveSubsystem.followTrajectory(
-        Trajectories.baseline,
-        startingPosition.withEquals(StartingPositions.RIGHT)
+            Trajectories.baseline,
+            startingPosition.withEquals(StartingPositions.RIGHT)
     )
 }

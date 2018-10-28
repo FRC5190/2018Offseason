@@ -50,7 +50,7 @@ enum class SubsystemPreset(private val builder: () -> FalconCommand) {
             +ClosedLoopElevatorCommand(ElevatorSubsystem.kScalePosition)
             +sequential {
                 +ClosedLoopArmCommand(Constants.kArmUpPosition + Constants.kArmAutoTolerance)
-                    .withExit { ElevatorSubsystem.elevatorPosition > ElevatorSubsystem.kFirstStagePosition }
+                        .withExit { ElevatorSubsystem.elevatorPosition > ElevatorSubsystem.kFirstStagePosition }
                 +ClosedLoopArmCommand(Constants.kArmBehindPosition)
             }
         }

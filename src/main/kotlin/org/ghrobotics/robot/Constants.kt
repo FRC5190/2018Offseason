@@ -89,8 +89,8 @@ object Constants {
     val kTrackWidth = 2.6.feet
 
     val kDriveNativeUnitModel = NativeUnitLengthModel(
-        kDriveSensorUnitsPerRotation,
-        kWheelRadius
+            kDriveSensorUnitsPerRotation,
+            kWheelRadius
     )
 
     const val kPDrive = 1.7 // Talon SRX Units
@@ -128,8 +128,8 @@ object Constants {
     const val kVElevator = 0.395 // 1023 units per STU (velocity)
 
     val elevatorNativeUnitSettings = NativeUnitLengthModel(
-        1440.STU,
-        1.25.inch / 2.0
+            1440.STU,
+            1.25.inch / 2.0
     )
 
     val kElevatorSoftLimitFwd = 22500.STU
