@@ -146,4 +146,7 @@ object Constants {
 
     val kClimberMotionMagicVelocity = 1000000.STUPer100ms
     val kClimberMotionMagicAcceleration = 12000.STUPer100msPerSecond
+
+    val kClimberHighScalePosition = 47600.STU
+    val kClimberBottomPosition = 0.STU
 }

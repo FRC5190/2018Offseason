@@ -16,21 +16,18 @@ import org.ghrobotics.robot.Constants
 
 object ArmSubsystem : FalconSubsystem() {
 
-    private val armMaster = FalconSRX(
-        Constants.kArmId,
-        Constants.kArmNativeUnitModel
-    )
+    private val armMaster = FalconSRX(Constants.kArmId, Constants.kArmNativeUnitModel)
 
     var armPosition
         get() = armMaster.sensorPosition
         set(value) {
             var effectiveValue = value.fromModel(Constants.kArmNativeUnitModel).asDouble
-            if(effectiveValue > 0) effectiveValue -= Constants.kArmNativeUnitModel.sensorUnitsPerRotation.asDouble
+            if (effectiveValue > 0) effectiveValue -= Constants.kArmNativeUnitModel.sensorUnitsPerRotation.asDouble
             armMaster.set(ControlMode.MotionMagic, effectiveValue)
         }
 
     init {
-        armMaster.apply {
+        armMaster.run {
             inverted = true
             encoderPhase = false
             feedbackSensor = FeedbackDevice.Analog

@@ -1,6 +1,7 @@
 package org.ghrobotics.robot.auto.routines
 
 import org.ghrobotics.lib.utils.Source
+import org.ghrobotics.lib.utils.withEquals
 import org.ghrobotics.robot.auto.StartingPositions
 import org.ghrobotics.robot.auto.Trajectories
 import org.ghrobotics.robot.subsytems.drive.DriveSubsystem

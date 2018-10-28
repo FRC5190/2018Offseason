@@ -16,9 +16,6 @@ object ClimberSubsystem : FalconSubsystem() {
     private val climberMaster = GenericFalonSRX(Constants.kWinchMasterId)
     private val climberSlave = GenericFalonSRX(Constants.kWinchSlaveId)
 
-    val kHighScalePosition = 47600.STU
-    val kBottomPosition = 0.STU
-
     var climberPosition
         get() = climberMaster.sensorPosition
         set(value) {
@@ -26,7 +23,7 @@ object ClimberSubsystem : FalconSubsystem() {
         }
 
     init {
-        climberMaster.apply {
+        climberMaster.run {
             inverted = false
             encoderPhase = false
             feedbackSensor = FeedbackDevice.QuadEncoder

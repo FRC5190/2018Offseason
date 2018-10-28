@@ -8,9 +8,13 @@ import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.map
 import org.ghrobotics.lib.utils.observabletype.updatableValue
+import org.ghrobotics.lib.utils.withEquals
 import org.ghrobotics.robot.Constants
 import org.ghrobotics.robot.auto.StartingPositions
 import org.ghrobotics.robot.auto.Trajectories
+import org.ghrobotics.robot.auto.Trajectories.centerStartToLeftSwitch
+import org.ghrobotics.robot.auto.Trajectories.centerStartToRightSwitch
+import org.ghrobotics.robot.auto.Trajectories.pyramidToScale
 import org.ghrobotics.robot.subsytems.SubsystemPreset
 import org.ghrobotics.robot.subsytems.arm.ArmSubsystem
 import org.ghrobotics.robot.subsytems.arm.ClosedLoopArmCommand
@@ -26,46 +30,37 @@ class RoutineSwitchScaleFromCenter(
     private val scaleSide: Source<MatchData.OwnedSide>
 ) : AutoRoutine(startingPosition) {
     override fun createRoutine(): FalconCommand {
-        val switch = switchSide.withEquals(MatchData.OwnedSide.LEFT)
+        val isLeftSwitch = switchSide.withEquals(MatchData.OwnedSide.LEFT)
         val switchMirrored = switchSide.withEquals(MatchData.OwnedSide.RIGHT)
         val scaleMirrored = scaleSide.withEquals(MatchData.OwnedSide.RIGHT)
 
-        val drop1stCube = DriveSubsystem.followTrajectory(
-            switch.map(
-                Trajectories.centerStartToLeftSwitch,
-                Trajectories.centerStartToRightSwitch
-            )
-        )
-        val toCenter = DriveSubsystem.followTrajectory(Trajectories.switchToCenter, switchMirrored)
-        val toPyramid = DriveSubsystem.followTrajectory(Trajectories.centerToPyramid, false)
-        val drop2ndCube = DriveSubsystem.followTrajectory(Trajectories.pyramidToScale, scaleMirrored)
-
         return sequential {
             +parallel {
-                +drop1stCube
+                +DriveSubsystem.followTrajectory(isLeftSwitch, centerStartToLeftSwitch, centerStartToRightSwitch)
                 +SubsystemPreset.SWITCH.command
                 +sequential {
-                    +DelayCommand((drop1stCube.trajectoryUsed.lastState.t - 0.2).second)
+                    +DelayCommand(isLeftSwitch.map(centerStartToLeftSwitch, centerStartToRightSwitch)
+                        .map { (it.lastState.t - 0.2).second })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, 0.5).withTimeout(200.millisecond)
                 }
             }
             +parallel {
-                +toCenter
+                +DriveSubsystem.followTrajectory(Trajectories.switchToCenter, switchMirrored)
                 +sequential {
                     +DelayCommand(500.millisecond)
                     +SubsystemPreset.INTAKE.command
                 }
             }
             +parallel {
-                +toPyramid
+                +DriveSubsystem.followTrajectory(Trajectories.centerToPyramid)
                 +IntakeCommand(IntakeSubsystem.Direction.IN).withTimeout(3.second)
             }
             +parallel {
-                +drop2ndCube
+                +DriveSubsystem.followTrajectory(pyramidToScale, scaleMirrored)
                 +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition)
                 +ClosedLoopArmCommand(Constants.kArmUpPosition)
                 sequential {
-                    +DelayCommand((drop2ndCube.trajectoryUsed.lastState.t - 1.75).second)
+                    +DelayCommand((pyramidToScale.lastState.t - 1.75).second)
                     +SubsystemPreset.BEHIND.command
                     +ConditionCommand(GlobalScope.updatableValue {
                         ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance

@@ -5,11 +5,9 @@
 
 package org.ghrobotics.robot.subsytems.arm
 
-import kotlinx.coroutines.experimental.GlobalScope
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.Rotation2d
 import org.ghrobotics.lib.mathematics.units.degree
-import org.ghrobotics.lib.utils.observabletype.updatableValue
 import org.ghrobotics.robot.Constants
 
 class ClosedLoopArmCommand(private val pos: Rotation2d? = null) : FalconCommand(ArmSubsystem) {
@@ -19,7 +17,7 @@ class ClosedLoopArmCommand(private val pos: Rotation2d? = null) : FalconCommand(
     override fun CreateCommandScope.create() {
         if (pos != null) {
             // Only finish command if it has an objective
-            finishCondition += GlobalScope.updatableValue {
+            finishCondition += {
                 (ArmSubsystem.armPosition - targetPosition).absoluteValue < Constants.kArmClosedLoopTolerance
             }
         }

@@ -15,7 +15,7 @@ abstract class AutoRoutine(protected val startingPosition: Source<StartingPositi
         +InstantRunnableCommand {
             println("[AutoRoutine] Starting routine...")
             NetworkInterface.INSTANCE.getEntry("Reset").setBoolean(true)
-            val startingPositionValue = startingPosition.value
+            val startingPositionValue = startingPosition()
             AHRS.angleOffset = startingPositionValue.pose.rotation
             DriveSubsystem.localization.reset(startingPositionValue.pose)
         }

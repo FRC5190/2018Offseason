@@ -6,28 +6,23 @@
 package org.ghrobotics.robot.subsytems.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
-import com.ctre.phoenix.motorcontrol.DemandType
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.NeutralMode
 import com.team254.lib.physics.DCMotorTransmission
 import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.Solenoid
-import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.twodim.control.RamseteController
-import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryFollower
 import org.ghrobotics.lib.mathematics.units.amp
 import org.ghrobotics.lib.mathematics.units.derivedunits.Velocity
 import org.ghrobotics.lib.mathematics.units.derivedunits.volt
 import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.lib.mathematics.units.millisecond
 import org.ghrobotics.lib.mathematics.units.second
-import org.ghrobotics.lib.sensors.AHRSSensor
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import org.ghrobotics.lib.wrappers.FalconSRX
 import org.ghrobotics.robot.Constants
 import org.ghrobotics.robot.sensors.AHRS
 import kotlin.math.pow
-
 
 object DriveSubsystem : TankDriveSubsystem() {
 
@@ -83,33 +78,25 @@ object DriveSubsystem : TankDriveSubsystem() {
         }
 
 
-    val leftPosition
-        get() = leftMaster.sensorPosition
-
-    val rightPosition
-        get() = rightMaster.sensorPosition
-
-    val leftVelocity: Velocity
-        get() = leftMaster.sensorVelocity
-
-    val rightVelocity: Velocity
-        get() = rightMaster.sensorVelocity
-
+    val leftPosition get() = leftMaster.sensorPosition
+    val rightPosition get() = rightMaster.sensorPosition
+    val leftVelocity: Velocity get() = leftMaster.sensorVelocity
+    val rightVelocity: Velocity get() = rightMaster.sensorVelocity
 
     init {
         lowGear = false
 
-        arrayListOf(leftSlave1).forEach {
+        mutableListOf(leftSlave1).forEach {
             it.follow(leftMaster)
             it.inverted = false
         }
-        arrayListOf(rightSlave1).forEach {
+        mutableListOf(rightSlave1).forEach {
             it.follow(rightMaster)
             it.inverted = true
         }
 
-        leftMotors.forEach { it.apply { it.inverted = false } }
-        rightMotors.forEach { it.apply { it.inverted = true } }
+        leftMotors.forEach { it.inverted = false }
+        rightMotors.forEach { it.inverted = true }
 
         allMasters.forEach {
             it.feedbackSensor = FeedbackDevice.QuadEncoder

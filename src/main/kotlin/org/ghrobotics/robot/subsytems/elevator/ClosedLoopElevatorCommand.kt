@@ -5,11 +5,9 @@
 
 package org.ghrobotics.robot.subsytems.elevator
 
-import kotlinx.coroutines.experimental.GlobalScope
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.inch
-import org.ghrobotics.lib.utils.observabletype.updatableValue
 import org.ghrobotics.robot.Constants
 
 class ClosedLoopElevatorCommand(private val distance: Length? = null) : FalconCommand(ElevatorSubsystem) {
@@ -19,7 +17,7 @@ class ClosedLoopElevatorCommand(private val distance: Length? = null) : FalconCo
     override fun CreateCommandScope.create() {
         if (distance != null) {
             // Only finish command if it has an objective
-            finishCondition += GlobalScope.updatableValue {
+            finishCondition += {
                 (ElevatorSubsystem.elevatorPosition - targetPosition).absoluteValue < Constants.kElevatorClosedLpTolerance
             }
         }

@@ -12,6 +12,7 @@ import org.ghrobotics.lib.utils.observabletype.and
 import org.ghrobotics.lib.utils.observabletype.map
 import org.ghrobotics.lib.utils.observabletype.not
 import org.ghrobotics.lib.utils.observabletype.updatableValue
+import org.ghrobotics.lib.utils.withMerge
 import org.ghrobotics.lib.wrappers.FalconRobotBase
 import org.ghrobotics.robot.NetworkInterface
 import org.ghrobotics.robot.auto.routines.AutoRoutine
@@ -26,9 +27,9 @@ object Autonomous {
         val startingPosition = GlobalScope.updatableValue { NetworkInterface.startingPositionChooser.selected }
         val switchSide = GlobalScope.updatableValue { MatchData.getOwnedSide(MatchData.GameFeature.SWITCH_NEAR) }
         val scaleSide = GlobalScope.updatableValue { MatchData.getOwnedSide(MatchData.GameFeature.SCALE) }
-        val switchAutoMode = Source { NetworkInterface.switchAutoChooser.selected }
-        val nearScaleAutoMode = Source { NetworkInterface.nearScaleAutoChooser.selected }
-        val farScaleAutoMode = Source { NetworkInterface.farScaleAutoChooser.selected }
+        val switchAutoMode: Source<SwitchAutoMode> = { NetworkInterface.switchAutoChooser.selected }
+        val nearScaleAutoMode: Source<ScaleAutoMode> = { NetworkInterface.nearScaleAutoChooser.selected }
+        val farScaleAutoMode: Source<ScaleAutoMode> = { NetworkInterface.farScaleAutoChooser.selected }
     }
 
     val isSameSide = Config.startingPosition.asSource()

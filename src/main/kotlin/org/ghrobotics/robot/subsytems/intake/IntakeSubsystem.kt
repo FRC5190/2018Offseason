@@ -23,7 +23,7 @@ object IntakeSubsystem : FalconSubsystem() {
     init {
         defaultCommand = IntakeHoldCommand()
 
-        intakeMaster.apply {
+        intakeMaster.run {
             voltageCompensationSaturation = 12.volt
             voltageCompensationEnabled = true
 
@@ -32,7 +32,7 @@ object IntakeSubsystem : FalconSubsystem() {
 
             brakeMode = NeutralMode.Coast
         }
-        intakeSlave.apply {
+        intakeSlave.run {
             follow(intakeMaster)
             inverted = true
         }

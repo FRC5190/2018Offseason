@@ -1,11 +1,9 @@
 package org.ghrobotics.robot.subsytems.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
-import kotlinx.coroutines.experimental.GlobalScope
 import org.apache.commons.math3.stat.regression.SimpleRegression
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.derivedunits.feetPerSecond
-import org.ghrobotics.lib.utils.observabletype.updatableValue
 import org.ghrobotics.robot.Constants
 
 class CharacterizationCommand : FalconCommand(DriveSubsystem) {
@@ -20,7 +18,7 @@ class CharacterizationCommand : FalconCommand(DriveSubsystem) {
         get() = (DriveSubsystem.leftVelocity.feetPerSecond.asDouble + DriveSubsystem.rightVelocity.feetPerSecond.asDouble) / 2.0
 
     override fun CreateCommandScope.create() {
-        finishCondition += GlobalScope.updatableValue { voltage > 12.0 }
+        finishCondition += { voltage > 12.0 }
         executeFrequency = 1
     }
 

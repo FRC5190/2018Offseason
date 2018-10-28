@@ -9,6 +9,7 @@ import kotlinx.coroutines.experimental.GlobalScope
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.utils.map
 import org.ghrobotics.lib.utils.observabletype.and
 import org.ghrobotics.lib.utils.observabletype.not
 import org.ghrobotics.lib.utils.observabletype.updatableValue
@@ -20,7 +21,7 @@ import java.util.*
 class LidarElevatorCommand : FalconCommand(ElevatorSubsystem) {
     companion object {
         private val heightOffset = 15.inch
-        private val heightSource = Lidar.withProcessing { it.first to (it.second - heightOffset) }
+        private val heightSource = Lidar.map { it.first to (it.second - heightOffset) }
     }
 
     private var heightNeeded = 0.inch
@@ -41,7 +42,7 @@ class LidarElevatorCommand : FalconCommand(ElevatorSubsystem) {
         get() = heightBuffer.map { it.inch.asDouble }.average().inch
 
     override suspend fun execute() {
-        val (underScale, scaleHeight) = heightSource.value
+        val (underScale, scaleHeight) = heightSource()
 
         if (underScale) heightBuffer.add(scaleHeight)
 

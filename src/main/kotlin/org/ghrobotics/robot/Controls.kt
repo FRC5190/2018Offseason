@@ -6,14 +6,13 @@
 package org.ghrobotics.robot
 
 import edu.wpi.first.wpilibj.GenericHID
-import org.ghrobotics.lib.utils.Source
+import org.ghrobotics.lib.utils.map
 import org.ghrobotics.lib.utils.observabletype.ObservableVariable
 import org.ghrobotics.lib.utils.observabletype.not
 import org.ghrobotics.lib.wrappers.hid.*
 import org.ghrobotics.robot.subsytems.SubsystemPreset
 import org.ghrobotics.robot.subsytems.arm.OpenLoopArmCommand
 import org.ghrobotics.robot.subsytems.changeOn
-import org.ghrobotics.robot.subsytems.climber.ClimberSubsystem
 import org.ghrobotics.robot.subsytems.climber.ClosedLoopClimbCommand
 import org.ghrobotics.robot.subsytems.climber.OpenLoopClimbCommand
 import org.ghrobotics.robot.subsytems.drive.DriveSubsystem
@@ -33,8 +32,8 @@ object Controls {
 
         state(!isClimbing) {
             // Arm Controls
-            val armUpCommand = OpenLoopArmCommand(Source(0.5))
-            val armDownCommand = OpenLoopArmCommand(Source(-0.5))
+            val armUpCommand = OpenLoopArmCommand(0.5)
+            val armDownCommand = OpenLoopArmCommand(-0.5)
 
             button(kY).change(armUpCommand)
             button(kB).change(armDownCommand)
@@ -44,8 +43,8 @@ object Controls {
             button(kA).changeOff { DriveSubsystem.lowGear = false }
 
             // Elevator Controls
-            val elevatorUpCommand = OpenLoopElevatorCommand(Source(0.4))
-            val elevatorDownCommand = OpenLoopElevatorCommand(Source(-0.4))
+            val elevatorUpCommand = OpenLoopElevatorCommand(0.4)
+            val elevatorDownCommand = OpenLoopElevatorCommand(-0.4)
 
             triggerAxisButton(GenericHID.Hand.kRight, 0.2).change(elevatorUpCommand)
             button(kBumperRight).change(elevatorDownCommand)
@@ -58,20 +57,20 @@ object Controls {
 
             // Intake Controls
             triggerAxisButton(GenericHID.Hand.kLeft, 0.1) {
-                change(IntakeCommand(IntakeSubsystem.Direction.OUT, source.withProcessing { it.pow(2) * 0.65 }))
+                change(IntakeCommand(IntakeSubsystem.Direction.OUT, source.map { it.pow(2) * 0.65 }))
             }
-            button(kBumperLeft).change(IntakeCommand(IntakeSubsystem.Direction.IN, Source(1.0)))
+            button(kBumperLeft).change(IntakeCommand(IntakeSubsystem.Direction.IN, 1.0))
         }
         state(isClimbing) {
-            val climberUpCommand = OpenLoopClimbCommand(Source(0.9))
-            val climberDownCommand = OpenLoopClimbCommand(Source(-0.9))
+            val climberUpCommand = OpenLoopClimbCommand(0.9)
+            val climberDownCommand = OpenLoopClimbCommand(-0.9)
 
             triggerAxisButton(GenericHID.Hand.kRight, 0.2).change(climberUpCommand)
             button(kBumperRight).change(climberDownCommand)
 
             // Presets
-            pov(90).changeOn(ClosedLoopClimbCommand(ClimberSubsystem.kHighScalePosition))
-            pov(180).changeOn(ClosedLoopClimbCommand(ClimberSubsystem.kBottomPosition))
+            pov(90).changeOn(ClosedLoopClimbCommand(Constants.kClimberHighScalePosition))
+            pov(180).changeOn(ClosedLoopClimbCommand(Constants.kClimberBottomPosition))
         }
     }
 }

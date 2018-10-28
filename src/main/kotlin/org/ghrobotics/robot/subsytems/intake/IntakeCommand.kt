@@ -9,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.utils.DoubleSource
 import org.ghrobotics.lib.utils.Source
+import org.ghrobotics.lib.utils.map
 import org.ghrobotics.robot.sensors.CubeSensors
 import kotlin.math.withSign
 
@@ -17,8 +18,9 @@ class IntakeCommand(
     speed: DoubleSource = Source(1.0)
 ) : FalconCommand(IntakeSubsystem) {
 
-    private val speed = speed
-        .withProcessing { it.withSign(if (direction == IntakeSubsystem.Direction.IN) -1 else 1) }
+    private val speed = speed.map {
+        it.withSign(if (direction == IntakeSubsystem.Direction.IN) -1 else 1)
+    }
 
     constructor(direction: IntakeSubsystem.Direction, speed: Double) : this(direction, Source(speed))
 
@@ -31,7 +33,7 @@ class IntakeCommand(
     }
 
     override suspend fun execute() {
-        IntakeSubsystem.set(ControlMode.PercentOutput, speed.value)
+        IntakeSubsystem.set(ControlMode.PercentOutput, speed())
     }
 
     override suspend fun dispose() {

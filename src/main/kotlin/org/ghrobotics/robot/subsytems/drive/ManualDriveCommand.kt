@@ -30,13 +30,13 @@ class ManualDriveCommand : FalconCommand(DriveSubsystem) {
     private var stopAccumulator = 0.0
 
     override suspend fun execute() {
-        val speed = -speedSource.value
-        val rotation = rotationSource.value
+        val speed = -speedSource()
+        val rotation = rotationSource()
 
         val angularPower: Double
         val overPower: Boolean
 
-        if (quickTurnSource.value) {
+        if (quickTurnSource()) {
             if (Math.abs(speed) < stopThreshold) {
                 stopAccumulator = (1 - stopAlpha) * stopAccumulator + stopAlpha * rotation.coerceIn(-1.0, 1.0) * 2.0
             }

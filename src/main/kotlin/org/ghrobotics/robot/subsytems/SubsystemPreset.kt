@@ -5,11 +5,9 @@
 
 package org.ghrobotics.robot.subsytems
 
-import kotlinx.coroutines.experimental.GlobalScope
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
-import org.ghrobotics.lib.utils.observabletype.updatableValue
 import org.ghrobotics.lib.wrappers.hid.FalconHIDButtonBuilder
 import org.ghrobotics.robot.Constants
 import org.ghrobotics.robot.subsytems.arm.ArmSubsystem
@@ -22,9 +20,9 @@ enum class SubsystemPreset(private val builder: () -> FalconCommand) {
         parallel {
             +ClosedLoopArmCommand(Constants.kArmDownPosition)
             +sequential {
-                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(GlobalScope.updatableValue {
+                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit {
                     ArmSubsystem.armPosition < Constants.kArmUpPosition + Constants.kArmAutoTolerance
-                })
+                }
                 +ClosedLoopElevatorCommand(ElevatorSubsystem.kIntakePosition)
             }
         }
@@ -33,10 +31,10 @@ enum class SubsystemPreset(private val builder: () -> FalconCommand) {
         parallel {
             +ClosedLoopArmCommand(Constants.kArmMiddlePosition)
             +sequential {
-                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit(GlobalScope.updatableValue {
+                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition).withExit {
                     ElevatorSubsystem.elevatorPosition < ElevatorSubsystem.kSwitchPosition
                             || ArmSubsystem.armPosition < Constants.kArmUpPosition + Constants.kArmAutoTolerance
-                })
+                }
                 +ClosedLoopElevatorCommand(ElevatorSubsystem.kSwitchPosition)
             }
         }
@@ -51,10 +49,8 @@ enum class SubsystemPreset(private val builder: () -> FalconCommand) {
         parallel {
             +ClosedLoopElevatorCommand(ElevatorSubsystem.kScalePosition)
             +sequential {
-                +ClosedLoopArmCommand(Constants.kArmUpPosition + Constants.kArmAutoTolerance).withExit(
-                    GlobalScope.updatableValue {
-                        ElevatorSubsystem.elevatorPosition > ElevatorSubsystem.kFirstStagePosition
-                    })
+                +ClosedLoopArmCommand(Constants.kArmUpPosition + Constants.kArmAutoTolerance)
+                    .withExit { ElevatorSubsystem.elevatorPosition > ElevatorSubsystem.kFirstStagePosition }
                 +ClosedLoopArmCommand(Constants.kArmBehindPosition)
             }
         }

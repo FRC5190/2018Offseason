@@ -42,8 +42,7 @@ object Lidar : Source<Pair<Boolean, Length>> {
     var scaleHeight = 0.inch
         private set
 
-    override val value
-        get() = underScale to scaleHeight
+    override fun invoke() = underScale to scaleHeight
 
     init {
         // X - Raw Sensor Units

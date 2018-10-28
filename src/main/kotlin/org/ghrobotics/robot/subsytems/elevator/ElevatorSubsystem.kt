@@ -25,8 +25,7 @@ object ElevatorSubsystem : FalconSubsystem() {
     val kHighScalePosition = 60.inch
     val kIntakePosition = 500.STU.toModel(Constants.elevatorNativeUnitSettings)
 
-    val atBottom
-        get() = elevatorMaster.sensorCollection.isRevLimitSwitchClosed
+    val atBottom get() = elevatorMaster.sensorCollection.isRevLimitSwitchClosed
 
     var elevatorPosition
         get() = elevatorMaster.sensorPosition
@@ -37,7 +36,7 @@ object ElevatorSubsystem : FalconSubsystem() {
     var reset = false
 
     init {
-        elevatorMaster.apply {
+        elevatorMaster.run {
             inverted = false
             encoderPhase = false
             feedbackSensor = FeedbackDevice.QuadEncoder
@@ -70,7 +69,7 @@ object ElevatorSubsystem : FalconSubsystem() {
 
             brakeMode = NeutralMode.Brake
         }
-        elevatorSlave.apply {
+        elevatorSlave.run {
             follow(elevatorMaster)
             inverted = true
         }
