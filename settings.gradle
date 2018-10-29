@@ -11,5 +11,4 @@ pluginManagement {
 }
 
 rootProject.name='2018Offseason'
-include 'FalconLibrary'
 

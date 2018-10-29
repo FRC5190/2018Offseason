@@ -1,7 +1,7 @@
 package org.ghrobotics.robot.auto
 
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.runBlocking
 import openrio.powerup.MatchData
 import org.ghrobotics.lib.commands.S3ND
 import org.ghrobotics.lib.commands.StateCommandGroupBuilder

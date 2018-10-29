@@ -1,7 +1,7 @@
 package org.ghrobotics.robot.sensors
 
 import edu.wpi.first.wpilibj.AnalogInput
-import kotlinx.coroutines.experimental.GlobalScope
+import kotlinx.coroutines.GlobalScope
 import org.ghrobotics.lib.utils.observabletype.and
 import org.ghrobotics.lib.utils.observabletype.asObservableVoltage
 import org.ghrobotics.robot.Constants

@@ -5,7 +5,7 @@
 
 package org.ghrobotics.robot.subsytems.elevator
 
-import kotlinx.coroutines.experimental.GlobalScope
+import kotlinx.coroutines.GlobalScope
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.inch

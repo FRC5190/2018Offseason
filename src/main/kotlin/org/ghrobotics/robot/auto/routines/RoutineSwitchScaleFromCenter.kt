@@ -1,6 +1,6 @@
 package org.ghrobotics.robot.auto.routines
 
-import kotlinx.coroutines.experimental.GlobalScope
+import kotlinx.coroutines.GlobalScope
 import openrio.powerup.MatchData
 /* ktlint-disable no-wildcard-imports */
 import org.ghrobotics.lib.commands.*

@@ -7,7 +7,7 @@ package org.ghrobotics.robot.sensors
 
 import com.ctre.phoenix.CANifier
 import edu.wpi.first.wpilibj.Servo
-import kotlinx.coroutines.experimental.GlobalScope
+import kotlinx.coroutines.GlobalScope
 import openrio.powerup.MatchData
 import org.apache.commons.math3.stat.regression.SimpleRegression
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
