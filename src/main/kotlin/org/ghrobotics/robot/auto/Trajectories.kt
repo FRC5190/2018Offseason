@@ -3,7 +3,6 @@
  * Green Hope Falcons
  */
 
-
 package org.ghrobotics.robot.auto
 
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
@@ -14,6 +13,7 @@ import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.Differential
 import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.TimingConstraint
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
 import org.ghrobotics.lib.mathematics.units.degree
+/* ktlint-disable no-wildcard-imports */
 import org.ghrobotics.lib.mathematics.units.derivedunits.*
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.meter
@@ -123,7 +123,6 @@ object Trajectories {
         +kNearScaleFullInner
     }.generateTrajectory("Cube 3 to Scale", reversed = true)
 
-
     val centerStartToLeftSwitch = waypoints {
         +kCenterStart
         +kSwitchLeftAdjusted
@@ -173,11 +172,11 @@ object Trajectories {
         val points = mutableListOf<Pose2d>()
 
         fun generateTrajectory(
-                name: String,
-                reversed: Boolean,
-                maxVelocity: Velocity = kMaxVelocity,
-                maxAcceleration: Acceleration = kMaxAcceleration,
-                constraints: ArrayList<TimingConstraint<Pose2dWithCurvature>> = kConstraints
+            name: String,
+            reversed: Boolean,
+            maxVelocity: Velocity = kMaxVelocity,
+            maxAcceleration: Acceleration = kMaxAcceleration,
+            constraints: ArrayList<TimingConstraint<Pose2dWithCurvature>> = kConstraints
         ): TimedTrajectory<Pose2dWithCurvature> {
 
             return DefaultTrajectoryGenerator.generateTrajectory(

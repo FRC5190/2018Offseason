@@ -14,8 +14,8 @@ import org.ghrobotics.robot.sensors.CubeSensors
 import kotlin.math.withSign
 
 class IntakeCommand(
-        private val direction: IntakeSubsystem.Direction,
-        speed: DoubleSource = Source(1.0)
+    private val direction: IntakeSubsystem.Direction,
+    speed: DoubleSource = Source(1.0)
 ) : FalconCommand(IntakeSubsystem) {
 
     private val speed = speed.map {

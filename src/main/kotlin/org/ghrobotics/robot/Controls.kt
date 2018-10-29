@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.GenericHID
 import org.ghrobotics.lib.utils.map
 import org.ghrobotics.lib.utils.observabletype.ObservableVariable
 import org.ghrobotics.lib.utils.observabletype.not
+/* ktlint-disable no-wildcard-imports */
 import org.ghrobotics.lib.wrappers.hid.*
 import org.ghrobotics.robot.subsytems.SubsystemPreset
 import org.ghrobotics.robot.subsytems.arm.OpenLoopArmCommand

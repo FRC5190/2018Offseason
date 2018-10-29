@@ -27,5 +27,4 @@ class ClosedLoopArmCommand(private val pos: Rotation2d? = null) : FalconCommand(
         targetPosition = pos ?: ArmSubsystem.armPosition
         ArmSubsystem.armPosition = targetPosition
     }
-
 }

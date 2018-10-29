@@ -5,6 +5,7 @@
 
 package org.ghrobotics.robot.subsytems.elevator
 
+/* ktlint-disable no-wildcard-imports */
 import com.ctre.phoenix.motorcontrol.*
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.amp
@@ -81,5 +82,4 @@ object ElevatorSubsystem : FalconSubsystem() {
     fun resetEncoders() {
         elevatorMaster.sensorPosition = 0.meter
     }
-
 }

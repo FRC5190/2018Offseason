@@ -38,5 +38,4 @@ class Robot : FalconRobotBase() {
         AHRS
         Lidar
     }
-
 }

@@ -2,6 +2,7 @@ package org.ghrobotics.robot.auto.routines
 
 import kotlinx.coroutines.experimental.GlobalScope
 import openrio.powerup.MatchData
+/* ktlint-disable no-wildcard-imports */
 import org.ghrobotics.lib.commands.*
 import org.ghrobotics.lib.mathematics.units.millisecond
 import org.ghrobotics.lib.mathematics.units.second
@@ -29,17 +30,17 @@ import org.ghrobotics.robot.subsytems.intake.IntakeCommand
 import org.ghrobotics.robot.subsytems.intake.IntakeSubsystem
 
 class RoutineScaleFromSide(
-        startingPosition: Source<StartingPositions>,
-        private val scaleSide: Source<MatchData.OwnedSide>
+    startingPosition: Source<StartingPositions>,
+    private val scaleSide: Source<MatchData.OwnedSide>
 ) : AutoRoutine(startingPosition) {
 
     override fun createRoutine(): FalconCommand {
         val shouldMirrorPath = scaleSide.withEquals(MatchData.OwnedSide.RIGHT)
 
         val stopScalePathCondition = {
-            (ElevatorSubsystem.elevatorPosition > ElevatorSubsystem.kFirstStagePosition
-                    && !CubeSensors.cubeIn.value
-                    && ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance)
+            (ElevatorSubsystem.elevatorPosition > ElevatorSubsystem.kFirstStagePosition &&
+                    !CubeSensors.cubeIn.value &&
+                    ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance)
         }
 
         return sequential {

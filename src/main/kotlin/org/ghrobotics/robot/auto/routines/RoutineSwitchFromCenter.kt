@@ -23,8 +23,8 @@ import org.ghrobotics.robot.subsytems.intake.IntakeCommand
 import org.ghrobotics.robot.subsytems.intake.IntakeSubsystem
 
 class RoutineSwitchFromCenter(
-        startingPosition: Source<StartingPositions>,
-        private val switchSide: Source<MatchData.OwnedSide>
+    startingPosition: Source<StartingPositions>,
+    private val switchSide: Source<MatchData.OwnedSide>
 ) : AutoRoutine(startingPosition) {
 
     override fun createRoutine(): FalconCommand {

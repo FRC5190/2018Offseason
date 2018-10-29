@@ -23,5 +23,4 @@ abstract class AutoRoutine(protected val startingPosition: Source<StartingPositi
     }
 
     protected abstract fun createRoutine(): FalconCommand
-
 }

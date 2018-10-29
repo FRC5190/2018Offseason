@@ -6,12 +6,14 @@
 package org.ghrobotics.robot
 
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
+/* ktlint-disable no-wildcard-imports */
 import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.mathematics.units.derivedunits.acceleration
 import org.ghrobotics.lib.mathematics.units.derivedunits.velocity
 import org.ghrobotics.lib.mathematics.units.expressions.SIExp2
 import org.ghrobotics.lib.mathematics.units.fractions.SIFrac11
 import org.ghrobotics.lib.mathematics.units.fractions.SIFrac12
+/* ktlint-disable no-wildcard-imports */
 import org.ghrobotics.lib.mathematics.units.nativeunits.*
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
@@ -19,7 +21,6 @@ object Constants {
 
     // GLOBAL CTRE TIMEOUT
     const val kCTRETimeout = 10
-
 
     // MOTOR IDS
     const val kLeftMasterId = 1
@@ -39,25 +40,20 @@ object Constants {
     const val kWinchMasterId = 10
     const val kWinchSlaveId = 59
 
-
     // CANIFIER
     const val kCANifierId = 16
-
 
     // PNEUMATICS
     const val kPCMId = 41
     const val kDriveSolenoidId = 3
     const val kIntakeSolenoidId = 2
 
-
     // SERVO
     const val kLidarServoId = 0
-
 
     // ANALOG INPUT
     const val kLeftCubeSensorId = 2
     const val kRightCubeSensorId = 3
-
 
     // ROBOT
     val kRobotWidth = 27.inch
@@ -82,7 +78,6 @@ object Constants {
     val kCenterToIntake = Pose2d(-(kRobotLength / 2.0) - kIntakeLength, 0.meter, 0.degree)
     val kCenterToFrontBumper = Pose2d(-(kRobotLength / 2.0) - kBumperLength, 0.meter, 0.degree)
 
-
     // DRIVE
     val kDriveSensorUnitsPerRotation = 1440.STU
     val kWheelRadius = 2.92.inch
@@ -100,10 +95,8 @@ object Constants {
     const val kVDrive = 0.185 // Volts per radians per second
     const val kADrive = 0.020 // Volts per radians per second per second
 
-
     const val kDriveBeta = 2.00 // Inverse meters squared
     const val kDriveZeta = 0.90 // Unitless dampening co-efficient
-
 
     // ARM
     val kArmNativeUnitModel = NativeUnitRotationModel(1024.STU)
@@ -137,7 +130,6 @@ object Constants {
 
     val kElevatorMotionMagicVelocity = 72.inch.velocity
     val kElevatorMotionMagicAcceleration = 90.inch.acceleration
-
 
     // CLIMBER
     const val kPClimber = 2.0

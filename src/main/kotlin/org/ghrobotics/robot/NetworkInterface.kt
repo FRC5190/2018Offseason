@@ -84,7 +84,6 @@ object NetworkInterface {
                 lookaheadY.setDouble(trajectoryFollower.lookaheadY.feet.asDouble)
             }*/
 
-
             isEnabled.setString(if (FalconRobotBase.INSTANCE.isEnabled) "Enabled" else "Disabled")
             gameData.setString(DriverStation.getInstance().gameSpecificMessage ?: "null")
 

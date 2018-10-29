@@ -14,5 +14,4 @@ object CubeSensors {
     private const val kVoltThreshold = 0.9
 
     val cubeIn = leftCubeSensor.greaterThan(kVoltThreshold) and rightCubeSensor.greaterThan(kVoltThreshold)
-
 }

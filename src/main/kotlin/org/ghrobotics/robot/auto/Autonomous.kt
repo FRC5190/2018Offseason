@@ -40,7 +40,6 @@ object Autonomous {
     private val shouldPoll =
             !(GlobalScope.updatableValue(5) { FalconRobotBase.INSTANCE.run { isAutonomous && isEnabled } } and configValid)
 
-
     // Autonomous Master Group
     private val JUST = stateCommandGroup(Config.startingPosition.asSource()) {
         state(StartingPositions.LEFT, StartingPositions.RIGHT) {
@@ -108,13 +107,12 @@ object Autonomous {
         Config.startingPosition.invokeOnChange { runBlocking { DriveSubsystem.localization.reset(it.pose); } }
     }
 
-
     private fun <T> StateCommandGroupBuilder<T>.state(state: T, routine: AutoRoutine) = state(state, routine.create())
 }
 
 enum class StartingPositions(
-        val pose: Pose2d,
-        private val matchSide: MatchData.OwnedSide
+    val pose: Pose2d,
+    private val matchSide: MatchData.OwnedSide
 ) {
     LEFT(Trajectories.kSideStart, MatchData.OwnedSide.LEFT),
     CENTER(Trajectories.kCenterStart, MatchData.OwnedSide.UNKNOWN),

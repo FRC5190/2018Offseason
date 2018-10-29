@@ -45,9 +45,13 @@ deploy {
 
 repositories {
     mavenCentral()
+    jcenter()
     maven { url "http://dl.bintray.com/kyonifer/maven" }
 }
 
+configurations {
+    ktlint
+}
 
 wpi {
     ctreVersion = '5.3.1.0'
@@ -58,6 +62,8 @@ dependencies {
     compile ctre()
     compile navx()
     compile openrio.powerup.matchData()
+    
+    ktlint "com.github.shyiko:ktlint:0.29.0"
 
     compile project("FalconLibrary")
 
@@ -68,10 +74,29 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
+task ktlint(type: JavaExec, group: "verification") {
+    description = "Check Kotlin code style."
+    classpath = configurations.ktlint
+    main = "com.github.shyiko.ktlint.Main"
+    args "src/**/*.kt"
+    // to generate report in checkstyle format prepend following args:
+    // "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/ktlint.xml"
+    // see https://github.com/shyiko/ktlint#usage for more
+}
+check.dependsOn ktlint
+
+task ktlintFormat(type: JavaExec, group: "formatting") {
+    description = "Fix Kotlin code style deviations."
+    classpath = configurations.ktlint
+    main = "com.github.shyiko.ktlint.Main"
+    args "-F", "src/**/*.kt"
+}
+
 jar {
     from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     manifest GradleRIOPlugin.javaManifest(ROBOT_CLASS)
 }
+
 wrapper {
     gradleVersion = '4.9'
 }
