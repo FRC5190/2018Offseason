@@ -45,7 +45,7 @@ object DriveSubsystem : TankDriveSubsystem() {
 
     private val transmission = DCMotorTransmission(
             1 / Constants.kVDrive,
-            Constants.kWheelRadius.asMetric.asDouble.pow(2) * Constants.kRobotMass / (2.0 * Constants.kADrive),
+            Constants.kWheelRadius.value.pow(2) * Constants.kRobotMass / (2.0 * Constants.kADrive),
             Constants.kStaticFrictionVoltage
     )
 
@@ -53,8 +53,8 @@ object DriveSubsystem : TankDriveSubsystem() {
             Constants.kRobotMass,
             Constants.kRobotMomentOfInertia,
             Constants.kRobotAngularDrag,
-            Constants.kWheelRadius.asMetric.asDouble,
-            Constants.kTrackWidth.asMetric.asDouble / 2.0,
+            Constants.kWheelRadius.value,
+            Constants.kTrackWidth.value / 2.0,
             transmission,
             transmission
     )

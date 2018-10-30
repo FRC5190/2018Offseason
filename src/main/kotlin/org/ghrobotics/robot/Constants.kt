@@ -5,15 +5,12 @@
 
 package org.ghrobotics.robot
 
-import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 /* ktlint-disable no-wildcard-imports */
+/* ktlint-disable no-wildcard-imports */
+import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.mathematics.units.derivedunits.acceleration
 import org.ghrobotics.lib.mathematics.units.derivedunits.velocity
-import org.ghrobotics.lib.mathematics.units.expressions.SIExp2
-import org.ghrobotics.lib.mathematics.units.fractions.SIFrac11
-import org.ghrobotics.lib.mathematics.units.fractions.SIFrac12
-/* ktlint-disable no-wildcard-imports */
 import org.ghrobotics.lib.mathematics.units.nativeunits.*
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
@@ -110,8 +107,8 @@ object Constants {
     const val kPArm = 4.5
     const val kVArm = 16.78 + 0.9 // 1023 units per STU (velocity)
 
-    val kArmMotionMagicVelocity = SIFrac11(1000000.degree, 1.second)
-    val kArmMotionMagicAcceleration = SIFrac12(140.degree, SIExp2(1.second, 1.second))
+    val kArmMotionMagicVelocity = 1000000.degree / 1.second
+    val kArmMotionMagicAcceleration = 140.degree / 1.second / 1.second
 
     val kArmClosedLoopTolerance = 14.degree
     val kArmAutoTolerance = 35.degree

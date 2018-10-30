@@ -40,7 +40,7 @@ class LidarElevatorCommand : FalconCommand(ElevatorSubsystem) {
     private val heightBuffer = ArrayDeque<Length>(3)
 
     private val heightBufferAverage
-        get() = heightBuffer.map { it.inch.asDouble }.average().inch
+        get() = heightBuffer.map { it.inch }.average().inch
 
     override suspend fun execute() {
         val (underScale, scaleHeight) = heightSource()

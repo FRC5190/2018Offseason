@@ -42,7 +42,7 @@ dependencies {
     implementation openrio.powerup.matchData()
 
     // FalconLibrary
-    implementation "com.github.5190GreenHopeRobotics:FalconLibrary:a0b62d5" // Jitpack
+    implementation "com.github.5190GreenHopeRobotics:FalconLibrary:75e1fd9" // Jitpack
 //    implementation "org.ghrobotics.lib:FalconLibrary:2018.10.29" // Local
 }
 

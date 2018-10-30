@@ -11,11 +11,7 @@ import kotlinx.coroutines.GlobalScope
 import openrio.powerup.MatchData
 import org.apache.commons.math3.stat.regression.SimpleRegression
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
-import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
-import org.ghrobotics.lib.mathematics.units.Length
-import org.ghrobotics.lib.mathematics.units.degree
-import org.ghrobotics.lib.mathematics.units.feet
-import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.launchFrequency
 import org.ghrobotics.lib.wrappers.FalconRobotBase
@@ -72,9 +68,9 @@ object Lidar : Source<Pair<Boolean, Length>> {
                     kNearScaleFull.let { if (Autonomous.Config.scaleSide.value == MatchData.OwnedSide.RIGHT) it.mirror else it }
             val angle = (scalePosition.translation - robotPosition.translation).let {
                 Rotation2d(it.xRaw, it.yRaw, true)
-            }.degree + 180.degree + AHRS.correctedAngle
+            } + 180.degree + AHRS.correctedAngle
 
-            angle.degree.asDouble
+            angle.degree
         }
     }
 }

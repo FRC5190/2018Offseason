@@ -65,9 +65,9 @@ object NetworkInterface {
         notifier = Notifier {
             val robotPosition = DriveSubsystem.localization.robotPosition
 
-            val x = robotPosition.translation.x.feet.asDouble
-            val y = robotPosition.translation.y.feet.asDouble
-            val a = robotPosition.rotation.radian.asDouble
+            val x = robotPosition.translation.x.feet
+            val y = robotPosition.translation.y.feet
+            val a = robotPosition.rotation.radian
 
             robotX.setDouble(x)
             robotY.setDouble(y)
@@ -75,9 +75,9 @@ object NetworkInterface {
 
             val trajectoryFollower: TrajectoryFollower = DriveSubsystem.trajectoryFollower
 
-            pathX.setDouble(trajectoryFollower.referencePose.translation.x.feet.asDouble)
-            pathY.setDouble(trajectoryFollower.referencePose.translation.y.feet.asDouble)
-            pathHdg.setDouble(trajectoryFollower.referencePose.rotation.degree.asDouble)
+            pathX.setDouble(trajectoryFollower.referencePose.translation.x.feet)
+            pathY.setDouble(trajectoryFollower.referencePose.translation.y.feet)
+            pathHdg.setDouble(trajectoryFollower.referencePose.rotation.degree)
 
             /*if(trajectoryFollower is PurePursuitController) {
                 lookaheadX.setDouble(trajectoryFollower.lookaheadX.feet.asDouble)

@@ -21,8 +21,8 @@ object ArmSubsystem : FalconSubsystem() {
     var armPosition
         get() = armMaster.sensorPosition
         set(value) {
-            var effectiveValue = value.fromModel(Constants.kArmNativeUnitModel).asDouble
-            if (effectiveValue > 0) effectiveValue -= Constants.kArmNativeUnitModel.sensorUnitsPerRotation.asDouble
+            var effectiveValue = value.fromModel(Constants.kArmNativeUnitModel).value
+            if (effectiveValue > 0) effectiveValue -= Constants.kArmNativeUnitModel.sensorUnitsPerRotation.value
             armMaster.set(ControlMode.MotionMagic, effectiveValue)
         }
 
