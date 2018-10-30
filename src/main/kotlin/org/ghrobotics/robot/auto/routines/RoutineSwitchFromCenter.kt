@@ -23,22 +23,23 @@ import org.ghrobotics.robot.subsytems.intake.IntakeCommand
 import org.ghrobotics.robot.subsytems.intake.IntakeSubsystem
 
 class RoutineSwitchFromCenter(
-    startingPosition: Source<StartingPositions>,
-    private val switchSide: Source<MatchData.OwnedSide>
+        startingPosition: Source<StartingPositions>,
+        private val switchSide: Source<MatchData.OwnedSide>
 ) : AutoRoutine(startingPosition) {
 
     override fun createRoutine(): FalconCommand {
         val isLeftSwitch = switchSide.withEquals(MatchData.OwnedSide.LEFT)
         val mirrored = switchSide.withEquals(MatchData.OwnedSide.RIGHT)
 
+        val firstCubePath = isLeftSwitch.map(centerStartToLeftSwitch, centerStartToRightSwitch)
+
         return sequential {
             +parallel {
-                +DriveSubsystem.followTrajectory(isLeftSwitch, centerStartToLeftSwitch, centerStartToRightSwitch)
+                +DriveSubsystem.followTrajectory(firstCubePath)
                 +SubsystemPreset.SWITCH.command
                 +sequential {
-                    +DelayCommand(isLeftSwitch.map(centerStartToLeftSwitch, centerStartToRightSwitch)
-                            .map { (it.lastState.t - 0.2).second })
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.5)).withTimeout(200.millisecond)
+                    +DelayCommand(firstCubePath.map { (it.lastState.t - 0.2).second })
+                    +IntakeCommand(IntakeSubsystem.Direction.OUT, 0.5).withTimeout(200.millisecond)
                 }
             }
             +parallel {

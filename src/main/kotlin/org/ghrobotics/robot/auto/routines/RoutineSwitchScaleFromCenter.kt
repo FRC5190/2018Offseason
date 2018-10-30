@@ -1,14 +1,12 @@
 package org.ghrobotics.robot.auto.routines
 
-import kotlinx.coroutines.GlobalScope
-import openrio.powerup.MatchData
 /* ktlint-disable no-wildcard-imports */
+import openrio.powerup.MatchData
 import org.ghrobotics.lib.commands.*
 import org.ghrobotics.lib.mathematics.units.millisecond
 import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.map
-import org.ghrobotics.lib.utils.observabletype.updatableValue
 import org.ghrobotics.lib.utils.withEquals
 import org.ghrobotics.robot.Constants
 import org.ghrobotics.robot.auto.StartingPositions
@@ -26,22 +24,23 @@ import org.ghrobotics.robot.subsytems.intake.IntakeCommand
 import org.ghrobotics.robot.subsytems.intake.IntakeSubsystem
 
 class RoutineSwitchScaleFromCenter(
-    startingPosition: Source<StartingPositions>,
-    private val switchSide: Source<MatchData.OwnedSide>,
-    private val scaleSide: Source<MatchData.OwnedSide>
+        startingPosition: Source<StartingPositions>,
+        private val switchSide: Source<MatchData.OwnedSide>,
+        private val scaleSide: Source<MatchData.OwnedSide>
 ) : AutoRoutine(startingPosition) {
     override fun createRoutine(): FalconCommand {
         val isLeftSwitch = switchSide.withEquals(MatchData.OwnedSide.LEFT)
         val switchMirrored = switchSide.withEquals(MatchData.OwnedSide.RIGHT)
         val scaleMirrored = scaleSide.withEquals(MatchData.OwnedSide.RIGHT)
 
+        val firstCubePath = isLeftSwitch.map(centerStartToLeftSwitch, centerStartToRightSwitch)
+
         return sequential {
             +parallel {
-                +DriveSubsystem.followTrajectory(isLeftSwitch, centerStartToLeftSwitch, centerStartToRightSwitch)
+                +DriveSubsystem.followTrajectory(firstCubePath)
                 +SubsystemPreset.SWITCH.command
                 +sequential {
-                    +DelayCommand(isLeftSwitch.map(centerStartToLeftSwitch, centerStartToRightSwitch)
-                            .map { (it.lastState.t - 0.2).second })
+                    +DelayCommand(firstCubePath.map { (it.lastState.t - 0.2).second })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, 0.5).withTimeout(200.millisecond)
                 }
             }
@@ -63,9 +62,7 @@ class RoutineSwitchScaleFromCenter(
                 sequential {
                     +DelayCommand((pyramidToScale.lastState.t - 1.75).second)
                     +SubsystemPreset.BEHIND.command
-                    +ConditionCommand(GlobalScope.updatableValue {
-                        ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance
-                    })
+                    +ConditionCommand { ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance }
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, 0.35).withTimeout(500.millisecond)
                 }
             }

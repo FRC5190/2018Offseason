@@ -1,16 +1,11 @@
 package org.ghrobotics.robot.auto.routines
 
-import kotlinx.coroutines.GlobalScope
-import openrio.powerup.MatchData
 /* ktlint-disable no-wildcard-imports */
+import openrio.powerup.MatchData
 import org.ghrobotics.lib.commands.*
 import org.ghrobotics.lib.mathematics.units.millisecond
 import org.ghrobotics.lib.mathematics.units.second
-import org.ghrobotics.lib.utils.Source
-import org.ghrobotics.lib.utils.map
-import org.ghrobotics.lib.utils.observabletype.updatableValue
-import org.ghrobotics.lib.utils.withEquals
-import org.ghrobotics.lib.utils.withMerge
+import org.ghrobotics.lib.utils.*
 import org.ghrobotics.robot.Constants
 import org.ghrobotics.robot.auto.Autonomous
 import org.ghrobotics.robot.auto.StartingPositions
@@ -30,8 +25,8 @@ import org.ghrobotics.robot.subsytems.intake.IntakeCommand
 import org.ghrobotics.robot.subsytems.intake.IntakeSubsystem
 
 class RoutineScaleFromSide(
-    startingPosition: Source<StartingPositions>,
-    private val scaleSide: Source<MatchData.OwnedSide>
+        startingPosition: Source<StartingPositions>,
+        private val scaleSide: Source<MatchData.OwnedSide>
 ) : AutoRoutine(startingPosition) {
 
     override fun createRoutine(): FalconCommand {
@@ -43,15 +38,13 @@ class RoutineScaleFromSide(
                     ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance)
         }
 
+        val firstCubePath = Autonomous.isSameSide.map(leftStartToNearScale, leftStartToFarScale)
+
         return sequential {
             // Place first cube in scale
             +parallel {
-                +DriveSubsystem.followTrajectory(
-                        Autonomous.isSameSide,
-                        leftStartToNearScale,
-                        leftStartToFarScale,
-                        startingPosition.withEquals(StartingPositions.RIGHT)
-                ).withExit(stopScalePathCondition)
+                +DriveSubsystem.followTrajectory(firstCubePath, startingPosition.withEquals(StartingPositions.RIGHT))
+                        .withExit(stopScalePathCondition)
                 +sequential {
                     // Start moving the arm and elevator up
                     +DelayCommand(500.millisecond)
@@ -63,23 +56,12 @@ class RoutineScaleFromSide(
 
                     +sequential {
                         // Finish moving arm and elevator once we are near scale
-                        +DelayCommand(Autonomous.isSameSide.map(
-                                2.75.second,
-                                2.50.second
-                        ).withMerge(
-                                Autonomous.isSameSide.map(
-                                        leftStartToNearScale,
-                                        leftStartToFarScale
-                                )
-                        ) { offset, path ->
-                            path.lastState.t.second - offset
-                        })
+                        +DelayCommand(Autonomous.isSameSide.map(2.75.second, 2.50.second)
+                                .withMerge(firstCubePath) { offset, path -> path.lastState.t.second - offset })
                         +sequential {
                             // Launch cube once arm is far enough back
-                            +ConditionCommand(GlobalScope.updatableValue {
-                                ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance
-                            })
-                            +ConditionalCommand(Autonomous.isSameSide.map { !it }, DelayCommand(0.1.second))
+                            +ConditionCommand { ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance }
+                            +ConditionalCommand(!Autonomous.isSameSide, DelayCommand(0.1.second))
                             +DelayCommand(100.millisecond)
                             +IntakeCommand(
                                     IntakeSubsystem.Direction.OUT,
@@ -108,9 +90,7 @@ class RoutineScaleFromSide(
                     +SubsystemPreset.BEHIND.command
                 }
                 +sequential {
-                    +ConditionCommand(GlobalScope.updatableValue {
-                        ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance
-                    })
+                    +ConditionCommand { ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance }
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, 0.4).withTimeout(500.millisecond)
                 }
             }
@@ -132,9 +112,7 @@ class RoutineScaleFromSide(
                     +SubsystemPreset.BEHIND.command
                 }
                 +sequential {
-                    +ConditionCommand(GlobalScope.updatableValue {
-                        ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance
-                    })
+                    +ConditionCommand { ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance }
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, 0.4).withTimeout(500.millisecond)
                 }
             }
