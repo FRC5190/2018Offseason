@@ -5,15 +5,14 @@
 
 package org.ghrobotics.robot.auto
 
+/* ktlint-disable no-wildcard-imports */
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
 import org.ghrobotics.lib.mathematics.twodim.trajectory.DefaultTrajectoryGenerator
 import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.CentripetalAccelerationConstraint
 import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.DifferentialDriveDynamicsConstraint
 import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.TimingConstraint
-import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
 import org.ghrobotics.lib.mathematics.units.degree
-/* ktlint-disable no-wildcard-imports */
 import org.ghrobotics.lib.mathematics.units.derivedunits.*
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.meter
@@ -32,10 +31,9 @@ object Trajectories {
     private val kMaxCentripetalAcceleration = 4.5.feet.acceleration
 
     // Constraints
-    private val kConstraints = arrayListOf(
+    private val kConstraints = listOf(
             CentripetalAccelerationConstraint(kMaxCentripetalAcceleration),
             DifferentialDriveDynamicsConstraint(DriveSubsystem.driveModel, 10.0.volt)
-
     )
 
     // Field Relative Constants
@@ -66,140 +64,124 @@ object Trajectories {
     private val kFrontPyramidCube = Pose2d(10.25.feet, 13.5.feet, 0.degree)
     private val kFrontPyramidCubeAdjusted = kFrontPyramidCube + kCenterToIntake
 
-    internal val trajectories = mutableListOf<Container>()
-
     // FastTrajectories
-    val leftStartToNearScale = waypoints {
-        +kSideStart
-        +kSideStart.transformBy(Pose2d((-10).feet, 0.feet, 0.degree))
-        +kNearScaleEmpty
-    }.generateTrajectory("Left Start to Near Scale", reversed = true)
+    val leftStartToNearScale = waypoints(
+            kSideStart,
+            kSideStart + Pose2d((-10).feet, 0.feet, 0.degree),
+            kNearScaleEmpty
+    ).generateTrajectory("Left Start to Near Scale", reversed = true)
 
-    val leftStartToFarScale = waypoints {
-        +kSideStart
-        +kSideStart.transformBy(Pose2d((-13).feet, 0.feet, 0.degree))
-        +kSideStart.transformBy(Pose2d((-18.9).feet, 5.feet, (-90).degree))
-        +kSideStart.transformBy(Pose2d((-18.9).feet, 14.feet, (-90).degree))
-        +kNearScaleEmpty.mirror
-    }.generateTrajectory("Left Start to Far Scale", reversed = true)
+    val leftStartToFarScale = waypoints(
+            kSideStart,
+            kSideStart + Pose2d((-13).feet, 0.feet, 0.degree),
+            kSideStart + Pose2d((-18.9).feet, 5.feet, (-90).degree),
+            kSideStart + Pose2d((-18.9).feet, 14.feet, (-90).degree),
+            kNearScaleEmpty.mirror
+    ).generateTrajectory("Left Start to Far Scale", reversed = true)
 
-    val scaleToCube1 = waypoints {
-        +kNearScaleEmpty
-        +kNearCube1Adjusted
-    }.generateTrajectory("Scale to Cube 1", reversed = false)
+    val scaleToCube1 = waypoints(
+            kNearScaleEmpty,
+            kNearCube1Adjusted
+    ).generateTrajectory("Scale to Cube 1", reversed = false)
 
-    val cube1ToScale = waypoints {
-        +kNearCube1Adjusted
-        +kNearScaleFull
-    }.generateTrajectory("Cube 1 to Scale", reversed = true)
+    val cube1ToScale = waypoints(
+            kNearCube1Adjusted,
+            kNearScaleFull
+    ).generateTrajectory("Cube 1 to Scale", reversed = true)
 
-    val scaleToCube2 = waypoints {
-        +kNearScaleFull
-        +kNearCube2Adjusted
-    }.generateTrajectory("Scale to Cube 2", reversed = false)
+    val scaleToCube2 = waypoints(
+            kNearScaleFull,
+            kNearCube2Adjusted
+    ).generateTrajectory("Scale to Cube 2", reversed = false)
 
-    val cube2ToScale = waypoints {
-        +kNearCube2Adjusted
-        +kNearScaleFullInner
-    }.generateTrajectory("Cube 2 to Scale", reversed = true)
+    val cube2ToScale = waypoints(
+            kNearCube2Adjusted,
+            kNearScaleFullInner
+    ).generateTrajectory("Cube 2 to Scale", reversed = true)
 
-    val scaleToCube3 = waypoints {
-        +kNearScaleFull
-        +kNearCube3Adjusted
-    }.generateTrajectory("Scale to Cube 3", reversed = false)
+    val scaleToCube3 = waypoints(
+            kNearScaleFull,
+            kNearCube3Adjusted
+    ).generateTrajectory("Scale to Cube 3", reversed = false)
 
-    val scaleToFar1 = waypoints {
-        +kNearScaleEmpty
-        +kFarCube1Adjusted
-    }.generateTrajectory("Scale to Far 1", reversed = false)
+    val scaleToFar1 = waypoints(
+            kNearScaleEmpty,
+            kFarCube1Adjusted
+    ).generateTrajectory("Scale to Far 1", reversed = false)
 
-    val far1ToScale = waypoints {
-        +kFarCube1Adjusted
-        +kNearScaleFullInner
-    }.generateTrajectory("Far 1 to Scale", reversed = true)
+    val far1ToScale = waypoints(
+            kFarCube1Adjusted,
+            kNearScaleFullInner
+    ).generateTrajectory("Far 1 to Scale", reversed = true)
 
-    val cube3ToScale = waypoints {
-        +kNearCube3Adjusted
-        +kNearScaleFullInner
-    }.generateTrajectory("Cube 3 to Scale", reversed = true)
+    val cube3ToScale = waypoints(
+            kNearCube3Adjusted,
+            kNearScaleFullInner
+    ).generateTrajectory("Cube 3 to Scale", reversed = true)
 
-    val centerStartToLeftSwitch = waypoints {
-        +kCenterStart
-        +kSwitchLeftAdjusted
-    }.generateTrajectory("Center Start to Left Switch", reversed = false)
+    val centerStartToLeftSwitch = waypoints(
+            kCenterStart,
+            kSwitchLeftAdjusted
+    ).generateTrajectory("Center Start to Left Switch", reversed = false)
 
-    val centerStartToRightSwitch = waypoints {
-        +kCenterStart
-        +kSwitchRightAdjusted
-    }.generateTrajectory("Center Start to Right Switch", reversed = false)
+    val centerStartToRightSwitch = waypoints(
+            kCenterStart,
+            kSwitchRightAdjusted
+    ).generateTrajectory("Center Start to Right Switch", reversed = false)
 
-    val switchToCenter = waypoints {
-        +kSwitchLeftAdjusted
-        +kFrontPyramidCubeAdjusted.transformBy(Pose2d((-4).feet, 0.feet, 0.degree))
-    }.generateTrajectory("Switch to Center", reversed = true)
+    val switchToCenter = waypoints(
+            kSwitchLeftAdjusted,
+            kFrontPyramidCubeAdjusted + Pose2d((-4).feet, 0.feet, 0.degree)
+    ).generateTrajectory("Switch to Center", reversed = true)
 
-    val centerToPyramid = waypoints {
-        +kFrontPyramidCubeAdjusted.transformBy(Pose2d((-4.0).feet, 0.feet, 0.degree))
-        +kFrontPyramidCubeAdjusted
-    }.generateTrajectory("Center to Pyramid", reversed = false)
+    val centerToPyramid = waypoints(
+            kFrontPyramidCubeAdjusted + Pose2d((-4.0).feet, 0.feet, 0.degree),
+            kFrontPyramidCubeAdjusted
+    ).generateTrajectory("Center to Pyramid", reversed = false)
 
-    val pyramidToCenter = waypoints {
-        +kFrontPyramidCubeAdjusted
-        +kFrontPyramidCubeAdjusted.transformBy(Pose2d((-4).feet, 0.feet, 0.degree))
-    }.generateTrajectory("Pyramid to Center", reversed = true)
+    val pyramidToCenter = waypoints(
+            kFrontPyramidCubeAdjusted,
+            kFrontPyramidCubeAdjusted + Pose2d((-4).feet, 0.feet, 0.degree)
+    ).generateTrajectory("Pyramid to Center", reversed = true)
 
-    val centerToSwitch = waypoints {
-        +kFrontPyramidCubeAdjusted.transformBy(Pose2d((-4).feet, 0.feet, 0.degree))
-        +kSwitchLeftAdjusted
-    }.generateTrajectory("Center to Switch", reversed = false)
+    val centerToSwitch = waypoints(
+            kFrontPyramidCubeAdjusted + Pose2d((-4).feet, 0.feet, 0.degree),
+            kSwitchLeftAdjusted
+    ).generateTrajectory("Center to Switch", reversed = false)
 
-    val pyramidToScale = waypoints {
-        +kFrontPyramidCubeAdjusted
-        +kFrontPyramidCubeAdjusted.transformBy(Pose2d(2.feet, 9.feet, 180.degree))
-        +kFrontPyramidCubeAdjusted.transformBy(Pose2d(7.feet, 9.feet, 180.degree))
-        +kNearScaleEmpty
-    }.generateTrajectory(
-            "Pyramid to Scale", reversed = true, maxVelocity = 4.feet.velocity, maxAcceleration = 3.feet.acceleration,
-            constraints = arrayListOf(CentripetalAccelerationConstraint(3.0))
+    val pyramidToScale = waypoints(
+            kFrontPyramidCubeAdjusted,
+            kFrontPyramidCubeAdjusted + Pose2d(2.feet, 9.feet, 180.degree),
+            kFrontPyramidCubeAdjusted + Pose2d(7.feet, 9.feet, 180.degree),
+            kNearScaleEmpty
+    ).generateTrajectory(
+            "Pyramid to Scale",
+            reversed = true,
+            maxVelocity = 4.feet.velocity,
+            maxAcceleration = 3.feet.acceleration,
+            constraints = listOf(CentripetalAccelerationConstraint(3.0))
     )
 
-    val baseline = waypoints {
-        +kSideStart
-        +kSideStart.transformBy(Pose2d((-8.0).feet, 0.0.feet, 0.degree))
-    }.generateTrajectory("Baseline", reversed = true)
+    val baseline = waypoints(
+            kSideStart,
+            kSideStart + Pose2d((-8.0).feet, 0.0.feet, 0.degree)
+    ).generateTrajectory("Baseline", reversed = true)
 
-    private class Waypoints {
-        val points = mutableListOf<Pose2d>()
+    private fun waypoints(vararg waypoints: Pose2d) = listOf(*waypoints)
 
-        fun generateTrajectory(
+    private fun List<Pose2d>.generateTrajectory(
             name: String,
             reversed: Boolean,
             maxVelocity: Velocity = kMaxVelocity,
             maxAcceleration: Acceleration = kMaxAcceleration,
-            constraints: ArrayList<TimingConstraint<Pose2dWithCurvature>> = kConstraints
-        ): TimedTrajectory<Pose2dWithCurvature> {
-
-            return DefaultTrajectoryGenerator.generateTrajectory(
-                    reversed = reversed,
-                    wayPoints = points,
-                    constraints = constraints,
-                    startVelocity = 0.meter.velocity,
-                    endVelocity = 0.meter.velocity,
-                    maxVelocity = maxVelocity,
-                    maxAcceleration = maxAcceleration
-            ).also { trajectories.add(Container(name, it)) }
-        }
-
-        operator fun Pose2d.unaryPlus() {
-            points.add(this)
-        }
-    }
-
-    private fun waypoints(block: Waypoints.() -> Unit): Waypoints {
-        val waypoints = Waypoints(); block(waypoints); return waypoints
-    }
-
-    data class Container(private val name: String, val trajectory: TimedTrajectory<Pose2dWithCurvature>) {
-        override fun toString() = name
-    }
+            constraints: List<TimingConstraint<Pose2dWithCurvature>> = kConstraints
+    ) = DefaultTrajectoryGenerator.generateTrajectory(
+            reversed = reversed,
+            wayPoints = this,
+            constraints = constraints,
+            startVelocity = 0.meter.velocity,
+            endVelocity = 0.meter.velocity,
+            maxVelocity = maxVelocity,
+            maxAcceleration = maxAcceleration
+    )
 }
