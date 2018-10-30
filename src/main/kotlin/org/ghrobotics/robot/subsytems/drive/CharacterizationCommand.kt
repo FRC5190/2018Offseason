@@ -22,10 +22,6 @@ class CharacterizationCommand : FalconCommand(DriveSubsystem) {
         executeFrequency = 1
     }
 
-    override suspend fun InitCommandScope.initialize() {
-        dataPts.add(voltage to (avgDriveSpd / Constants.kWheelRadius.feet.asDouble))
-    }
-
     override suspend fun execute() {
 
         if (avgDriveSpd > 0.01) {
