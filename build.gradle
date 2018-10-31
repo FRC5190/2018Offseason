@@ -16,7 +16,7 @@ deploy {
         }
     }
     artifacts {
-        artifact("frcJava", FRCJavaArtifact) {
+        artifact('frcJava', FRCJavaArtifact) {
             targets << "roborio"
         }
     }
@@ -34,16 +34,16 @@ repositories {
 dependencies {
 
     // Kotlin Standard Library
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     // FRC Specific Libraries
     // Although WPILib should come from FalconLibrary, it apparently needs to be here for :extractJNI
-    implementation wpilib()
-    implementation openrio.powerup.matchData()
+    compile wpilib()
+    compile openrio.powerup.matchData()
 
     // FalconLibrary
-    implementation "com.github.5190GreenHopeRobotics:FalconLibrary:230ee26" // Jitpack
-//    implementation "org.ghrobotics.lib:FalconLibrary:2018.10.29" // Local
+    compile "com.github.5190GreenHopeRobotics:FalconLibrary:28b4a7a" // Jitpack
+    // compile "org.ghrobotics.lib:FalconLibrary:2018.10.29" // Local
 }
 
 jar {

@@ -9,7 +9,10 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
+import kotlinx.coroutines.GlobalScope
 import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryFollower
+import org.ghrobotics.lib.utils.launchFrequency
+import org.ghrobotics.lib.utils.loopFrequency
 import org.ghrobotics.lib.wrappers.FalconRobotBase
 import org.ghrobotics.lib.wrappers.networktables.FalconNetworkTable
 import org.ghrobotics.lib.wrappers.networktables.get
@@ -44,8 +47,6 @@ object NetworkInterface {
     private val isEnabled = INSTANCE["Is Enabled"]
     private val gameData = INSTANCE["Game Data"]
 
-    private val notifier: Notifier
-
     init {
         StartingPositions.values()
                 .forEach { startingPositionChooser.addDefault(it.name.toLowerCase().capitalize(), it) }
@@ -62,7 +63,7 @@ object NetworkInterface {
         SmartDashboard.putData("Far Scale Auto Mode", farScaleAutoChooser)
         SmartDashboard.putData("Switch Auto Mode", switchAutoChooser)
 
-        notifier = Notifier {
+        GlobalScope.launchFrequency(50) {
             val robotPosition = DriveSubsystem.localization.robotPosition
 
             val x = robotPosition.translation.x.feet
@@ -91,7 +92,5 @@ object NetworkInterface {
             SmartDashboard.putNumber("Robot Y", y)
             SmartDashboard.putNumber("Robot Angle", a)
         }
-
-        notifier.startPeriodic(0.02)
     }
 }

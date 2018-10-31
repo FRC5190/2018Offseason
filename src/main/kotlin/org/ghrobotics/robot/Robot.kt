@@ -33,9 +33,14 @@ class Robot : FalconRobotBase() {
         +IntakeSubsystem
         +LEDSubsystem
 
+        println(1)
         NetworkInterface
+
         Autonomous
+        println(2)
         AHRS
+        println(3)
         Lidar
+        println(4)
     }
 }

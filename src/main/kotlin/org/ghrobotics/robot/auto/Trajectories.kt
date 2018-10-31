@@ -12,6 +12,7 @@ import org.ghrobotics.lib.mathematics.twodim.trajectory.DefaultTrajectoryGenerat
 import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.CentripetalAccelerationConstraint
 import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.DifferentialDriveDynamicsConstraint
 import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.TimingConstraint
+import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
 import org.ghrobotics.lib.mathematics.units.degree
 import org.ghrobotics.lib.mathematics.units.derivedunits.*
 import org.ghrobotics.lib.mathematics.units.feet
@@ -175,13 +176,16 @@ object Trajectories {
             maxVelocity: Velocity = kMaxVelocity,
             maxAcceleration: Acceleration = kMaxAcceleration,
             constraints: List<TimingConstraint<Pose2dWithCurvature>> = kConstraints
-    ) = DefaultTrajectoryGenerator.generateTrajectory(
-            reversed = reversed,
-            wayPoints = this,
-            constraints = constraints,
-            startVelocity = 0.meter.velocity,
-            endVelocity = 0.meter.velocity,
-            maxVelocity = maxVelocity,
-            maxAcceleration = maxAcceleration
-    )
+    ): TimedTrajectory<Pose2dWithCurvature> {
+        println("Generating $name")
+        return DefaultTrajectoryGenerator.generateTrajectory(
+                reversed = reversed,
+                wayPoints = this,
+                constraints = constraints,
+                startVelocity = 0.meter.velocity,
+                endVelocity = 0.meter.velocity,
+                maxVelocity = maxVelocity,
+                maxAcceleration = maxAcceleration
+        )
+    }
 }
