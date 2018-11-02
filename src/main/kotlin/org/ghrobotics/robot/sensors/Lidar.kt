@@ -65,7 +65,7 @@ object Lidar : Source<Pair<Boolean, Length>> {
         servo.angle = if (FalconRobotBase.INSTANCE.isOperatorControl) 90.0 else {
             val robotPosition = DriveSubsystem.localization.robotPosition
             val scalePosition =
-                    kNearScaleFull.let { if (Autonomous.Config.scaleSide.value == MatchData.OwnedSide.RIGHT) it.mirror else it }
+                    kNearScaleFull.let { if (Autonomous.Config.scaleSide() == MatchData.OwnedSide.RIGHT) it.mirror else it }
             val angle = (scalePosition.translation - robotPosition.translation).let {
                 Rotation2d(it.xRaw, it.yRaw, true)
             } + 180.degree + AHRS.correctedAngle

@@ -14,7 +14,7 @@ class ClosedLoopElevatorCommand(private val distance: Length? = null) : FalconCo
 
     private var targetPosition = 0.inch
 
-    override fun CreateCommandScope.create() {
+    init {
         if (distance != null) {
             // Only finish command if it has an objective
             finishCondition += {
@@ -23,7 +23,7 @@ class ClosedLoopElevatorCommand(private val distance: Length? = null) : FalconCo
         }
     }
 
-    override suspend fun InitCommandScope.initialize() {
+    override suspend fun initialize() {
         targetPosition = distance ?: ElevatorSubsystem.elevatorPosition
         ElevatorSubsystem.elevatorPosition = targetPosition
     }

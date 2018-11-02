@@ -1,13 +1,13 @@
 package org.ghrobotics.robot.subsytems.led
 
+import kotlinx.coroutines.GlobalScope
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.millisecond
 import org.ghrobotics.lib.mathematics.units.second
-import org.ghrobotics.lib.utils.observabletype.and
-import org.ghrobotics.lib.utils.observabletype.invokeOnFalse
-import org.ghrobotics.lib.utils.observabletype.invokeOnTrue
-import org.ghrobotics.lib.utils.observabletype.not
+import org.ghrobotics.lib.utils.and
+import org.ghrobotics.lib.utils.launchFrequency
+import org.ghrobotics.lib.utils.monitor
 import org.ghrobotics.robot.Controls
 import org.ghrobotics.robot.sensors.CubeSensors
 import java.awt.Color
@@ -16,20 +16,28 @@ object LEDSubsystem : FalconSubsystem() {
 
     init {
         defaultCommand = SolidLEDCommand(Color.BLACK)
+    }
 
+    override fun lateInit() {
         val blinkCommandGroup = sequential {
             +BlinkingLEDCommand(Color.MAGENTA, 400.millisecond).withTimeout(2.second)
             +SolidLEDCommand(Color.MAGENTA)
         }
 
-        val cubeInAndNotClimbing = CubeSensors.cubeIn and !Controls.isClimbing
-
         val climbingCommand = BlinkingLEDCommand(Color.ORANGE, 500.millisecond)
 
-        cubeInAndNotClimbing.invokeOnTrue { blinkCommandGroup.start() }
-        cubeInAndNotClimbing.invokeOnFalse { blinkCommandGroup.stop() }
+        val climbingMonitor = { Controls.isClimbing }.monitor
+        val cubeInMonitor = (CubeSensors.cubeIn and { !Controls.isClimbing }).monitor
 
-        Controls.isClimbing.invokeOnTrue { climbingCommand.start() }
-        Controls.isClimbing.invokeOnFalse { climbingCommand.stop() }
+        GlobalScope.launchFrequency {
+            climbingMonitor.onChange {
+                if (it) climbingCommand.start()
+                else climbingCommand.stop()
+            }
+            cubeInMonitor.onChange {
+                if (it) blinkCommandGroup.start()
+                else blinkCommandGroup.stop()
+            }
+        }
     }
 }

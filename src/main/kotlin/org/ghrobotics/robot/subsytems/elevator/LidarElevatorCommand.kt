@@ -5,18 +5,16 @@
 
 package org.ghrobotics.robot.subsytems.elevator
 
-import kotlinx.coroutines.GlobalScope
+/* ktlint-disable no-wildcard-imports */
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.utils.and
 import org.ghrobotics.lib.utils.map
-import org.ghrobotics.lib.utils.observabletype.and
-import org.ghrobotics.lib.utils.observabletype.not
-import org.ghrobotics.lib.utils.observabletype.updatableValue
+import org.ghrobotics.lib.utils.not
 import org.ghrobotics.robot.Constants
 import org.ghrobotics.robot.sensors.CubeSensors
 import org.ghrobotics.robot.sensors.Lidar
-/* ktlint-disable no-wildcard-imports */
 import java.util.*
 
 class LidarElevatorCommand : FalconCommand(ElevatorSubsystem) {
@@ -27,13 +25,13 @@ class LidarElevatorCommand : FalconCommand(ElevatorSubsystem) {
 
     private var heightNeeded = 0.inch
 
-    override fun CreateCommandScope.create() {
-        finishCondition += !CubeSensors.cubeIn and GlobalScope.updatableValue {
+    init {
+        finishCondition += !CubeSensors.cubeIn and {
             (ElevatorSubsystem.elevatorPosition - heightNeeded).absoluteValue < Constants.kElevatorClosedLpTolerance
         }
     }
 
-    override suspend fun InitCommandScope.initialize() {
+    override suspend fun initialize() {
         heightNeeded = ElevatorSubsystem.kScalePosition
     }
 

@@ -24,11 +24,11 @@ class IntakeCommand(
 
     constructor(direction: IntakeSubsystem.Direction, speed: Double) : this(direction, Source(speed))
 
-    override fun CreateCommandScope.create() {
+    init {
         if (direction == IntakeSubsystem.Direction.IN) finishCondition += CubeSensors.cubeIn
     }
 
-    override suspend fun InitCommandScope.initialize() {
+    override suspend fun initialize() {
         IntakeSubsystem.solenoid.set(false)
     }
 

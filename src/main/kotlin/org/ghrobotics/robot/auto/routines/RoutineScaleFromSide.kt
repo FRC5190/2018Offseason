@@ -34,7 +34,7 @@ class RoutineScaleFromSide(
 
         val stopScalePathCondition = {
             (ElevatorSubsystem.elevatorPosition > ElevatorSubsystem.kFirstStagePosition &&
-                    !CubeSensors.cubeIn.value &&
+                    !CubeSensors.cubeIn() &&
                     ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance)
         }
 

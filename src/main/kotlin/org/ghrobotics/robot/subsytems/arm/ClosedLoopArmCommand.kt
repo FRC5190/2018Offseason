@@ -14,7 +14,7 @@ class ClosedLoopArmCommand(private val pos: Rotation2d? = null) : FalconCommand(
 
     private var targetPosition: Rotation2d = 0.degree
 
-    override fun CreateCommandScope.create() {
+    init {
         if (pos != null) {
             // Only finish command if it has an objective
             finishCondition += {
@@ -23,7 +23,7 @@ class ClosedLoopArmCommand(private val pos: Rotation2d? = null) : FalconCommand(
         }
     }
 
-    override suspend fun InitCommandScope.initialize() {
+    override suspend fun initialize() {
         targetPosition = pos ?: ArmSubsystem.armPosition
         ArmSubsystem.armPosition = targetPosition
     }

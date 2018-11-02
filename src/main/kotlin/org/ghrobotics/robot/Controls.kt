@@ -5,11 +5,9 @@
 
 package org.ghrobotics.robot
 
+/* ktlint-disable no-wildcard-imports */
 import edu.wpi.first.wpilibj.GenericHID
 import org.ghrobotics.lib.utils.map
-import org.ghrobotics.lib.utils.observabletype.ObservableVariable
-import org.ghrobotics.lib.utils.observabletype.not
-/* ktlint-disable no-wildcard-imports */
 import org.ghrobotics.lib.wrappers.hid.*
 import org.ghrobotics.robot.subsytems.SubsystemPreset
 import org.ghrobotics.robot.subsytems.arm.OpenLoopArmCommand
@@ -24,14 +22,15 @@ import kotlin.math.pow
 
 object Controls {
 
-    val isClimbing = ObservableVariable(false)
+    var isClimbing = false
+        private set
 
     val mainXbox = xboxController(0) {
 
-        button(kBack).changeOn { isClimbing.value = true }
-        button(kStart).changeOn { isClimbing.value = false }
+        button(kBack).changeOn { isClimbing = true }
+        button(kStart).changeOn { isClimbing = false }
 
-        state(!isClimbing) {
+        state({ !isClimbing }) {
             // Arm Controls
             val armUpCommand = OpenLoopArmCommand(0.5)
             val armDownCommand = OpenLoopArmCommand(-0.5)
@@ -62,7 +61,7 @@ object Controls {
             }
             button(kBumperLeft).change(IntakeCommand(IntakeSubsystem.Direction.IN, 1.0))
         }
-        state(isClimbing) {
+        state({ isClimbing }) {
             val climberUpCommand = OpenLoopClimbCommand(0.9)
             val climberDownCommand = OpenLoopClimbCommand(-0.9)
 
