@@ -3,7 +3,6 @@ package org.ghrobotics.robot.auto.routines
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.InstantRunnableCommand
 import org.ghrobotics.lib.commands.sequential
-import org.ghrobotics.lib.mathematics.twodim.geometry.Rectangle2d
 import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.robot.NetworkInterface
 import org.ghrobotics.robot.auto.StartingPositions

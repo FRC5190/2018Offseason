@@ -6,6 +6,7 @@ import org.ghrobotics.lib.commands.S3ND
 import org.ghrobotics.lib.commands.StateCommandGroupBuilder
 import org.ghrobotics.lib.commands.stateCommandGroup
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
+/* ktlint-disable no-wildcard-imports */
 import org.ghrobotics.lib.utils.*
 import org.ghrobotics.lib.wrappers.FalconRobotBase
 import org.ghrobotics.robot.NetworkInterface
@@ -105,8 +106,8 @@ object Autonomous {
 }
 
 enum class StartingPositions(
-        val pose: Pose2d,
-        private val matchSide: MatchData.OwnedSide
+    val pose: Pose2d,
+    private val matchSide: MatchData.OwnedSide
 ) {
     LEFT(Trajectories.kSideStart, MatchData.OwnedSide.LEFT),
     CENTER(Trajectories.kCenterStart, MatchData.OwnedSide.UNKNOWN),

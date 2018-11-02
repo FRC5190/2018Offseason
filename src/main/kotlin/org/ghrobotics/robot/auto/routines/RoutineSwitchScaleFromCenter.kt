@@ -24,9 +24,9 @@ import org.ghrobotics.robot.subsytems.intake.IntakeCommand
 import org.ghrobotics.robot.subsytems.intake.IntakeSubsystem
 
 class RoutineSwitchScaleFromCenter(
-        startingPosition: Source<StartingPositions>,
-        private val switchSide: Source<MatchData.OwnedSide>,
-        private val scaleSide: Source<MatchData.OwnedSide>
+    startingPosition: Source<StartingPositions>,
+    private val switchSide: Source<MatchData.OwnedSide>,
+    private val scaleSide: Source<MatchData.OwnedSide>
 ) : AutoRoutine(startingPosition) {
     override fun createRoutine(): FalconCommand {
         val isLeftSwitch = switchSide.withEquals(MatchData.OwnedSide.LEFT)

@@ -6,13 +6,11 @@
 package org.ghrobotics.robot
 
 import edu.wpi.first.wpilibj.DriverStation
-import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import kotlinx.coroutines.GlobalScope
 import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryFollower
 import org.ghrobotics.lib.utils.launchFrequency
-import org.ghrobotics.lib.utils.loopFrequency
 import org.ghrobotics.lib.wrappers.FalconRobotBase
 import org.ghrobotics.lib.wrappers.networktables.FalconNetworkTable
 import org.ghrobotics.lib.wrappers.networktables.get

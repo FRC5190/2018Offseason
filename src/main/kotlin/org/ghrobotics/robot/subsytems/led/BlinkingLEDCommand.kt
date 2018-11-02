@@ -7,8 +7,8 @@ import org.ghrobotics.robot.sensors.Canifier
 import java.awt.Color
 
 class BlinkingLEDCommand(
-        private val color: Color,
-        blinkInterval: Time
+    private val color: Color,
+    blinkInterval: Time
 ) : FalconCommand(LEDSubsystem) {
     private val blinkIntervalMs = blinkInterval.millisecond.toLong()
     override suspend fun execute() {

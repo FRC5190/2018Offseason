@@ -25,8 +25,8 @@ import org.ghrobotics.robot.subsytems.intake.IntakeCommand
 import org.ghrobotics.robot.subsytems.intake.IntakeSubsystem
 
 class RoutineScaleFromSide(
-        startingPosition: Source<StartingPositions>,
-        private val scaleSide: Source<MatchData.OwnedSide>
+    startingPosition: Source<StartingPositions>,
+    private val scaleSide: Source<MatchData.OwnedSide>
 ) : AutoRoutine(startingPosition) {
 
     override fun createRoutine(): FalconCommand {

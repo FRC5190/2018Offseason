@@ -11,6 +11,7 @@ import kotlinx.coroutines.GlobalScope
 import openrio.powerup.MatchData
 import org.apache.commons.math3.stat.regression.SimpleRegression
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
+/* ktlint-disable no-wildcard-imports */
 import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.launchFrequency

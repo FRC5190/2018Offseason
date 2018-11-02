@@ -171,11 +171,11 @@ object Trajectories {
     private fun waypoints(vararg waypoints: Pose2d) = listOf(*waypoints)
 
     private fun List<Pose2d>.generateTrajectory(
-            name: String,
-            reversed: Boolean,
-            maxVelocity: Velocity = kMaxVelocity,
-            maxAcceleration: Acceleration = kMaxAcceleration,
-            constraints: List<TimingConstraint<Pose2dWithCurvature>> = kConstraints
+        name: String,
+        reversed: Boolean,
+        maxVelocity: Velocity = kMaxVelocity,
+        maxAcceleration: Acceleration = kMaxAcceleration,
+        constraints: List<TimingConstraint<Pose2dWithCurvature>> = kConstraints
     ): TimedTrajectory<Pose2dWithCurvature> {
         println("Generating $name")
         return DefaultTrajectoryGenerator.generateTrajectory(

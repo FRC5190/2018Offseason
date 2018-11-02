@@ -6,7 +6,6 @@
 package org.ghrobotics.robot
 
 /* ktlint-disable no-wildcard-imports */
-/* ktlint-disable no-wildcard-imports */
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.mathematics.units.derivedunits.acceleration
