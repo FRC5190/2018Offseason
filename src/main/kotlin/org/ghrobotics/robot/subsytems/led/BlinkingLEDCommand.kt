@@ -11,8 +11,14 @@ class BlinkingLEDCommand(
     blinkInterval: Time
 ) : FalconCommand(LEDSubsystem) {
     private val blinkIntervalMs = blinkInterval.millisecond.toLong()
+    private var startTime = 0L
+
+    override suspend fun initialize() {
+        startTime = System.currentTimeMillis()
+    }
+
     override suspend fun execute() {
-        if (System.currentTimeMillis() % blinkIntervalMs > (blinkIntervalMs / 2)) {
+        if ((System.currentTimeMillis() - startTime) % blinkIntervalMs > (blinkIntervalMs / 2)) {
             Canifier.setLEDOutput(Color.BLACK)
         } else {
             Canifier.setLEDOutput(color)

@@ -91,8 +91,8 @@ object Constants {
     const val kVDrive = 0.185 // Volts per radians per second
     const val kADrive = 0.020 // Volts per radians per second per second
 
-    const val kDriveBeta = 2.00 // Inverse meters squared
-    const val kDriveZeta = 0.90 // Unitless dampening co-efficient
+    const val kDriveBeta = 1.4 // Inverse meters squared
+    const val kDriveZeta = 0.85 // Unitless dampening co-efficient
 
     // ARM
     val kArmNativeUnitModel = NativeUnitRotationModel(1024.STU)

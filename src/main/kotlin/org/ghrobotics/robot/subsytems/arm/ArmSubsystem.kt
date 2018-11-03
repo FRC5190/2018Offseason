@@ -52,4 +52,7 @@ object ArmSubsystem : FalconSubsystem() {
     }
 
     fun set(controlMode: ControlMode, output: Double) = armMaster.set(controlMode, output)
+    override fun zeroOutputs() {
+        set(ControlMode.PercentOutput, 0.0)
+    }
 }

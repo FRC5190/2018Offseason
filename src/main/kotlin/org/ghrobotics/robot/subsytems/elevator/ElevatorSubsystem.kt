@@ -82,4 +82,8 @@ object ElevatorSubsystem : FalconSubsystem() {
     fun resetEncoders() {
         elevatorMaster.sensorPosition = 0.meter
     }
+
+    override fun zeroOutputs() {
+        set(ControlMode.PercentOutput, 0.0)
+    }
 }

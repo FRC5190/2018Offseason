@@ -37,10 +37,7 @@ class Robot : FalconRobotBase() {
         NetworkInterface
 
         Autonomous
-        println(2)
         AHRS
-        println(3)
         Lidar
-        println(4)
     }
 }

@@ -40,5 +40,9 @@ object IntakeSubsystem : FalconSubsystem() {
 
     fun set(controlMode: ControlMode, output: Double) = intakeMaster.set(controlMode, output)
 
+    override fun zeroOutputs() {
+        set(ControlMode.PercentOutput, 0.0)
+    }
+
     enum class Direction { IN, OUT }
 }

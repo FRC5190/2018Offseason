@@ -144,6 +144,10 @@ object DriveSubsystem : TankDriveSubsystem() {
         }
     }
 
+    override fun zeroOutputs() {
+        set(ControlMode.PercentOutput, 0.0, 0.0)
+    }
+
     fun set(controlMode: ControlMode, leftOutput: Double, rightOutput: Double) {
         leftMaster.set(controlMode, leftOutput)
         rightMaster.set(controlMode, rightOutput)

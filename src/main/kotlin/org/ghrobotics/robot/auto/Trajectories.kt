@@ -28,7 +28,7 @@ object Trajectories {
 
     // Constants in Feet Per Second
     private val kMaxVelocity = 10.0.feet.velocity
-    private val kMaxAcceleration = 5.0.feet.acceleration
+    private val kMaxAcceleration = 4.0.feet.acceleration
     private val kMaxCentripetalAcceleration = 4.5.feet.acceleration
 
     // Constraints

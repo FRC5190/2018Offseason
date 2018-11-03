@@ -26,8 +26,7 @@ object NetworkInterface {
 
     val startingPositionChooser = SendableChooser<StartingPositions>()
 
-    val nearScaleAutoChooser = SendableChooser<ScaleAutoMode>()
-    val farScaleAutoChooser = SendableChooser<ScaleAutoMode>()
+    val scaleAutoChooser = SendableChooser<ScaleAutoMode>()
     val switchAutoChooser = SendableChooser<SwitchAutoMode>()
 
     private val robotX = INSTANCE["Robot X"]
@@ -47,18 +46,17 @@ object NetworkInterface {
 
     init {
         StartingPositions.values()
-                .forEach { startingPositionChooser.addDefault(it.name.toLowerCase().capitalize(), it) }
+            .forEach { startingPositionChooser.addDefault(it.name.toLowerCase().capitalize(), it) }
 
         ScaleAutoMode.values().forEach {
-            nearScaleAutoChooser.addDefault(it.name.toLowerCase().capitalize(), it)
-            farScaleAutoChooser.addDefault(it.name.toLowerCase().capitalize(), it)
+            scaleAutoChooser.addDefault(it.name.toLowerCase().capitalize(), it)
         }
 
         SwitchAutoMode.values().forEach { switchAutoChooser.addDefault(it.name.toLowerCase().capitalize(), it) }
 
         SmartDashboard.putData("Starting Position", startingPositionChooser)
-        SmartDashboard.putData("Near Scale Auto Mode", farScaleAutoChooser)
-        SmartDashboard.putData("Far Scale Auto Mode", farScaleAutoChooser)
+        SmartDashboard.putData("Near Scale Auto Mode", scaleAutoChooser)
+        SmartDashboard.putData("Far Scale Auto Mode", scaleAutoChooser)
         SmartDashboard.putData("Switch Auto Mode", switchAutoChooser)
 
         GlobalScope.launchFrequency(50) {
@@ -77,8 +75,8 @@ object NetworkInterface {
             pathX.setDouble(trajectoryFollower.referencePose.translation.x.feet)
             pathY.setDouble(trajectoryFollower.referencePose.translation.y.feet)
             pathHdg.setDouble(trajectoryFollower.referencePose.rotation.degree)
-
-            /*if(trajectoryFollower is PurePursuitController) {
+/*
+            if(trajectoryFollower is PurePursuitController) {
                 lookaheadX.setDouble(trajectoryFollower.lookaheadX.feet.asDouble)
                 lookaheadY.setDouble(trajectoryFollower.lookaheadY.feet.asDouble)
             }*/
@@ -88,7 +86,7 @@ object NetworkInterface {
 
             SmartDashboard.putNumber("Robot X", x)
             SmartDashboard.putNumber("Robot Y", y)
-            SmartDashboard.putNumber("Robot Angle", a)
+            SmartDashboard.putNumber("Robot Angle", robotPosition.rotation.degree)
         }
     }
 }
