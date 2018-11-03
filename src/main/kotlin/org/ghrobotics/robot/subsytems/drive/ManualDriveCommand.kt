@@ -72,6 +72,7 @@ class ManualDriveCommand : FalconCommand(DriveSubsystem) {
                     leftMotorOutput = -1.0
                 }
                 rightMotorOutput < -1.0 -> {
+
                     leftMotorOutput -= rightMotorOutput + 1.0
                     rightMotorOutput = -1.0
                 }

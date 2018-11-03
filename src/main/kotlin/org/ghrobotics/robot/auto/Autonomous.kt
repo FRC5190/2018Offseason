@@ -1,5 +1,6 @@
 package org.ghrobotics.robot.auto
 
+/* ktlint-disable no-wildcard-imports */
 import kotlinx.coroutines.GlobalScope
 import openrio.powerup.MatchData
 import org.ghrobotics.lib.commands.*

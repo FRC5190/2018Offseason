@@ -85,13 +85,13 @@ object Constants {
     )
 
     const val kPDrive = 1.7 // Talon SRX Units
-    const val kDDrive = 10.0
+    const val kDDrive = 2.0
 
     const val kStaticFrictionVoltage = 1.2 // Volts
     const val kVDrive = 0.185 // Volts per radians per second
     const val kADrive = 0.020 // Volts per radians per second per second
 
-    const val kDriveBeta = 1.4 // Inverse meters squared
+    const val kDriveBeta = 1.65 // Inverse meters squared
     const val kDriveZeta = 0.85 // Unitless dampening co-efficient
 
     // ARM
