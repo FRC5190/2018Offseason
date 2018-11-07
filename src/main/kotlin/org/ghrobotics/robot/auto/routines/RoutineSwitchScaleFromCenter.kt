@@ -2,26 +2,17 @@ package org.ghrobotics.robot.auto.routines
 
 /* ktlint-disable no-wildcard-imports */
 import openrio.powerup.MatchData
-import org.ghrobotics.lib.commands.*
-import org.ghrobotics.lib.mathematics.units.millisecond
-import org.ghrobotics.lib.mathematics.units.second
+import org.ghrobotics.lib.commands.FalconCommand
+import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.map
 import org.ghrobotics.lib.utils.withEquals
-import org.ghrobotics.robot.Constants
 import org.ghrobotics.robot.auto.StartingPositions
 import org.ghrobotics.robot.auto.Trajectories
 import org.ghrobotics.robot.auto.Trajectories.centerStartToLeftSwitch
 import org.ghrobotics.robot.auto.Trajectories.centerStartToRightSwitch
 import org.ghrobotics.robot.auto.Trajectories.pyramidToScale
-import org.ghrobotics.robot.subsytems.SubsystemPreset
-import org.ghrobotics.robot.subsytems.arm.ArmSubsystem
-import org.ghrobotics.robot.subsytems.arm.ClosedLoopArmCommand
 import org.ghrobotics.robot.subsytems.drive.DriveSubsystem
-import org.ghrobotics.robot.subsytems.elevator.ClosedLoopElevatorCommand
-import org.ghrobotics.robot.subsytems.elevator.ElevatorSubsystem
-import org.ghrobotics.robot.subsytems.intake.IntakeCommand
-import org.ghrobotics.robot.subsytems.intake.IntakeSubsystem
 
 class RoutineSwitchScaleFromCenter(
     startingPosition: Source<StartingPositions>,
@@ -36,36 +27,16 @@ class RoutineSwitchScaleFromCenter(
         val firstCubePath = isLeftSwitch.map(centerStartToLeftSwitch, centerStartToRightSwitch)
 
         return sequential {
-            +parallel {
-                +DriveSubsystem.followTrajectory(firstCubePath)
-                +SubsystemPreset.SWITCH.command
-                +sequential {
-                    +DelayCommand(firstCubePath.map { (it.lastState.t - 0.2).second })
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT, 0.5).withTimeout(200.millisecond)
-                }
-            }
-            +parallel {
-                +DriveSubsystem.followTrajectory(Trajectories.switchToCenter, switchMirrored)
-                +sequential {
-                    +DelayCommand(500.millisecond)
-                    +SubsystemPreset.INTAKE.command
-                }
-            }
-            +parallel {
-                +DriveSubsystem.followTrajectory(Trajectories.centerToPyramid)
-                +IntakeCommand(IntakeSubsystem.Direction.IN).withTimeout(3.second)
-            }
-            +parallel {
-                +DriveSubsystem.followTrajectory(pyramidToScale, scaleMirrored)
-                +ClosedLoopElevatorCommand(ElevatorSubsystem.kFirstStagePosition)
-                +ClosedLoopArmCommand(Constants.kArmUpPosition)
-                sequential {
-                    +DelayCommand((pyramidToScale.lastState.t - 1.75).second)
-                    +SubsystemPreset.BEHIND.command
-                    +ConditionCommand { ArmSubsystem.armPosition > Constants.kArmBehindPosition - Constants.kArmAutoTolerance }
-                    +IntakeCommand(IntakeSubsystem.Direction.OUT, 0.35).withTimeout(500.millisecond)
-                }
-            }
+            +DriveSubsystem.followTrajectory(firstCubePath)
+
+
+            +DriveSubsystem.followTrajectory(Trajectories.switchToCenter, switchMirrored)
+
+            +DriveSubsystem.followTrajectory(Trajectories.centerToPyramid)
+
+
+            +DriveSubsystem.followTrajectory(pyramidToScale, scaleMirrored)
+
         }
     }
 }

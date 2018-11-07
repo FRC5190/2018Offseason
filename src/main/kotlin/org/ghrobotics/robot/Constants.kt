@@ -66,7 +66,7 @@ object Constants {
     val kRobotCenterStartY = kExchangeZoneBottomY - (kRobotWidth / 2.0) - kBumperLength
 
     const val kRobotMass = 54.53 /* Robot */ + 5.669 /* Battery */ + 7 /* Bumpers */ // kg
-    const val kRobotMomentOfInertia = 10.0 // kg m^2
+    const val kRobotMomentOfInertia = 2.17 // kg m^2
     const val kRobotAngularDrag = 12.0 // N*m / (rad/sec)
 
     // MECHANISM TRANSFORMATIONS
@@ -87,12 +87,12 @@ object Constants {
     const val kPDrive = 1.7 // Talon SRX Units
     const val kDDrive = 2.0
 
-    const val kStaticFrictionVoltage = 1.2 // Volts
-    const val kVDrive = 0.185 // Volts per radians per second
-    const val kADrive = 0.020 // Volts per radians per second per second
+    const val kStaticFrictionVoltage = 1.6 // Volts
+    const val kVDrive = 0.105 // Volts per radians per second
+    const val kADrive = 0.050 // Volts per radians per second per second
 
-    const val kDriveBeta = 1.65 // Inverse meters squared
-    const val kDriveZeta = 0.85 // Unitless dampening co-efficient
+    const val kDriveBeta = 2.0 // Inverse meters squared
+    const val kDriveZeta = 0.7 // Unitless dampening co-efficient
 
     // ARM
     val kArmNativeUnitModel = NativeUnitRotationModel(1024.STU)

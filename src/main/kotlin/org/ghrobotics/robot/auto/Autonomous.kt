@@ -1,13 +1,15 @@
 package org.ghrobotics.robot.auto
 
 /* ktlint-disable no-wildcard-imports */
+/* ktlint-disable no-wildcard-imports */
 import kotlinx.coroutines.GlobalScope
 import openrio.powerup.MatchData
 import org.ghrobotics.lib.commands.*
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
-/* ktlint-disable no-wildcard-imports */
+import org.ghrobotics.lib.mathematics.units.kilogram
 import org.ghrobotics.lib.utils.*
 import org.ghrobotics.lib.wrappers.FalconRobotBase
+import org.ghrobotics.robot.Constants
 import org.ghrobotics.robot.NetworkInterface
 import org.ghrobotics.robot.auto.routines.*
 import org.ghrobotics.robot.subsytems.drive.DriveSubsystem
@@ -30,7 +32,7 @@ object Autonomous {
 
     private val shouldPoll = !({ FalconRobotBase.INSTANCE.run { isAutonomous && isEnabled } } and configValid)
 
-    // Autonomous Master Group
+//
     private val JUST = sequential {
         +InstantRunnableCommand {
             println(Config.startingPosition())
@@ -71,6 +73,7 @@ object Autonomous {
         }
     }
 
+
     init {
         @Suppress("LocalVariableName")
         val IT = ""
@@ -79,7 +82,7 @@ object Autonomous {
         val shouldPollMonitor = shouldPoll.monitor
         GlobalScope.launchFrequency {
             startingPositionMonitor.onChange { DriveSubsystem.localization.reset(it.pose) }
-            shouldPollMonitor.onChangeToFalse { JUST S3ND IT }
+            shouldPollMonitor.onChangeToFalse { println("sending it"); JUST S3ND IT }
         }
         FalconRobotBase.INSTANCE.onLeave(FalconRobotBase.Mode.AUTONOMOUS) { JUST.stop() }
     }
