@@ -6,10 +6,8 @@ import kotlinx.coroutines.GlobalScope
 import openrio.powerup.MatchData
 import org.ghrobotics.lib.commands.*
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
-import org.ghrobotics.lib.mathematics.units.kilogram
 import org.ghrobotics.lib.utils.*
 import org.ghrobotics.lib.wrappers.FalconRobotBase
-import org.ghrobotics.robot.Constants
 import org.ghrobotics.robot.NetworkInterface
 import org.ghrobotics.robot.auto.routines.*
 import org.ghrobotics.robot.subsytems.drive.DriveSubsystem
@@ -72,7 +70,6 @@ object Autonomous {
             }
         }
     }
-
 
     init {
         @Suppress("LocalVariableName")

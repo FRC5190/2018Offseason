@@ -29,14 +29,11 @@ class RoutineSwitchScaleFromCenter(
         return sequential {
             +DriveSubsystem.followTrajectory(firstCubePath)
 
-
             +DriveSubsystem.followTrajectory(Trajectories.switchToCenter, switchMirrored)
 
             +DriveSubsystem.followTrajectory(Trajectories.centerToPyramid)
 
-
             +DriveSubsystem.followTrajectory(pyramidToScale, scaleMirrored)
-
         }
     }
 }
