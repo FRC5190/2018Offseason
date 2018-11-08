@@ -173,8 +173,8 @@ object Trajectories {
     private fun List<Pose2d>.generateTrajectory(
         name: String,
         reversed: Boolean,
-        maxVelocity: Velocity = kMaxVelocity,
-        maxAcceleration: Acceleration = kMaxAcceleration,
+        maxVelocity: LinearVelocity = kMaxVelocity,
+        maxAcceleration: LinearAcceleration = kMaxAcceleration,
         constraints: List<TimingConstraint<Pose2dWithCurvature>> = kConstraints
     ): TimedTrajectory<Pose2dWithCurvature> {
         println("Generating $name")

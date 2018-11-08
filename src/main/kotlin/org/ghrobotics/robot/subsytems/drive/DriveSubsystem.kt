@@ -13,7 +13,7 @@ import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.Solenoid
 import org.ghrobotics.lib.mathematics.twodim.control.RamseteController
 import org.ghrobotics.lib.mathematics.units.amp
-import org.ghrobotics.lib.mathematics.units.derivedunits.Velocity
+import org.ghrobotics.lib.mathematics.units.derivedunits.LinearVelocity
 import org.ghrobotics.lib.mathematics.units.derivedunits.volt
 import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.lib.mathematics.units.millisecond
@@ -79,8 +79,8 @@ object DriveSubsystem : TankDriveSubsystem() {
 
     val leftPosition get() = leftMaster.sensorPosition
     val rightPosition get() = rightMaster.sensorPosition
-    val leftVelocity: Velocity get() = leftMaster.sensorVelocity
-    val rightVelocity: Velocity get() = rightMaster.sensorVelocity
+    val leftVelocity: LinearVelocity get() = leftMaster.sensorVelocity
+    val rightVelocity: LinearVelocity get() = rightMaster.sensorVelocity
 
     init {
         lowGear = false
