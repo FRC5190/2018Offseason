@@ -77,7 +77,7 @@ object Constants {
     // DRIVE
     val kDriveSensorUnitsPerRotation = 1440.STU
     val kWheelRadius = 2.92.inch
-    val kTrackWidth = 2.6.feet
+    val kTrackWidth = 0.634.meter
 
     val kDriveNativeUnitModel = NativeUnitLengthModel(
             kDriveSensorUnitsPerRotation,
@@ -87,12 +87,12 @@ object Constants {
     const val kPDrive = 1.7 // Talon SRX Units
     const val kDDrive = 2.0
 
-    const val kStaticFrictionVoltage = 1.6 // Volts
-    const val kVDrive = 0.105 // Volts per radians per second
-    const val kADrive = 0.050 // Volts per radians per second per second
+    const val kStaticFrictionVoltage = 1.8 // Volts
+    const val kVDrive = 0.115 // Volts per radians per second
+    const val kADrive = 0.0716 // Volts per radians per second per second
 
-    const val kDriveBeta = 2.0 // Inverse meters squared
-    const val kDriveZeta = 0.7 // Unitless dampening co-efficient
+    const val kDriveBeta = 1.4 // Inverse meters squared
+    const val kDriveZeta = 0.9 // Unitless dampening co-efficient
 
     // ARM
     val kArmNativeUnitModel = NativeUnitRotationModel(1024.STU)

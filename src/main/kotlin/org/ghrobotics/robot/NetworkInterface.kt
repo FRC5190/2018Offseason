@@ -94,6 +94,9 @@ object NetworkInterface {
             SmartDashboard.putNumber("Robot X", x)
             SmartDashboard.putNumber("Robot Y", y)
             SmartDashboard.putNumber("Robot Angle", robotPosition.rotation.degree)
+
+            SmartDashboard.putNumber("Left Encoder Position", DriveSubsystem.leftMaster.sensorPosition.meter)
+            SmartDashboard.putNumber("Right Encoder Position", DriveSubsystem.rightMaster.sensorPosition.meter)
         }
     }
 }
