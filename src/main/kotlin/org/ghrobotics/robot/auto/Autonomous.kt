@@ -20,6 +20,7 @@ object Autonomous {
         val scaleSide = { MatchData.getOwnedSide(MatchData.GameFeature.SCALE) }
         val switchAutoMode = { NetworkInterface.switchAutoChooser.selected }
         val scaleAutoMode = { NetworkInterface.scaleAutoChooser.selected }
+        val autoMode = { NetworkInterface.autoModeChooser.selected }
     }
 
     val isSameSide = Config.startingPosition.withMerge(Config.scaleSide) { one, two -> one.isSameSide(two) }
@@ -30,42 +31,47 @@ object Autonomous {
 
     private val shouldPoll = !({ FalconRobotBase.INSTANCE.run { isAutonomous && isEnabled } } and configValid)
 
-//
+    //
     private val JUST = sequential {
         +InstantRunnableCommand {
             println(Config.startingPosition())
             println(Config.scaleAutoMode())
         }
-        +stateCommandGroup(Config.startingPosition) {
-            state(StartingPositions.LEFT, StartingPositions.RIGHT) {
-                stateCommandGroup(Config.scaleAutoMode) {
-                    state(
-                        ScaleAutoMode.THREECUBE,
-                        RoutineScaleFromSide(Config.startingPosition, Config.scaleSide)
-                    )
-                    // Baseline same side
-                    state(
-                        ScaleAutoMode.BASELINE,
-                        RoutineBaseline(Config.startingPosition)
-                    )
-                }
-            }
-            state(StartingPositions.CENTER) {
-                stateCommandGroup(Config.switchAutoMode) {
-                    // Center 2 cube
-                    state(
-                        SwitchAutoMode.BASIC,
-                        RoutineSwitchFromCenter(Config.startingPosition, Config.switchSide)
-                    )
-                    // Center 1 cube switch and 1 cube scale
-                    state(
-                        SwitchAutoMode.ROBONAUTS,
-                        RoutineSwitchScaleFromCenter(
-                            Config.startingPosition,
-                            Config.switchSide,
-                            Config.scaleSide
-                        )
-                    )
+        +stateCommandGroup(Config.autoMode) {
+            state(AutoMode.CHARACTERIZATION, RoutineCharacterization(Config.startingPosition))
+            state(AutoMode.REAL) {
+                stateCommandGroup(Config.startingPosition) {
+                    state(StartingPositions.LEFT, StartingPositions.RIGHT) {
+                        stateCommandGroup(Config.scaleAutoMode) {
+                            state(
+                                ScaleAutoMode.THREECUBE,
+                                RoutineScaleFromSide(Config.startingPosition, Config.scaleSide)
+                            )
+                            // Baseline same side
+                            state(
+                                ScaleAutoMode.BASELINE,
+                                RoutineBaseline(Config.startingPosition)
+                            )
+                        }
+                    }
+                    state(StartingPositions.CENTER) {
+                        stateCommandGroup(Config.switchAutoMode) {
+                            // Center 2 cube
+                            state(
+                                SwitchAutoMode.BASIC,
+                                RoutineSwitchFromCenter(Config.startingPosition, Config.switchSide)
+                            )
+                            // Center 1 cube switch and 1 cube scale
+                            state(
+                                SwitchAutoMode.ROBONAUTS,
+                                RoutineSwitchScaleFromCenter(
+                                    Config.startingPosition,
+                                    Config.switchSide,
+                                    Config.scaleSide
+                                )
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -104,4 +110,8 @@ enum class SwitchAutoMode {
 
 enum class ScaleAutoMode {
     THREECUBE, BASELINE
+}
+
+enum class AutoMode {
+    REAL, CHARACTERIZATION
 }

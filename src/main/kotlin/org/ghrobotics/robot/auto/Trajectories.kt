@@ -160,7 +160,7 @@ object Trajectories {
         reversed = true,
         maxVelocity = 4.feet.velocity,
         maxAcceleration = 3.feet.acceleration,
-        constraints = listOf(CentripetalAccelerationConstraint(3.0))
+        constraints = listOf(CentripetalAccelerationConstraint(3.0.feet.acceleration))
     )
 
     val baseline = waypoints(

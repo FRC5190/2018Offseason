@@ -49,8 +49,8 @@ dependencies {
     compile openrio.powerup.matchData()
 
     // FalconLibrary
-    compile "com.github.5190GreenHopeRobotics:FalconLibrary:4b7c76d" // Jitpack
-//     compile "org.ghrobotics.lib:FalconLibrary:2018.11.06" // Local
+//    compile "com.github.5190GreenHopeRobotics:FalconLibrary:4b7c76d" // Jitpack
+     compile "org.ghrobotics.lib:FalconLibrary:2018.11.2" // Local
 }
 
 jar {

@@ -38,7 +38,7 @@ class RoutineSwitchFromCenter(
                 +DriveSubsystem.followTrajectory(firstCubePath)
                 +SubsystemPreset.SWITCH.command
                 +sequential {
-                    +DelayCommand(firstCubePath.map { (it.lastState.t - 0.2).second })
+                    +DelayCommand(firstCubePath.map { (it.lastState.t - 0.2.second) })
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, 0.5).withTimeout(200.millisecond)
                 }
             }
@@ -58,7 +58,7 @@ class RoutineSwitchFromCenter(
                 +DriveSubsystem.followTrajectory(centerToSwitch, mirrored)
                 +SubsystemPreset.SWITCH.command
                 +sequential {
-                    +DelayCommand((centerToSwitch.lastState.t - 0.2).second)
+                    +DelayCommand(centerToSwitch.lastState.t - 0.2.second)
                     +IntakeCommand(IntakeSubsystem.Direction.OUT, Source(0.5)).withTimeout(200.millisecond)
                 }
             }

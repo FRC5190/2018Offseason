@@ -68,7 +68,7 @@ object Lidar : Source<Pair<Boolean, Length>> {
             val scalePosition =
                     kNearScaleFull.let { if (Autonomous.Config.scaleSide() == MatchData.OwnedSide.RIGHT) it.mirror else it }
             val angle = (scalePosition.translation - robotPosition.translation).let {
-                Rotation2d(it.xRaw, it.yRaw, true)
+                Rotation2d(it.x.value, it.y.value, true)
             } + 180.degree + AHRS.correctedAngle
 
             angle.degree

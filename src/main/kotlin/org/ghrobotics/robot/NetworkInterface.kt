@@ -14,6 +14,7 @@ import org.ghrobotics.lib.utils.launchFrequency
 import org.ghrobotics.lib.wrappers.FalconRobotBase
 import org.ghrobotics.lib.wrappers.networktables.FalconNetworkTable
 import org.ghrobotics.lib.wrappers.networktables.get
+import org.ghrobotics.robot.auto.AutoMode
 import org.ghrobotics.robot.auto.ScaleAutoMode
 import org.ghrobotics.robot.auto.StartingPositions
 import org.ghrobotics.robot.auto.SwitchAutoMode
@@ -28,6 +29,8 @@ object NetworkInterface {
 
     val scaleAutoChooser = SendableChooser<ScaleAutoMode>()
     val switchAutoChooser = SendableChooser<SwitchAutoMode>()
+
+    val autoModeChooser = SendableChooser<AutoMode>()
 
     private val robotX = INSTANCE["Robot X"]
     private val robotY = INSTANCE["Robot Y"]
@@ -52,12 +55,16 @@ object NetworkInterface {
             scaleAutoChooser.addDefault(it.name.toLowerCase().capitalize(), it)
         }
 
+        AutoMode.values().forEach {
+            autoModeChooser.addDefault(it.name.toLowerCase().capitalize(), it)
+        }
+
         SwitchAutoMode.values().forEach { switchAutoChooser.addDefault(it.name.toLowerCase().capitalize(), it) }
 
         SmartDashboard.putData("Starting Position", startingPositionChooser)
-        SmartDashboard.putData("Near Scale Auto Mode", scaleAutoChooser)
-        SmartDashboard.putData("Far Scale Auto Mode", scaleAutoChooser)
+        SmartDashboard.putData("Scale Auto Mode", scaleAutoChooser)
         SmartDashboard.putData("Switch Auto Mode", switchAutoChooser)
+        SmartDashboard.putData("Auto mode", autoModeChooser)
 
         GlobalScope.launchFrequency(50) {
             val robotPosition = DriveSubsystem.localization.robotPosition
