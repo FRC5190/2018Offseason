@@ -8,13 +8,13 @@ import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.amp
 import org.ghrobotics.lib.mathematics.units.nativeunits.STU
 import org.ghrobotics.lib.mathematics.units.second
-import org.ghrobotics.lib.wrappers.GenericFalonSRX
+import org.ghrobotics.lib.wrappers.NativeFalconSRX
 import org.ghrobotics.robot.Constants
 
 object ClimberSubsystem : FalconSubsystem() {
 
-    private val climberMaster = GenericFalonSRX(Constants.kWinchMasterId)
-    private val climberSlave = GenericFalonSRX(Constants.kWinchSlaveId)
+    private val climberMaster = NativeFalconSRX(Constants.kWinchMasterId)
+    private val climberSlave = NativeFalconSRX(Constants.kWinchSlaveId)
 
     var climberPosition
         get() = climberMaster.sensorPosition
@@ -36,9 +36,9 @@ object ClimberSubsystem : FalconSubsystem() {
             motionAcceleration = Constants.kClimberMotionMagicAcceleration
 
             configReverseLimitSwitchSource(
-                    LimitSwitchSource.FeedbackConnector,
-                    LimitSwitchNormal.NormallyOpen,
-                    Constants.kCTRETimeout
+                LimitSwitchSource.FeedbackConnector,
+                LimitSwitchNormal.NormallyOpen,
+                Constants.kCTRETimeout
             )
             overrideLimitSwitchesEnable = true
 

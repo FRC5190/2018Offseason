@@ -11,12 +11,12 @@ import edu.wpi.first.wpilibj.Solenoid
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.amp
 import org.ghrobotics.lib.mathematics.units.derivedunits.volt
-import org.ghrobotics.lib.wrappers.GenericFalonSRX
+import org.ghrobotics.lib.wrappers.NativeFalconSRX
 import org.ghrobotics.robot.Constants
 
 object IntakeSubsystem : FalconSubsystem() {
-    private val intakeMaster = GenericFalonSRX(Constants.kIntakeMasterId)
-    private val intakeSlave = GenericFalonSRX(Constants.kIntakeSlaveId)
+    private val intakeMaster = NativeFalconSRX(Constants.kIntakeMasterId)
+    private val intakeSlave = NativeFalconSRX(Constants.kIntakeSlaveId)
 
     val solenoid = Solenoid(Constants.kPCMId, Constants.kIntakeSolenoidId)
 
