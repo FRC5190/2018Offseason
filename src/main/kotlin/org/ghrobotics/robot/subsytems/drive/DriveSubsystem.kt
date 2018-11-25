@@ -84,10 +84,6 @@ object DriveSubsystem : TankDriveSubsystem() {
             field = wantLow
         }
 
-    val leftPosition get() = leftMaster.sensorPosition
-    val rightPosition get() = rightMaster.sensorPosition
-    val leftVelocity: LinearVelocity get() = leftMaster.sensorVelocity
-    val rightVelocity: LinearVelocity get() = rightMaster.sensorVelocity
 
     init {
         lowGear = false

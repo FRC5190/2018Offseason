@@ -4,7 +4,7 @@ import edu.wpi.first.gradlerio.frc.RoboRIO
 
 plugins {
     id "edu.wpi.first.GradleRIO" version "2019.0.0-alpha-3"
-    id "org.jetbrains.kotlin.jvm" version "1.3.0"
+    id "org.jetbrains.kotlin.jvm" version "1.3.10"
 }
 
 def ROBOT_CLASS = "org.ghrobotics.robot.Robot"
@@ -42,7 +42,7 @@ dependencies {
     compile openrio.powerup.matchData()
 
     // FalconLibrary
-    compile "com.github.5190GreenHopeRobotics:FalconLibrary:d19fa8c" // Jitpack
+    compile "com.github.5190GreenHopeRobotics:FalconLibrary:90e5620" // Jitpack
 //     compile "org.ghrobotics.lib:FalconLibrary:2018.11.13" // Local
 }
 

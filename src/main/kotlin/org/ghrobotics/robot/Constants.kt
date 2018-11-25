@@ -66,7 +66,7 @@ object Constants {
     val kRobotCenterStartY = kExchangeZoneBottomY - (kRobotWidth / 2.0) - kBumperLength
 
     const val kRobotMass = 54.53 /* Robot */ + 5.669 /* Battery */ + 7 /* Bumpers */ // kg
-    const val kRobotMomentOfInertia = 2.17 // kg m^2
+    const val kRobotMomentOfInertia = 10.0 // kg m^2 // TODO Tune
     const val kRobotAngularDrag = 12.0 // N*m / (rad/sec)
 
     // MECHANISM TRANSFORMATIONS
@@ -95,7 +95,8 @@ object Constants {
     const val kDriveZeta = 0.9 // Unitless dampening co-efficient
 
     // ARM
-    val kArmNativeUnitModel = NativeUnitRotationModel(1024.STU)
+    val kArmSensorUnitsPerRotation = 1024.STU
+    val kArmNativeUnitModel = NativeUnitRotationModel(kArmSensorUnitsPerRotation)
 
     val kArmDownPosition = (-280).degree
     val kArmMiddlePosition = kArmDownPosition + 14.degree
