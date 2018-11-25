@@ -10,11 +10,13 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
 import org.ghrobotics.lib.mathematics.twodim.trajectory.DefaultTrajectoryGenerator
 import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.CentripetalAccelerationConstraint
-import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.DifferentialDriveDynamicsConstraint
 import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.TimingConstraint
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
 import org.ghrobotics.lib.mathematics.units.degree
-import org.ghrobotics.lib.mathematics.units.derivedunits.*
+import org.ghrobotics.lib.mathematics.units.derivedunits.LinearAcceleration
+import org.ghrobotics.lib.mathematics.units.derivedunits.LinearVelocity
+import org.ghrobotics.lib.mathematics.units.derivedunits.acceleration
+import org.ghrobotics.lib.mathematics.units.derivedunits.velocity
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.robot.Constants.kCenterToFrontBumper
@@ -22,7 +24,7 @@ import org.ghrobotics.robot.Constants.kCenterToIntake
 import org.ghrobotics.robot.Constants.kRobotCenterStartY
 import org.ghrobotics.robot.Constants.kRobotSideStartY
 import org.ghrobotics.robot.Constants.kRobotStartX
-import org.ghrobotics.robot.subsytems.drive.DriveSubsystem
+import kotlin.system.measureTimeMillis
 
 object Trajectories {
 
@@ -33,8 +35,7 @@ object Trajectories {
 
     // Constraints
     private val kConstraints = listOf(
-        CentripetalAccelerationConstraint(kMaxCentripetalAcceleration),
-        DifferentialDriveDynamicsConstraint(DriveSubsystem.driveModel, 10.0.volt)
+        CentripetalAccelerationConstraint(kMaxCentripetalAcceleration)
     )
 
     // Field Relative Constants
@@ -177,15 +178,21 @@ object Trajectories {
         maxAcceleration: LinearAcceleration = kMaxAcceleration,
         constraints: List<TimingConstraint<Pose2dWithCurvature>> = kConstraints
     ): TimedTrajectory<Pose2dWithCurvature> {
-        println("Generating $name")
-        return DefaultTrajectoryGenerator.generateTrajectory(
-            reversed = reversed,
-            wayPoints = this,
-            constraints = constraints,
-            startVelocity = 0.meter.velocity,
-            endVelocity = 0.meter.velocity,
-            maxVelocity = maxVelocity,
-            maxAcceleration = maxAcceleration
-        )
+
+        lateinit var trajectory: TimedTrajectory<Pose2dWithCurvature>
+
+        measureTimeMillis {
+            trajectory = DefaultTrajectoryGenerator.generateTrajectory(
+                reversed = reversed,
+                wayPoints = this,
+                constraints = constraints,
+                startVelocity = 0.meter.velocity,
+                endVelocity = 0.meter.velocity,
+                maxVelocity = maxVelocity,
+                maxAcceleration = maxAcceleration
+            )
+        }.also { System.out.printf("Generating %-30s... %3.0f milliseconds.%n", name, it.toDouble()) }
+
+        return trajectory
     }
 }

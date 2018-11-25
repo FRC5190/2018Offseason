@@ -43,6 +43,13 @@ object DriveSubsystem : TankDriveSubsystem() {
 
     private val shifter = Solenoid(Constants.kPCMId, Constants.kDriveSolenoidId)
 
+
+    // Torque per volt derivation
+    // Ka is in radians per second per second. Multiply by wheel radius to get in meters per second per second.
+    // Multiply acceleration by robot mass to get force.
+    // Multiply force by wheel radius to get torque.
+    // Divide by 2 to get the torque for one side because the Ka is for the overall robot.
+
     private val transmission = DCMotorTransmission(
             1 / Constants.kVDrive,
             Constants.kWheelRadius.value.pow(2) * Constants.kRobotMass / (2.0 * Constants.kADrive),
