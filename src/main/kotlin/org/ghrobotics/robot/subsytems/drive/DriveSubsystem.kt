@@ -13,15 +13,16 @@ import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.Solenoid
 import org.ghrobotics.lib.mathematics.twodim.control.RamseteController
 import org.ghrobotics.lib.mathematics.units.amp
-import org.ghrobotics.lib.mathematics.units.derivedunits.LinearVelocity
 import org.ghrobotics.lib.mathematics.units.derivedunits.volt
 import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.lib.mathematics.units.millisecond
 import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
+import org.ghrobotics.lib.subsystems.drive.localization.Localization
 import org.ghrobotics.lib.wrappers.FalconSRX
 import org.ghrobotics.robot.Constants
 import org.ghrobotics.robot.sensors.AHRS
+import org.ghrobotics.robot.sensors.FlowSensor
 import kotlin.math.pow
 
 object DriveSubsystem : TankDriveSubsystem() {
@@ -39,7 +40,7 @@ object DriveSubsystem : TankDriveSubsystem() {
 
     private val allMotors = arrayOf(*leftMotors, *rightMotors)
 
-    override val ahrsSensor = AHRS
+    override val localization: Localization = FlowSensorLocalization(AHRS, FlowSensor)
 
     private val shifter = Solenoid(Constants.kPCMId, Constants.kDriveSolenoidId)
 
@@ -51,25 +52,25 @@ object DriveSubsystem : TankDriveSubsystem() {
     // Divide by 2 to get the torque for one side because the Ka is for the overall robot.
 
     private val transmission = DCMotorTransmission(
-            1 / Constants.kVDrive,
-            Constants.kWheelRadius.value.pow(2) * Constants.kRobotMass / (2.0 * Constants.kADrive),
-            Constants.kStaticFrictionVoltage
+        1 / Constants.kVDrive,
+        Constants.kWheelRadius.value.pow(2) * Constants.kRobotMass / (2.0 * Constants.kADrive),
+        Constants.kStaticFrictionVoltage
     )
 
     val driveModel = DifferentialDrive(
-            Constants.kRobotMass,
-            Constants.kRobotMomentOfInertia,
-            Constants.kRobotAngularDrag,
-            Constants.kWheelRadius.value,
-            Constants.kTrackWidth.value / 2.0,
-            transmission,
-            transmission
+        Constants.kRobotMass,
+        Constants.kRobotMomentOfInertia,
+        Constants.kRobotAngularDrag,
+        Constants.kWheelRadius.value,
+        Constants.kTrackWidth.value / 2.0,
+        transmission,
+        transmission
     )
 
     override val trajectoryFollower = RamseteController(
-            driveModel,
-            Constants.kDriveBeta,
-            Constants.kDriveZeta
+        driveModel,
+        Constants.kDriveBeta,
+        Constants.kDriveZeta
     )
 
     var lowGear = false

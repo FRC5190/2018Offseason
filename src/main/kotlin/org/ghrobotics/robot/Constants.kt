@@ -39,6 +39,10 @@ object Constants {
     // CANIFIER
     const val kCANifierId = 16
 
+    // FLOW SENSOR
+    const val kFlowSensorI2CId = 0
+    const val kFlowSensorTicksPerInch = 100 // TODO Find Actual Value
+
     // PNEUMATICS
     const val kPCMId = 41
     const val kDriveSolenoidId = 3

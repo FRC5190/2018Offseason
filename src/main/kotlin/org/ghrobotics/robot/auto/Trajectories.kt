@@ -24,7 +24,7 @@ import org.ghrobotics.robot.Constants.kCenterToIntake
 import org.ghrobotics.robot.Constants.kRobotCenterStartY
 import org.ghrobotics.robot.Constants.kRobotSideStartY
 import org.ghrobotics.robot.Constants.kRobotStartX
-import kotlin.system.measureTimeMillis
+import kotlin.system.measureNanoTime
 
 object Trajectories {
 
@@ -181,7 +181,7 @@ object Trajectories {
 
         lateinit var trajectory: TimedTrajectory<Pose2dWithCurvature>
 
-        measureTimeMillis {
+        val time = measureNanoTime {
             trajectory = DefaultTrajectoryGenerator.generateTrajectory(
                 reversed = reversed,
                 wayPoints = this,
@@ -191,7 +191,8 @@ object Trajectories {
                 maxVelocity = maxVelocity,
                 maxAcceleration = maxAcceleration
             )
-        }.also { System.out.printf("Generating %-30s... %3.0f milliseconds.%n", name, it.toDouble()) }
+        }
+        System.out.printf("Generating %-30s... %3.3f milliseconds.%n", name, time.toDouble() / 1E6)
 
         return trajectory
     }
