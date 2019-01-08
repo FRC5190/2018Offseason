@@ -11,7 +11,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.amp
 import org.ghrobotics.lib.mathematics.units.nativeunits.fromModel
-import org.ghrobotics.lib.wrappers.FalconSRX
+import org.ghrobotics.lib.wrappers.ctre.FalconSRX
 import org.ghrobotics.robot.Constants
 
 object ArmSubsystem : FalconSubsystem() {

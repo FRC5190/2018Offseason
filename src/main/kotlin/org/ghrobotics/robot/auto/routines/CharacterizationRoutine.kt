@@ -6,9 +6,9 @@ import org.ghrobotics.robot.Constants
 import org.ghrobotics.robot.auto.StartingPositions
 import org.ghrobotics.robot.subsytems.drive.DriveSubsystem
 
-class RoutineCharacterization(startingPositions: Source<StartingPositions>) : AutoRoutine(startingPositions) {
-    override fun createRoutine(): FalconCommand {
-        return DriveSubsystem.characterizeDrive(Constants.kWheelRadius)
-    }
-
+fun characterizationRoutine() = autoRoutine {
+    +DriveSubsystem.characterizeDrive(
+        Constants.kWheelRadius,
+        Constants.kTrackWidth / 2.0
+    )
 }

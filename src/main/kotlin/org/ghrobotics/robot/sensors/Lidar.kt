@@ -6,6 +6,7 @@
 package org.ghrobotics.robot.sensors
 
 import com.ctre.phoenix.CANifier
+import com.kauailabs.navx.frc.AHRS
 import edu.wpi.first.wpilibj.Servo
 import kotlinx.coroutines.GlobalScope
 import openrio.powerup.MatchData
@@ -64,12 +65,12 @@ object Lidar : Source<Pair<Boolean, Length>> {
                 kAllowedTolerance
 
         servo.angle = if (FalconRobotBase.INSTANCE.isOperatorControl) 90.0 else {
-            val robotPosition = DriveSubsystem.localization.robotPosition
+            val robotPosition = DriveSubsystem.localization()
             val scalePosition =
                     kNearScaleFull.let { if (Autonomous.Config.scaleSide() == MatchData.OwnedSide.RIGHT) it.mirror else it }
             val angle = (scalePosition.translation - robotPosition.translation).let {
                 Rotation2d(it.x.value, it.y.value, true)
-            } + 180.degree + AHRS.correctedAngle
+            } + 180.degree + robotPosition.rotation
 
             angle.degree
         }

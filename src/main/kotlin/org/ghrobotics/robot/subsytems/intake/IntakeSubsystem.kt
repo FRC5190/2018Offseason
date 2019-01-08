@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.Solenoid
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.amp
 import org.ghrobotics.lib.mathematics.units.derivedunits.volt
-import org.ghrobotics.lib.wrappers.NativeFalconSRX
+import org.ghrobotics.lib.wrappers.ctre.NativeFalconSRX
 import org.ghrobotics.robot.Constants
 
 object IntakeSubsystem : FalconSubsystem() {

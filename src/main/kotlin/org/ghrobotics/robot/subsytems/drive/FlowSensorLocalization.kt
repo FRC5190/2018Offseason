@@ -1,16 +1,17 @@
 package org.ghrobotics.robot.subsytems.drive
 
+import org.ghrobotics.lib.localization.Localization
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Twist2d
 import org.ghrobotics.lib.mathematics.units.Rotation2d
-import org.ghrobotics.lib.subsystems.drive.localization.Localization
 import org.ghrobotics.lib.utils.Source
+import org.ghrobotics.robot.Robot
 
 class FlowSensorLocalization(
     robotHeading: Source<Rotation2d>,
     val flowSensor: Source<Translation2d>
-) : Localization(robotHeading) {
+) : Localization(robotHeading, Robot.coroutineContext) {
 
     private var previousFlowSensorPosition = Translation2d()
 

@@ -12,7 +12,7 @@ import org.ghrobotics.lib.mathematics.units.amp
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.lib.mathematics.units.nativeunits.STU
-import org.ghrobotics.lib.wrappers.FalconSRX
+import org.ghrobotics.lib.wrappers.ctre.FalconSRX
 import org.ghrobotics.robot.Constants
 
 object ElevatorSubsystem : FalconSubsystem() {
@@ -43,12 +43,12 @@ object ElevatorSubsystem : FalconSubsystem() {
             feedbackSensor = FeedbackDevice.QuadEncoder
 
             configForwardLimitSwitchSource(
-                    LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen,
-                    Constants.kCTRETimeout
+                LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen,
+                Constants.kCTRETimeout
             )
             configReverseLimitSwitchSource(
-                    LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen,
-                    Constants.kCTRETimeout
+                LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen,
+                Constants.kCTRETimeout
             )
             overrideLimitSwitchesEnable = true
 

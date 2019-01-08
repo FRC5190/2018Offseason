@@ -4,11 +4,15 @@ package org.ghrobotics.robot.auto
 /* ktlint-disable no-wildcard-imports */
 import kotlinx.coroutines.GlobalScope
 import openrio.powerup.MatchData
-import org.ghrobotics.lib.commands.*
+import org.ghrobotics.lib.commands.InstantRunnableCommand
+import org.ghrobotics.lib.commands.S3ND
+import org.ghrobotics.lib.commands.sequential
+import org.ghrobotics.lib.commands.stateCommandGroup
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.utils.*
 import org.ghrobotics.lib.wrappers.FalconRobotBase
 import org.ghrobotics.robot.NetworkInterface
+import org.ghrobotics.robot.Robot
 import org.ghrobotics.robot.auto.routines.*
 import org.ghrobotics.robot.subsytems.drive.DriveSubsystem
 
@@ -29,7 +33,7 @@ object Autonomous {
         one != MatchData.OwnedSide.UNKNOWN && two != MatchData.OwnedSide.UNKNOWN
     }
 
-    private val shouldPoll = !({ FalconRobotBase.INSTANCE.run { isAutonomous && isEnabled } } and configValid)
+    private val isReady = ({ FalconRobotBase.INSTANCE.run { isAutonomous && isEnabled } } and configValid)
 
     //
     private val JUST = sequential {
@@ -38,38 +42,19 @@ object Autonomous {
             println(Config.scaleAutoMode())
         }
         +stateCommandGroup(Config.autoMode) {
-            state(AutoMode.CHARACTERIZATION, RoutineCharacterization(Config.startingPosition))
+            state(AutoMode.CHARACTERIZATION, characterizationRoutine())
             state(AutoMode.REAL) {
                 stateCommandGroup(Config.startingPosition) {
                     state(StartingPositions.LEFT, StartingPositions.RIGHT) {
                         stateCommandGroup(Config.scaleAutoMode) {
-                            state(
-                                ScaleAutoMode.THREECUBE,
-                                RoutineScaleFromSide(Config.startingPosition, Config.scaleSide)
-                            )
-                            // Baseline same side
-                            state(
-                                ScaleAutoMode.BASELINE,
-                                RoutineBaseline(Config.startingPosition)
-                            )
+                            state(ScaleAutoMode.THREECUBE, scaleRoutine())
+                            state(ScaleAutoMode.BASELINE, baselineRoutine())
                         }
                     }
                     state(StartingPositions.CENTER) {
                         stateCommandGroup(Config.switchAutoMode) {
-                            // Center 2 cube
-                            state(
-                                SwitchAutoMode.BASIC,
-                                RoutineSwitchFromCenter(Config.startingPosition, Config.switchSide)
-                            )
-                            // Center 1 cube switch and 1 cube scale
-                            state(
-                                SwitchAutoMode.ROBONAUTS,
-                                RoutineSwitchScaleFromCenter(
-                                    Config.startingPosition,
-                                    Config.switchSide,
-                                    Config.scaleSide
-                                )
-                            )
+                            state(SwitchAutoMode.BASIC, switchRoutine())
+                            state(SwitchAutoMode.ROBONAUTS, switchAndScaleRoutine())
                         }
                     }
                 }
@@ -82,15 +67,17 @@ object Autonomous {
         val IT = ""
 
         val startingPositionMonitor = Config.startingPosition.monitor
-        val shouldPollMonitor = shouldPoll.monitor
+        val isReadyMonitor = isReady.monitor
+        val modeMonitor = { Robot.currentMode }.monitor
+
         GlobalScope.launchFrequency {
             startingPositionMonitor.onChange { DriveSubsystem.localization.reset(it.pose) }
-            shouldPollMonitor.onChangeToFalse { println("sending it"); JUST S3ND IT }
+            isReadyMonitor.onChangeToTrue { JUST S3ND IT }
+            modeMonitor.onChange { newValue ->
+                if (newValue != FalconRobotBase.Mode.AUTONOMOUS) JUST.stop()
+            }
         }
-        FalconRobotBase.INSTANCE.onLeave(FalconRobotBase.Mode.AUTONOMOUS) { JUST.stop() }
     }
-
-    private fun <T> StateCommandGroupBuilder<T>.state(state: T, routine: AutoRoutine) = state(state, routine.create())
 }
 
 enum class StartingPositions(

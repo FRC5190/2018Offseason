@@ -6,43 +6,58 @@
 package org.ghrobotics.robot.subsytems.drive
 
 import com.ctre.phoenix.motorcontrol.ControlMode
-import com.ctre.phoenix.motorcontrol.FeedbackDevice
-import com.ctre.phoenix.motorcontrol.NeutralMode
+import com.ctre.phoenix.sensors.PigeonIMU
 import com.team254.lib.physics.DCMotorTransmission
 import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.Solenoid
-import org.ghrobotics.lib.mathematics.twodim.control.RamseteController
-import org.ghrobotics.lib.mathematics.units.amp
-import org.ghrobotics.lib.mathematics.units.derivedunits.volt
-import org.ghrobotics.lib.mathematics.units.meter
-import org.ghrobotics.lib.mathematics.units.millisecond
+import org.ghrobotics.lib.localization.TankEncoderLocalization
+import org.ghrobotics.lib.mathematics.twodim.control.RamseteTracker
 import org.ghrobotics.lib.mathematics.units.second
+import org.ghrobotics.lib.sensors.asSource
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
-import org.ghrobotics.lib.subsystems.drive.localization.Localization
-import org.ghrobotics.lib.wrappers.FalconSRX
 import org.ghrobotics.robot.Constants
-import org.ghrobotics.robot.sensors.AHRS
-import org.ghrobotics.robot.sensors.FlowSensor
+import org.ghrobotics.robot.Robot
 import kotlin.math.pow
+import kotlin.properties.Delegates
 
 object DriveSubsystem : TankDriveSubsystem() {
 
-    override val leftMaster = FalconSRX(Constants.kLeftMasterId, Constants.kDriveNativeUnitModel)
-    override val rightMaster = FalconSRX(Constants.kRightMasterId, Constants.kDriveNativeUnitModel)
+    // Gearboxes
+    private val leftGearbox = DriveGearbox(
+        Constants.kLeftMasterId,
+        Constants.kLeftSlaveId1,
+        false, false
+    )
+    private val rightGearbox = DriveGearbox(
+        Constants.kRightMasterId,
+        Constants.kRightSlaveId1,
+        true, false
+    )
 
-    private val leftSlave1 = FalconSRX(Constants.kLeftSlaveId1, Constants.kDriveNativeUnitModel)
-    private val rightSlave1 = FalconSRX(Constants.kRightSlaveId1, Constants.kDriveNativeUnitModel)
+    // Master motors
+    override val leftMotor get() = leftGearbox.master
+    override val rightMotor get() = rightGearbox.master
 
-    private val allMasters = arrayOf(leftMaster, rightMaster)
+    private val allMasters get() = listOf(leftMotor, rightMotor)
 
-    private val leftMotors = arrayOf(leftMaster, leftSlave1)
-    private val rightMotors = arrayOf(rightMaster, rightSlave1)
 
-    private val allMotors = arrayOf(*leftMotors, *rightMotors)
-
-    override val localization: Localization = FlowSensorLocalization(AHRS, FlowSensor)
-
+    // Shifter for two-speed gearbox
     private val shifter = Solenoid(Constants.kPCMId, Constants.kDriveSolenoidId)
+
+    // Type of localization to determine position on the field
+    override val localization = TankEncoderLocalization(
+        PigeonIMU(17).asSource(), { leftMotor.sensorPosition }, { rightMotor.sensorPosition },
+        Robot.coroutineContext
+    )
+
+    // Shift up and down
+    var lowGear by Delegates.observable(false) { _, _, wantLow ->
+        if (wantLow) {
+            shifter.set(true)
+        } else {
+            shifter.set(false)
+        }
+    }
 
 
     // Torque per volt derivation
@@ -57,7 +72,7 @@ object DriveSubsystem : TankDriveSubsystem() {
         Constants.kStaticFrictionVoltage
     )
 
-    val driveModel = DifferentialDrive(
+    override val differentialDrive = DifferentialDrive(
         Constants.kRobotMass,
         Constants.kRobotMomentOfInertia,
         Constants.kRobotAngularDrag,
@@ -67,68 +82,12 @@ object DriveSubsystem : TankDriveSubsystem() {
         transmission
     )
 
-    override val trajectoryFollower = RamseteController(
-        driveModel,
-        Constants.kDriveBeta,
-        Constants.kDriveZeta
-    )
-
-    var lowGear = false
-        set(wantLow) {
-            if (wantLow) {
-                shifter.set(true)
-                resetLowGear()
-            } else {
-                shifter.set(false)
-                resetHighGear()
-            }
-            field = wantLow
-        }
-
+    override val trajectoryTracker = RamseteTracker(Constants.kDriveBeta, Constants.kDriveZeta)
 
     init {
         lowGear = false
-
-        mutableListOf(leftSlave1).forEach {
-            it.follow(leftMaster)
-            it.inverted = false
-        }
-        mutableListOf(rightSlave1).forEach {
-            it.follow(rightMaster)
-            it.inverted = true
-        }
-
-        leftMotors.forEach { it.inverted = false }
-        rightMotors.forEach { it.inverted = true }
-
-        allMasters.forEach {
-            it.feedbackSensor = FeedbackDevice.QuadEncoder
-            it.encoderPhase = false
-        }
-
-        resetHighGear()
-
-        allMotors.forEach {
-            it.peakForwardOutput = 1.0
-            it.peakReverseOutput = -1.0
-
-            it.nominalForwardOutput = 0.0
-            it.nominalReverseOutput = 0.0
-
-            it.brakeMode = NeutralMode.Brake
-
-            it.voltageCompensationSaturation = 12.volt
-            it.voltageCompensationEnabled = true
-
-            it.peakCurrentLimit = 0.amp
-            it.peakCurrentLimitDuration = 0.millisecond
-            it.continuousCurrentLimit = 40.amp
-            it.currentLimitingEnabled = true
-        }
-        // Zero the encoders once on start up
-        allMasters.forEach { it.sensorPosition = 0.meter }
-
         defaultCommand = ManualDriveCommand()
+        resetHighGear()
     }
 
     private fun resetHighGear() {
@@ -153,7 +112,7 @@ object DriveSubsystem : TankDriveSubsystem() {
     }
 
     fun set(controlMode: ControlMode, leftOutput: Double, rightOutput: Double) {
-        leftMaster.set(controlMode, leftOutput)
-        rightMaster.set(controlMode, rightOutput)
+        leftMotor.set(controlMode, leftOutput)
+        rightMotor.set(controlMode, rightOutput)
     }
 }
